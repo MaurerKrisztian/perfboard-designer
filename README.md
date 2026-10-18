@@ -35,7 +35,9 @@ catch mistakes on screen instead of at the soldering iron.
 There's nothing to install, no account, and nothing is uploaded: your designs stay on your own
 device.
 
-**▶ Try it now: [perfboarddesigner.com/app](https://perfboarddesigner.com/app/)**
+**▶ Try it now: [perfboarddesigner.com/app](https://perfboarddesigner.com/app/)** ·
+📖 [User guide](https://perfboarddesigner.com/guide/) ·
+🤖 [Design boards with AI](https://perfboarddesigner.com/mcp-server/)
 
 ---
 
@@ -84,10 +86,16 @@ device.
   U1…). Toggle **Labels** to show them with their values as on a silkscreen (`R1 10k`).
 - 📝 **Notes on any hole**: label pads like `+9V`, `GND` or `TP1` so the layout still makes sense
   months later.
+- 🔗 **Check the connections**: the **Nets** panel lists which pins your wires and strips
+  connect, live as you edit, plus pins left unconnected and wires that connect nothing. Click a
+  net to light it up on the board.
 - 💾 **Save, share and export**: keep as many projects as you like in the browser, saved
   automatically as you go. Share a board with a link that opens a copy of it (no account or
-  upload: the board is in the link), download it as a JSON project file, or export it as a
-  high-resolution PNG image.
+  upload: the board is in the link), or ask for a short link instead. Download it as a JSON
+  project file, or export it as a high-resolution PNG or an SVG image.
+- 🤖 **Design with AI**: connect Claude, ChatGPT or another AI assistant to the
+  [MCP server](#design-boards-with-ai-mcp-server), describe a circuit, and get back a link that
+  opens the finished board in the editor.
 - ↩️ **Fast to work with**: undo and redo, drag parts to move them, a right-click context menu,
   and keyboard shortcuts for the common actions.
 
@@ -186,7 +194,9 @@ No. It runs in any modern web browser, and works best on a desktop or laptop wit
 On your own device. Your projects are saved in this browser automatically as you edit: open,
 rename, duplicate or delete them from **File → Open Project**. **Save Project to File** downloads a
 project file you can import again or share, and **Share** makes a link with the board inside
-the link itself. Nothing is uploaded to a server.
+the link itself. Nothing is uploaded to a server, unless you ask **Share** for a short link: then
+a copy of that board is stored at `projects.perfboarddesigner.com` so the short link can open
+it, and deleted after a year unopened.
 
 ### Does it work for stripboard (Veroboard)?
 
@@ -200,7 +210,15 @@ Yes. The custom IC editor lets you set the size and label every pin, and you can
 chip again after creating it.
 
 ### Does it simulate or check my circuit?
-Not yet. Perfboard Designer is a layout planner: it helps you work out where parts and wires go on the board. It doesn’t simulate circuits, but basic checks of your layout are planned and in progress.
+
+It checks the wiring, not the circuit. The **Nets** panel shows which pins are connected to which,
+and points out pins left unconnected and wires that connect nothing, so you can compare the board
+with your schematic. It doesn't simulate how the circuit behaves.
+
+### Is there a guide?
+
+Yes: the [user guide](https://perfboarddesigner.com/guide/) walks through every tool, panel and
+shortcut. It's also under **Help** in the editor.
 
 ## Run it locally
 
@@ -238,11 +256,39 @@ say): see [docs/share-links.md](docs/share-links.md).
 
 ## Design boards with AI (MCP server)
 
-The [`mcp/`](mcp) folder is an [MCP](https://modelcontextprotocol.io) server that lets Claude
-or another AI agent lay out a board for you. It looks up parts and their pins, writes the
-project, checks it for mistakes such as pins off the board or strips shorting a chip, and hands
-you a share link that opens the board in the editor. See [mcp/README.md](mcp/README.md) to set
-it up.
+Describe a circuit to your AI assistant and get back a board that opens in the editor. The
+[`mcp/`](mcp) folder is an [MCP](https://modelcontextprotocol.io) server that lets Claude,
+ChatGPT, Cursor, VS Code and other AI assistants design boards. It's free and needs no account.
+
+What the assistant can do with it:
+
+- Look up every part in the library, with its pins and polarity.
+- Start a perfboard or stripboard, place parts, route wires and cut strips.
+- Check the wiring: pins left unconnected, parts sharing a hole, shorted supply rails, strips
+  shorting a chip. Given the netlist it meant, it reports every missing or extra connection.
+- Hand you a share link (and a short link if you ask) that opens the board in the editor.
+- Show you a picture of the board right in the chat, in Claude and ChatGPT.
+- Read a board link you share with it, change the board and give you a new link.
+
+**Use the hosted server:** add this address to your assistant as a remote MCP server (connector),
+with no authentication:
+
+```text
+https://mcp.perfboarddesigner.com/mcp
+```
+
+**Or run it on your own computer** from npm
+([`perfboard-designer-mcp`](https://www.npmjs.com/package/perfboard-designer-mcp), Node.js 22+).
+In Claude Code:
+
+```bash
+claude mcp add --scope user perfboard -- npx -y perfboard-designer-mcp
+```
+
+It's also listed in the [MCP Registry](https://registry.modelcontextprotocol.io) as
+`com.perfboarddesigner/mcp`. Step-by-step setup for each assistant is on the
+[MCP server page](https://perfboarddesigner.com/mcp-server/), and
+[mcp/README.md](mcp/README.md) covers the tools, settings and hosting your own copy.
 
 ## Contributing
 
