@@ -154,7 +154,8 @@ button.menu-trigger[aria-expanded="true"] {
   display: none;
 }
 
-.menu-panel button {
+.menu-panel button,
+.menu-panel a {
   background: none;
   border: none;
   border-radius: 6px;
@@ -165,10 +166,13 @@ button.menu-trigger[aria-expanded="true"] {
   text-align: left;
   padding: 0.5rem 0.65rem;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .menu-panel button:hover,
-.menu-panel button:focus-visible {
+.menu-panel button:focus-visible,
+.menu-panel a:hover,
+.menu-panel a:focus-visible {
   background-color: var(--bg-hover);
 }
 
@@ -1325,6 +1329,34 @@ input.share-link-input {
   box-sizing: border-box;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.8rem;
+}
+
+/* The short link: below the full one, set apart */
+.share-short {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-top: 1rem;
+  border-top: 1px solid #374151;
+}
+
+.share-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.share-short[hidden],
+.share-row[hidden] {
+  display: none;
+}
+
+.share-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.share-row button {
+  flex-shrink: 0;
 }
 
 /* The open project's name in the header; opens the Projects dialog */

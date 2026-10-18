@@ -1,0 +1,73 @@
+// The unit a component's value is expressed in. Drives both how the value-entry
+// prompt parses user input (SI prefixes, shorthand notations) and how it's displayed.
+export type ComponentUnit = "Ω" | "F" | "H";
+
+import {CategoryId} from "./catalog-categories";
+
+export interface ComponentDefinition {
+  id: string;
+  // Where the part is listed in the Components panel tree (see catalog-categories.ts).
+  category: CategoryId;
+  name: string;
+  // Extra search terms (abbreviations, part families) that don't appear in `name`.
+  keywords?: string[];
+  // Letters of a placed part's reference designator: "R" makes R1, R2...
+  refPrefix: string;
+  // The artwork's file in COMPONENT_ICON_DIR, when it isn't named after the id ("<id>.svg").
+  iconFile?: string;
+  fallbackLabel: string;
+  unit?: ComponentUnit;
+  // Side length of the rendered square body, in canvas pixels. Defaults to DEFAULT_BODY_SIZE.
+  bodySize?: number;
+  // Half the artwork's thickness across the lead axis, in the icon's 100-unit viewBox
+  // (outline stroke included). Lets value labels hug the visible body instead of the whole
+  // square icon box. Defaults to 50, i.e. the full box.
+  artworkHalfThickness?: number;
+  // A colored LED: the context menu offers its color, which tints the body and becomes its value.
+  led?: boolean;
+  // Which lead is which on a polarized part, as the 2D and 3D artwork draw it: [the start dot's
+  // lead, the end dot's], which a project file's `from` and `to` are. Absent when the leads are
+  // interchangeable.
+  leadLabels?: [string, string];
+}
+
+// One grid step is GridConfig.dotSpace (50px), so the default body spans a bit more than
+// hole-to-hole: a component placed between adjacent dots covers the whole gap.
+export const DEFAULT_BODY_SIZE = 64;
+
+export function getComponentBodySize(def: ComponentDefinition): number {
+  return def.bodySize ?? DEFAULT_BODY_SIZE;
+}
+
+// Relative to the editor page (app/index.html), which sits one level below the site root
+// where the publicDir icons are served. Relative rather than "/icons/...", so the site works
+// both at perfboarddesigner.com and under the GitHub Pages subfolder /perfboard-designer/.
+export const COMPONENT_ICON_DIR = "../icons/components/";
+
+// The artwork's file name, which the board renderer asks its painter for.
+export function getIconFile(def: {id: string; iconFile?: string}): string {
+  return def.iconFile ?? `${def.id}.svg`;
+}
+
+// The artwork's address from the editor page, for the catalog's buttons.
+export function getIconPath(def: ComponentDefinition): string {
+  return `${COMPONENT_ICON_DIR}${getIconFile(def)}`;
+}
+
+export const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
+  {id: "resistor", refPrefix: "R", category: "passives.resistors", name: "Resistor", keywords: ["res"], fallbackLabel: "R", unit: "Ω", artworkHalfThickness: 17},
+  {id: "ceramic-capacitor", refPrefix: "C", category: "passives.capacitors", name: "Ceramic Capacitor", keywords: ["cap", "mlcc", "disc"], fallbackLabel: "C", unit: "F", artworkHalfThickness: 38},
+  {id: "electrolytic-capacitor", refPrefix: "C", category: "passives.capacitors", name: "Electrolytic Capacitor", keywords: ["cap", "polarized", "elco"], fallbackLabel: "C+", unit: "F", bodySize: 96, artworkHalfThickness: 44, leadLabels: ["-", "+"]},
+  {id: "inductor", refPrefix: "L", category: "passives", name: "Inductor", keywords: ["coil", "choke"], fallbackLabel: "L", unit: "H", artworkHalfThickness: 17},
+  {id: "led", refPrefix: "D", category: "semiconductors.diodes", name: "LED", keywords: ["light", "light emitting diode", "5mm"], fallbackLabel: "LED", led: true, leadLabels: ["K", "A"]},
+  {id: "led-3mm", refPrefix: "D", category: "semiconductors.diodes", name: "LED (3 mm)", keywords: ["light", "light emitting diode", "3mm", "t-1", "indicator"], fallbackLabel: "LED", iconFile: "led.svg", bodySize: 46, led: true, leadLabels: ["K", "A"]},
+  {id: "diode", refPrefix: "D", category: "semiconductors.diodes", name: "Diode", keywords: ["rectifier", "1n4148", "1n4007"], fallbackLabel: "D", artworkHalfThickness: 18, leadLabels: ["A", "K"]},
+];
+
+export function getComponentDefinition(id: string): ComponentDefinition | undefined {
+  return COMPONENT_DEFINITIONS.find(def => def.id === id);
+}
+
+export function isLed(definitionId: string): boolean {
+  return getComponentDefinition(definitionId)?.led === true;
+}

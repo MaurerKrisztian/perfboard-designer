@@ -55,6 +55,7 @@
           <button data-share-link role="menuitem">Share Link...</button>
           <div class="menu-divider"></div>
           <button id="downloadBtn" role="menuitem">Download Image</button>
+          <button id="downloadSvgBtn" role="menuitem">Download SVG</button>
         </div>
       </div>
 
@@ -66,6 +67,16 @@
           <div class="menu-divider"></div>
           <button id="toggleSidebarBtn" role="menuitemcheckbox" aria-checked="true">Tools Sidebar<span class="menu-check">✓</span></button>
           <button id="toggleShortcutsBtn" role="menuitemcheckbox" aria-checked="true">Nets &amp; Shortcuts<span class="menu-check">✓</span></button>
+        </div>
+      </div>
+
+      <div class="menu">
+        <button class="menu-trigger" aria-haspopup="true" aria-expanded="false">Help</button>
+        <div class="menu-panel" role="menu" hidden>
+          <a href="../guide/" target="_blank" rel="noopener" role="menuitem">User Guide</a>
+          <a href="../mcp-server/" target="_blank" rel="noopener" role="menuitem">Design with AI (MCP)</a>
+          <div class="menu-divider"></div>
+          <a href="https://github.com/MaurerKrisztian/perfboard-designer/issues" target="_blank" rel="noopener" role="menuitem">Report a Bug</a>
         </div>
       </div>
       <input type="file" id="loadProjectBtn" style="display:none">
@@ -383,6 +394,19 @@
         <p class="share-note">Anyone who opens this link gets their own copy of the board as it is now. Changes you make later aren't in it: share a new link for those.</p>
         <input type="text" id="shareLinkInput" class="share-link-input" readonly aria-label="Share link">
         <p id="shareLinkInfo" class="share-note" aria-live="polite"></p>
+
+        <div id="shareShortSection" class="share-short">
+          <p class="share-note"><strong>Short link:</strong> stores a copy of the board on Perfboard Designer's server, so the link can be short. Anyone with the link can open it; it's deleted after a year unopened.</p>
+          <div class="share-row">
+            <input type="text" id="shortLinkName" maxlength="40" placeholder="Name for the link, e.g. led-blinker" aria-label="Name for the short link">
+            <button id="makeShortLinkBtn" class="btn">Make Short Link</button>
+          </div>
+          <div id="shortLinkRow" class="share-row" hidden>
+            <input type="text" id="shortLinkInput" class="share-link-input" readonly aria-label="Short link">
+            <button id="copyShortLinkBtn" class="btn">Copy</button>
+          </div>
+          <p id="shortLinkInfo" class="share-note" aria-live="polite"></p>
+        </div>
       </div>
 
       <div class="modal-footer">

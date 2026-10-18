@@ -94,7 +94,7 @@
         <a href="#gemini-cli">Gemini CLI</a>
         <a href="#codex">Codex CLI</a>
         <a href="#other">Other clients</a>
-        <a href="#local">Run it yourself</a>
+        <a href="#local">Run it yourself (npm)</a>
       </nav>
 
       <div class="setup-list">
@@ -206,14 +206,24 @@ url = "https://mcp.perfboarddesigner.com/mcp"</code></pre></div>
 
         <article id="local" class="setup">
           <h3>Run it yourself</h3>
-          <p>The server is open source, so you can also run it on your own computer over stdio, with nothing sent anywhere. You need Node.js 22 or newer:</p>
-          <div class="code-block"><pre><code>git clone https://github.com/MaurerKrisztian/perfboard-designer.git
-cd perfboard-designer/mcp
-npm install
-npm run build</code></pre></div>
-          <p>Then add it to your client as a command. In Claude Code:</p>
-          <div class="code-block"><pre><code>claude mcp add perfboard -- node /path/to/perfboard-designer/mcp/dist/server.js</code></pre></div>
-          <p>Other clients take the same command and argument (<code>"command": "node"</code>, <code>"args": ["/path/to/…/dist/server.js"]</code>). The <a href="https://github.com/MaurerKrisztian/perfboard-designer/tree/main/mcp" target="_blank" rel="noopener">server's README</a> also covers hosting your own copy on Cloudflare Workers.</p>
+          <p>The server is also on npm as <a href="https://www.npmjs.com/package/perfboard-designer-mcp" target="_blank" rel="noopener"><code>perfboard-designer-mcp</code></a>, so you can run it on your own computer over stdio instead of using the hosted address. You need Node.js 22 or newer; <code>npx</code> downloads it the first time. In Claude Code:</p>
+          <div class="code-block"><pre><code>claude mcp add --scope user perfboard -- npx -y perfboard-designer-mcp</code></pre></div>
+          <p>Claude Desktop (<strong>Settings → Developer → Edit Config</strong>, then restart it), Cursor, Windsurf and other clients that start a command take the same in their JSON config:</p>
+          <div class="code-block"><pre><code>{
+  "mcpServers": {
+    "perfboard": {
+      "command": "npx",
+      "args": ["-y", "perfboard-designer-mcp"]
+    }
+  }
+}</code></pre></div>
+          <p>Your boards stay on your computer. The server contacts Perfboard Designer's servers only when you ask for a short link, and the picture link it returns points at the hosted server. Settings go in the config's <code>"env"</code>, next to <code>"args"</code>:</p>
+          <ul>
+            <li><code>PERFBOARD_EDITOR_URL</code>: where board links open, e.g. <code>http://localhost:3000/app/</code> for your own copy of the designer.</li>
+            <li><code>PERFBOARD_PROJECTS_URL</code> and <code>PERFBOARD_IMAGE_URL</code>: set to <code>off</code> for no short links or no picture links.</li>
+          </ul>
+          <div class="code-block"><pre><code>"env": {"PERFBOARD_PROJECTS_URL": "off", "PERFBOARD_IMAGE_URL": "off"}</code></pre></div>
+          <p>To run it from the source instead, clone the repo, build it (<code>cd mcp &amp;&amp; npm install &amp;&amp; npm run build</code>) and use <code>node /path/to/perfboard-designer/mcp/dist/server.js</code> as the command. The <a href="https://github.com/MaurerKrisztian/perfboard-designer/tree/main/mcp" target="_blank" rel="noopener">server's README</a> also covers hosting your own copy on Cloudflare Workers.</p>
         </article>
       </div>
     </section>
@@ -240,7 +250,7 @@ npm run build</code></pre></div>
         <article class="feature">
           <span class="feature-icon" aria-hidden="true">🔗</span>
           <h3>Hands you a link</h3>
-          <p>The finished board comes back as a share link. Click it and the board opens in the designer as a new project, ready to change, save or view in 3D.</p>
+          <p>The finished board comes back as a share link, with a picture of it, and a short link too if you ask. Click it and the board opens in the designer as a new project, ready to change, save or view in 3D.</p>
         </article>
         <article class="feature">
           <span class="feature-icon" aria-hidden="true">✏️</span>
@@ -265,6 +275,7 @@ npm run build</code></pre></div>
         <details>
           <summary>What happens to my boards?</summary>
           <p>While the assistant works on a board, the server keeps a copy under a random project id, deleted after 30 days unused. The board you get back travels inside the share link itself, and opening it saves it in your own browser, like any other project.</p>
+          <p>If you ask for a short link, the board is also stored at <code>projects.perfboarddesigner.com</code> under a readable id, such as <code>led-blinker</code>. Anyone with that link can open it. A stored board never changes (after an edit, the assistant stores a new one) and is deleted after a year unopened. The full link always comes too, and works without the server.</p>
         </details>
         <details>
           <summary>Does it simulate my circuit?</summary>
@@ -297,6 +308,7 @@ npm run build</code></pre></div>
     <nav aria-label="Footer">
       <a href="../">Home</a>
       <a href="../app/">Designer</a>
+      <a href="../guide/">Guide</a>
       <a href="../contributors/">Contributors</a>
       <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
       <a href="https://github.com/MaurerKrisztian/perfboard-designer/issues" target="_blank" rel="noopener">Report a bug</a>

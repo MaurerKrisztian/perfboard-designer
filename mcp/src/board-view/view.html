@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perfboard board</title>
+<style>
+  :root { color-scheme: light dark; font-family: system-ui, sans-serif; font-size: 14px; }
+  body { margin: 0; background: transparent; color: CanvasText; }
+  figure { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  img { display: block; width: 100%; height: auto; border-radius: 6px; }
+  img:not([src]) { display: none; }
+  figcaption { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  #caption { opacity: 0.75; }
+  button { font: inherit; padding: 6px 12px; border-radius: 6px; border: 1px solid #1f7a3a; background: #1f7a3a; color: #fff; cursor: pointer; }
+  button:hover { background: #18602e; }
+  button[hidden] { display: none; }
+</style>
+</head>
+<body>
+<figure>
+  <img id="board" alt="">
+  <figcaption>
+    <span id="caption">Drawing the board…</span>
+    <button id="open" type="button" hidden>Open in Perfboard Designer</button>
+  </figcaption>
+</figure>
+<script type="module">/*VIEW_SCRIPT*/</script>
+</body>
+</html>
