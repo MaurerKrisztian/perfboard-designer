@@ -15,33 +15,37 @@ truth: `get_project` returns it, and every tool also takes a whole file instead 
 
 ## Setup
 
-Node.js 22 or newer. Build it from this repo:
-
-```bash
-cd mcp
-npm install
-npm run build
-```
-
-Then add it to your MCP client, using the absolute path to `dist/server.js`.
+Node.js 22 or newer. It's on npm as
+[`perfboard-designer-mcp`](https://www.npmjs.com/package/perfboard-designer-mcp), which `npx`
+downloads the first time.
 
 **Claude Code:**
 
 ```bash
-claude mcp add perfboard -- node /path/to/perfboard-designer/mcp/dist/server.js
+claude mcp add --scope user perfboard -- npx -y perfboard-designer-mcp
 ```
 
-**Claude Desktop** (`claude_desktop_config.json`) and other clients that take a command:
+**Claude Desktop** (`claude_desktop_config.json`, Settings → Developer → Edit Config) and other
+clients that take a command:
 
 ```json
 {
   "mcpServers": {
     "perfboard": {
-      "command": "node",
-      "args": ["/path/to/perfboard-designer/mcp/dist/server.js"]
+      "command": "npx",
+      "args": ["-y", "perfboard-designer-mcp"]
     }
   }
 }
+```
+
+To run it from this repo instead, build it and use `node /path/to/perfboard-designer/mcp/dist/server.js`
+as the command:
+
+```bash
+cd mcp
+npm install
+npm run build
 ```
 
 Links open the public editor, https://perfboarddesigner.com/app/. To point them at another copy (a
@@ -51,16 +55,13 @@ local dev server, say), set `PERFBOARD_EDITOR_URL` in the server's environment:
 {
   "mcpServers": {
     "perfboard": {
-      "command": "node",
-      "args": ["/path/to/perfboard-designer/mcp/dist/server.js"],
+      "command": "npx",
+      "args": ["-y", "perfboard-designer-mcp"],
       "env": {"PERFBOARD_EDITOR_URL": "http://localhost:3000/app/"}
     }
   }
 }
 ```
-
-Once the package is published to npm, `npx -y perfboard-designer-mcp` replaces
-`node /path/.../server.js` in both.
 
 The server works on its own, without the [hosted Worker](#hosting-it-on-cloudflare-workers). It
 only points at it for two extras, each set in the server's environment like `PERFBOARD_EDITOR_URL`,
@@ -87,6 +88,7 @@ Point them at a local Worker with `http://localhost:8787/render.svg` and `http:/
 | `get_nets` | Which pins the board connects: each net with its name (e.g. `GND`), its pins (`U1.8 VCC` for a chip pin, `D1.K` or `C1.+` for a polarized lead, `R1.1` otherwise) and its wires, plus pins connected to nothing, junctions (holes where three or more things join) and crossings (where a wire goes over another wire or a hole without joining it). |
 | `validate_project` | Lists every problem, with where it is: unreadable entries, unknown parts, pins off the board, two parts' pins or leads in one hole, overlapping parts, wires that connect nothing (a loose end, or no pins on their net), a wire passing over a pin without ending there, IC pins and two-lead parts' leads connected to nothing, supply rails shorted together, and on a stripboard, pins shorted by a strip or in a cut hole. Wires crossing are listed as notes, not problems. Pass `expectNets` (the netlist you meant, e.g. `[["U1.8", "U1.4", "R1.1", "J1.1"], ["U1.2", "U1.6", "C1.+"]]`) and every missing or extra connection is an error; for a kept project it's remembered, so `edit_project` and `make_share_link` check against it too (`[]` forgets it). A whole project sent here is kept, and the reply gives its `projectId`. |
 | `make_share_link` | Validates the project (with `expectNets`, given or remembered) and returns the link that opens it, and `image`: the address of an SVG picture of the board, drawn as the editor draws it (served by the hosted Worker, below). It refuses a project with errors unless `allowErrors` is set. `editorUrl` points it at another copy of the editor, e.g. `http://localhost:3000/app/`; it defaults to `PERFBOARD_EDITOR_URL`. With `store: true` (or `storeAs: "led-blinker"`, the id it'd like), it also stores the project (below) and returns `stored`: its id, a short link and its file and pictures. The self-contained link is made either way, and if storing fails, `storeError` says why. |
+| `show_board` | Shows the user a picture of the board right in the chat, as the editor draws it, with a button that opens it in the editor: an [MCP App](https://modelcontextprotocol.io/docs/extensions/apps), for clients that show them (e.g. Claude, ChatGPT), which don't load Markdown images from links. The picture travels in the result's `_meta`, to the page and not to the agent; the page is the `ui://perfboard/board-view.html` resource. Clients without MCP Apps show nothing. |
 | `read_share_link` | Reads the project out of a link you share with the agent (`z=`, `json=` or `src=`, a stored project's short link too) and keeps it under a `projectId`, so the agent can change an existing board. |
 
 Every tool that reads a project takes either `projectId` or the whole file as `project`. Kept
@@ -198,6 +200,32 @@ claude mcp add --transport http perfboard https://perfboard-designer-mcp.<your-s
 On the Workers Free plan a request gets 10 ms of CPU time, which checking a big board can run
 over; the Paid plan allows far more.
 
+## Publishing a release
+
+The package is on npm as `perfboard-designer-mcp`, and the server is listed in the
+[MCP Registry](https://registry.modelcontextprotocol.io) as `com.perfboarddesigner/mcp`, described
+by `server.json`: the hosted address (`remotes`) and the npm package (`packages`). The registry
+checks that `package.json`'s `mcpName` is that name, and that you own `perfboarddesigner.com`, by a
+DNS TXT record on the apex domain holding a public key.
+
+1. Bump the version: `npm version patch` (or `minor`), and set the same `version` in `server.json`,
+   both at the top and in its npm package entry.
+2. `npm publish` (it builds first; npm asks for 2FA). Wait until `npm view perfboard-designer-mcp
+   version` shows the new version.
+3. Deploy the Worker if the server changed: `npm run worker:deploy`.
+4. Publish to the registry with [`mcp-publisher`](https://github.com/modelcontextprotocol/registry/releases):
+   `mcp-publisher validate`, then `mcp-publisher login dns --domain perfboarddesigner.com
+   --private-key "$PRIVATE_KEY"` and `mcp-publisher publish`, run in `mcp/`.
+
+The key pair is made once with OpenSSL 3, its public half added as a TXT record on
+`perfboarddesigner.com` (Cloudflare DNS); keep `key.pem` outside the repo:
+
+```bash
+openssl genpkey -algorithm Ed25519 -out ~/.config/mcp-registry/key.pem
+echo "v=MCPv1; k=ed25519; p=$(openssl pkey -in ~/.config/mcp-registry/key.pem -pubout -outform DER | tail -c 32 | base64)"
+PRIVATE_KEY="$(openssl pkey -in ~/.config/mcp-registry/key.pem -noout -text | grep -A3 'priv:' | tail -n +2 | tr -d ' :\n')"
+```
+
 ## How things connect
 
 Wires are insulated jumpers: a wire joins only the holes at its two ends. Running over a hole
@@ -215,14 +243,16 @@ editor's Nets panel, so they agree with what you see there.
 `worker.ts` on Cloudflare, `tools/` holds the tools by group, `resources.ts`
 the documents it serves, `project-handles.ts` the kept projects (and where they're stored), `edit-ops.ts` and
 `edit-project.ts` `edit_project`'s ops, `validate.ts` the checks, `guide.ts` its instructions and
-guide. It builds on the editor's own pure code, all of it taken through `editor.ts`, the one file
+guide, `board-view/` the page `show_board` shows the board in (an MCP App; `view.ts` runs in the
+client's frame and speaks the few MCP Apps messages it needs itself, so the page stays a few KB). It builds on the editor's own pure code, all of it taken through `editor.ts`, the one file
 that imports from `../src/`: the project file reader, share-link code, pin positions, nets
 (`nets.ts`) and wire crossings (`wire-crossings.ts`) in `../src/project-file/`, the part
 definitions and part geometry in `../src/parts/`, and the board renderer (`../src/board-render/`)
 for pictures of a board. That way it always agrees with the editor about the format, the parts and what's
 connected. The editor never imports anything from here. `npm run build` bundles that code and the MCP SDK into
 a single `dist/server.js` (and `dist/worker.js` for Cloudflare) with no runtime dependencies,
-and bakes in the docs and examples it serves and the part icons its pictures embed. PNG pictures
+and bakes in the docs and examples it serves, the part icons its pictures embed and
+`show_board`'s page (`board-view/view.html` with `view.ts` bundled for the browser into it). PNG pictures
 also need resvg's WebAssembly, which the build copies beside them as `dist/resvg.wasm` (uploaded
 with the Worker), and fonts, since resvg can't use the system's: Noto Sans and Noto Sans Mono,
 cut down to the characters boards use, in `fonts/` (SIL Open Font License; `fonts/README.md`
@@ -234,4 +264,5 @@ says how to remake them).
 | `npm run typecheck` | Type-check the server and the editor code it imports |
 | `npm run worker:dev` | Run the Cloudflare Worker locally, at http://localhost:8787/mcp |
 | `npm run worker:deploy` | Publish the Worker to Cloudflare |
+| `npm version patch`, then `npm publish` | Release a new version to npm (`prepublishOnly` builds first; npm asks for 2FA) |
 | `npm run inspect` | Open the server in the [MCP Inspector](https://github.com/modelcontextprotocol/inspector) to try the tools by hand |

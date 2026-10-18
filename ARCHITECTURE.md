@@ -482,6 +482,7 @@ definition's `iconFile`, else `<id>.svg`). Painters ask for icons by file name:
 | Thumbnails | `src/features/project/project-thumbnail.ts` | `CanvasPainter`, scaled to fit | `PLAIN_VIEW` |
 | Catalog chip icons | `dipIconSvg()` / `moduleIconSvg()` in `artists/ic-package/` | `SvgPainter` | n/a |
 | MCP pictures | `mcp/src/board-image.ts`, Worker `GET /render.svg` | `renderBoardSvg`, icons baked in | labels on |
+| MCP board view | `mcp/src/tools/show-board-tool.ts`, `show_board` (an MCP App) | that SVG, as a `data:` image in the client's frame | labels on |
 | MCP PNGs | `mcp/src/board-png.ts`, `render_board` with `format: "png"` and Worker `GET /render.png` | that SVG, rasterized by resvg (WebAssembly) with fonts baked in | labels on |
 
 ### Rules
@@ -577,6 +578,7 @@ dependency is listed in one place.
 | `tools/project-tools.ts` | `new_project`, `edit_project`, `get_project` |
 | `tools/board-tools.ts` | `validate_project`, `get_nets`, `get_pin_positions`, `render_board` (text or PNG) |
 | `tools/share-link-tools.ts` | `make_share_link` (link + `image` URL, optionally stored too), `read_share_link` |
+| `tools/show-board-tool.ts`, `board-view/` | `show_board`: an MCP App (`ui://perfboard/board-view.html`) showing the user the board in the chat; the picture goes in the result's `_meta`, for the page only, and `view.ts` (bundled for the browser into `view.html`) speaks the MCP Apps messages itself |
 | `board-image.ts` | SVG pictures via the board renderer |
 | `board-png.ts` | PNG pictures: that SVG rasterized by resvg-wasm, which each entry point hands over (`setResvgWasm`) |
 | `image-requests.ts` | the Worker's `GET /render.svg` and `/render.png`, a board from a share link's parameters |
@@ -590,7 +592,8 @@ dependency is listed in one place.
 | `resources.ts`, `examples.ts` | served documents and example projects |
 
 `build.mjs` bundles the server, the editor's pure code and the SDK into `dist/server.js` and
-`dist/worker.js`. It also bakes in the docs, the example projects and the part icons, the icons
+`dist/worker.js`. It also bakes in the docs, the example projects, `show_board`'s page (`board-view/view.ts`
+bundled for the browser into `view.html`) and the part icons, the icons
 with their `<metadata>` stripped, and the fonts in `mcp/fonts/` that PNG pictures draw text with
 (Noto, cut down to the characters boards use). It copies resvg's WebAssembly to
 `dist/resvg.wasm`: the stdio server reads it the first time it draws a PNG, and the Worker is

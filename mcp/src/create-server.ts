@@ -4,6 +4,7 @@ import {registerCatalogTools} from "./tools/catalog-tools";
 import {registerProjectTools} from "./tools/project-tools";
 import {registerBoardTools} from "./tools/board-tools";
 import {PUBLIC_EDITOR_URL, registerShareLinkTools} from "./tools/share-link-tools";
+import {registerShowBoardTool} from "./tools/show-board-tool";
 import {registerResources} from "./resources";
 import {ProjectStorage} from "./stored-projects";
 
@@ -16,7 +17,9 @@ export function createServer({editorUrl, imageUrl, storage}: {editorUrl?: string
   registerCatalogTools(server);
   registerProjectTools(server);
   registerBoardTools(server);
-  registerShareLinkTools(server, editorUrl?.trim() || PUBLIC_EDITOR_URL, imageUrl, storage);
+  const editor = editorUrl?.trim() || PUBLIC_EDITOR_URL;
+  registerShareLinkTools(server, editor, imageUrl, storage);
+  registerShowBoardTool(server, editor);
   registerResources(server);
   return server;
 }

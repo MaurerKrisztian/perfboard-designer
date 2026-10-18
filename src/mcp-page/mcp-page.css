@@ -218,7 +218,8 @@ summary code {
   font-weight: 600;
 }
 
-.setup ol {
+.setup ol,
+.setup ul {
   margin: 0.4rem 0;
   padding-left: 1.3rem;
 }

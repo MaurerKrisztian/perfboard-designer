@@ -40,7 +40,7 @@ export function registerShareLinkTools(server: McpServer, DEFAULT_EDITOR_URL: st
     title: "Make share link",
     description: [
       "Turns a project into a link that opens it in Perfboard Designer: the project travels inside the link, so it works without any server. Give the link to the user.",
-      ...(imageUrl ? ["Also returns `image`, the address of an SVG picture of the board (as the editor draws it), for showing it where images can go, e.g. in Markdown."] : []),
+      ...(imageUrl ? ["Also returns `image`, the address of an SVG picture of the board (as the editor draws it), for showing it where images from links display, e.g. in Markdown (not in Claude or ChatGPT, which don't load them: show_board shows the board there)."] : []),
       ...(storage ? ["With store, the project is also stored on the Perfboard Designer server under a short id, and `stored` gives a short link to it, its file and its pictures (SVG and PNG): give the user both links."] : []),
       "The project is validated first (against expectNets too, given or remembered for its projectId); a project with errors gets the list of problems instead of a link, unless allowErrors is set.",
     ].join(" "),
@@ -119,7 +119,7 @@ export function registerShareLinkTools(server: McpServer, DEFAULT_EDITOR_URL: st
 }
 
 // The editor address a link starts with, without any fragment; undefined unless it's http(s).
-function editorBase(url: string): URL | undefined {
+export function editorBase(url: string): URL | undefined {
   try {
     const base = new URL(url);
     if (base.protocol !== "https:" && base.protocol !== "http:") return undefined;

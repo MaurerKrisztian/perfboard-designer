@@ -1,0 +1,46 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.perfboarddesigner/mcp",
+  "title": "Perfboard Designer",
+  "description": "Design perfboard and stripboard layouts, check the wiring and get a link to open them in the editor.",
+  "websiteUrl": "https://perfboarddesigner.com/mcp-server/",
+  "repository": {
+    "url": "https://github.com/MaurerKrisztian/perfboard-designer",
+    "source": "github",
+    "subfolder": "mcp"
+  },
+  "version": "0.1.0",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.perfboarddesigner.com/mcp"
+    }
+  ],
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "perfboard-designer-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "PERFBOARD_EDITOR_URL",
+          "description": "Where board links open, e.g. http://localhost:3000/app/ for your own copy of the editor. Defaults to https://perfboarddesigner.com/app/.",
+          "isRequired": false
+        },
+        {
+          "name": "PERFBOARD_PROJECTS_URL",
+          "description": "Where short links store projects, or off for no short links. Defaults to https://projects.perfboarddesigner.com.",
+          "isRequired": false
+        },
+        {
+          "name": "PERFBOARD_IMAGE_URL",
+          "description": "Where board picture links point, or off for none. Defaults to https://mcp.perfboarddesigner.com/render.svg.",
+          "isRequired": false
+        }
+      ]
+    }
+  ]
+}

@@ -241,7 +241,8 @@ listed in one place. Layout: `create-server.ts` only wires things up, for two en
 `mcp/wrangler.toml`; `npm run worker:dev` / `worker:deploy`), so tool code must not use Node
 APIs; the tools live in `mcp/src/tools/`
 by group (`catalog-tools.ts`: list/get parts; `project-tools.ts`: new/edit/get project;
-`board-tools.ts`: validate, nets, pin positions, render; `share-link-tools.ts`), resources in
+`board-tools.ts`: validate, nets, pin positions, render; `share-link-tools.ts`;
+`show-board-tool.ts`), resources in
 `resources.ts`; shared tool inputs (`projectId`/`project`, `expectNets`) in `project-source.ts`,
 reply formatting in `reply.ts`, wording helpers (holes, plurals, lists) in `text.ts`.
 It can: list parts, start a project (`new_project`, blank or
@@ -251,6 +252,13 @@ nets (`get_nets`), validate it, make and read share links. `make_share_link` als
 the Worker's `GET /render.svg?<a share link's fragment>` (`mcp/src/image-requests.ts`, `z=`/`json=`
 only, never fetching `src=`), an SVG picture drawn by the editor's own board renderer with the part
 icons `build.mjs` bakes in (`mcp/src/board-image.ts`); `GET /render.png?…` serves it as a PNG.
+Claude and ChatGPT don't load Markdown images from links, so `show_board` shows the user that
+picture in the chat as an MCP App: its tool `_meta.ui.resourceUri` names `ui://perfboard/board-view.html`
+(`mcp/src/board-view/`, `view.ts` bundled for the browser into `view.html` by `build.mjs`), which
+the client shows in a sandboxed frame and hands the result; the SVG travels in the result's
+`_meta.board`, for the page and not the agent. `view.ts` speaks the few MCP Apps messages itself
+(the ext-apps `App` class would make the page ~500 KB); the server side uses
+`@modelcontextprotocol/ext-apps/server`.
 The Worker keeps a copy of every picture and stored project file it serves in each data center's
 Cache API (`edgeCached()` in `worker.ts`, only answers that worked, for as long as their
 `Cache-Control` says), so a repeat request isn't drawn again. `render_board` with `format: "png"` returns that PNG for the

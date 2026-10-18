@@ -28,6 +28,23 @@ const PNG_FONTS = readdirSync(new URL(FONT_DIR, import.meta.url))
   .sort()
   .map(file => readFileSync(new URL(FONT_DIR + file, import.meta.url)).toString("base64"));
 
+// show_board's page (src/board-view/): view.ts, which runs in the MCP App host's frame, bundled
+// for the browser into view.html.
+const {outputFiles: [viewScript]} = await build({
+  entryPoints: ["src/board-view/view.ts"],
+  absWorkingDir: new URL(".", import.meta.url).pathname,
+  bundle: true,
+  write: false,
+  minify: true,
+  format: "esm",
+  platform: "browser",
+  target: "es2022",
+  define: {SERVER_VERSION: JSON.stringify(version)},
+  logLevel: "warning",
+});
+// As a function, so $ patterns in the script aren't read as replacement patterns.
+const BOARD_VIEW_HTML = read("./src/board-view/view.html").replace("/*VIEW_SCRIPT*/", () => viewScript.text.replaceAll("</script", "<\\/script"));
+
 const shared = {
   absWorkingDir: new URL(".", import.meta.url).pathname,
   bundle: true,
@@ -39,6 +56,7 @@ const shared = {
     EXAMPLE_PROJECTS: JSON.stringify(Object.fromEntries(Object.entries(EXAMPLES).map(([id, file]) => [id, read(`../examples/${file}`)]))),
     COMPONENT_ICONS: JSON.stringify(COMPONENT_ICONS),
     PNG_FONTS: JSON.stringify(PNG_FONTS),
+    BOARD_VIEW_HTML: JSON.stringify(BOARD_VIEW_HTML),
   },
   logLevel: "info",
 };

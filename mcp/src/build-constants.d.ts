@@ -12,3 +12,5 @@ declare const EXAMPLE_PROJECTS: Record<string, string>;
 declare const COMPONENT_ICONS: Record<string, string>;
 // The fonts in fonts/ that PNG pictures draw text with: each TTF file, base64.
 declare const PNG_FONTS: string[];
+// board-view/view.html with board-view/view.ts bundled into it: show_board's page.
+declare const BOARD_VIEW_HTML: string;

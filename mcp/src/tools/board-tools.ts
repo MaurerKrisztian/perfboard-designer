@@ -86,7 +86,7 @@ export function registerBoardTools(server: McpServer) {
 
   server.registerTool("render_board", {
     title: "Render board",
-    description: "Draws the board as text, one cell per hole with column and row numbers: each part's pins by a key letter and pin number (a1, a2...), holes under a part's body, wire ends, the holes a wire runs over without joining them, strip cuts and marked holes. Below it, which part each key is and every wire with its ends and net. Use it to see where there's free space and how wires run before placing parts or routing more. With format \"png\", a picture of the board as the editor draws it instead, to see how it looks: parts' bodies and where they reach, labels, wire colours. To show the user the board, use make_share_link's image.",
+    description: "Draws the board as text, one cell per hole with column and row numbers: each part's pins by a key letter and pin number (a1, a2...), holes under a part's body, wire ends, the holes a wire runs over without joining them, strip cuts and marked holes. Below it, which part each key is and every wire with its ends and net. Use it to see where there's free space and how wires run before placing parts or routing more. With format \"png\", a picture of the board as the editor draws it instead, to see how it looks: parts' bodies and where they reach, labels, wire colours. To show the user the board, use show_board.",
     inputSchema: {
       project: projectInput,
       projectId: projectIdInput,
