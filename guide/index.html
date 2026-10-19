@@ -60,6 +60,7 @@
             {"@type": "Question", "name": "How do I cut a strip on a stripboard?", "acceptedAnswer": {"@type": "Answer", "text": "Switch the board to Stripboard, pick the Cut tool in the Tools panel and click the hole where the strip should break. Click a cut hole again to mend it."}},
             {"@type": "Question", "name": "How do I rotate a component?", "acceptedAnswer": {"@type": "Answer", "text": "Press R. It turns the part you are about to place, or the selected part on the board. You can also right-click a part and choose Rotate Component."}},
             {"@type": "Question", "name": "Why are two wires that cross not connected?", "acceptedAnswer": {"@type": "Answer", "text": "Wires are insulated jumpers: a wire only connects the holes at its two ends. Where it runs over another wire or a hole it goes over it without joining. To connect, end the wires in the same hole."}},
+            {"@type": "Question", "name": "Does it work on a phone?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. On a phone or tablet the board fills the screen, with the tools on a toolbar along the bottom. Tap + to add a part, tap the board to place it, drag to pan and pinch to zoom. Tap a part to select it, and a bar shows what you can do to it."}},
             {"@type": "Question", "name": "Where are my projects saved?", "acceptedAnswer": {"@type": "Answer", "text": "In your own browser, automatically as you edit. Use File, Save Project to File to keep a copy on disk, or Share Link to send the board to someone."}},
             {"@type": "Question", "name": "Can I share a board without an account?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. File, Share Link makes a link that carries the whole board. Whoever opens it gets their own copy as a new project. No account is needed."}}
           ]
@@ -129,8 +130,10 @@
           <li><a href="#wires">Route wires</a></li>
           <li><a href="#editing">Select, move and delete</a></li>
           <li><a href="#navigation">Zoom and pan</a></li>
+          <li><a href="#phone">On a phone or tablet</a></li>
           <li><a href="#stripboard">Stripboard and strip cuts</a></li>
           <li><a href="#nets">Check connections</a></li>
+          <li><a href="#solder-side">Solder side view</a></li>
           <li><a href="#3d-view">The 3D view</a></li>
           <li><a href="#saving">Save, share and export</a></li>
           <li><a href="#ai">Design with AI</a></li>
@@ -158,7 +161,7 @@
             </li>
             <li>
               <h3>Wire it up</h3>
-              <p>Press <kbd>W</kbd> for the wire tool, click the pin where a wire starts, then each hole it runs to. Press <kbd>Esc</kbd> to finish.</p>
+              <p>Drag from the pin where a wire starts to the hole it should end in: it bends once, as an L. To route it your own way, press <kbd>W</kbd> for the wire tool, click the start, the empty holes it bends at, and the pin it ends on.</p>
             </li>
             <li>
               <h3>Check the nets</h3>
@@ -176,8 +179,8 @@
           <p>The editor has four areas:</p>
           <ul>
             <li><strong>Header:</strong> the <strong>File</strong> menu (new, open, import, save, share, download), the <strong>View</strong> menu (fullscreen, 3D view, show or hide the side panels), the name of the open project (click it to see all your projects), and the <strong>Share</strong> and <strong>3D View</strong> buttons.</li>
-            <li><strong>Left sidebar:</strong> <strong>Tools</strong> (Select, Eraser, Note, and Cut on a stripboard), Undo and Redo, <strong>Board</strong> type and size, the <strong>Wire</strong> tool with its colors and thicknesses, and the <strong>Components</strong> library.</li>
-            <li><strong>Board:</strong> the hole grid you design on, with zoom, <strong>Fit</strong>, <strong>Labels</strong> and <strong>Fullscreen</strong> above it. The badge at the top left tells you what the next click will do, and the bar underneath shows the note or value of whatever you point at.</li>
+            <li><strong>Left sidebar:</strong> <strong>Tools</strong> (Select, Eraser, Note, and Cut on a stripboard), <strong>Board</strong> type and size, the <strong>Wire</strong> tool with its colors and thicknesses, and the <strong>Components</strong> library.</li>
+            <li><strong>Board:</strong> the hole grid you design on. The toolbar above it starts with a badge that tells you what the next click will do; while you are placing a part it also has a <strong>✕</strong> to cancel, and a rotate button for parts that turn. Then come <strong>Undo</strong> and <strong>Redo</strong>, zoom and <strong>Fit</strong>, <strong>Labels</strong> and <strong>Focus</strong>. When something is selected, a bar along the bottom of the board shows what you can do to it. The bar under the board shows the note or value of whatever you point at.</li>
             <li><strong>Right sidebar:</strong> the live <strong>Nets</strong> panel and the list of keyboard shortcuts.</li>
           </ul>
           <div class="tip">
@@ -200,6 +203,11 @@
             number of holes across (<strong>W</strong>) and down (<strong>H</strong>) to match the
             board on your bench and click <strong>Resize</strong>, or click a preset such as
             <strong>5x7</strong> or <strong>7x9</strong> (in centimetres, the sizes boards are sold in).
+          </p>
+          <p>
+            Like a real board, the edge is printed with each column's number (from 1) and each row's
+            letter (from A), so every hole has a name such as <strong>C4</strong>. A selected pad
+            shows its name, which makes it easy to find the same hole on the board in your hand.
           </p>
           <p>
             Resizing keeps every part and wire that still fits. If making the board smaller would cut
@@ -238,8 +246,10 @@
             </div>
           </div>
           <p>
-            A part stays picked up so you can place several in a row. Press <kbd>Esc</kbd> or click
-            <strong>Select</strong> to put it down. Every part gets a reference designator
+            Once it's placed, the editor goes back to Select with the new part selected, so its value
+            or rotation is one click away. To place several of the same part in a row, hold
+            <kbd>Shift</kbd> as you click: the part stays picked up until you click without Shift,
+            press <kbd>Esc</kbd> or click <strong>Select</strong>. Every part gets a reference designator
             automatically: R1, R2 for resistors, C1 for capacitors, D1 for diodes and LEDs, U1 for
             chips, J1 for connectors, and so on.
           </p>
@@ -254,9 +264,11 @@
         <section id="values">
           <h2>Values, colors and labels</h2>
           <p>
-            Right-click a part for its menu. <strong>Set Value</strong> gives a resistor its
-            resistance, a capacitor its capacitance, and so on. Values understand the usual prefixes:
-            <code>4k7</code>, <code>4.7k</code>, <code>100n</code>, <code>10u</code>. The drawing
+            Select a part and click <strong>Value</strong> in the bar along the bottom of the board (or
+            right-click it and choose <strong>Set Value</strong>) to give a resistor its resistance, a
+            capacitor its capacitance, and so on. Pick one of the common values offered, or type your
+            own: values understand the usual prefixes, <code>4k7</code>, <code>4.7k</code>,
+            <code>100n</code>, <code>10u</code>. The drawing
             follows the value: a resistor gets the right color bands, and a ceramic capacitor the
             three-digit code printed on it (such as 104 for 100 nF).
           </p>
@@ -288,16 +300,48 @@
         <section id="wires">
           <h2>Route wires</h2>
           <p>
-            Click <strong>Wire Tool</strong> or press <kbd>W</kbd>. Click the hole where the wire
-            starts, then click each hole it should run to: every click ends one straight segment and
-            starts the next, so you can route around parts with corners. Click the same hole twice
-            or press <kbd>Esc</kbd> to end the run.
+            The quickest way: <strong>drag from one hole to another</strong>. It works with the Select
+            tool and the wire tool, from an empty hole or a part's pin. The wire routes itself as an
+            <strong>L</strong> with one bend, going first the way you moved first (across, then down;
+            or down, then across), and straight when the two holes line up. Press <kbd>/</kbd> while
+            dragging to flip the L, or hold <kbd>Shift</kbd> for a straight wire. It shows dashed as
+            you drag and is placed when you let go on a different hole; let go on the hole you started
+            from, or press <kbd>Esc</kbd>, to drop it. You can also right-click a hole and choose
+            <strong>Start Wire Here</strong>. On a phone, dragging pans the board instead: see
+            <a href="#phone">On a phone or tablet</a>.
+          </p>
+          <p>
+            To route a wire your own way, click <strong>Wire Tool</strong> or press <kbd>W</kbd>, then
+            click the hole where the wire starts and each hole on its way:
           </p>
           <ul>
-            <li>Pick a <strong>color</strong> before you draw (red for power and black for ground keeps a board readable), or add your own with the <strong>+</strong> button.</li>
+            <li>A click on an <strong>empty hole</strong> bends the wire there. A bend is just a bend in the wire, not a joint: it connects nothing.</li>
+            <li>A click on a hole with a <strong>pin or a wire</strong> in it ends the wire there and connects it. The next wire starts from that hole, so a run of connections costs one click per hole.</li>
+            <li>To end a wire on an empty hole, click its last hole again or press <kbd>Enter</kbd>.</li>
+            <li><kbd>Esc</kbd> takes back the last bend; with no bend left, it ends the run. Clicking the start hole again also ends it.</li>
+            <li>On a stripboard every hole is on a strip, so a click always connects; drag for an L.</li>
+          </ul>
+          <p>
+            A ring on the hole under the pointer means a click there connects the wire.
+          </p>
+          <ul>
+            <li>Pick a <strong>color</strong> before you draw (red for power and black for ground keeps a board readable), or add your own with the <strong>+</strong> button. Every color a wire on the board already has shows up there too, so it's easy to match.</li>
             <li>Choose <strong>Thin</strong>, <strong>Normal</strong> or <strong>Thick</strong> wire.</li>
-            <li>Straight runs of the same color that meet end to end are merged into one wire.</li>
+            <li>Start or end a wire at another wire's free end (a hole with nothing else in it), in the same color and thickness, and it carries that wire on: the two become one wire, bending where they met.</li>
+            <li>Where one wire ends on another, the two are joined, whichever you draw first: the wire running past is split at that hole, and a solder dot marks the joint. Wires that only cross each other stay apart.</li>
             <li>To recolor a wire, select it and click a color.</li>
+          </ul>
+          <h3>Bend a wire you've drawn</h3>
+          <p>
+            Click a wire with the Select tool and it shows handles: a white one on each bend and a
+            small dot in the middle of each straight stretch.
+          </p>
+          <ul>
+            <li><strong>Drag the wire</strong> anywhere along it (or by its middle dot) to pull out a new bend. It follows the pointer from hole to hole.</li>
+            <li><strong>Drag a bend</strong> to move it. Let go of it in line with the holes either side and it's gone.</li>
+            <li><strong>Drag an end</strong> to move that end to another hole. It connects to whatever is there, like a new wire would.</li>
+            <li><strong>Double-click a bend</strong> to take it out, or click <strong>Straighten</strong> in the bar along the bottom to take them all out.</li>
+            <li><kbd>Esc</kbd> while dragging puts the wire back as it was, and <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes a change.</li>
           </ul>
           <h3>How wires connect</h3>
           <p>
@@ -305,7 +349,15 @@
             <strong>A wire only connects the holes at its ends.</strong> Where it runs across another
             wire, or over a hole that holds a pin, it passes over without touching: the editor draws
             a dark edge along it there. Where three or more things meet in one hole, a solder dot
-            marks the joint. To connect two wires, end them in the same hole.
+            marks the joint. To connect two wires, end them in the same hole, or end one on a hole the
+            other passes over: whichever you draw last, the wire running past is split there and
+            joined.
+          </p>
+          <p>
+            Every hole you'll solder, one holding a pin, a lead or a wire's end, shows silver solder
+            inside its copper ring, so you can see at a glance where the joints are. A hole a wire
+            only passes over stays empty. To see the joints from the side you solder on, use the
+            <a href="#solder-side">solder side view</a>.
           </p>
         </section>
 
@@ -313,11 +365,11 @@
           <h2>Select, move and delete</h2>
           <ul>
             <li><strong>Select</strong> (the default tool): click a part, wire or hole to select it. Drag a part to move it to new holes.</li>
-            <li><strong>Right-click</strong> anything for its menu: Rotate Component, Change Color, Add/Edit Note, Set Value and Delete Item.</li>
+            <li>A selected item gets a bar along the bottom of the board with what you can do to it: <strong>Rotate</strong> a chip or other part that turns, change the <strong>Color</strong> of a wire or LED, <strong>Straighten</strong> a bent wire, set a part's <strong>Value</strong>, add a <strong>Note</strong> to a hole, and <strong>Delete</strong>. <strong>Right-click</strong> anything for the same actions as a menu.</li>
             <li><kbd>Delete</kbd> removes the selected part or wire.</li>
-            <li><strong>Eraser</strong>: click a part or wire to remove it, or a hole to clear its color and note.</li>
+            <li><strong>Eraser</strong>: click a part or wire to remove it, or a hole to clear its note.</li>
             <li><strong>Note</strong>: click a hole to write a note on it, such as "to 9V battery" or "solder last". Notes show in the bar below the board when you point at the hole. With a hole selected, <kbd>D</kbd> adds a note and <kbd>Shift</kbd>+<kbd>D</kbd> removes it.</li>
-            <li><strong>Undo</strong> and <strong>Redo</strong> with <kbd>Ctrl</kbd>+<kbd>Z</kbd> and <kbd>Ctrl</kbd>+<kbd>Y</kbd>, or the buttons under the tools.</li>
+            <li><strong>Undo</strong> and <strong>Redo</strong> with <kbd>Ctrl</kbd>+<kbd>Z</kbd> and <kbd>Ctrl</kbd>+<kbd>Y</kbd>, or the arrow buttons above the board. They're greyed out when there's nothing to undo or redo.</li>
           </ul>
         </section>
 
@@ -325,9 +377,24 @@
           <h2>Zoom and pan</h2>
           <ul>
             <li>Scroll the mouse wheel over the board to zoom in and out around the pointer, or use the <strong>+</strong> and <strong>−</strong> buttons.</li>
-            <li>Click <strong>Fit</strong> to fit the whole board on screen again.</li>
-            <li>Drag on an empty part of the board to pan. Hold <kbd>Space</kbd> and drag, or drag with the middle mouse button, to pan with any tool.</li>
-            <li><strong>Fullscreen</strong> gives the board the whole screen, and the View menu hides either sidebar.</li>
+            <li>Click <strong>Fit</strong> to fit the whole board on screen; it then reads <strong>100%</strong>, which takes you back to full size.</li>
+            <li>Drag from between the holes, or from around the board, to pan (a drag from a hole draws a wire). Hold <kbd>Space</kbd> and drag, or drag with the middle mouse button, to pan with any tool and from anywhere.</li>
+            <li><strong>Focus</strong> (or <kbd>F</kbd>) gives the board the whole screen, and the View menu hides either sidebar.</li>
+          </ul>
+        </section>
+
+        <section id="phone">
+          <h2>On a phone or tablet</h2>
+          <p>On a small or touch screen the board fills the screen. A toolbar along the bottom holds <strong>Select</strong>, <strong>Wire</strong>, the round <strong>+</strong> button to add a part, <strong>Nets</strong> and <strong>More</strong>. <strong>Undo</strong> and <strong>Redo</strong> float over the board's top left corner, <strong>Fit</strong> and <strong>Labels</strong> over its top right.</p>
+          <ul>
+            <li><strong>+</strong> slides up the Components library. Pick a part and it slides away again, ready for you to tap the board.</li>
+            <li>While you place a part or a wire, a hint over the board says what to tap next, such as "Tap start pad", with a button to cancel and, for chips, one to rotate the part first.</li>
+            <li>Tap a part, wire or hole to select it. A bar along the bottom shows what you can do to it: wire, rotate, color, value, note and delete. Pressing and holding it opens the same actions as a menu.</li>
+            <li>Drag with one finger to pan. In Select mode, drag a part's body to move it, or a selected wire's handles to <a href="#wires">bend it</a> (double-tap a bend to take it out).</li>
+            <li>To draw a wire, press and hold a hole or a pin and choose <strong>Start Wire Here</strong>, then tap the holes it bends at and the one it goes to. Or keep your finger down after the menu appears and drag to that hole: the wire bends once, as an L, and a tap with a second finger flips it. Tapping a hole also gives a <strong>Wire</strong> button in the bar along the bottom.</li>
+            <li>Pinch with two fingers to zoom, and drag with two fingers to pan with any tool.</li>
+            <li><strong>More</strong> slides up the other tools (Eraser, Note, Cut), the board type and size, and the wire colors and thicknesses.</li>
+            <li><strong>Nets</strong> slides up the Nets panel.</li>
           </ul>
         </section>
 
@@ -382,17 +449,37 @@
           </p>
         </section>
 
+        <section id="solder-side">
+          <h2>Solder side view</h2>
+          <p>
+            When it's time to solder, click <strong>Solder side</strong> above the board (or press
+            <kbd>B</kbd>). The board turns over: you see it from below, mirrored the way it looks in
+            your hand with the copper side up. The parts and wires show faintly through it for
+            bearings, and every hole you need to solder gets a bright solder blob: each pin and lead,
+            and each end of a wire.
+          </p>
+          <ul>
+            <li>A yellow square marks pin 1 of every chip and other part with more than two pins, so nothing goes in backwards.</li>
+            <li>Each part's name sits by its joints, so you can tell which joint is which.</li>
+            <li>On a stripboard, the strips are shown at full strength, and every place to cut a strip is marked with a red ✕.</li>
+            <li>The badge above the board counts the joints to solder.</li>
+            <li>The view is only for looking at: you can pan and zoom, but not change the board. Click <strong>Solder side</strong> again, or pick any tool, to go back.</li>
+            <li><strong>Download Image</strong> and <strong>Download SVG</strong> save it as shown, ready to print and take to the bench.</li>
+          </ul>
+        </section>
+
         <section id="3d-view">
           <h2>Preview the board in 3D</h2>
           <p>
             Click <strong>3D View</strong> to see your layout as a 3D model of the finished board:
             resistors with their color bands, chips with labeled pins, LEDs, capacitors, connectors and
-            every jumper wire, arched over the wires it crosses.
+            every jumper wire, arched over the wires it crosses. Every soldered hole shows its solder,
+            on top and as a joint underneath.
           </p>
           <ul>
-            <li>Drag to orbit and scroll to zoom.</li>
-            <li><strong>Angled</strong>, <strong>Top</strong> and <strong>Bottom</strong> jump to a preset view; Bottom shows the copper side with its strips, cuts and solder joints.</li>
-            <li><strong>Screenshot</strong> saves a picture of the render.</li>
+            <li>Drag to orbit and scroll to zoom. On a phone, drag with one finger to turn it, pinch to zoom and drag with two fingers to pan.</li>
+            <li>The switch along the bottom jumps to a preset view: <strong>Angled</strong>, <strong>Top</strong> or <strong>Bottom</strong>. Bottom shows the copper side with its strips, cuts and solder joints.</li>
+            <li>The camera button at the top saves a picture of the render; the folder opens another project file; ✕ (or <kbd>Esc</kbd>) closes the view.</li>
           </ul>
           <figure class="hero-shot">
             <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">3D view</span></div>
@@ -432,7 +519,8 @@
           <p>
             <strong>File › Download Image</strong> (or <kbd>P</kbd>) saves the board as a PNG, and
             <strong>Download SVG</strong> as a sharp vector image you can scale or print at any size.
-            Turn on <strong>Labels</strong> first to include part names and values.
+            Turn on <strong>Labels</strong> first to include part names and values, or switch to the
+            <a href="#solder-side">solder side</a> to save that instead.
           </p>
         </section>
 
@@ -459,15 +547,19 @@
                 <tr><td><kbd>/</kbd></td><td>Search components</td></tr>
                 <tr><td><kbd>W</kbd></td><td>Turn the wire tool on or off</td></tr>
                 <tr><td><kbd>R</kbd></td><td>Rotate the part you're placing, or the selected part</td></tr>
-                <tr><td><kbd>Esc</kbd></td><td>End a wire run, put down the part you're placing, or clear the selection</td></tr>
+                <tr><td><kbd>Esc</kbd></td><td>Take back a wire's last bend, end a wire run, put down the part you're placing, or clear the selection</td></tr>
+                <tr><td><kbd>Enter</kbd></td><td>End the wire you're drawing at its last bend</td></tr>
+                <tr><td><kbd>/</kbd> while dragging a wire</td><td>Flip its L</td></tr>
+                <tr><td><kbd>Shift</kbd> while dragging a wire</td><td>Draw it straight</td></tr>
                 <tr><td><kbd>Delete</kbd></td><td>Delete the selected part or wire</td></tr>
-                <tr><td><kbd>C</kbd></td><td>Change the color of the selected hole</td></tr>
+                <tr><td><kbd>C</kbd></td><td>Change the color of the selected wire</td></tr>
                 <tr><td><kbd>D</kbd></td><td>Add a note to the selected hole</td></tr>
                 <tr><td><kbd>Shift</kbd>+<kbd>D</kbd></td><td>Remove the selected hole's note</td></tr>
-                <tr><td><kbd>M</kbd></td><td>Move the selected hole's color and note to the hole under the pointer</td></tr>
+                <tr><td><kbd>M</kbd></td><td>Move the selected hole's note to the hole under the pointer</td></tr>
                 <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Undo</td></tr>
                 <tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Redo</td></tr>
                 <tr><td><kbd>P</kbd></td><td>Download the board as a PNG image</td></tr>
+                <tr><td><kbd>B</kbd></td><td>Show or hide the solder side</td></tr>
                 <tr><td><kbd>Space</kbd> + drag</td><td>Pan the board with any tool</td></tr>
               </tbody>
             </table>
@@ -504,6 +596,10 @@
             <details>
               <summary>Why are two wires that cross not connected?</summary>
               <p>Wires are insulated jumpers: a wire only connects the holes at its two ends. Where it runs over another wire or a hole it goes over it without joining. To connect, end the wires in the same hole.</p>
+            </details>
+            <details>
+              <summary>Does it work on a phone?</summary>
+              <p>Yes. On a phone or tablet the board fills the screen, with the tools on a toolbar along the bottom. Tap + to add a part, tap the board to place it, drag to pan and pinch to zoom. Tap a part to select it, and a bar shows what you can do to it.</p>
             </details>
             <details>
               <summary>Where are my projects saved?</summary>
