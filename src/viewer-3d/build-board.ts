@@ -205,11 +205,33 @@ function wireLine(frame: BoardFrame, points: WirePoint[], radius: number): Vecto
   return line;
 }
 
+// A wire's insulation stops this far (mm) short of each end hole, as a stripped jumper's does,
+// though never more than this share of the wire, so a short one keeps some insulation.
+const STRIP_LENGTH = 0.8;
+const MAX_STRIP_SHARE = 0.3;
+// The bare tinned copper inside.
+const CONDUCTOR_RADIUS = 0.26;
+
+/** `line` with `cut` mm taken off its start, following it round any bend. */
+function trimStart(line: Vector3[], cut: number): Vector3[] {
+  let left = cut;
+  for (let i = 1; i < line.length; i++) {
+    const run = line[i].distanceTo(line[i - 1]);
+    if (run >= left) return [line[i - 1].clone().lerp(line[i], run ? left / run : 0), ...line.slice(i)];
+    left -= run;
+  }
+  return line.slice(-1);
+}
+
+function lineLength(line: Vector3[]): number {
+  return line.reduce((sum, p, i) => i ? sum + p.distanceTo(line[i - 1]) : 0, 0);
+}
+
 /** Insulated jumper wires lying on the top face. Each wire is one continuous insulated run, so
- *  its bends are just insulation; only its two free ends dive into their holes as bare tinned
- *  copper and get soldered. Where it crosses another wire, or a hole it doesn't join, it arches
- *  over (the later wire over the earlier, as the editor draws them). Thickness follows the
- *  editor's thin/normal/thick gauges. */
+ *  its bends are just insulation; only its two free ends are stripped, the bare tinned copper
+ *  bending down into the hole to its joint underneath, so it reads as soldered there. Where it
+ *  crosses another wire, or a hole it doesn't join, it arches over (the later wire over the
+ *  earlier, as the editor draws them). Thickness follows the editor's thin/normal/thick gauges. */
 export function buildWires(kit: SceneKit, paths: WirePath[]): Group {
   const {frame} = kit;
   const group = new Group();
@@ -218,17 +240,25 @@ export function buildWires(kit: SceneKit, paths: WirePath[]): Group {
     const radius = wireRadius(path.width);
     const insulation = kit.standard(`wire:${path.color}`, {color: path.color, roughness: 0.45});
     const points = wireLine(frame, path.points, radius);
-    group.add(kit.bentWire(points, radius, insulation));
     if (path.closed) {
+      group.add(kit.bentWire(points, radius, insulation));
       // A loop has no free ends; round off the one corner bentWire leaves out.
       group.add(kit.ball(points[0], radius, insulation));
       continue;
     }
-    const ends = [path.points[0], path.points[path.points.length - 1]];
-    for (const {x: px, y: py} of ends) {
-      group.add(kit.ball(frame.point(px, py, radius), radius, insulation));
-      const stub = kit.rod(frame.point(px, py, radius), frame.point(px, py, BOARD_BOTTOM_Y - 1.1), radius * 0.45, conductor);
-      if (stub) group.add(stub);
+    // The insulation, cut square where it's stripped back from each end.
+    const strip = Math.min(STRIP_LENGTH, lineLength(points) * MAX_STRIP_SHARE);
+    const insulated = trimStart(trimStart(points, strip).reverse(), strip).reverse();
+    group.add(kit.bentWire(insulated, radius, insulation));
+
+    const ends = [
+      {hole: path.points[0], stripped: insulated[0]},
+      {hole: path.points[path.points.length - 1], stripped: insulated[insulated.length - 1]},
+    ];
+    for (const {hole: {x: px, y: py}, stripped} of ends) {
+      // From where the insulation stops, over the hole and down through it.
+      const above = frame.point(px, py, stripped.y);
+      group.add(kit.bentWire([stripped, above, frame.point(px, py, BOARD_BOTTOM_Y - 1.1)], CONDUCTOR_RADIUS, conductor));
       kit.solder(px, py);
     }
   }

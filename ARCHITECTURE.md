@@ -644,6 +644,9 @@ definition's `iconFile`, else `<id>.svg`). Painters ask for icons by file name:
   lazy-imports the viewer, so three.js stays out of the main bundle.
 - Every hole something is soldered into (each part registers its holes with `SceneKit.solder`, each
   wire its ends) gets a fillet underneath and a solder fill on top (`buildSolderJoints`).
+- A wire's insulation stops short of each end, as a stripped jumper's does, and the bare tinned
+  copper bends down into the hole to its joint underneath (`buildWires`), so a wire end reads as
+  soldered there.
 - Its controls: a toolbar (screenshot, open file, close; icons only on a phone) and an
   Angled/Top/Bottom switch floating over the bottom of the view. Each view is framed by the
   window's height, or its width on a tall phone screen.
