@@ -13,7 +13,8 @@ import {ViewState} from "../state/ViewState";
 import {selectAt, selectLine, setSelection} from "./board-selection";
 import {behaviorOf} from "./tools";
 import {IDot} from "../interfaces/dot.interface";
-import {cancelWireDrag, finishWireDrag, startWireDrag, wireDragFrom, wireDragStartDot} from "./wire-drag";
+import {cancelReshape, finishReshape, isReshaping, removeBend, startReshape, WireGrip, wireGripAt} from "./wire-reshape";
+import {axisOf, cancelWireDrag, finishWireDrag, setWireDragStraight, startWireDrag, wireDragFrom, wireDragStartDot} from "./wire-drag";
 
 // Board input: routes left clicks to the active tool (src/features/tools/), and owns panning,
 // the right-click context menu and Escape. Mouse and pen come through here; fingers go through
@@ -32,6 +33,9 @@ let pendingPan: {clientX: number; clientY: number; event: MouseEvent} | undefine
 // Likewise a left press on a hole in Select mode or with the wire tool may be the start of a wire
 // dragged to another hole (wire-drag.ts), or just a click.
 let pendingWire: {clientX: number; clientY: number; event: MouseEvent; dot: IDot} | undefined;
+// And a left press on a handle of the selected wire may be the start of bending it
+// (wire-reshape.ts). Just a click there leaves the wire selected.
+let pendingReshape: {clientX: number; clientY: number; grip: WireGrip} | undefined;
 
 export function startPan(clientX: number, clientY: number) {
   const container = document.getElementById('canvas-container');
@@ -109,6 +113,14 @@ Canvas.c.addEventListener('pointerdown', function(e) {
   if (e.button === 0) {
     const {x, y} = Canvas.toDrawingCoordinates(e);
 
+    // The selected wire's handles come first: a drag there bends that wire.
+    const grip = wireGripAt(x, y, false);
+    if (grip) {
+      hideContextMenu();
+      pendingReshape = {clientX: e.clientX, clientY: e.clientY, grip};
+      return;
+    }
+
     const wireDot = wireDragStartDot(x, y, false);
     if (wireDot) {
       hideContextMenu();
@@ -129,11 +141,18 @@ Canvas.c.addEventListener('pointerdown', function(e) {
 
 window.addEventListener('pointermove', (e) => {
   if (e.pointerType === 'touch') return;
+  if (pendingReshape && Math.hypot(e.clientX - pendingReshape.clientX, e.clientY - pendingReshape.clientY) >= PAN_DRAG_THRESHOLD) {
+    startReshape(pendingReshape.grip, DotState.hoverDot);
+    pendingReshape = undefined;
+    redrawCanvas();
+  }
   if (pendingWire && Math.hypot(e.clientX - pendingWire.clientX, e.clientY - pendingWire.clientY) >= PAN_DRAG_THRESHOLD) {
-    startWireDrag(pendingWire.dot);
+    // The wire bends the way the pointer went first.
+    startWireDrag(pendingWire.dot, axisOf(e.clientX - pendingWire.clientX, e.clientY - pendingWire.clientY));
     pendingWire = undefined;
     redrawCanvas();
   }
+  if (wireDragFrom()) setWireDragStraight(e.shiftKey);
   if (pendingPan && Math.hypot(e.clientX - pendingPan.clientX, e.clientY - pendingPan.clientY) >= PAN_DRAG_THRESHOLD) {
     // It's a drag: pan from where the press started (so the board doesn't jump), and drop the click.
     startPan(pendingPan.clientX, pendingPan.clientY);
@@ -144,6 +163,8 @@ window.addEventListener('pointermove', (e) => {
 
 window.addEventListener('pointerup', (e) => {
   if (e.pointerType === 'touch') return;
+  pendingReshape = undefined;
+  if (isReshaping()) endReshape();
   if (pendingPan) {
     // Released without moving: it was a plain click after all.
     const {event} = pendingPan;
@@ -158,6 +179,24 @@ window.addEventListener('pointerup', (e) => {
   if (wireDragFrom()) endWireDrag();
   stopPan();
   endDrag();
+});
+
+// Lets go of a wire being bent: it takes its new route.
+export function endReshape() {
+  finishReshape();
+  redrawCanvas();
+  updateSelectionStatus();
+}
+
+// Double-clicking a bend of the selected wire takes it out.
+Canvas.c.addEventListener('dblclick', (e) => {
+  const line = SelectionState.line;
+  const {x, y} = Canvas.toDrawingCoordinates(e);
+  const grip = wireGripAt(x, y, false);
+  if (!line || grip?.kind !== "bend") return;
+  removeBend(line, grip.index);
+  redrawCanvas();
+  updateSelectionStatus();
 });
 
 // Lets go of a wire being dragged: drawn to the hole under the pointer, if that's another hole.
@@ -310,7 +349,20 @@ document.getElementById('cancelToolBtn')?.addEventListener('click', () => {
   redrawCanvas();
 });
 
+// Enter completes what the active tool is building: a wire ends at its last bend.
+ShortcutRegistry.add({key: "Enter", description: "End the wire being drawn at its last bend.", event: () => {
+  const tool = ToolState.active;
+  if (!behaviorOf(tool).finish?.(tool)) return;
+  redrawCanvas();
+  updateSelectionStatus();
+}});
+
 ShortcutRegistry.add({key: "Escape", description: "Unselect dot or line", event: ()=>{
+  if (isReshaping()) {
+    cancelReshape();
+    redrawCanvas();
+    return;
+  }
   if (wireDragFrom()) {
     cancelWireDrag();
     redrawCanvas();

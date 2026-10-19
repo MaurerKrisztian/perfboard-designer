@@ -25,6 +25,8 @@ export type ViewerBoard =
 export interface ViewerHop {
   x: number;
   y: number;
+  // Which leg of the wire it's on (WireHop.leg): 0 before the first bend.
+  leg: number;
   underWidth?: number;
 }
 
@@ -33,6 +35,8 @@ export interface ViewerWire {
   y1: number;
   x2: number;
   y2: number;
+  // Where it bends, in order from (x1, y1) (SavedWire.via).
+  via: {x: number; y: number}[];
   color: string;
   width: number;
   // In order from (x1, y1).
@@ -111,9 +115,11 @@ export function readProject(raw: unknown): ViewerProject {
     const to = px(wire.to);
     return {
       x1: from.x, y1: from.y, x2: to.x, y2: to.y,
+      via: (wire.via ?? []).map(px),
       color: wire.color ?? DEFAULT_WIRE_COLOR, width: wire.width ?? DEFAULT_WIRE_WIDTH,
       hops: hops.filter(hop => hop.wire === i).map(hop => ({
         ...px(hop.at),
+        leg: hop.leg,
         ...(hop.under !== undefined ? {underWidth: project.wires[hop.under].width ?? DEFAULT_WIRE_WIDTH} : {}),
       })),
     };

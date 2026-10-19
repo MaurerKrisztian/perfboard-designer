@@ -15,7 +15,7 @@ export function registerResources(server: McpServer) {
 
   server.registerResource("project-file-format", "perfboard://docs/project-file", {
     title: "Project file format",
-    description: "The project file format (version 3), field by field, as the TypeScript types that define it.",
+    description: "The project file format (version 4), field by field, as the TypeScript types that define it.",
     mimeType: "text/plain",
   }, async uri => ({contents: [{uri: uri.href, mimeType: "text/plain", text: PROJECT_FILE_SOURCE}]}));
 

@@ -2057,6 +2057,7 @@ button.bar-btn[hidden] {
 /* Only the actions that apply to the selection (selection-actions.ts lists them on <body>) */
 body:not([data-sel-actions~="rotate"]) [data-action="rotate"],
 body:not([data-sel-actions~="color"]) [data-action="color"],
+body:not([data-sel-actions~="straighten"]) [data-action="straighten"],
 body:not([data-sel-actions~="value"]) [data-action="value"],
 body:not([data-sel-actions~="note"]) [data-action="note"],
 body:not([data-sel-actions~="delete"]) [data-action="delete"],

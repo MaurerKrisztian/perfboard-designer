@@ -246,9 +246,10 @@ it, and three.js powers the 3D view (it's lazy-loaded, so the editor itself stay
 
 ## Project file format
 
-Projects are saved as plain, readable JSON (format version 3): the board type and size, strip
-cuts, wires, and every part with its reference designator, all as `[column, row]` grid positions
-rather than pixels. Files from older versions still open. The format is documented field by field
+Projects are saved as plain, readable JSON (format version 4, or 3 when no wire bends): the board
+type and size, strip cuts, wires (with any corners they bend at), and every part with its reference
+designator, all as `[column, row]` grid positions rather than pixels. Files from older versions
+still open. The format is documented field by field
 in [`src/project-file/project-file.ts`](src/project-file/project-file.ts), and the
 [`examples/`](examples) folder has sample projects to open with **File → Import Project from File**.
 Share links carry the same file, and can be made by other programs (an AI agent designing a board,

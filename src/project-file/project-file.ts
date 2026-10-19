@@ -1,11 +1,20 @@
 import {GridPos} from "./grid";
 
-// The project file format, version 3. Positions are grid [column, row] pairs counted from the
+// The project file format, version 4. Positions are grid [column, row] pairs counted from the
 // top-left hole (column = left to right, row = top to bottom), not pixels, and only holes the user
 // marked are listed. Older files are still read, see read-project-file.ts:
-// - version 2: the same, minus the board type (always a perfboard) and part refs.
+// - version 3: the same, minus bent wires (a wire's `via`).
+// - version 2: the same as 3, minus the board type (always a perfboard) and part refs.
 // - version 1 (no `version` field): pixel coordinates, every hole listed, the whole IC catalog.
-export const PROJECT_FILE_VERSION = 3;
+export const PROJECT_FILE_VERSION = 4;
+
+// A file says the oldest version that holds everything in it: 3 unless a wire bends. So a board
+// without bends still opens in editors and tools from before version 4.
+export type FileVersion = 3 | typeof PROJECT_FILE_VERSION;
+
+export function fileVersionFor(project: Pick<ProjectFile, "wires">): FileVersion {
+  return project.wires.some(wire => wire.via?.length) ? PROJECT_FILE_VERSION : 3;
+}
 
 export type Rotation = 0 | 90 | 180 | 270;
 
@@ -42,9 +51,14 @@ export interface SavedPad {
   note?: string;
 }
 
+// An insulated jumper wire. It joins the holes at its two ends and nothing else: not the holes it
+// passes over, and not its corners.
 export interface SavedWire {
   from: GridPos;
   to: GridPos;
+  // Where it bends on its way from `from` to `to`, in order (version 4): it runs straight from
+  // hole to hole through these. A corner is a bend over a hole, never a joint. Absent: straight.
+  via?: GridPos[];
   color?: string;
   width?: number;
 }
@@ -100,7 +114,7 @@ export interface SavedCustomIc {
 }
 
 export interface ProjectFile {
-  version: typeof PROJECT_FILE_VERSION;
+  version: FileVersion;
   board: SavedBoard;
   pads: SavedPad[];
   wires: SavedWire[];

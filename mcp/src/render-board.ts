@@ -1,4 +1,4 @@
-import {computeNets, GridPos, holesAlong, layoutProjectWires, Net, partPins, pinName, ProjectFile} from "./editor";
+import {computeNets, GridPos, holesAlong, layoutProjectWires, Net, partPins, pinName, ProjectFile, wireLegs, wirePoints} from "./editor";
 import {holeKey, joinList, showHole} from "./text";
 
 // render_board's text drawing of a board: one cell per hole, so an agent can see where things are,
@@ -24,7 +24,8 @@ function runMark([dx, dy]: number[]): string {
 
 const KEY_TEXT = [
   ". empty hole", "a1 pin 1 of part a", "# under a part's body", "o wire end", "* 3+ things joined",
-  "- | \\ / ~ wire passing over (not joined)", "+ wires passing over each other", "x strip cut", "@ marked hole",
+  "- | \\ / ~ wire passing over (not joined)", "% wire bending over (not joined)", "+ wires passing over each other",
+  "x strip cut", "@ marked hole",
 ].join(", ");
 
 export function renderBoard(project: ProjectFile, area?: Area): string {
@@ -43,12 +44,16 @@ export function renderBoard(project: ProjectFile, area?: Area): string {
   const cells = new Map<string, string>();
   const set = (at: readonly number[], text: string) => cells.set(holeKey(at), text);
   for (const pad of project.pads) set(pad.at, "@");
+  const overRun = (at: readonly number[], mark: string) => {
+    const before = cells.get(holeKey(at));
+    set(at, before && before !== "@" && before !== mark ? "+" : mark);
+  };
   project.wires.forEach(wire => {
-    const mark = runMark([wire.to[0] - wire.from[0], wire.to[1] - wire.from[1]]);
-    for (const {at} of holesAlong(wire)) {
-      const before = cells.get(holeKey(at));
-      set(at, before && before !== "@" && before !== mark ? "+" : mark);
+    for (const leg of wireLegs(wire)) {
+      const mark = runMark([leg.to[0] - leg.from[0], leg.to[1] - leg.from[1]]);
+      for (const {at} of holesAlong(leg)) overRun(at, mark);
     }
+    for (const corner of wire.via ?? []) overRun(corner, "%");
   });
   for (const part of parts) part.coveredHoles.forEach(at => set(at, "#"));
   if (board.type === "stripboard") board.cuts.forEach(at => set(at, "x"));
@@ -102,11 +107,14 @@ export function renderBoard(project: ProjectFile, area?: Area): string {
     const names = net.pins.map(pinName);
     return names.length > 4 ? `${names.slice(0, 4).join(", ")}...` : joinList(names);
   };
-  const shownWires = project.wires.map((wire, i) => ({wire, i}))
-    .filter(({wire}) => inArea(wire.from) || inArea(wire.to) || holesAlong(wire).some(({at}) => inArea(at)));
+  const shownWires = project.wires.map((wire, i) => ({wire, i})).filter(({wire}) =>
+    wirePoints(wire).some(inArea) || wireLegs(wire).some(leg => holesAlong(leg).some(({at}) => inArea(at))));
   if (shownWires.length) {
     out.push("", "Wires (index: ends, net):");
-    for (const {wire, i} of shownWires) out.push(`${i}: ${showHole(wire.from)}-${showHole(wire.to)}, ${netText(netOf.get(i))}`);
+    for (const {wire, i} of shownWires) {
+      const bends = wire.via?.length ? ` bending at ${wire.via.map(showHole).join(", ")}` : "";
+      out.push(`${i}: ${showHole(wire.from)}-${showHole(wire.to)}${bends}, ${netText(netOf.get(i))}`);
+    }
   }
   return out.join("\n");
 }

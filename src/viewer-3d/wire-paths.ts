@@ -47,7 +47,7 @@ export function holeKey(px: number, py: number): string {
 interface Segment {
   a: WirePoint;
   b: WirePoint;
-  // Its hops, from a to b.
+  // Its bends and hops, from a to b.
   hops: WirePoint[];
   ka: string;
   kb: string;
@@ -55,16 +55,26 @@ interface Segment {
   width: number;
 }
 
-/** Joins the editor's segments back into the wires they were drawn as. The editor stores every
- *  bend as two segments sharing a hole, so a hole where exactly two segments of the same color
- *  and width meet is a plain bend and the run continues through it. Any other hole ends the run:
- *  a junction, a color or width change, or a hole a component lead already sits in. */
+/** Joins the file's wires into the runs they make. A wire bends at its own corners (`via`), and
+ *  wires drawn before bent wires existed made each bend from two wires sharing a hole, so a hole
+ *  where exactly two wires of the same color and width meet is a plain bend too and the run
+ *  continues through it. Any other hole ends the run: a junction, a color or width change, or a
+ *  hole a component lead already sits in. */
 export function chainWires(wires: ViewerWire[], componentHoles: ReadonlySet<string>): WirePath[] {
   const segments: Segment[] = [];
   for (const wire of wires) {
-    if (wire.x1 === wire.x2 && wire.y1 === wire.y2) continue;
+    if (wire.x1 === wire.x2 && wire.y1 === wire.y2 && !wire.via.length) continue;
     const a = {x: wire.x1, y: wire.y1}, b = {x: wire.x2, y: wire.y2};
-    const hops = wire.hops.map(({x, y, underWidth}) => ({x, y, hop: underWidth !== undefined ? {underWidth} : {}}));
+    // Each leg's hops, then the bend that ends it. A hop on a bend (a corner over a hole that
+    // holds something) is left to the bend.
+    const isBend = (x: number, y: number) => wire.via.some(corner => corner.x === x && corner.y === y);
+    const hops: WirePoint[] = [];
+    for (let leg = 0; leg <= wire.via.length; leg++) {
+      for (const {x, y, underWidth, leg: on} of wire.hops) {
+        if (on === leg && !isBend(x, y)) hops.push({x, y, hop: underWidth !== undefined ? {underWidth} : {}});
+      }
+      if (leg < wire.via.length) hops.push({...wire.via[leg]});
+    }
     segments.push({a, b, hops, ka: holeKey(a.x, a.y), kb: holeKey(b.x, b.y), color: wire.color, width: wire.width});
   }
 

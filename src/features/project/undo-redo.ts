@@ -4,12 +4,22 @@ import {onRedraw, redrawCanvas} from "../draw-canvas";
 import {Utils} from "../../utils/utils";
 import {ShortcutRegistry} from "../shortcut-keys";
 import {IChange} from "../../interfaces/change.interface";
+import {ILine} from "../../interfaces/line.interface";
 import {addToBoard, takeOffBoard} from "../placed-parts";
 import {setBoardSetup} from "../board-type";
 
 Utils.getSafeHtmlElement<HTMLButtonElement>('backBtn').addEventListener('click', function() {
 undo();
 });
+
+// Where `line` is on the board: that very wire, else one running the same way between the same
+// holes (the objects history holds are the ones it put on the board, so this is a fallback).
+function indexOfLine(line: ILine): number {
+  const same = LineState.lines.indexOf(line);
+  if (same > -1) return same;
+  const route = (l: ILine) => [l.start, ...(l.via ?? []), l.end];
+  return LineState.lines.findIndex(l => route(l).length === route(line).length && route(l).every((dot, i) => dot === route(line)[i]));
+}
 
 // "apply" replays the change as it originally happened, "revert" puts the board back the way it
 // was before it. A move isn't expressible as an add or a remove, hence the direction rather than
@@ -32,11 +42,15 @@ function applyChange(change: IChange, direction: "apply" | "revert") {
 
   if (change.type === "replace") {
     const [gone, back] = direction === "apply" ? [change.removed, change.added] : [change.added, change.removed];
+    // Back where the first of them was, so a reshaped wire keeps its place in the drawing order.
+    let at = LineState.lines.length;
     for (const line of gone) {
-      const index = LineState.lines.findIndex(l => l.start === line.start && l.end === line.end);
-      if (index > -1) LineState.lines.splice(index, 1);
+      const index = indexOfLine(line);
+      if (index < 0) continue;
+      LineState.lines.splice(index, 1);
+      at = Math.min(at, index);
     }
-    LineState.lines.push(...back);
+    LineState.lines.splice(at, 0, ...back);
     return;
   }
 
@@ -45,7 +59,7 @@ function applyChange(change: IChange, direction: "apply" | "revert") {
     if (add) {
       LineState.lines.push(change.line);
     } else {
-      const index = LineState.lines.findIndex(l => l.start === change.line.start && l.end === change.line.end);
+      const index = indexOfLine(change.line);
       if (index > -1) LineState.lines.splice(index, 1);
     }
   } else if (add) {

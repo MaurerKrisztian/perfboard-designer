@@ -14,6 +14,9 @@ import {DEFAULT_DOT_COLOR} from "../board-render";
 import {PartState} from "../state/PartState";
 import {SelectionState} from "../state/SelectionState";
 import {wireDragFrom, wireDragStartDot} from "./wire-drag";
+import {lineLegs} from "./line-path";
+import {isReshaping, reshapeTo, wireGripAt} from "./wire-reshape";
+import {IDot} from "../interfaces/dot.interface";
 
 export function isOverPlacedPart(x: number, y: number): boolean {
   return PartState.parts.some(part => part.containsPoint(x, y));
@@ -25,8 +28,8 @@ export function canPickUpParts(): boolean {
   return ToolState.active.kind === "select";
 }
 
-// Hints at what a drag would do in Select mode: move a part (over its body), draw a wire (on a
-// hole), or pan (anywhere else). Left alone while the cursor reads 'grabbing', which means a drag
+// Hints at what a drag would do in Select mode: bend the selected wire (on its handles), move a
+// part (over its body), draw a wire (on a hole), or pan (anywhere else). Left alone while the cursor reads 'grabbing', which means a drag
 // or a board pan owns it right now.
 function updateDragCursor(x: number, y: number) {
   if (Canvas.c.style.cursor === 'grabbing') return;
@@ -36,6 +39,9 @@ function updateDragCursor(x: number, y: number) {
   }
   if (!canPickUpParts() || wireDragFrom()) {
     Canvas.c.style.cursor = 'crosshair';
+  } else if (isReshaping() || wireGripAt(x, y, false)) {
+    // On the selected wire: a drag bends it.
+    Canvas.c.style.cursor = 'move';
   } else if (wireDragStartDot(x, y, false)) {
     Canvas.c.style.cursor = 'crosshair';
   } else {
@@ -78,23 +84,15 @@ export function hoverAt(e: MouseEvent) {
 
   // Check if mouse is within a line
   LineState.hoverLine = undefined;
-  for(let i = 0; i < LineState.lines.length; i++) {
-    const line = LineState.lines[i];
-    const dx1 = line.start.x - x;
-    const dy1 = line.start.y - y;
-    const dx2 = line.end.x - x;
-    const dy2 = line.end.y - y;
-    const d1 = Math.sqrt(dx1*dx1 + dy1*dy1); // distance from start dot to point
-    const d2 = Math.sqrt(dx2*dx2 + dy2*dy2); // distance from end dot to point
-    const d = Math.sqrt(Math.pow(line.end.x-line.start.x, 2) + Math.pow(line.end.y-line.start.y, 2)); // distance from start dot to end dot
-    if (Math.abs(d - (d1 + d2)) < GridConfig.lineSelectTolerance) { // increased tolerance to 10
-      LineState.hoverLine = line;
-      break;
-    }
-  }
+  // Close to any of its legs: the sum of the distances to a leg's two ends is barely more than
+  // the leg's length.
+  const nearLeg = ([a, b]: [IDot, IDot]) =>
+    Math.abs(Math.hypot(b.x - a.x, b.y - a.y) - Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y)) < GridConfig.lineSelectTolerance;
+  LineState.hoverLine = LineState.lines.find(line => lineLegs(line).some(nearLeg));
 
 
-  const dragMoved = DragState.target ? updateDrag(x, y) : false;
+  // A part, or a selected wire's handle, being dragged follows the pointer.
+  const dragMoved = DragState.target ? updateDrag(x, y) : reshapeTo(DotState.hoverDot);
   updateDragCursor(x, y);
 
   if (dragMoved || DotState.hoverDot !== previousHoverDot || LineState.hoverLine !== previousHoverLine) {

@@ -24,6 +24,8 @@ export interface ToolBehavior<T extends ActiveTool> {
   // Escape steps back within the tool first (e.g. ends a wire run) and returns true. Returning
   // false, or not implementing this, lets Escape drop the tool and the selection.
   stepBack?(tool: T): boolean;
+  // Enter completes what the tool is building (a wire ends at its last bend) and returns true.
+  finish?(tool: T): boolean;
 }
 
 // Dashed ring and hint at the pad a two-click placement would start from.

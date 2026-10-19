@@ -13,8 +13,9 @@ function forTouch(text: string): string {
   return text
     .replace("Drag from a pad to wire it", "Hold a pad to start a wire")
     .replace(", or drag pad to pad", "")
-    .replace(/\[([^\]]*)\]/g, (_, hints: string) => `[${hints.split(" • ").filter(hint => !/^(R|Del) to |^Shift/i.test(hint)).join(" • ")}]`)
-    .replace(" or Esc", "")
+    .replace("Drag pad to pad for an L", "Hold a pad and drag for an L")
+    .replace(/\[([^\]]*)\]/g, (_, hints: string) => `[${hints.split(" • ").filter(hint => !/^(R|Del) to |^Shift|^Esc /i.test(hint)).join(" • ")}]`)
+    .replace(/ or (Esc|Enter)\b/g, "")
     .replace(/\bClick\b/g, "Tap")
     .replace(/\bclick\b/g, "tap");
 }
@@ -88,7 +89,9 @@ export function updateSelectionStatus() {
   } else if (isPlacementTool(tool)) {
     setStatus(statusEl, toolText);
   } else if (selection?.kind === "line") {
-    setStatus(statusEl, `Line Selected (${selection.line.width || 4}px) [Mode: ${modeLabel}]`, selection.line.color || '#777676');
+    const reshape = tool.kind === "select" ? "Drag it to bend it • Drag a bend or an end to move it • " : "";
+    const unbend = tool.kind === "select" && selection.line.via?.length ? "Double-click a bend to remove it • " : "";
+    setStatus(statusEl, `Line Selected (${selection.line.width || 4}px) [${reshape}${unbend}Mode: ${modeLabel}]`, selection.line.color || '#777676');
   } else if (selection?.kind === "dot") {
     setStatus(statusEl, `Pad Selected (${selection.dot.x}, ${selection.dot.y}) [Mode: ${modeLabel}]`, selection.dot.color || '#a4a0a0');
   } else {

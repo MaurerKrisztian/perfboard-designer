@@ -1,6 +1,6 @@
 import {GRID_PITCH_PX, GridPos, holesAlong, pxToGrid} from "./grid";
 import {
-  PROJECT_FILE_VERSION, ProjectFile, Rotation, SavedAdvancedComponent, SavedBoard, SavedCustomIc, SavedIc, SavedPad,
+  fileVersionFor, PROJECT_FILE_VERSION, ProjectFile, Rotation, SavedAdvancedComponent, SavedBoard, SavedCustomIc, SavedIc, SavedPad,
   SavedPerfboard, SavedStandardComponent, SavedWire
 } from "./project-file";
 import {BoardRefs, refPrefixFor} from "./part-refs";
@@ -152,6 +152,21 @@ class Reader {
     };
   }
 
+  // A wire's corners (version 4), undefined if any isn't a hole on the board: a wire bent somewhere
+  // else can't be drawn as it was meant. A corner repeating the hole before it says nothing.
+  corners(value: unknown, from: GridPos): GridPos[] | undefined {
+    if (value === undefined) return [];
+    if (!Array.isArray(value)) return undefined;
+    const corners: GridPos[] = [];
+    for (const item of value) {
+      const at = this.gridPos(item);
+      if (!at) return undefined;
+      const [col, row] = corners[corners.length - 1] ?? from;
+      if (at[0] !== col || at[1] !== row) corners.push(at);
+    }
+    return corners;
+  }
+
   // A stripboard's cut holes, each listed once.
   cuts(value: unknown): GridPos[] {
     const cuts: GridPos[] = [];
@@ -172,7 +187,7 @@ class Reader {
 
   result(board: SavedBoard, project: Omit<ProjectFile, "version" | "board">): ReadProjectResult {
     giveEveryPartARef(project);
-    return {project: {version: PROJECT_FILE_VERSION, board, ...project}, skipped: this.skipped};
+    return {project: {version: fileVersionFor(project), board, ...project}, skipped: this.skipped};
   }
 }
 
@@ -194,15 +209,16 @@ function optional<K extends string, V>(key: K, value: V | undefined): {[P in K]?
   return (value === undefined ? {} : {[key]: value}) as {[P in K]?: V};
 }
 
-// Versions 2 and 3: grid positions. Version 3 added the board type (with a stripboard's cuts) and
-// part refs. A version 2 board is always a perfboard, and its parts are given refs on reading.
-function readGridFile(data: Entry, version: 2 | 3): ReadProjectResult {
+// Versions 2 to 4: grid positions. Version 3 added the board type (with a stripboard's cuts) and
+// part refs, version 4 bent wires. A version 2 board is always a perfboard, and its parts are given
+// refs on reading.
+function readGridFile(data: Entry, version: 2 | 3 | 4): ReadProjectResult {
   const boardEntry = asEntry(data.board);
   const cols = boardEntry && wholeCount(boardEntry.cols);
   const rows = boardEntry && wholeCount(boardEntry.rows);
   if (!boardEntry || !cols || !rows) throw new ProjectFileError(NOT_A_PROJECT);
   const r = new Reader(cols, rows);
-  const board = version === 3 ? r.board(boardEntry) : r.perfboard();
+  const board = version >= 3 ? r.board(boardEntry) : r.perfboard();
 
   const pads = r.pads(data.pads, entry => ({at: r.gridPos(entry.at), color: text(entry.color), note: text(entry.note)}));
 
@@ -210,7 +226,15 @@ function readGridFile(data: Entry, version: 2 | 3): ReadProjectResult {
     const from = r.gridPos(entry.from);
     const to = r.gridPos(entry.to);
     if (!from || !to) return undefined;
-    return {from, to, ...optional("color", text(entry.color)), ...optional("width", positiveNumber(entry.width))};
+    const via = version >= 4 ? r.corners(entry.via, from) : [];
+    if (!via) return undefined;
+    // The last corner can't be the end hole either.
+    const last = via[via.length - 1];
+    if (last && last[0] === to[0] && last[1] === to[1]) via.pop();
+    return {
+      from, to, ...(via.length ? {via} : {}),
+      ...optional("color", text(entry.color)), ...optional("width", positiveNumber(entry.width)),
+    };
   });
 
   const placedIcs = r.list<SavedIc>(data.placedIcs, entry => {
@@ -331,7 +355,7 @@ export function readProjectFile(raw: unknown): ReadProjectResult {
   // Version 1 never had a `board`, so a file without a version that has one was written by hand
   // (or by a program) to the current format, and only left the version out.
   if (data.version === undefined) return asEntry(data.board) ? readGridFile(data, PROJECT_FILE_VERSION) : readV1(data);
-  if (data.version === 2 || data.version === 3) return readGridFile(data, data.version);
+  if (data.version === 2 || data.version === 3 || data.version === 4) return readGridFile(data, data.version);
   if (typeof data.version === "number" && data.version > PROJECT_FILE_VERSION) {
     throw new ProjectFileError(
       "This project was saved by a newer version of Perfboard Designer. Reload the page to get the latest version, then open it again."

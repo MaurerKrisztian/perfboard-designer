@@ -12,8 +12,9 @@ export type ActiveTool =
   | {kind: "note"}
   // Stripboard only: cuts the strip at a hole, or mends a cut.
   | {kind: "cut"}
-  // Wire runs chain: each wire's end pad becomes the next one's start.
-  | {kind: "wire"; start?: IDot}
+  // Wire runs chain: each wire's end pad becomes the next one's start. `via`: the holes the wire
+  // being drawn bends at so far, after `start`.
+  | {kind: "wire"; start?: IDot; via?: IDot[]}
   // A clone of the catalog entry, so rotating it before placing leaves the catalog alone.
   | {kind: "ic"; template: Ic}
   | {kind: "standard-component"; definitionId: string; start?: IDot}

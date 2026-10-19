@@ -1,6 +1,6 @@
 import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 import * as z from "zod";
-import {computeNets, layoutProjectWires, PROJECT_FILE_VERSION, ProjectFile, ProjectFileError, readProjectFile} from "../editor";
+import {computeNets, fileVersionFor, layoutProjectWires, ProjectFile, ProjectFileError, readProjectFile} from "../editor";
 import {EXAMPLE_IDS, EXAMPLES, exampleProject} from "../examples";
 import {editOp} from "../edit-ops";
 import {applyEdits, isEditError, pinsOf} from "../edit-project";
@@ -97,7 +97,7 @@ export function registerProjectTools(server: McpServer) {
 
   server.registerTool("get_project", {
     title: "Get project",
-    description: "The whole project file of a project kept here, as the editor would save it (version 3), one entry per line.",
+    description: "The whole project file of a project kept here, as the editor would save it (version 3, or 4 once a wire bends), one entry per line.",
     inputSchema: {projectId: z.string()},
     annotations: {readOnlyHint: true, openWorldHint: false},
   }, async ({projectId}) => {
@@ -110,7 +110,7 @@ export function registerProjectTools(server: McpServer) {
 // An empty board; a stripboard when it has strips.
 function blankProject(cols: number, rows: number, strips?: "horizontal" | "vertical"): ProjectFile {
   return {
-    version: PROJECT_FILE_VERSION,
+    version: fileVersionFor({wires: []}),
     board: strips ? {type: "stripboard", cols, rows, strips, cuts: []} : {type: "perfboard", cols, rows},
     pads: [], wires: [], placedIcs: [], placedStandardComponents: [], placedAdvancedComponents: [], customIcs: [],
   };

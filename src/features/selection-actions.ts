@@ -14,18 +14,19 @@ import {DEFAULT_DOT_COLOR} from "../board-render";
 import {holeName, toGridPos} from "../project-file/grid";
 import {Utils} from "../utils/utils";
 import {updateSelectionStatus} from "./selection-status";
+import {straightenWire} from "./wire-reshape";
 
 // What can be done to the selected part, wire or pad: the right-click context menu and the
 // selection bar over the board offer the same actions, as buttons with a data-action. Only the
 // ones that apply are shown: <body data-sel-actions="rotate value delete"> lists them, and the
 // stylesheet hides the rest.
 
-type Action = "wire" | "rotate" | "color" | "value" | "note" | "delete";
+type Action = "wire" | "rotate" | "color" | "straighten" | "value" | "note" | "delete";
 
 function availableActions(): Action[] {
   const selection = SelectionState.current;
   if (!selection) return [];
-  if (selection.kind === "line") return ["color", "delete"];
+  if (selection.kind === "line") return selection.line.via?.length ? ["color", "straighten", "delete"] : ["color", "delete"];
   if (selection.kind === "dot") {
     const {dot} = selection;
     const marked = !!dot.description || (!!dot.color && dot.color !== DEFAULT_DOT_COLOR);
@@ -65,7 +66,7 @@ function runAction(action: string, e: MouseEvent) {
   const fromMenu = !!(e.currentTarget as HTMLElement).closest("#contextMenu");
   hideContextMenu();
   if (action === "wire") {
-    // The wire tool, with its first hole already picked: the next tap or click ends the wire.
+    // The wire tool, with its first hole already picked.
     const hole = fromMenu ? contextMenuHole() : SelectionState.dot;
     if (!hole) return;
     SelectionState.clear();
@@ -74,6 +75,10 @@ function runAction(action: string, e: MouseEvent) {
     rotateSelectedIc();
   } else if (action === "color") {
     changeSelectedColor();
+  } else if (action === "straighten") {
+    if (SelectionState.line) straightenWire(SelectionState.line);
+    updateSelectionStatus();
+    redrawCanvas();
   } else if (action === "note") {
     if (SelectionState.dot) void addDescriptionToDot();
   } else if (action === "value") {

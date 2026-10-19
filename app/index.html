@@ -42,6 +42,7 @@
       <symbol id="i-fit" viewBox="0 0 24 24"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><rect x="8" y="8" width="8" height="8" rx="1"/></symbol>
       <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z"/><circle cx="7.5" cy="7.5" r="1.5"/></symbol>
       <symbol id="i-focus" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></symbol>
+      <symbol id="i-straighten" viewBox="0 0 24 24"><path d="M3 9l5-5 5 5 5-5" stroke-dasharray="2 2.6"/><path d="M3 18h18"/><path d="M12 12v4"/></symbol>
       <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/></symbol>
       <symbol id="i-color" viewBox="0 0 24 24"><path d="M12 2.7 17.7 8.4a8 8 0 1 1-11.4 0z"/></symbol>
       <symbol id="i-value" viewBox="0 0 24 24"><path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/></symbol>
@@ -335,6 +336,7 @@
           <button data-action="wire" title="Start a wire from this pad"><svg class="icon" aria-hidden="true"><use href="#i-wire"/></svg><span>Wire</span></button>
           <button data-action="rotate" title="Rotate (R)"><svg class="icon" aria-hidden="true"><use href="#i-rotate"/></svg><span>Rotate</span></button>
           <button data-action="color" title="Change color"><svg class="icon" aria-hidden="true"><use href="#i-color"/></svg><span>Color</span></button>
+          <button data-action="straighten" title="Take out the wire's bends"><svg class="icon" aria-hidden="true"><use href="#i-straighten"/></svg><span>Straighten</span></button>
           <button data-action="value" title="Set value"><svg class="icon" aria-hidden="true"><use href="#i-value"/></svg><span>Value</span></button>
           <button data-action="note" title="Add or edit a note"><svg class="icon" aria-hidden="true"><use href="#i-note"/></svg><span>Note</span></button>
           <button data-action="delete" class="is-danger" title="Delete (Del)"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg><span>Delete</span></button>
@@ -381,6 +383,7 @@
     <button id="ctxWireBtn" data-action="wire"><svg class="icon" aria-hidden="true"><use href="#i-wire"/></svg>Start Wire Here</button>
     <button id="ctxRotateBtn" data-action="rotate"><svg class="icon" aria-hidden="true"><use href="#i-rotate"/></svg>Rotate<kbd>R</kbd></button>
     <button id="ctxColorBtn" data-action="color"><svg class="icon" aria-hidden="true"><use href="#i-color"/></svg>Change Color</button>
+    <button id="ctxStraightenBtn" data-action="straighten"><svg class="icon" aria-hidden="true"><use href="#i-straighten"/></svg>Straighten</button>
     <button id="ctxNoteBtn" data-action="note"><svg class="icon" aria-hidden="true"><use href="#i-note"/></svg>Add/Edit Note</button>
     <button id="ctxValueBtn" data-action="value"><svg class="icon" aria-hidden="true"><use href="#i-value"/></svg>Set Value</button>
     <button id="ctxDeleteBtn" data-action="delete" class="ctx-danger"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg>Delete<kbd>Del</kbd></button>

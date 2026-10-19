@@ -1,6 +1,6 @@
 import {
   Box, comparePins, computeNets, GridPos, isModulePart, isPowerNet, isValidRef, layoutProjectWires, Net, Netlist,
-  NetPin, PartPins, partPins, pinName, PlacedPin, ProjectFile, ProjectFileError, readProjectFile,
+  NetPin, PartPins, partPins, pinName, PlacedPin, PROJECT_FILE_VERSION, ProjectFile, ProjectFileError, readProjectFile,
 } from "./editor";
 import {partsLike} from "./parts";
 import {holeContents, WireIndex} from "./nets-report";
@@ -87,7 +87,14 @@ export function validateProject(raw: unknown, expectNets?: string[][]): Validati
   }
 
   const data = asEntry(raw) ?? {};
-  if (data.version === undefined && asEntry(data.board)) report.warn('There\'s no "version": it was read as version 3. Add "version": 3.');
+  if (data.version === undefined && asEntry(data.board)) {
+    report.warn(`There's no "version": it was read as version ${PROJECT_FILE_VERSION}. Add "version": ${PROJECT_FILE_VERSION}.`);
+  }
+  // Bends came in version 4: an older file's are left out, so its wires run straight.
+  if (data.version === 2 || data.version === 3) {
+    const bent = (Array.isArray(data.wires) ? data.wires : []).flatMap((wire, i) => asEntry(wire)?.via !== undefined ? [wireName(i)] : []);
+    if (bent.length) report.warn(`${joinList(bent)} ${bent.length === 1 ? "has" : "have"} "via" corners, which version ${data.version} files don't have, so ${bent.length === 1 ? "it was" : "they were"} read as straight. Set "version": ${PROJECT_FILE_VERSION} to keep the bends.`);
+  }
   const entries = readEntriesAlone(data, project);
   report.problems.push(...entries.unreadable);
   const unnamed = skipped - entries.unreadable.length;
@@ -122,7 +129,7 @@ function readEntriesAlone(data: Entry, project: ProjectFile): {unreadable: Probl
   const board = asEntry(data.board);
   // A version 1 file has no board: its entries can't be read one at a time.
   if (!board) return {unreadable, kept};
-  const version = data.version === 2 ? 2 : 3;
+  const version = data.version === 2 || data.version === 3 ? data.version : PROJECT_FILE_VERSION;
   const {cols, rows} = project.board;
   const leftOut = (where: string, why: string) => unreadable.push({severity: "error", message: `${where} was left out: ${why}.`});
 
@@ -132,13 +139,19 @@ function readEntriesAlone(data: Entry, project: ProjectFile): {unreadable: Probl
     if (c < 0 || c >= cols || r < 0 || r >= rows) return `\`${name}\` ${showHole([c, r])} is ${offBoard(cols, rows)}`;
     return undefined;
   };
+  // A wire's bends: each a hole on the board.
+  const corners = (value: unknown): (string | undefined)[] => {
+    if (value === undefined || version < 4) return [];
+    if (!Array.isArray(value)) return ["`via` must be a list of [column, row] holes"];
+    return value.map((at, k) => position(`via[${k}]`, at));
+  };
   const why = (list: ListName, entry: Entry | undefined): string => {
     if (!entry) return "it isn't an object";
     const missing = (field: string) => typeof entry[field] !== "string" || !(entry[field] as string).trim() ? `\`${field}\` is missing` : undefined;
     const count = (field: string) => Number.isInteger(entry[field]) && (entry[field] as number) >= 1 ? undefined : `\`${field}\` must be a whole number, 1 or more`;
     const reasons = {
       pads: () => [position("at", entry.at)],
-      wires: () => [position("from", entry.from), position("to", entry.to)],
+      wires: () => [position("from", entry.from), position("to", entry.to), ...corners(entry.via)],
       placedIcs: () => [position("at", entry.at), count("widthPin"), count("heightPin")],
       placedStandardComponents: () => [missing("definitionId"), position("from", entry.from), position("to", entry.to)],
       placedAdvancedComponents: () => [missing("definitionId"), position("at", entry.at)],
@@ -312,7 +325,8 @@ function checkConnections(board: Board) {
   checkShortedRails(board);
 }
 
-// A wire running over a pin it doesn't join (a warning), or over another wire or wire end (a note).
+// A wire running or bending over a pin it doesn't join (a warning), or over another wire or wire
+// end (a note).
 function checkWiresOverHoles({project, nets, wireIndex, report}: Board) {
   const inHole = holeContents(project, nets);
   const wire = (i: number) => wireName(wireIndex(i));
@@ -323,11 +337,13 @@ function checkWiresOverHoles({project, nets, wireIndex, report}: Board) {
       continue;
     }
     const {pins, wires} = inHole(hop.at);
+    // A wire bending on the hole (one of its via corners) goes over it just the same.
+    const passes = (project.wires[hop.wire].via ?? []).some(corner => holeKey(corner) === holeKey(hop.at)) ? "bends over" : "passes over";
     if (pins.length) {
       const what = pins.map(pinName).join(" and ");
-      report.warn(`${wire(hop.wire)} passes over hole ${showHole(hop.at)}, which holds ${what}, without ending there, so it isn't connected to ${pins.length === 1 ? "it" : "them"}. If it should be, end a wire in that hole.`);
+      report.warn(`${wire(hop.wire)} ${passes} hole ${showHole(hop.at)}, which holds ${what}, without ending there, so it isn't connected to ${pins.length === 1 ? "it" : "them"}. If it should be, end a wire in that hole.`);
     } else {
-      report.note(`${wire(hop.wire)} passes over the end of ${wires.map(wire).join(" and ")} at ${showHole(hop.at)} without joining ${wires.length === 1 ? "it" : "them"}.`);
+      report.note(`${wire(hop.wire)} ${passes} the end of ${wires.map(wire).join(" and ")} at ${showHole(hop.at)} without joining ${wires.length === 1 ? "it" : "them"}.`);
     }
   }
 }

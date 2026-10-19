@@ -78,7 +78,7 @@ export function registerShareLinkTools(server: McpServer, DEFAULT_EDITOR_URL: st
 
   server.registerTool("read_share_link", {
     title: "Read share link",
-    description: "Reads the project out of a Perfboard Designer share link (any of its forms: z=, json= or src=, which is downloaded; a stored project's short link too), so you can look at or change a board the user shared. Returns the project as a version 3 project file, kept here under the projectId it returns: change it with edit_project.",
+    description: "Reads the project out of a Perfboard Designer share link (any of its forms: z=, json= or src=, which is downloaded; a stored project's short link too), so you can look at or change a board the user shared. Returns the project as a project file (version 3, or 4 when a wire bends), kept here under the projectId it returns: change it with edit_project.",
     inputSchema: {
       link: z.string().describe("The whole link, or just the part after #."),
     },

@@ -1,4 +1,4 @@
-import {BoardRefs, boardPins, GridPos, isValidRef, partPins, pinName, ProjectFile, Rotation, SavedWire} from "./editor";
+import {BoardRefs, boardPins, fileVersionFor, GridPos, isValidRef, partPins, pinName, ProjectFile, Rotation, SavedWire} from "./editor";
 import {findPart, icEntry, noSuchPart} from "./parts";
 import {findPin, pinsByRef} from "./expected-nets";
 import {EditOp, Op} from "./edit-ops";
@@ -34,6 +34,9 @@ export function applyEdits(project: ProjectFile, ops: EditOp[]): EditResult {
       throw err;
     }
   });
+  // The version that holds what the ops made: a bend needs version 4, or reading the file back
+  // would straighten the wire.
+  draft.version = fileVersionFor(draft);
   // Parts removed after being placed have nothing to report.
   const refs = new Set(allParts(draft).map(part => part.ref));
   return {project: draft, changes, placed: [...placed].filter(ref => refs.has(ref))};
@@ -234,8 +237,12 @@ function notFor(kind: string, op: Record<string, unknown>, fields: string[]) {
 
 // --- Wires ---
 
+type WireEnd = readonly number[] | string;
+
 function addWire(project: ProjectFile, op: Op<"add_wire">): string {
   if (op.path && (op.from || op.to)) throw new OpError("Give either `path` or `from` and `to`, not both.");
+  if (op.path && op.via) throw new OpError("`via` goes with `from` and `to`; a `path`'s corners are wire ends instead.");
+  if (op.via && op.from && op.to) return addBentWire(project, op, op.from, op.to, op.via);
   const given = op.path ?? (op.from && op.to ? [op.from, op.to] : undefined);
   if (!given) throw new OpError("A wire needs `from` and `to`, or a `path` of two or more holes.");
   const points = given.map((end, i) => wireEndAt(project, end, op.path ? `path[${i}]` : i ? "`to`" : "`from`"));
@@ -255,6 +262,30 @@ function addWire(project: ProjectFile, op: Op<"add_wire">): string {
     : `Added wires[${first}]-[${first + made - 1}] along ${corners.map(end => end.said).join(" → ")}.`;
 }
 
+// One wire from `from` to `to`, bending at the holes in `via`.
+function addBentWire(project: ProjectFile, op: Op<"add_wire">, fromEnd: WireEnd, toEnd: WireEnd, via: number[][]): string {
+  const from = wireEndAt(project, fromEnd, "`from`");
+  const to = wireEndAt(project, toEnd, "`to`");
+  const wire: SavedWire = {
+    from: from.at, to: to.at, ...withBends(project, from.at, to.at, via),
+    ...(op.color ? {color: op.color} : {}), ...(op.width ? {width: op.width} : {}),
+  };
+  project.wires.push(wire);
+  return `Added wires[${project.wires.length - 1}] from ${from.said} to ${to.said}${bendsSaid(wire)}.`;
+}
+
+// A wire's `via` from the holes given: each on the board, a hole repeating the one before it left
+// out. Refuses a wire that would start and end in one hole.
+function withBends(project: ProjectFile, from: GridPos, to: GridPos, via: number[][]): Pick<SavedWire, "via"> {
+  via.forEach((at, k) => checkOnBoard(project, at, `via[${k}]`));
+  const points = [from, ...via.map(toGridPos), to].filter((at, i, all) => i === 0 || !sameHole(at, all[i - 1]));
+  if (sameHole(from, to)) throw new OpError(`The wire would start and end in hole ${showHole(from)}.`);
+  const corners = points.slice(1, -1);
+  return corners.length ? {via: corners} : {};
+}
+
+const bendsSaid = (wire: SavedWire) => wire.via?.length ? `, bending at ${wire.via.map(showHole).join(", ")}` : "";
+
 function updateWire(project: ProjectFile, op: Op<"update_wire">): string {
   const i = findWire(project, op.wire);
   const from = op.from === undefined ? undefined : wireEndAt(project, op.from, "`from`");
@@ -265,8 +296,12 @@ function updateWire(project: ProjectFile, op: Op<"update_wire">): string {
   };
   if (!updated.color) delete updated.color;
   if (sameHole(updated.from, updated.to)) throw new OpError(`The wire would start and end in hole ${showHole(updated.from)}.`);
+  if (op.via !== undefined) {
+    delete updated.via;
+    Object.assign(updated, withBends(project, updated.from, updated.to, op.via));
+  }
   project.wires[i] = updated;
-  return `wires[${i}] now runs from ${from?.said ?? showHole(updated.from)} to ${to?.said ?? showHole(updated.to)}.`;
+  return `wires[${i}] now runs from ${from?.said ?? showHole(updated.from)} to ${to?.said ?? showHole(updated.to)}${bendsSaid(updated) || (op.via !== undefined ? ", straight" : "")}.`;
 }
 
 function removeWires(project: ProjectFile, op: Op<"remove_wires">): string {
@@ -310,7 +345,7 @@ function setBoard(project: ProjectFile, op: Op<"set_board">): string {
 
   const off = ([c, r]: readonly number[]) => c >= cols || r >= rows;
   const parts = partPins(project).filter(part => part.pins.some(pin => off(pin.at))).map(part => part.ref);
-  const wires = project.wires.flatMap((wire, i) => off(wire.from) || off(wire.to) ? [`wires[${i}]`] : []);
+  const wires = project.wires.flatMap((wire, i) => off(wire.from) || off(wire.to) || wire.via?.some(off) ? [`wires[${i}]`] : []);
   const pads = project.pads.filter(pad => off(pad.at)).length;
   if (parts.length || wires.length || pads) {
     const what = [

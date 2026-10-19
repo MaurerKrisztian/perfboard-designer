@@ -43,8 +43,10 @@ export const editOp = z.discriminatedUnion("op", [
     op: z.literal("add_wire"),
     from: wireEnd.optional(),
     to: wireEnd.optional(),
+    via: z.array(hole).optional()
+      .describe("With from/to: the holes the wire bends at on its way, in order, to route it around things as one wire. A bend joins nothing, like a hole the wire passes over, so it's soldered only at its two ends."),
     path: z.array(wireEnd).min(2).optional()
-      .describe("Instead of from/to: holes (or pins) to run through in order, made into one wire per leg. Each corner is a wire end, so it joins whatever is in that hole."),
+      .describe("Instead of from/to: holes (or pins) to run through in order, made into one wire per leg. Each corner is a wire end, so it joins whatever is in that hole. For corners that only bend, use from/to with via."),
     color: z.string().optional(),
     width: z.number().positive().optional(),
   }),
@@ -53,6 +55,7 @@ export const editOp = z.discriminatedUnion("op", [
     wire: wireSelector,
     from: wireEnd.optional(),
     to: wireEnd.optional(),
+    via: z.array(hole).optional().describe("Its bends, replacing the ones it has; [] makes it straight. Left out, its bends stay."),
     color: z.string().optional(),
     width: z.number().positive().optional(),
   }),

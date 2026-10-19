@@ -30,7 +30,9 @@ export {MODULE_EDGE, MODULE_END} from "./artists/ic-package/module-shape";
 export {dipIconSvg} from "./artists/ic-package/dip-shape";
 export {moduleIconSvg} from "./artists/ic-package/module-shape";
 
-// Colours the editor needs too.
-export {DEFAULT_DOT_COLOR, SELECTION_COLOR} from "./palette";
+// Colours and sizes the editor needs too.
+export {DEFAULT_DOT_COLOR, DEFAULT_WIRE_WIDTH, SELECTION_COLOR} from "./palette";
+// A wire's line through holes, its bends rounded off as the board draws them (placement previews).
+export {roundedWireLine} from "./layers/wires";
 export {PERFBOARD_COLOR} from "./board-looks/perfboard-look";
 export {STRIPBOARD_COLOR} from "./board-looks/stripboard-look";

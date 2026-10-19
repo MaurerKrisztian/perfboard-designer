@@ -52,7 +52,10 @@ async function resizeBoard(cols: number, rows: number): Promise<boolean> {
     part.getAnchorDots().every(fitsNewBoard)
     && part.getOccupiedPositions().every(p => !oldDots.has(dotPositionKey(p.x, p.y)) || fitsNewBoard(p));
 
-  const keptLines = LineState.lines.filter(line => fitsNewBoard(line.start) && fitsNewBoard(line.end));
+  // A wire whose ends fit stays; any corner off the new edge is dropped, straightening it there.
+  const keptLines = LineState.lines
+    .filter(line => fitsNewBoard(line.start) && fitsNewBoard(line.end))
+    .map(line => line.via && !line.via.every(fitsNewBoard) ? {...line, via: line.via.filter(fitsNewBoard)} : line);
   const keptParts = PartState.parts.filter(partFits);
 
   const droppedWires = LineState.lines.length - keptLines.length;

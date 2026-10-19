@@ -159,7 +159,7 @@
             </li>
             <li>
               <h3>Wire it up</h3>
-              <p>Drag from the pin where a wire starts to the hole it should end in. For a wire with corners, press <kbd>W</kbd> for the wire tool, click the start, then each hole it runs to, and press <kbd>Esc</kbd> to finish.</p>
+              <p>Drag from the pin where a wire starts to the hole it should end in: it bends once, as an L. To route it your own way, press <kbd>W</kbd> for the wire tool, click the start, the empty holes it bends at, and the pin it ends on.</p>
             </li>
             <li>
               <h3>Check the nets</h3>
@@ -299,24 +299,47 @@
           <h2>Route wires</h2>
           <p>
             The quickest way: <strong>drag from one hole to another</strong>. It works with the Select
-            tool and the wire tool, from an empty hole or a part's pin. The wire shows dashed as you
-            drag and is placed when you let go on a different hole; let go on the hole you started
+            tool and the wire tool, from an empty hole or a part's pin. The wire routes itself as an
+            <strong>L</strong> with one bend, going first the way you moved first (across, then down;
+            or down, then across), and straight when the two holes line up. Press <kbd>/</kbd> while
+            dragging to flip the L, or hold <kbd>Shift</kbd> for a straight wire. It shows dashed as
+            you drag and is placed when you let go on a different hole; let go on the hole you started
             from, or press <kbd>Esc</kbd>, to drop it. You can also right-click a hole and choose
             <strong>Start Wire Here</strong>. On a phone, dragging pans the board instead: see
             <a href="#phone">On a phone or tablet</a>.
           </p>
           <p>
-            For a run with corners, click <strong>Wire Tool</strong> or press <kbd>W</kbd>. Click the hole where the wire
-            starts, then click each hole it should run to: every click ends one straight segment and
-            starts the next, so you can route around parts with corners. Click the same hole twice
-            or press <kbd>Esc</kbd> to end the run.
+            To route a wire your own way, click <strong>Wire Tool</strong> or press <kbd>W</kbd>, then
+            click the hole where the wire starts and each hole on its way:
+          </p>
+          <ul>
+            <li>A click on an <strong>empty hole</strong> bends the wire there. A bend is just a bend in the wire, not a joint: it connects nothing.</li>
+            <li>A click on a hole with a <strong>pin or a wire</strong> in it ends the wire there and connects it. The next wire starts from that hole, so a run of connections costs one click per hole.</li>
+            <li>To end a wire on an empty hole, click its last hole again or press <kbd>Enter</kbd>.</li>
+            <li><kbd>Esc</kbd> takes back the last bend; with no bend left, it ends the run. Clicking the start hole again also ends it.</li>
+            <li>On a stripboard every hole is on a strip, so a click always connects; drag for an L.</li>
+          </ul>
+          <p>
+            A ring on the hole under the pointer means a click there connects the wire.
           </p>
           <ul>
             <li>Pick a <strong>color</strong> before you draw (red for power and black for ground keeps a board readable), or add your own with the <strong>+</strong> button.</li>
             <li>Choose <strong>Thin</strong>, <strong>Normal</strong> or <strong>Thick</strong> wire.</li>
-            <li>Straight runs of the same color that meet end to end are merged into one wire.</li>
+            <li>Start or end a wire at another wire's free end (a hole with nothing else in it), in the same color and thickness, and it carries that wire on: the two become one wire, bending where they met.</li>
             <li>Where one wire ends on another, the two are joined, whichever you draw first: the wire running past is split at that hole, and a solder dot marks the joint. Wires that only cross each other stay apart.</li>
             <li>To recolor a wire, select it and click a color.</li>
+          </ul>
+          <h3>Bend a wire you've drawn</h3>
+          <p>
+            Click a wire with the Select tool and it shows handles: a white one on each bend and a
+            small dot in the middle of each straight stretch.
+          </p>
+          <ul>
+            <li><strong>Drag the wire</strong> anywhere along it (or by its middle dot) to pull out a new bend. It follows the pointer from hole to hole.</li>
+            <li><strong>Drag a bend</strong> to move it. Let go of it in line with the holes either side and it's gone.</li>
+            <li><strong>Drag an end</strong> to move that end to another hole. It connects to whatever is there, like a new wire would.</li>
+            <li><strong>Double-click a bend</strong> to take it out, or click <strong>Straighten</strong> in the bar along the bottom to take them all out.</li>
+            <li><kbd>Esc</kbd> while dragging puts the wire back as it was, and <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes a change.</li>
           </ul>
           <h3>How wires connect</h3>
           <p>
@@ -340,7 +363,7 @@
           <h2>Select, move and delete</h2>
           <ul>
             <li><strong>Select</strong> (the default tool): click a part, wire or hole to select it. Drag a part to move it to new holes.</li>
-            <li>A selected item gets a bar along the bottom of the board with what you can do to it: <strong>Rotate</strong> a chip or other part that turns, change the <strong>Color</strong> of a wire, hole or LED, set a part's <strong>Value</strong>, add a <strong>Note</strong> to a hole, and <strong>Delete</strong>. <strong>Right-click</strong> anything for the same actions as a menu.</li>
+            <li>A selected item gets a bar along the bottom of the board with what you can do to it: <strong>Rotate</strong> a chip or other part that turns, change the <strong>Color</strong> of a wire, hole or LED, <strong>Straighten</strong> a bent wire, set a part's <strong>Value</strong>, add a <strong>Note</strong> to a hole, and <strong>Delete</strong>. <strong>Right-click</strong> anything for the same actions as a menu.</li>
             <li><kbd>Delete</kbd> removes the selected part or wire.</li>
             <li><strong>Eraser</strong>: click a part or wire to remove it, or a hole to clear its color and note.</li>
             <li><strong>Note</strong>: click a hole to write a note on it, such as "to 9V battery" or "solder last". Notes show in the bar below the board when you point at the hole. With a hole selected, <kbd>D</kbd> adds a note and <kbd>Shift</kbd>+<kbd>D</kbd> removes it.</li>
@@ -365,8 +388,8 @@
             <li><strong>+</strong> slides up the Components library. Pick a part and it slides away again, ready for you to tap the board.</li>
             <li>While you place a part or a wire, a hint over the board says what to tap next, such as "Tap start pad", with a button to cancel and, for chips, one to rotate the part first.</li>
             <li>Tap a part, wire or hole to select it. A bar along the bottom shows what you can do to it: wire, rotate, color, value, note and delete. Pressing and holding it opens the same actions as a menu.</li>
-            <li>Drag with one finger to pan. In Select mode, drag a part's body to move it.</li>
-            <li>To draw a wire, press and hold a hole or a pin and choose <strong>Start Wire Here</strong>, then tap the hole it goes to. Or keep your finger down after the menu appears and drag straight to that hole. Tapping a hole also gives a <strong>Wire</strong> button in the bar along the bottom.</li>
+            <li>Drag with one finger to pan. In Select mode, drag a part's body to move it, or a selected wire's handles to <a href="#wires">bend it</a> (double-tap a bend to take it out).</li>
+            <li>To draw a wire, press and hold a hole or a pin and choose <strong>Start Wire Here</strong>, then tap the holes it bends at and the one it goes to. Or keep your finger down after the menu appears and drag to that hole: the wire bends once, as an L, and a tap with a second finger flips it. Tapping a hole also gives a <strong>Wire</strong> button in the bar along the bottom.</li>
             <li>Pinch with two fingers to zoom, and drag with two fingers to pan with any tool.</li>
             <li><strong>More</strong> slides up the other tools (Eraser, Note, Cut), the board type and size, and the wire colors and thicknesses.</li>
             <li><strong>Nets</strong> slides up the Nets panel.</li>
@@ -522,7 +545,10 @@
                 <tr><td><kbd>/</kbd></td><td>Search components</td></tr>
                 <tr><td><kbd>W</kbd></td><td>Turn the wire tool on or off</td></tr>
                 <tr><td><kbd>R</kbd></td><td>Rotate the part you're placing, or the selected part</td></tr>
-                <tr><td><kbd>Esc</kbd></td><td>End a wire run, put down the part you're placing, or clear the selection</td></tr>
+                <tr><td><kbd>Esc</kbd></td><td>Take back a wire's last bend, end a wire run, put down the part you're placing, or clear the selection</td></tr>
+                <tr><td><kbd>Enter</kbd></td><td>End the wire you're drawing at its last bend</td></tr>
+                <tr><td><kbd>/</kbd> while dragging a wire</td><td>Flip its L</td></tr>
+                <tr><td><kbd>Shift</kbd> while dragging a wire</td><td>Draw it straight</td></tr>
                 <tr><td><kbd>Delete</kbd></td><td>Delete the selected part or wire</td></tr>
                 <tr><td><kbd>C</kbd></td><td>Change the color of the selected hole or wire</td></tr>
                 <tr><td><kbd>D</kbd></td><td>Add a note to the selected hole</td></tr>

@@ -149,7 +149,8 @@ https://perfboarddesigner.com/app/#name=LED%20blinker&p=led-blinker
 ## The project file
 
 A share link carries the same project file as **File → Save Project to File**. Every version
-opens, but write the current one, version 3. It's documented field by field in
+opens, but write the current one, version 4 (version 3 is the same without bent wires, and is
+fine for a board without them). It's documented field by field in
 [`src/project-file/project-file.ts`](../src/project-file/project-file.ts). In short:
 
 - Positions are `[column, row]` grid holes counted from the **top-left hole**, both starting at 0.
@@ -158,7 +159,9 @@ opens, but write the current one, version 3. It's documented field by field in
   `"strips": "horizontal" | "vertical"` and `"cuts": [[col, row], ...]`.
 - `pads`: holes marked with a `color` and/or a `note` (like `+9V` or `GND`). Purely visual: it
   doesn't connect anything.
-- `wires`: `{"from": [c, r], "to": [c, r]}`, with optional `color` (`"#rrggbb"`) and `width`.
+- `wires`: `{"from": [c, r], "to": [c, r]}`, with optional `color` (`"#rrggbb"`) and `width`. A
+  wire joins only its two end holes. With `"via": [[c, r], ...]` (version 4) it bends at those
+  holes on its way, in order; a bend joins nothing.
 - `placedStandardComponents`: two-lead parts placed between two holes: `definitionId`, `from`,
   `to`, optional `value` (`"10k"`, `"100n"`) and `color` (LEDs). On polarized parts, `from` is
   an LED's cathode, a diode's anode and an electrolytic capacitor's − lead (`leadLabels` in the
@@ -174,7 +177,7 @@ opens, but write the current one, version 3. It's documented field by field in
   automatically.
 
 The reader is forgiving: empty lists can be left out, a file without `version` that has a `board`
-is read as version 3, and entries it can't read are skipped (and counted) instead of failing the
+is read as version 4, and entries it can't read are skipped (and counted) instead of failing the
 whole project.
 
 The `definitionId`s, with each part's pins, are in

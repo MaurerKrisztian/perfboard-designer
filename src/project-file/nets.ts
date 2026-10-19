@@ -7,9 +7,10 @@ import {PartKind} from "./part-refs";
 // else, so the editor (from its save snapshot) and any program reading the same file always agree.
 // Nets are derived, never saved in the file.
 //
-// What connects: a wire joins the holes at its two ends, never the holes it passes over; things in
-// the same hole are joined (one pad); on a stripboard every hole along a strip is joined up to the
-// next cut. A cut hole has no copper, so whatever is in it connects to nothing there.
+// What connects: a wire joins the holes at its two ends, never the holes it passes over or bends
+// over (its `via` corners); things in the same hole are joined (one pad); on a stripboard every
+// hole along a strip is joined up to the next cut. A cut hole has no copper, so whatever is in it
+// connects to nothing there.
 
 export interface NetPin {
   ref: string;

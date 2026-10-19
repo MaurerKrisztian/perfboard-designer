@@ -42,7 +42,11 @@ export function loadProject(raw: unknown): {skipped: number} {
     for (const at of board.cuts) dotAt(at).cut = true;
   }
 
-  LineState.lines = project.wires.map(wire => ({start: dotAt(wire.from), end: dotAt(wire.to), color: wire.color, width: wire.width}));
+  LineState.lines = project.wires.map(wire => ({
+    start: dotAt(wire.from), end: dotAt(wire.to),
+    ...(wire.via ? {via: wire.via.map(dotAt)} : {}),
+    color: wire.color, width: wire.width,
+  }));
 
   const parts: Part[] = [];
   for (const saved of project.placedIcs) {

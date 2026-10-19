@@ -101,9 +101,18 @@ drops a placement tool back to Select. Toolbar/catalog highlights are derived fr
 redraws and refreshes the status badge. `select.ts` takes mouse and pen pointer events; fingers go
 through `board-touch.ts`, which reuses its exports (tap = click when the finger lifts, one-finger
 drag pans or moves a part, two-finger pinch zooms and pans, long press = context menu). A mouse
-drag that starts on a hole in Select mode or with the wire tool draws a wire to the hole it ends on
-(`wire-drag.ts`; a part's pins wire, its body moves it). A finger's drag never wires (it pans): it
-wires after a long press (drag on, or the menu's Start Wire Here, which arms the wire tool). Keep tool modules free of imports that lead back to
+drag that starts on a hole in Select mode or with the wire tool draws a wire to the hole it ends on,
+an L bending the way the pointer moved first (`wire-drag.ts`: `/` flips it, Shift straightens it;
+a part's pins wire, its body moves it). A finger's drag never wires (it pans): it wires after a
+long press (drag on, a second finger flipping the L, or the menu's Start Wire Here, which arms the
+wire tool). The wire tool (`wire-tool.ts`) clicks a route: an empty hole bends the wire (`via`), a
+hole it would connect to there (`connectsAt()` in `wire-merge.ts`: a pin, a wire, a stripboard's
+strip) ends it; the last hole again or Enter (`ToolBehavior.finish`) ends it on an empty hole, Esc
+takes back a bend. A selected wire's handles (drawn by `layers/wires.ts`) bend it in Select mode
+(`wire-reshape.ts`): drag a leg to pull out a bend, drag a bend or an end to move it, double-click
+(double-tap) a bend to take it out, the selection bar's Straighten for all of them; the wire changes
+live and its new route goes through the wire tool's `routeWire` (as placing does) as one undoable
+`replace`, Escape puts it back. Keep tool modules free of imports that lead back to
 `draw-canvas.ts` (it imports the registry to draw previews), which is why the note prompt lives in
 `dot-notes.ts` rather than `description.ts`.
 
@@ -216,20 +225,24 @@ via `src/features/placed-parts.ts` (`placePart`/`removePart` record history, `ad
 that should be undoable calls `HistoryState.record(change)` with an `IChange`
 (`src/interfaces/change.interface.ts`): `add`/`remove`/`replace` of a line (a placed wire splits
 wires passing over its end holes to join them, is itself cut where it passes over other wires'
-ends, and merges into one it continues: `wire-merge.ts`), `add`/`remove`/`move`
+ends, and started or ended at a wire's free end (same colour and width, nothing else in the hole)
+carries that wire on as one bent wire into one it continues: `wire-merge.ts`), `add`/`remove`/`move`
 of a part, or `set` of a strip cut or of the board setup. `undo`/`redo` replay these and call `redrawCanvas()`. History is cleared whenever the
 board is replaced (load, reset, resize) via `resetForNewBoard()`.
 
 **Persistence**: the project file format lives in `src/project-file/` — pure code (no DOM, no
 editor state) shared by the editor and the 3D viewer. `project-file.ts` defines the current format
-(version 3: grid `[col, row]` positions, the board type with a stripboard's strip direction and
-cuts, only marked pads, per-kind part arrays with each part's `ref`, the user's custom ICs). It's
+(version 4: grid `[col, row]` positions, the board type with a stripboard's strip direction and
+cuts, only marked pads, wires with the corners they bend at (`via`, never joints; `wire-path.ts`
+gives a wire's points and legs), per-kind part arrays with each part's `ref`, the user's custom
+ICs). A file says the oldest version that holds it (`fileVersionFor()`: 3 unless a wire bends), so
+boards without bends still open in older editors and the published MCP server. It's
 written to be read by people and programs (e.g. the MCP server) as well as the editor: facts
 only, nothing derivable (no nets, strip segments or resolved pin positions), every field
-documented there. `read-project-file.ts` reads any version (v2: no board type or refs; files
+documented there. `read-project-file.ts` reads any version (v3: no bends; v2: no board type or refs; files
 without `version` are v1: pixel coordinates, every hole, the whole IC catalog) into that shape,
 validating everything and throwing `ProjectFileError` for non-projects before the board is
-touched; bad entries are skipped and counted, and parts without a usable ref are numbered. `save-project.ts`'s `getSaveJson()` always writes the current version (each part's
+touched; bad entries are skipped and counted (a wire with a corner off the board too), and parts without a usable ref are numbered. `save-project.ts`'s `getSaveJson()` always writes the current format (each part's
 `serialize()` returns its entry); `load-project.ts`'s `loadProject(raw)` reads and then rebuilds
 the board, pinning wires and parts to the shared dot objects, and merges (never replaces) custom
 ICs into the catalog. Projects are also kept in the browser: `project-store.ts` is the
@@ -273,7 +286,8 @@ by group (`catalog-tools.ts`: list/get parts; `project-tools.ts`: new/edit/get p
 `resources.ts`; shared tool inputs (`projectId`/`project`, `expectNets`) in `project-source.ts`,
 reply formatting in `reply.ts`, wording helpers (holes, plurals, lists) in `text.ts`.
 It can: list parts, start a project (`new_project`, blank or
-from an example), change it with small ops (`edit_project`, whose wire ends can be pins by name),
+from an example), change it with small ops (`edit_project`, whose wire ends can be pins by name and
+whose wires bend at `via` holes; a `path`'s corners are wire ends instead),
 get pin positions, draw it as text (`render_board`, `mcp/src/render-board.ts`), list the board's
 nets (`get_nets`), validate it, make and read share links. `make_share_link` also returns `image`:
 the Worker's `GET /render.svg?<a share link's fragment>` (`mcp/src/image-requests.ts`, `z=`/`json=`
@@ -355,11 +369,14 @@ after each change (most of its wires, for wires connecting no pins).
 
 **Wire crossings** (`src/project-file/wire-crossings.ts`): wires are insulated jumpers, so where
 one runs across another wire, or over a hole holding a pin, a lead or another wire's end, it goes
-*over* it (of two crossing wires, the later one in the list), and where three or more things meet
-at a hole they're joined. `layoutWires()` works this out from wire ends and pin holes, and
+*over* it (of two crossing wires, the later one in the list), and so does a bend sitting on such a
+hole; where three or more things meet at a hole they're joined. `layoutWires()` works this out leg
+by leg (each hop says which `leg`) from wire ends, corners and pin holes, and
 `layoutProjectWires()` from a project file: the 2D renderer draws it (`src/board-render/layers/wires.ts`:
-a dark edge either side of a wire where it goes over something, and a solder dot at each junction), and the 3D viewer
-arches the upper wire over each crossing.
+each bend rounded off, a dark edge either side of a wire where it goes over something, and a solder dot at each junction), and the 3D viewer
+bends its tube at each corner and arches the upper wire over each crossing. In the editor, `ILine.via`
+holds a wire's corners and `src/features/line-path.ts` its geometry (hit-testing, splitting a wire
+at a hole it runs over or bends at).
 
 **3D viewer** (`src/viewer-3d/`): a read-only three.js view of the board, kept separate from the
 editor on purpose. It only consumes project-file JSON, read by the shared `src/project-file/`

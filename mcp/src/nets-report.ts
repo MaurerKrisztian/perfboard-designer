@@ -31,12 +31,16 @@ export interface NetsReport {
   strayWires?: number[];
   // Holes where three or more things are joined.
   junctions: {at: GridPos; joins: string[]}[];
-  // Where a wire goes over another wire, or over a hole, without joining it.
-  crossings: ({wire: number; at: [number, number]; over: "wire"; under: number} | {wire: number; at: GridPos; over: "hole"; holds: string[]})[];
+  // Where a wire goes over another wire, or over a hole, without joining it (`bend`: by bending
+  // on the hole, one of its via corners).
+  crossings: ({wire: number; at: [number, number]; over: "wire"; under: number} | {wire: number; at: GridPos; over: "hole"; holds: string[]; bend?: true})[];
 }
 
 export function netsReport(project: ProjectFile, netlist: Netlist, layout: WireLayout, wireIndex: WireIndex): NetsReport {
   const inHole = holeContents(project, netlist);
+  // A hop on one of the wire's own bends (its via) rather than along a straight stretch.
+  const bendsAt = (hop: {wire: number; at: readonly number[]}) =>
+    (project.wires[hop.wire].via ?? []).some(corner => holeKey(corner) === holeKey(hop.at));
   const names = (at: readonly number[]) => {
     const {pins, wires} = inHole(at);
     return [...pins.map(pinName), ...wires.map(i => wireName(wireIndex(i)))];
@@ -50,6 +54,6 @@ export function netsReport(project: ProjectFile, netlist: Netlist, layout: WireL
     junctions: layout.junctions.map(at => ({at, joins: names(at)})),
     crossings: layout.hops.map(hop => hop.over === "wire" && hop.under !== undefined
       ? {wire: wireIndex(hop.wire), at: [round(hop.at[0]), round(hop.at[1])], over: "wire" as const, under: wireIndex(hop.under)}
-      : {wire: wireIndex(hop.wire), at: hop.at, over: "hole" as const, holds: names(hop.at)}),
+      : {wire: wireIndex(hop.wire), at: hop.at, over: "hole" as const, holds: names(hop.at), ...(bendsAt(hop) ? {bend: true} : {})}),
   };
 }

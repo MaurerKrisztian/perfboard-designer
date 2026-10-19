@@ -6,7 +6,7 @@ import {Canvas} from "../../state/Canvas";
 import {Ic} from "../ic";
 import type {PlacedStandardComponent} from "../standard-components/placed-standard-component";
 import type {PlacedAdvancedComponent} from "../advanced-components/placed-advanced-component";
-import {PROJECT_FILE_VERSION, ProjectFile, SavedBoard, SavedPad, SavedWire} from "../../project-file/project-file";
+import {fileVersionFor, ProjectFile, SavedBoard, SavedPad, SavedWire} from "../../project-file/project-file";
 import {holesAlong, toGridPos} from "../../project-file/grid";
 import {DEFAULT_DOT_COLOR} from "../../board-render";
 import {BoardState} from "../../state/BoardState";
@@ -58,6 +58,7 @@ function savedWires(): SavedWire[] {
   return LineState.lines.map(line => ({
     from: toGridPos(line.start),
     to: toGridPos(line.end),
+    ...(line.via?.length ? {via: line.via.map(toGridPos)} : {}),
     ...(line.color ? {color: line.color} : {}),
     ...(line.width ? {width: line.width} : {}),
   }));
@@ -67,11 +68,12 @@ function savedWires(): SavedWire[] {
 // order, so each array comes out in the order it was loaded and drawn.
 export function getSaveJson(): ProjectFile {
   const parts = PartState.parts;
+  const wires = savedWires();
   return {
-    version: PROJECT_FILE_VERSION,
+    version: fileVersionFor({wires}),
     board: savedBoard(),
     pads: savedPads(),
-    wires: savedWires(),
+    wires,
     placedIcs: parts.filter((p): p is Ic => p.kind === "ic").map(p => p.serialize()),
     placedStandardComponents: parts
       .filter((p): p is PlacedStandardComponent => p.kind === "standard-component").map(p => p.serialize()),

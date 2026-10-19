@@ -7,8 +7,9 @@
 
 export {GRID_PITCH_PX, type GridPos} from "../../src/project-file/grid";
 export {
-  PROJECT_FILE_VERSION, type ProjectFile, type Rotation, type SavedIc, type SavedWire,
+  fileVersionFor, PROJECT_FILE_VERSION, type ProjectFile, type Rotation, type SavedIc, type SavedWire,
 } from "../../src/project-file/project-file";
+export {wireLegs, wirePoints} from "../../src/project-file/wire-path";
 export {ProjectFileError, readProjectFile} from "../../src/project-file/read-project-file";
 export {BoardRefs, isValidRef, type PartKind} from "../../src/project-file/part-refs";
 export {isModuleCategory, isModulePart} from "../../src/parts/ic-package";

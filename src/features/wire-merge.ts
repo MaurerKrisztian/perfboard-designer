@@ -4,6 +4,9 @@ import {LineState} from "../state/LineState";
 import {Point} from "../interfaces/point.interface";
 import {PartState} from "../state/PartState";
 import {Utils} from "../utils/utils";
+import {distanceAlong, linePoints, lineThrough, splitLine} from "./line-path";
+import {BoardState} from "../state/BoardState";
+import {DEFAULT_WIRE_WIDTH} from "../board-render";
 
 function dotsEqual(a: Point, b: Point): boolean {
   return a.x === b.x && a.y === b.y;
@@ -19,31 +22,18 @@ function isPinDot(dot: IDot): boolean {
   return PartState.parts.some(part => part.getPinPositions().some(p => dotsEqual(p, dot)));
 }
 
-// Where wire ends meet: a dot with two or more is a junction, kept as one even if a new wire lines up
-// with one of them.
-function wireEndsAt(dot: IDot, except: ILine[]): number {
-  return LineState.lines.filter(line => except.indexOf(line) === -1 && (dotsEqual(line.start, dot) || dotsEqual(line.end, dot))).length;
-}
-
-// True when `dot` lies on the wire between its ends (a hole the wire passes over).
-function passesOver(line: ILine, dot: IDot): boolean {
-  if (dotsEqual(line.start, dot) || dotsEqual(line.end, dot)) return false;
-  const dx = line.end.x - line.start.x, dy = line.end.y - line.start.y;
-  const px = dot.x - line.start.x, py = dot.y - line.start.y;
-  if (dx * py - dy * px !== 0) return false;
-  const along = dx * px + dy * py;
-  return along > 0 && along < dx * dx + dy * dy;
-}
-
-// Splits every wire passing over `dot` into two that end there, so a wire ending on another joins
-// it (a wire only connects the holes at its ends). The split wires are swapped for their halves in
-// LineState.lines; the caller records the history.
+// Splits every wire running over `dot` (passing over it, or bending over it) into two that end
+// there, so a wire ending on another joins it (a wire only connects the holes at its ends). The
+// split wires are swapped for their halves in LineState.lines; the caller records the history.
 export function splitWiresAt(dot: IDot): {removed: ILine[]; added: ILine[]} {
-  const removed = LineState.lines.filter(line => passesOver(line, dot));
+  const removed: ILine[] = [];
   const added: ILine[] = [];
-  for (const line of removed) {
+  for (const line of [...LineState.lines]) {
+    const halves = splitLine(line, dot);
+    if (!halves) continue;
     LineState.lines.splice(LineState.lines.indexOf(line), 1);
-    added.push({...line, end: dot}, {...line, start: dot});
+    removed.push(line);
+    added.push(...halves);
   }
   LineState.lines.push(...added);
   return {removed, added};
@@ -53,64 +43,76 @@ export function splitWiresAt(dot: IDot): {removed: ILine[]; added: ILine[]} {
 // wires as well (the other way round from splitWiresAt). In order from its start; just `line` when
 // it passes over no wire end. Nothing in LineState.lines changes.
 export function cutAtWireEnds(line: ILine): ILine[] {
-  const cuts = new Map<string, IDot>();
+  const cuts = new Map<string, {dot: IDot; along: number}>();
   for (const other of LineState.lines) {
     for (const end of [other.start, other.end]) {
-      if (passesOver(line, end)) cuts.set(`${end.x},${end.y}`, end);
+      const along = distanceAlong(line, end);
+      if (along !== undefined) cuts.set(`${end.x},${end.y}`, {dot: end, along});
     }
   }
-  if (cuts.size === 0) return [line];
-  const along = (dot: IDot) => Math.abs(dot.x - line.start.x) + Math.abs(dot.y - line.start.y);
-  const stops = [line.start, ...[...cuts.values()].sort((a, b) => along(a) - along(b)), line.end];
-  return stops.slice(1).map((dot, i) => ({...line, start: stops[i], end: dot}));
+  const pieces: ILine[] = [];
+  let rest = line;
+  for (const {dot} of [...cuts.values()].sort((a, b) => a.along - b.along)) {
+    const halves = splitLine(rest, dot);
+    if (!halves) continue;
+    pieces.push(halves[0]);
+    rest = halves[1];
+  }
+  return [...pieces, rest];
 }
 
-// Folds `newLine` into any same-color wire(s) it forms a straight line with at its endpoints
-// (chained through as many collinear segments as line up), unless the shared dot is a pin or a
-// junction of wires. The absorbed wires are removed from LineState.lines; the caller records one
-// history entry for the whole merge and pushes the returned line in place of `newLine`.
-export function mergeNewWire(newLine: ILine): {line: ILine; absorbed: ILine[]} {
-  const dx = newLine.end.x - newLine.start.x;
-  const dy = newLine.end.y - newLine.start.y;
-  const absorbed: ILine[] = [];
-  let start = newLine.start;
-  let end = newLine.end;
+// What a wire ending in `dot` would connect to, besides another wire ending there: a pin, a wire
+// running over or bending over it (which would be split there to join it), a wire end, or on a
+// stripboard its strip (every hole but a cut one).
+export function connectsAt(dot: IDot): boolean {
+  return isPinDot(dot) || isStripHole(dot)
+    || LineState.lines.some(line => dotsEqual(line.start, dot) || dotsEqual(line.end, dot) || distanceAlong(line, dot) !== undefined);
+}
 
-  const findNeighbor = (dot: IDot): ILine | undefined => {
-    if (isPinDot(dot) || wireEndsAt(dot, absorbed) >= 2) return undefined;
-    return LineState.lines.find(candidate => {
-      if (absorbed.indexOf(candidate) > -1) return false;
-      if (!sameColor(candidate.color, newLine.color)) return false;
-      const cdx = candidate.end.x - candidate.start.x;
-      const cdy = candidate.end.y - candidate.start.y;
-      // Parallel direction through a shared point is the same infinite line.
-      if (dx * cdy - dy * cdx !== 0) return false;
-      return dotsEqual(candidate.start, dot) || dotsEqual(candidate.end, dot);
-    });
+function isStripHole(dot: IDot): boolean {
+  return BoardState.isStripboard && !dot.cut;
+}
+
+const widthOf = (line: ILine) => line.width || DEFAULT_WIRE_WIDTH;
+
+// Where `newLine` starts or ends (at an end `ends` says is new) at the free end of a wire of the same colour and width (one
+// ending in a hole with nothing else: no pin, no strip, no other wire), it carries that wire on
+// rather than making a joint there: the two become one wire, which bends where they met (or runs
+// straight through, if they line up). The absorbed wires are removed from LineState.lines; the
+// caller records one history entry for the whole placement and pushes the returned line in place
+// of `newLine`.
+export function mergeNewWire(newLine: ILine, ends = {start: true, end: true}): {line: ILine; absorbed: ILine[]} {
+  const absorbed: ILine[] = [];
+  const continued = (dot: IDot, isNew: boolean): ILine | undefined => {
+    if (!isNew) return undefined;
+    if (isPinDot(dot) || isStripHole(dot)) return undefined;
+    const ending = LineState.lines.filter(line => dotsEqual(line.start, dot) || dotsEqual(line.end, dot));
+    const [line] = ending;
+    if (ending.length !== 1 || absorbed.includes(line) || dotsEqual(line.start, line.end)) return undefined;
+    return sameColor(line.color, newLine.color) && widthOf(line) === widthOf(newLine) ? line : undefined;
+  };
+  // `line`'s holes in order, running into `dot` (its last point).
+  const into = (line: ILine, dot: IDot) => {
+    const points = linePoints(line);
+    return dotsEqual(points[points.length - 1], dot) ? points : points.reverse();
   };
 
-  let neighbor = findNeighbor(start);
-  while (neighbor) {
-    start = dotsEqual(neighbor.start, start) ? neighbor.end : neighbor.start;
-    absorbed.push(neighbor);
-    neighbor = findNeighbor(start);
+  let points = linePoints(newLine);
+  const before = continued(points[0], ends.start);
+  if (before) {
+    points = [...into(before, points[0]), ...points.slice(1)];
+    absorbed.push(before);
   }
-
-  neighbor = findNeighbor(end);
-  while (neighbor) {
-    end = dotsEqual(neighbor.start, end) ? neighbor.end : neighbor.start;
-    absorbed.push(neighbor);
-    neighbor = findNeighbor(end);
+  const after = continued(points[points.length - 1], ends.end);
+  if (after) {
+    points = [...points, ...into(after, points[points.length - 1]).reverse().slice(1)];
+    absorbed.push(after);
   }
-
-  if (absorbed.length === 0) {
-    return {line: newLine, absorbed};
-  }
+  if (absorbed.length === 0) return {line: newLine, absorbed};
 
   for (const line of absorbed) {
     const index = LineState.lines.indexOf(line);
     if (index > -1) LineState.lines.splice(index, 1);
   }
-
-  return {line: {start, end, color: newLine.color, width: newLine.width}, absorbed};
+  return {line: lineThrough(points, newLine), absorbed};
 }

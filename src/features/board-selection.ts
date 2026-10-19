@@ -5,27 +5,16 @@ import {SelectionState} from "../state/SelectionState";
 import {ILine} from "../interfaces/line.interface";
 import {beginDrag} from "./component-drag";
 import {findPartAt} from "./placed-parts";
+import {distanceToLine} from "./line-path";
 
 // Selecting pads, wires and parts by clicking them. Nothing here redraws: callers do, once.
-
-// Perpendicular distance from (x,y) to the segment, clamped to the segment itself - used to
-// rank "how close is this click to this wire" rather than just "is it within tolerance."
-function distanceToSegment(x: number, y: number, line: ILine): number {
-  const dx = line.end.x - line.start.x;
-  const dy = line.end.y - line.start.y;
-  const lengthSq = dx * dx + dy * dy;
-  if (lengthSq === 0) {
-    return Math.hypot(x - line.start.x, y - line.start.y);
-  }
-  const t = Math.max(0, Math.min(1, ((x - line.start.x) * dx + (y - line.start.y) * dy) / lengthSq));
-  return Math.hypot(x - (line.start.x + t * dx), y - (line.start.y + t * dy));
-}
 
 function findLineAt(x: number, y: number): ILine | undefined {
   let closest: ILine | undefined;
   let closestDistance = GridConfig.lineSelectTolerance;
   for (const line of LineState.lines) {
-    const distance = distanceToSegment(x, y, line);
+    // How close, not just whether it's within tolerance, so the nearest wire wins.
+    const distance = distanceToLine(x, y, line);
     if (distance < closestDistance) {
       closest = line;
       closestDistance = distance;

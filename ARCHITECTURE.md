@@ -191,10 +191,31 @@ dragged pans (or moves the part it landed on in Select mode), two fingers pinch-
 long press opens the context menu. In Select mode and with the wire tool, a mouse press on a hole
 that starts to move draws a wire instead, dashed until it's let go on another hole
 (`src/features/wire-drag.ts`, using the wire tool's `placeWire`); a part's pin holes wire too, its
-body still moves it. A finger's drag always pans (zoomed in, most of the board is holes): it draws a
-wire only after a long press, by dragging on once the context menu is up, or through the menu's
-Start Wire Here (also the selection bar's Wire for a selected hole), which arms the wire tool with
-that hole as its start. A finger has no hover, so it calls `hoverAt()` (`hover.ts`)
+body still moves it. The dragged wire is an L with one bend, going first the way the pointer
+moved first and straight when the holes line up; `/` flips it (caught in the capture phase, since
+`/` is also the components search) and Shift straightens it. A finger's drag always pans (zoomed
+in, most of the board is holes): it draws a wire only after a long press, by dragging on once the
+context menu is up (a second finger's tap flips the L), or through the menu's Start Wire Here
+(also the selection bar's Wire for a selected hole), which arms the wire tool with that hole as its
+start.
+
+The wire tool builds a route click by click (`ActiveTool`'s `start` and `via`): a click on an empty
+hole adds a bend; a click on a hole the wire would connect to there (`connectsAt()` in
+`wire-merge.ts`: a pin, a wire running over or ending in it, or on a stripboard its strip) places
+the wire and starts the next one from there. Clicking the last hole again, or Enter
+(`ToolBehavior.finish`, called by `select.ts`), ends the wire on an empty hole; Escape
+(`stepBack`) takes back a bend, then ends the run.
+
+A selected wire can be bent by its handles in Select mode (`src/features/wire-reshape.ts`; the
+renderer draws a handle on each bend and a dot mid-leg on the selected wire). `wireGripAt()` finds
+the handle under a press (an end, a bend, else a leg), and select.ts and board-touch.ts give it
+priority over drawing a new wire or panning: dragging a leg pulls out a new bend, dragging a bend
+or an end moves it, and `hover.ts` moves it with the pointer (`reshapeTo()`). The wire changes
+live; letting go puts it back as it was and sends the new route through the wire tool's
+`routeWire()`, the same pipeline placing a wire uses, as one undoable `replace` that keeps the
+wire's place in the drawing order. Only a moved end splits wires it lands on or carries on a wire
+there. Double-click (or double-tap) on a bend removes it, and the selection bar's Straighten
+removes them all. Escape mid-drag puts the wire back. A finger has no hover, so it calls `hoverAt()` (`hover.ts`)
 where it lands.
 Switch tools with `setActiveTool()` (`src/features/active-tool.ts`). `resetInteraction()` clears
 the selection and drops a placement tool back to Select.
@@ -310,9 +331,12 @@ Every undoable mutation calls `HistoryState.record(change)` with an `IChange`
 (`src/interfaces/change.interface.ts`):
 
 - `add`/`remove` of a line, or `replace` (placing one wire also changed others, as one step:
-  `placeWire` splits any wire passing over its end holes so the new wire joins it, cuts the new
-  wire wherever it passes over another wire's end so that one joins too, and merges it
-  into a same-colour wire it continues, but never through a pin or a junction: `wire-merge.ts`);
+  `placeWire` (through `routeWire`, which reshaping a wire uses too) splits any wire passing over
+  its end holes so the new wire joins it, cuts the new wire wherever it passes over another
+  wire's end so that one joins too, and where it starts or ends at a wire's free end (same colour
+  and width, nothing else in the hole: no pin, no strip, no other wire) carries that wire on as
+  one wire bending there: `wire-merge.ts`. Corners that don't turn the wire are dropped
+  (`lineThrough()` in `line-path.ts`));
 - `add`/`remove`/`move` of a part;
 - `set` of a strip cut or of the board setup.
 
@@ -328,14 +352,20 @@ redraw. History is cleared whenever the board is replaced (load, reset, resize) 
 **The format** lives in `src/project-file/`, pure code shared by the editor, the 3D viewer and the
 MCP server.
 
-- `project-file.ts` defines version 3, with every field documented there. It holds grid
+- `project-file.ts` defines version 4, with every field documented there. It holds grid
   `[col, row]` positions, the board type with a stripboard's strips and cuts, only marked pads,
-  per-kind part arrays with refs, and the user's custom ICs. It's written to be read by people and
-  programs: facts only, nothing derivable (no nets, strip segments or resolved pin positions).
-- `read-project-file.ts` reads any version into that shape (v2: no board type or refs; no
+  wires with the corners they bend at (`via`: bends, never joints), per-kind part arrays with
+  refs, and the user's custom ICs. It's written to be read by people and programs: facts only,
+  nothing derivable (no nets, strip segments or resolved pin positions).
+- A file says the oldest version that holds it (`fileVersionFor()`): 3 unless a wire bends. So a
+  board without bends still opens in editors and MCP servers from before version 4.
+- `wire-path.ts` gives a wire's points (`from`, each corner, `to`) and the straight legs between
+  them, for everything that walks a wire.
+- `read-project-file.ts` reads any version into that shape (v3: no bends; v2: no board type or refs; no
   `version` field means v1, with pixel coordinates, every hole, the whole IC catalog). It throws
   `ProjectFileError` for non-projects before the board is touched. Bad entries are skipped and
-  counted, and parts without a usable ref get numbered.
+  counted (a wire bending at a hole off the board too), and parts without a usable ref get
+  numbered.
 - `save-project.ts`'s `getSaveJson()` snapshots the editor into the current version (each part's
   `serialize()`). `load-project.ts`'s `loadProject(raw)` reads a file and rebuilds the board,
   pinning wires and parts to shared dot objects.
@@ -384,7 +414,8 @@ names a copy stored on Perfboard Designer's project storage instead.
 connects, from a project file and nothing else. So the editor and any program reading the file
 always agree.
 
-- A wire joins only its two end holes, and everything in one hole is joined.
+- A wire joins only its two end holes, never a hole it passes or bends over, and everything in
+  one hole is joined.
 - On a stripboard, a strip joins its holes up to the next cut, and a cut hole joins nothing.
 - Nets are derived and never saved.
 - The editor shows them live in the Nets panel (`src/features/nets-panel.ts`). Clicking a net
@@ -392,9 +423,15 @@ always agree.
 
 **Wire crossings** (`src/project-file/wire-crossings.ts`): wires are insulated jumpers. Where one
 runs across another wire, or over a hole holding a pin, a lead or another wire's end, it goes
-*over* it (the later wire in the list is on top). Where three or more things meet at a hole,
-they're joined. `layoutProjectWires(project)` works this out. The 2D renderer draws a dark edge
-where a wire goes over something and a solder dot at junctions; the 3D viewer arches the upper wire.
+*over* it (the later wire in the list is on top); so does a bend sitting on such a hole. Where
+three or more things meet at a hole, they're joined. `layoutProjectWires(project)` works this out
+leg by leg, and each hop says which `leg` of its wire it's on. The 2D renderer rounds off each
+bend and draws a dark edge where a wire goes over something and a solder dot at junctions; the 3D
+viewer bends its tube at each corner and arches the upper wire.
+
+In the editor a placed wire (`ILine`) keeps its corners in `via`, and `src/features/line-path.ts`
+holds its geometry: its points and legs, how near a point is (hover and selection), and splitting
+it at a hole it runs or bends over (`wire-merge.ts` uses that to join a wire ending on another).
 
 **Rule:** no connectivity or crossing logic anywhere else, the MCP server included. Add what's
 missing to these modules without reshaping their output.
