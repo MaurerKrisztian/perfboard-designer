@@ -128,6 +128,7 @@ export class SvgPainter implements Painter {
 
   group(options: GroupOptions, draw: () => void) {
     const transform = [
+      options.flipX !== undefined ? `translate(${num(options.flipX)} 0) scale(-1 1)` : "",
       options.translate ? `translate(${num(options.translate[0])} ${num(options.translate[1])})` : "",
       options.rotate ? `rotate(${num((options.rotate * 180) / Math.PI)})` : "",
       options.scale !== undefined && options.scale !== 1 ? `scale(${num(options.scale)})` : "",

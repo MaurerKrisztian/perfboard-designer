@@ -8,7 +8,9 @@ import {drawHoles} from "./layers/holes";
 import {drawNetHighlight} from "./layers/net-highlight";
 import {drawPartLabels} from "./layers/part-labels";
 import {drawJunctions, drawWires} from "./layers/wires";
-import {Painter} from "./painter/painter";
+import {drawCutMarks, drawSolderJoints, drawSolderRefs} from "./layers/solder-side";
+import {gridToPx} from "../project-file/grid";
+import {Painter, Point} from "./painter/painter";
 import {artistFor, boardParts} from "./artists";
 import {BoardPart, PartLook} from "./artists/part-artist";
 
@@ -20,6 +22,10 @@ export function boardSizePx(board: SavedBoard): {width: number; height: number} 
 }
 
 export function drawBoard(painter: Painter, project: ProjectFile, view: BoardView = PLAIN_VIEW) {
+  if (view.solderSide) {
+    drawSolderSide(painter, project);
+    return;
+  }
   const {width, height} = boardSizePx(project.board);
   const look = boardLookFor(project.board.type);
   const parts = boardParts(project);
@@ -53,6 +59,42 @@ export function drawBoard(painter: Painter, project: ProjectFile, view: BoardVie
   for (const part of parts) artistFor(part).drawOverlay?.(painter, part.entry, lookOf(part));
   // 9. A net lit up.
   if (view.highlight) drawNetHighlight(painter, view.highlight);
+}
+
+// Parts and wires show through the board from the solder side this faintly, for bearings; the
+// wires a little more, since they tell which joints belong together.
+const GHOST_PARTS = 0.18;
+const GHOST_WIRES = 0.4;
+
+// The board from below, for soldering: mirrored left to right, copper side up (a stripboard's
+// strips and cuts at full strength), the component side faded behind it, every joint marked and
+// each chip's pin 1 boxed.
+function drawSolderSide(painter: Painter, project: ProjectFile) {
+  const {width, height} = boardSizePx(project.board);
+  const look = boardLookFor(project.board.type);
+  const parts = boardParts(project);
+  const plainLook: PartLook = {selected: false, showRef: false};
+  const drawLayer = (layer: "under-board" | "over-wires") => {
+    for (const part of parts) {
+      const artist = artistFor(part);
+      if (artist.layer === layer) artist.draw(painter, part.entry, plainLook);
+    }
+  };
+
+  painter.group({flipX: width}, () => {
+    look.paintBoard(painter, project.board, width, height);
+    const holes: Point[] = [];
+    for (let col = 0; col < project.board.cols; col++) {
+      for (let row = 0; row < project.board.rows; row++) holes.push({x: gridToPx(col), y: gridToPx(row)});
+    }
+    painter.stamp(look.hole, holes);
+    painter.group({opacity: GHOST_PARTS}, () => drawLayer("under-board"));
+    painter.group({opacity: GHOST_WIRES}, () => drawWires(painter, project.wires, [], PLAIN_VIEW));
+    painter.group({opacity: GHOST_PARTS}, () => drawLayer("over-wires"));
+  });
+  if (project.board.type === "stripboard") drawCutMarks(painter, project.board.cuts, width);
+  drawSolderJoints(painter, project, width);
+  drawSolderRefs(painter, project, width);
 }
 
 // Holes under a chip's body that aren't its pins, by "col,row".

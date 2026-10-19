@@ -60,6 +60,22 @@ Keep all in-site URLs relative — never `/...` — so it also works under the g
   whatever missing URL was requested, so it's fully self-contained (inline CSS/SVG) and is the one
   page that uses root-based links (`/app/`, `/`).
 
+**Board toolbar, selection bar, icons**: the toolbar above the board (`#boardBar`) has the status
+badge (plus cancel/rotate while placing), undo/redo, zoom, Fit, Labels, Focus. Actions on the
+selection live in `selection-actions.ts`: the context menu and the floating `#selectionBar` are
+`data-action` buttons, and only those that apply show (`<body data-sel-actions>` + CSS). Icons
+are `<symbol>`s at the top of `app/index.html` (`<use href="#i-…">`); use them, not emoji.
+
+**Questions**: ask with `askText`/`askConfirm` (`ask-dialog.ts`), never `prompt()`/`confirm()`
+(embedding pages may block them). Placing a part returns to Select with it selected; Shift-click
+keeps the tool armed (`BoardClick.keepArmed`).
+
+**Phone layout**: on a small or touch screen (one media query, in both the end of `src/style.css`
+and `src/features/mobile-layout.ts`; keep them the same) the board fills the screen, a bottom
+toolbar (`#mobileNav`: Select, Wire, Add, Nets, More) opens slide-up sheets (Add/More are
+`#controls` with a `data-view`, Nets is the right sidebar), and the board toolbar floats over the
+board.
+
 Vanilla TS, no framework, no state-management library. `src/index.ts` is the editor's entrypoint: it imports
 every feature module for side effects (each attaches its own DOM event listeners), then calls
 `createDotGrid` and `redrawCanvas` once at startup. Adding a new feature means
@@ -82,7 +98,12 @@ drops a placement tool back to Select. Toolbar/catalog highlights are derived fr
 `onPointerDown`, `drawPreview` (given the board's Painter), `statusText`, optional `stepBack` (Escape) — registered in
 `tools/index.ts` and looked up with `behaviorOf(tool)`. Tools only change state; the caller
 (`select.ts`, the board's input router, which also owns panning, the context menu and Escape)
-redraws and refreshes the status badge. Keep tool modules free of imports that lead back to
+redraws and refreshes the status badge. `select.ts` takes mouse and pen pointer events; fingers go
+through `board-touch.ts`, which reuses its exports (tap = click when the finger lifts, one-finger
+drag pans or moves a part, two-finger pinch zooms and pans, long press = context menu). A mouse
+drag that starts on a hole in Select mode or with the wire tool draws a wire to the hole it ends on
+(`wire-drag.ts`; a part's pins wire, its body moves it). A finger's drag never wires (it pans): it
+wires after a long press (drag on, or the menu's Start Wire Here, which arms the wire tool). Keep tool modules free of imports that lead back to
 `draw-canvas.ts` (it imports the registry to draw previews), which is why the note prompt lives in
 `dot-notes.ts` rather than `description.ts`.
 
@@ -103,9 +124,12 @@ browser only: Path2D, hole sprites cached per zoom, text snapped to device pixel
 `SvgPainter` (`painter/svg-painter.ts`, a string, runs anywhere; lets only plain colour syntax
 through, since colours come from files anyone can write). `BoardView` (`board-view.ts`) is what to
 mark beyond the file — part labels, `selected`/`hovered` items (a part by ref, a wire by index, a
-hole by position), a placement's `startHole`, a net `highlight`; `PLAIN_VIEW` is none of it; the
+hole by position), a placement's `startHole`, a net `highlight`, or `solderSide` (the board from
+below for soldering, mirrored with a `flipX` group, every joint marked: `layers/solder-side.ts`,
+shown read-only by `src/features/solder-view.ts`); `PLAIN_VIEW` is none of it; the
 editor builds its own in `src/features/board-canvas/editor-view.ts`. `draw-board.ts` alone fixes
-the layer order: board look → under-board parts (chips) → holes (not those under a chip's body) →
+the layer order: board look → under-board parts (chips) → holes (not those under a chip's body;
+solder in each joint hole, from `solderJoints()`) →
 wires → over-wires parts → junction dots → part labels → part overlays (chip pin labels) → net
 highlight. Parts are drawn by one `PartArtist` per kind (`artists/`, registered in `artists/index.ts`)
 from their project-file entries; a standard part's special art (resistor bands, ceramic code, LED
@@ -189,7 +213,9 @@ via `src/features/placed-parts.ts` (`placePart`/`removePart` record history, `ad
 
 **Undo/redo** (`src/features/project/undo-redo.ts` + `src/state/HistoryState.ts`): every mutation
 that should be undoable calls `HistoryState.record(change)` with an `IChange`
-(`src/interfaces/change.interface.ts`): `add`/`remove`/`merge` of a line, `add`/`remove`/`move`
+(`src/interfaces/change.interface.ts`): `add`/`remove`/`replace` of a line (a placed wire splits
+wires passing over its end holes to join them, is itself cut where it passes over other wires'
+ends, and merges into one it continues: `wire-merge.ts`), `add`/`remove`/`move`
 of a part, or `set` of a strip cut or of the board setup. `undo`/`redo` replay these and call `redrawCanvas()`. History is cleared whenever the
 board is replaced (load, reset, resize) via `resetForNewBoard()`.
 

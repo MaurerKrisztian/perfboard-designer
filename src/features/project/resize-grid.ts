@@ -1,3 +1,4 @@
+import {askConfirm} from "../ask-dialog";
 import {LineState} from "../../state/LineState";
 import {DotState} from "../../state/DotState";
 import {GridConfig} from "../../state/GridConfig";
@@ -18,7 +19,7 @@ export const widthInput = Utils.getSafeHtmlElement<HTMLInputElement>('dotMatrixW
 export const heightInput = Utils.getSafeHtmlElement<HTMLInputElement>('dotMatrixHeight')
 const resizeBtn = Utils.getSafeHtmlElement<HTMLButtonElement>('resizeGridBtn')
 resizeBtn.addEventListener('click', function() {
-  resizeBoard(parseInt(widthInput.value), parseInt(heightInput.value));
+  void resizeBoard(parseInt(widthInput.value), parseInt(heightInput.value));
 });
 
 // Lays out a fresh grid of holes. Holes found in `keep` (by position) are reused as-is rather than
@@ -37,8 +38,8 @@ export function createDotGrid(horizontalDotNumbers: number, verticalDotNumbers: 
 }
 
 // Resizes the board, keeping every hole, wire and part that still fits. Whatever falls off the new
-// edge is removed, after asking. Returns false if the user cancelled.
-function resizeBoard(cols: number, rows: number): boolean {
+// edge is removed, after asking. Resolves false if the user cancelled.
+async function resizeBoard(cols: number, rows: number): Promise<boolean> {
   if (!(cols > 0 && rows > 0)) return false;
   const newWidth = cols * GridConfig.dotSpace;
   const newHeight = rows * GridConfig.dotSpace;
@@ -61,7 +62,7 @@ function resizeBoard(cols: number, rows: number): boolean {
       droppedWires ? `${droppedWires} wire${droppedWires === 1 ? "" : "s"}` : "",
       droppedParts ? `${droppedParts} part${droppedParts === 1 ? "" : "s"}` : "",
     ].filter(Boolean).join(" and ");
-    if (!confirm(`Resizing will remove ${what} that no longer fit on the board. This can't be undone. Continue?`)) {
+    if (!await askConfirm("Resize the board?", `Resizing will remove ${what} that no longer fit on the board. This can't be undone.`, "Resize", true)) {
       widthInput.value = String(Math.round(Canvas.gridWidth / GridConfig.dotSpace));
       heightInput.value = String(Math.round(Canvas.gridHeight / GridConfig.dotSpace));
       return false;
@@ -86,7 +87,7 @@ for (const preset of GRID_PRESETS) {
   btn.addEventListener('click', () => {
     widthInput.value = String(preset.w);
     heightInput.value = String(preset.h);
-    resizeBoard(preset.w, preset.h);
+    void resizeBoard(preset.w, preset.h);
   });
   gridPresetsContainer.appendChild(btn);
 }

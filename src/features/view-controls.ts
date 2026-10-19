@@ -8,12 +8,26 @@ let currentZoom = 1.0;
 let isFullscreenMode = false;
 let isFitMode = false;
 
+// A board bar button's label (beside its icon) and whether it shows as switched on.
+function setBarButton(id: string, text: string, on: boolean) {
+  const btn = document.getElementById(id);
+  if (!btn) return;
+  const label = btn.querySelector('.btn-text');
+  if (label) label.textContent = text;
+  btn.classList.toggle('is-on', on);
+  btn.setAttribute('aria-pressed', String(on));
+}
+
 export function getCurrentZoom(): number {
   return currentZoom;
 }
 
+export function clampZoom(zoom: number): number {
+  return Math.min(3.0, Math.max(0.2, zoom));
+}
+
 function applyZoom(zoom: number) {
-  currentZoom = Math.min(3.0, Math.max(0.2, zoom));
+  currentZoom = clampZoom(zoom);
   applyCanvasResolution(currentZoom);
   redrawCanvas();
   const zoomText = `${Math.round(currentZoom * 100)}%`;
@@ -25,7 +39,7 @@ function applyZoom(zoom: number) {
 
 // Zooms while keeping the content point under (anchorClientX, anchorClientY) fixed on screen,
 // so zoom expands around that point instead of always growing toward the container's bottom-right.
-function applyZoomAnchored(zoom: number, anchorClientX: number, anchorClientY: number) {
+export function applyZoomAnchored(zoom: number, anchorClientX: number, anchorClientY: number) {
   const container = document.getElementById('canvas-container');
   const beforeRect = Canvas.c.getBoundingClientRect();
   const fracX = beforeRect.width > 0 ? (anchorClientX - beforeRect.left) / beforeRect.width : 0.5;
@@ -69,29 +83,35 @@ function zoomOut() {
 }
 
 export function fitToScreen(forcefit?: boolean) {
-  const fitBtn = document.getElementById('zoomFitBtn');
   if (!forcefit && isFitMode) {
     isFitMode = false;
     applyZoom(1.0);
-    if (fitBtn) { fitBtn.innerText = '🎯 Fit'; fitBtn.className = 'btn-accent'; }
+    setBarButton('zoomFitBtn', 'Fit', false);
     return;
   }
-  const container = document.getElementById('canvas-container');
-  if (!container || !Canvas.c) return;
-  const rect = container.getBoundingClientRect();
-  const availableWidth = rect.width - 20;
-  const availableHeight = rect.height - 20;
-  const canvasW = Canvas.gridWidth;
-  const canvasH = Canvas.gridHeight;
-
-  if (availableWidth <= 0 || availableHeight <= 0) return;
-
-  const scaleX = availableWidth / canvasW;
-  const scaleY = availableHeight / canvasH;
-  const fitScale = Math.min(scaleX, scaleY) * 0.95;
+  const fitScale = fitZoom();
+  if (fitScale === undefined) return;
   applyZoom(fitScale);
   isFitMode = true;
-  if (fitBtn) { fitBtn.innerText = '✕ Reset'; fitBtn.className = 'btn-danger'; }
+  setBarButton('zoomFitBtn', '100%', true);
+}
+
+// Zooms to show the whole board, leaving the Fit button as it is (the phone layout's first view).
+export function showWholeBoard() {
+  const fitScale = fitZoom();
+  if (fitScale !== undefined) applyZoom(fitScale);
+}
+
+// The zoom at which the whole board fits in its container.
+function fitZoom(): number | undefined {
+  const container = document.getElementById('canvas-container');
+  if (!container || !Canvas.c) return undefined;
+  // Inside the container's padding (the phone layout's leaves room for the buttons over the board).
+  const style = getComputedStyle(container);
+  const availableWidth = container.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - 4;
+  const availableHeight = container.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom) - 4;
+  if (availableWidth <= 0 || availableHeight <= 0) return undefined;
+  return Math.min(availableWidth / Canvas.gridWidth, availableHeight / Canvas.gridHeight) * 0.95;
 }
 
 // Whether the tools sidebar (left) and the Keyboard Shortcuts panel (right) are shown; remembered
@@ -133,16 +153,12 @@ function toggleFullscreenMode(enable?: boolean) {
   isFullscreenMode = enable !== undefined ? enable : !isFullscreenMode;
   const layout = document.getElementById('mainAppLayout');
   const btn1 = document.getElementById('toggleFullscreenBtn');
-  const btn2 = document.getElementById('canvasFullscreenTrigger');
 
   if (isFullscreenMode) {
     document.body.classList.add('fullscreen-active');
     layout?.classList.add('fullscreen-mode');
     if (btn1) btn1.innerText = 'Exit Fullscreen';
-    if (btn2) {
-      btn2.innerText = '✕ Exit Fullscreen';
-      btn2.className = 'btn-danger';
-    }
+    setBarButton('canvasFullscreenTrigger', 'Exit Focus', true);
     setTimeout(() => {
       fitToScreen(true);
     }, 50);
@@ -150,10 +166,7 @@ function toggleFullscreenMode(enable?: boolean) {
     document.body.classList.remove('fullscreen-active');
     layout?.classList.remove('fullscreen-mode');
     if (btn1) btn1.innerText = 'Fullscreen';
-    if (btn2) {
-      btn2.innerText = '⛶ Fullscreen';
-      btn2.className = 'btn';
-    }
+    setBarButton('canvasFullscreenTrigger', 'Focus', false);
     applyZoom(1.0);
   }
 }
@@ -163,11 +176,7 @@ const PART_LABELS_STORAGE_KEY = 'show_component_values';
 
 function setPartLabelsVisible(show: boolean) {
   ViewState.showPartLabels = show;
-  const btn = document.getElementById('toggleValuesBtn');
-  if (btn) {
-    btn.innerText = show ? '🏷 Labels: On' : '🏷 Labels';
-    btn.className = show ? 'btn-accent' : 'btn';
-  }
+  setBarButton('toggleValuesBtn', 'Labels', show);
 }
 
 function togglePartLabels() {

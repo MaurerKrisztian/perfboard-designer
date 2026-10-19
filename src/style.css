@@ -497,11 +497,6 @@ button.menu-trigger[aria-expanded="true"] {
   flex-shrink: 0;
 }
 
-/* Icon button style */
-.icon-btn {
-  flex: 1;
-}
-
 /* Grid presets row */
 /* Board type and strip direction switches */
 .board-switch {
@@ -695,10 +690,12 @@ input[type="number"]:focus, input[type="text"]:focus, input[type="search"]:focus
 }
 
 .status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.2rem 0.6rem;
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0.25rem 0.7rem;
   border-radius: 9999px;
   background: rgba(6, 182, 212, 0.15);
   color: #38bdf8;
@@ -1105,12 +1102,19 @@ button.catalog-row.catalog-result-active:not(.active-mode) {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  min-width: 140px;
+  min-width: 180px;
+}
+
+.context-menu kbd {
+  margin-left: auto;
+  font-size: 0.65rem;
+  color: var(--text-muted);
 }
 
 .context-menu button {
   width: 100%;
   justify-content: flex-start;
+  gap: 0.6rem;
   font-size: 0.8rem;
   padding: 0.45rem 0.75rem;
   background: transparent;
@@ -1844,3 +1848,724 @@ button.project-new-btn:hover .project-new-icon {
   }
 }
 
+
+/* Icons (the <symbol>s at the top of app/index.html): line drawings in the text colour */
+.icon,
+.section-icon,
+.tool-icon,
+.nav-icon {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+svg.icon {
+  width: 16px;
+  height: 16px;
+}
+
+svg.section-icon {
+  width: 15px;
+  height: 15px;
+}
+
+svg.tool-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.header-actions button {
+  gap: 0.45rem;
+}
+
+/* The board's toolbar: the status badge (and a placement tool's rotate and cancel), then groups
+   of icon buttons */
+.status-bar {
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.status-lead {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.bar-groups {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.bar-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: #0b1220;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+}
+
+button.bar-btn {
+  min-width: 32px;
+  min-height: 30px;
+  padding: 0.3rem 0.5rem;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+}
+
+button.bar-btn:hover {
+  color: var(--text-main);
+  background: var(--bg-hover);
+  transform: none;
+}
+
+button.bar-btn.is-on {
+  color: #38bdf8;
+  background: rgba(6, 182, 212, 0.15);
+}
+
+button.bar-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+  background: transparent;
+}
+
+button.bar-btn[hidden] {
+  display: none;
+}
+
+.status-lead button.bar-btn {
+  border: 1px solid var(--border-light);
+}
+
+.status-lead button.bar-btn-cancel {
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
+.status-lead button.bar-btn-cancel:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.zoom-level {
+  min-width: 42px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* The board, with the selection bar floating over its bottom edge */
+.board-stage {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.selection-bar {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  max-width: calc(100% - 24px);
+  padding: 4px;
+  background: rgba(17, 24, 39, 0.92);
+  backdrop-filter: blur(10px);
+  border: 1px solid #334155;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  transform: translateX(-50%);
+  animation: selection-bar-in 0.15s ease-out;
+}
+
+.selection-bar[hidden] {
+  display: none;
+}
+
+@keyframes selection-bar-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .selection-bar {
+    animation: none;
+  }
+}
+
+.selection-bar-label {
+  max-width: 12rem;
+  margin-right: 2px;
+  padding: 0 0.65rem 0 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  border-right: 1px solid #334155;
+}
+
+.selection-bar button {
+  gap: 0.35rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.78rem;
+  color: var(--text-main);
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+}
+
+.selection-bar button:hover {
+  background: var(--bg-hover);
+  transform: none;
+}
+
+.selection-bar button.is-danger {
+  color: #f87171;
+}
+
+.selection-bar button.is-danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.selection-bar button.selection-bar-close {
+  color: var(--text-muted);
+}
+
+/* Only the actions that apply to the selection (selection-actions.ts lists them on <body>) */
+body:not([data-sel-actions~="rotate"]) [data-action="rotate"],
+body:not([data-sel-actions~="color"]) [data-action="color"],
+body:not([data-sel-actions~="value"]) [data-action="value"],
+body:not([data-sel-actions~="note"]) [data-action="note"],
+body:not([data-sel-actions~="delete"]) [data-action="delete"],
+body:not([data-sel-actions~="wire"]) #selectionBar [data-action="wire"],
+.context-menu button[hidden] {
+  display: none;
+}
+
+/* The editor's own questions (ask-dialog.ts) */
+.ask-card {
+  max-width: 420px;
+}
+
+.ask-card .modal-body {
+  gap: 0.75rem;
+}
+
+.ask-message {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-main);
+}
+
+.ask-message[hidden],
+.ask-input[hidden],
+.ask-chips[hidden] {
+  display: none;
+}
+
+input.ask-input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  font-size: 1rem;
+}
+
+.ask-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+button.ask-chip {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  background: #0b1220;
+  border-radius: 999px;
+}
+
+button.ask-chip:hover {
+  border-color: var(--accent-cyan);
+  transform: none;
+}
+
+.ask-error {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #f87171;
+}
+
+.ask-error:empty {
+  display: none;
+}
+
+/* Bigger targets for fingers */
+@media (pointer: coarse) {
+  .menu-panel button,
+  .menu-panel a,
+  .context-menu button {
+    padding: 0.7rem 0.85rem;
+    font-size: 0.9rem;
+  }
+
+  .context-menu kbd {
+    display: none;
+  }
+}
+
+/* Fingers pan and pinch the board themselves (board-touch.ts), so the browser mustn't scroll or
+   zoom the page under them, nor offer to save the canvas as an image on a long press. */
+#myCanvas,
+#colorSpectrumCanvas {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* A zoom that animates would drift out from between the pinching fingers. */
+@media (pointer: coarse) {
+  #myCanvas {
+    transition: none;
+  }
+}
+
+/* Phone layout (mobile-layout.ts, under the same media query: small screens, and touch screens up
+   to a tablet's, or held sideways): the board fills the screen between the header and a toolbar
+   along the bottom, and the two sidebars become sheets that slide up over it. */
+.sheet-header,
+.mobile-nav,
+.sheet-backdrop {
+  display: none;
+}
+
+@media (max-width: 768px), (pointer: coarse) and (max-width: 1024px), (pointer: coarse) and (max-height: 500px) {
+  :root {
+    --mobile-nav-height: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  body {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .app-header {
+    height: 3rem;
+    flex-shrink: 0;
+    gap: 0.35rem;
+    padding: 0 max(0.5rem, env(safe-area-inset-right, 0px)) 0 max(0.5rem, env(safe-area-inset-left, 0px));
+  }
+
+  .brand-title,
+  .btn-label {
+    display: none;
+  }
+
+  .brand-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .menu-bar {
+    flex: 1;
+    min-width: 0;
+    gap: 0;
+    margin-left: 0.15rem;
+  }
+
+  button.menu-trigger {
+    padding: 0.4rem 0.45rem;
+    font-size: 0.85rem;
+  }
+
+  button.project-name-btn {
+    min-width: 0;
+    margin-left: 0.25rem;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .header-actions {
+    flex-shrink: 0;
+    gap: 0.35rem;
+  }
+
+  .header-actions button {
+    padding: 0.4rem 0.6rem;
+  }
+
+  /* Showing or hiding the sidebars and the focus mode mean nothing here, and fingers zoom. */
+  #toggleFullscreenBtn,
+  #toggleSidebarBtn,
+  #toggleShortcutsBtn,
+  #canvasFullscreenTrigger,
+  #zoomInBtn,
+  #zoomOutBtn,
+  .zoom-level,
+  .status-bar .btn-text {
+    display: none;
+  }
+
+  .app-layout {
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0;
+    padding: 0;
+  }
+
+  .canvas-viewport {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    padding: 0.5rem max(0.5rem, env(safe-area-inset-right, 0px)) 0.5rem max(0.5rem, env(safe-area-inset-left, 0px));
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* The board's toolbar floats over the board (mobile-layout.ts moves it into .board-stage): undo
+     and redo top left, Fit and Labels top right, and under them the hint for the armed tool. */
+  .board-stage > .status-bar {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    width: auto;
+    z-index: 15;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    pointer-events: none;
+  }
+
+  .board-stage > .status-bar > * {
+    pointer-events: auto;
+  }
+
+  .bar-groups {
+    order: 1;
+    width: 100%;
+    flex-wrap: nowrap;
+    gap: 6px;
+    pointer-events: none;
+  }
+
+  .bar-group {
+    pointer-events: auto;
+    background: rgba(11, 18, 32, 0.9);
+    backdrop-filter: blur(8px);
+    border-color: #334155;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  }
+
+  .bar-group:first-child {
+    margin-right: auto;
+  }
+
+  button.bar-btn {
+    min-width: 40px;
+    min-height: 36px;
+  }
+
+  .status-lead {
+    order: 2;
+    flex: 0 1 auto;
+    max-width: 100%;
+    justify-content: center;
+  }
+
+  .status-lead.is-quiet {
+    display: none;
+  }
+
+  .status-badge {
+    min-width: 0;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.8rem;
+    white-space: normal;
+    text-align: center;
+    background: rgba(8, 47, 73, 0.92);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  }
+
+  .status-lead button.bar-btn {
+    background: rgba(11, 18, 32, 0.9);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  }
+
+  /* The selection bar sits just above the bottom toolbar, its buttons labelled under the icons. */
+  .selection-bar {
+    bottom: 8px;
+    max-width: calc(100% - 12px);
+  }
+
+  .selection-bar-label {
+    display: none;
+  }
+
+  .selection-bar button {
+    flex-direction: column;
+    gap: 3px;
+    min-width: 54px;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.68rem;
+  }
+
+  .selection-bar svg.icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Add shows only the parts catalog; More everything else. */
+  #controls[data-view="add"] #toolsGroup,
+  #controls[data-view="add"] .sidebar-group-divider,
+  #controls[data-view="add"] #buildGroup > .sidebar-group-title,
+  #controls[data-view="add"] #wire,
+  #controls[data-view="add"] #wire + .sidebar-divider,
+  #controls[data-view="add"] #components > .section-title,
+  #controls[data-view="more"] #wire + .sidebar-divider,
+  #controls[data-view="more"] #components {
+    display: none;
+  }
+
+  #controls[data-view="add"] #components {
+    background: none;
+    border: none;
+  }
+
+  #controls[data-view="add"] #componentsSection {
+    padding: 0;
+  }
+
+  #controls[data-view="more"] .sidebar-group-title {
+    margin-top: 0.5rem;
+  }
+
+  button.catalog-row {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    font-size: 0.88rem;
+  }
+
+  .catalog-search {
+    font-size: 1rem;
+  }
+
+  /* Room at the top for the buttons over the board, so a fitted board isn't under them */
+  #canvas-container {
+    flex: 1;
+    min-height: 0 !important;
+    padding: 52px 0 0 !important;
+  }
+
+  #dotDescription {
+    margin-top: 0.5rem;
+    min-height: 0;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  #dotDescription:empty {
+    display: none;
+  }
+
+  /* The sidebars as sheets. Shown even if hidden from the View menu on a wider screen. */
+  #controls,
+  #controls.sidebar-collapsed,
+  #shortcutsPanel,
+  #shortcutsPanel.sidebar-collapsed {
+    display: flex !important;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: var(--mobile-nav-height);
+    z-index: 70;
+    width: auto;
+    min-width: 0;
+    max-height: 70vh;
+    max-height: 70dvh;
+    overflow-y: auto;
+    padding: 0 max(0.75rem, env(safe-area-inset-right, 0px)) 0.75rem max(0.75rem, env(safe-area-inset-left, 0px));
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-bottom: none;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+    transform: translateY(calc(100% + var(--mobile-nav-height)));
+    visibility: hidden;
+    transition: transform 0.2s ease, visibility 0.2s;
+  }
+
+  #controls.sheet-open,
+  #shortcutsPanel.sheet-open {
+    transform: none;
+    visibility: visible;
+  }
+
+  #shortcutsPanel {
+    gap: 0.5rem;
+  }
+
+  .shortcuts-section {
+    display: none;
+  }
+
+  .sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0.85rem 0.25rem 0.35rem;
+    background: var(--bg-card);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* The sheet's grab handle */
+  .sheet-header::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border-light);
+    transform: translateX(-50%);
+  }
+
+  button.sheet-close {
+    padding: 0.3rem 0.6rem;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1rem;
+  }
+
+  .sheet-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0 0 var(--mobile-nav-height);
+    z-index: 65;
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  .sheet-backdrop[hidden] {
+    display: none;
+  }
+
+  .mobile-nav {
+    display: flex;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 80;
+    height: var(--mobile-nav-height);
+    padding: 0 env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+    background: rgba(17, 24, 39, 0.97);
+    border-top: 1px solid var(--border-color);
+  }
+
+  .mobile-nav button {
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 3px;
+    padding: 0.3rem 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    font-weight: 600;
+  }
+
+  .mobile-nav button:hover {
+    background: none;
+    transform: none;
+  }
+
+  .mobile-nav button.active-mode {
+    color: #38bdf8;
+  }
+
+  /* The active tool's pill behind its icon */
+  .mobile-nav button > .nav-icon {
+    width: 44px;
+    height: 26px;
+    padding: 3px 12px;
+    border-radius: 13px;
+    transition: background 0.15s ease;
+  }
+
+  .mobile-nav button.active-mode > .nav-icon {
+    background: rgba(6, 182, 212, 0.18);
+  }
+
+  /* Add: a raised round button in the middle */
+  .nav-add-disc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    margin-top: -20px;
+    border-radius: 50%;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+    box-shadow: 0 6px 18px rgba(6, 182, 212, 0.4), 0 0 0 4px var(--bg-dark);
+    transition: transform 0.15s ease;
+  }
+
+  .nav-add-disc .nav-icon {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2.5;
+  }
+
+  .mobile-nav button.nav-add.active-mode .nav-add-disc {
+    transform: rotate(45deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-add-disc {
+      transition: none;
+    }
+  }
+}

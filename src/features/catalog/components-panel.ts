@@ -1,3 +1,4 @@
+import {askConfirm} from "../ask-dialog";
 import {Utils} from "../../utils/utils";
 import {ShortcutRegistry} from "../shortcut-keys";
 import {buildCatalog, CatalogItem} from "./catalog";
@@ -104,7 +105,9 @@ function createItemRow(item: CatalogItem, depth: number): HTMLElement {
     deleteBtn.title = "Delete custom part";
     deleteBtn.textContent = "✕";
     deleteBtn.addEventListener("click", () => {
-      if (confirm(`Delete custom part "${item.name}"?`)) remove();
+      void askConfirm("Delete custom part?", `"${item.name}" will be removed from your parts.`, "Delete", true).then(yes => {
+        if (yes) remove();
+      });
     });
     row.appendChild(deleteBtn);
   }

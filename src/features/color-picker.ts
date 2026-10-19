@@ -173,18 +173,18 @@ hueBar?.addEventListener('input', () => {
   }
 });
 
-spectrumCanvas?.addEventListener('mousedown', (e) => {
+spectrumCanvas?.addEventListener('pointerdown', (e) => {
   isMouseDownOnSpectrum = true;
   updatePickedColorFromMouse(e.clientX, e.clientY);
 });
 
-window.addEventListener('mousemove', (e) => {
+window.addEventListener('pointermove', (e) => {
   if (isMouseDownOnSpectrum) {
     updatePickedColorFromMouse(e.clientX, e.clientY);
   }
 });
 
-window.addEventListener('mouseup', () => {
+window.addEventListener('pointerup', () => {
   isMouseDownOnSpectrum = false;
 });
 

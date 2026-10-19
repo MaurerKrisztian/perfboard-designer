@@ -60,9 +60,13 @@ export interface TextStyle {
   maxWidth?: number;
 }
 
-// Applied in this order: translate, rotate (radians, clockwise), scale. The clip path is in the
-// group's own (transformed) coordinates.
+// Applied in this order: flipX, translate, rotate (radians, clockwise), scale. The clip path is in
+// the group's own (transformed) coordinates.
 export interface GroupOptions {
+  // Mirrors left to right within a band this wide (x becomes flipX - x): a board seen from below.
+  // Text drawn inside may stay readable (the canvas) or be mirrored too (SVG), so a mirrored
+  // drawing puts its text outside the group.
+  flipX?: number;
   translate?: [number, number];
   rotate?: number;
   scale?: number;

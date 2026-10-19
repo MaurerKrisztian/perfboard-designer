@@ -78,8 +78,9 @@ export class CanvasPainter implements Painter {
       y = Math.round(t.d * y + t.f);
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.font = cssFont({...style.font, size: Math.round(style.font.size * t.d * 2) / 2});
-      if (maxWidth !== undefined) maxWidth *= t.a;
-      haloWidth *= t.a;
+      // |a|: inside a mirrored group a is negative, and the text is drawn the right way round.
+      if (maxWidth !== undefined) maxWidth *= Math.abs(t.a);
+      haloWidth *= Math.abs(t.a);
     }
     if (style.halo) {
       ctx.strokeStyle = style.halo.color;
@@ -115,6 +116,10 @@ export class CanvasPainter implements Painter {
   group(options: GroupOptions, draw: () => void) {
     const ctx = this.ctx;
     ctx.save();
+    if (options.flipX !== undefined) {
+      ctx.translate(options.flipX, 0);
+      ctx.scale(-1, 1);
+    }
     if (options.translate) ctx.translate(options.translate[0], options.translate[1]);
     if (options.rotate) ctx.rotate(options.rotate);
     if (options.scale !== undefined) ctx.scale(options.scale, options.scale);
@@ -126,17 +131,17 @@ export class CanvasPainter implements Painter {
 
   stamp(stamp: Stamp, points: Point[]) {
     const ctx = this.ctx;
-    // The canvas only ever scales and translates here, so a = d is the device pixels per drawing
-    // pixel (zoom × devicePixelRatio, or the export scale).
-    const {a: scale, e: offsetX, f: offsetY} = ctx.getTransform();
+    // The canvas only ever scales and translates here, so |a| = d is the device pixels per drawing
+    // pixel (zoom × devicePixelRatio, or the export scale); a is negative in a mirrored group.
+    const {a: scaleX, d: scale, e: offsetX, f: offsetY} = ctx.getTransform();
     const sprite = this.sprite(stamp, Math.max(0.05, Math.round(scale * 100) / 100));
-    const w = sprite.width / scale, h = sprite.height / scale;
+    const w = sprite.width / scaleX, h = sprite.height / scale;
     for (const p of points) {
       // Land each copy on whole device pixels: a sub-pixel offset would blur each one differently,
       // which makes small holes look uneven when zoomed out.
-      const left = Math.round(p.x * scale + offsetX - sprite.width / 2);
+      const left = Math.round(p.x * scaleX + offsetX - sprite.width / 2);
       const top = Math.round(p.y * scale + offsetY - sprite.height / 2);
-      ctx.drawImage(sprite, (left - offsetX) / scale, (top - offsetY) / scale, w, h);
+      ctx.drawImage(sprite, (left - offsetX) / scaleX, (top - offsetY) / scale, w, h);
     }
   }
 

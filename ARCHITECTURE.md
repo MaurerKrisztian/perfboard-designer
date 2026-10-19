@@ -134,6 +134,35 @@ store, and no instances are made.
 
 The two unions make "only one at a time" true by construction: one selection, one tool.
 
+**Questions.** The editor asks for text (a value, a note) and yes/no (a resize that drops parts)
+with its own dialog, `askText`/`askConfirm` in `src/features/ask-dialog.ts`, never the browser's
+`prompt()`/`confirm()`, which some embedding pages block. Modules that draw-canvas reaches through
+the tool registry redraw with `requestRedraw()` (`redraw-request.ts`) instead of importing it.
+
+**Placing a part** drops back to Select with the new part selected; Shift-click keeps the
+placement tool armed (`BoardClick.keepArmed`).
+
+**Board toolbar and selection bar.** Above the board, `#boardBar` holds the status badge (with a
+cancel button, and a rotate one for chips and fixed-pin parts, while a placement tool is armed:
+`selection-status.ts`), undo/redo (greyed out by `undo-redo.ts` when there's nothing to undo), zoom,
+Fit, Labels and Focus. Icons are `<symbol>`s at the top of `app/index.html`, used as
+`<svg class="icon"><use href="#i-…"/></svg>`. What can be done to the selection lives in
+`src/features/selection-actions.ts`: the context menu and the selection bar over the board's
+bottom edge (`#selectionBar`) are buttons with a `data-action`, it lists the actions that apply on
+`<body data-sel-actions>` after each redraw, and the stylesheet hides the rest.
+
+**Phone layout.** On a small or touch screen (one media query, shared by the end of `src/style.css`
+and `src/features/mobile-layout.ts`) the board fills the screen and a toolbar along the bottom
+(`#mobileNav`) holds Select, Wire, a round Add, Nets and More. Add and More are both the left
+sidebar as a sheet that slides up (`#controls[data-view]`: Add shows only the catalog, More the
+rest), Nets is the right sidebar. Picking a tool or part in a sheet closes it. The board toolbar
+moves over the board (undo/redo top left, Fit and Labels top right, the hint under them only while
+a tool other than Select is active). The board is shown whole whenever one of a different size
+opens.
+Phones are slow to redraw a big canvas and refuse one over about 16.7M pixels (iOS Safari), so on
+a touch screen `canvas-sizing.ts` keeps the board's canvas under 12M pixels (drawing it a little
+softer past that), and a pinch scales the board as a picture, redrawing it once when the fingers lift.
+
 **Redraw.** Any change that affects the screen ends with `redrawCanvas()`
 (`src/features/draw-canvas.ts`), which redraws everything from scratch (section 10).
 `onRedraw(listener)` runs after every redraw. That's how autosave and the Nets panel notice
@@ -155,6 +184,18 @@ Each kind has a `ToolBehavior` (`src/features/tools/tool.ts`):
 Behaviours are registered in `src/features/tools/index.ts` and found with `behaviorOf(tool)`.
 **Tools only change state.** `src/features/select.ts` is the board's input router (it also owns
 panning, the context menu and Escape). It calls the tool, then redraws and refreshes the status.
+It listens for pointer events from a mouse or pen. Fingers go through `src/features/board-touch.ts`,
+which reuses its exported pieces (`clickBoard`, `pressBoard`, the pan, `openContextMenuAt`). A finger
+acts when it lifts, so a second finger can still turn the touch into a pinch: a tap clicks, one finger
+dragged pans (or moves the part it landed on in Select mode), two fingers pinch-zoom and pan, and a
+long press opens the context menu. In Select mode and with the wire tool, a mouse press on a hole
+that starts to move draws a wire instead, dashed until it's let go on another hole
+(`src/features/wire-drag.ts`, using the wire tool's `placeWire`); a part's pin holes wire too, its
+body still moves it. A finger's drag always pans (zoomed in, most of the board is holes): it draws a
+wire only after a long press, by dragging on once the context menu is up, or through the menu's
+Start Wire Here (also the selection bar's Wire for a selected hole), which arms the wire tool with
+that hole as its start. A finger has no hover, so it calls `hoverAt()` (`hover.ts`)
+where it lands.
 Switch tools with `setActiveTool()` (`src/features/active-tool.ts`). `resetInteraction()` clears
 the selection and drops a placement tool back to Select.
 
@@ -268,7 +309,10 @@ row or column, cut at chosen holes).
 Every undoable mutation calls `HistoryState.record(change)` with an `IChange`
 (`src/interfaces/change.interface.ts`):
 
-- `add`/`remove`/`merge` of a line;
+- `add`/`remove` of a line, or `replace` (placing one wire also changed others, as one step:
+  `placeWire` splits any wire passing over its end holes so the new wire joins it, cuts the new
+  wire wherever it passes over another wire's end so that one joins too, and merges it
+  into a same-colour wire it continues, but never through a pin or a junction: `wire-merge.ts`);
 - `add`/`remove`/`move` of a part;
 - `set` of a strip cut or of the board setup.
 
@@ -397,10 +441,11 @@ src/board-render/                  PURE: no DOM, no editor state
   painter/svg-painter.ts           SvgPainter: writes SVG as a string, runs anywhere
   painter/fonts.ts                 font stacks, CSS font strings, text width estimates for SVG
   board-looks/                     one BoardLook per board type, boardLookFor(type)
-  layers/holes.ts                  holes, marked pads, notes, selection/hover/start rings
+  layers/holes.ts                  holes, marked pads, solder in joint holes, notes, rings
   layers/wires.ts                  wires, selection glow, over-edges, junction dots
   layers/part-labels.ts            refs and values, kept on the board
   layers/net-highlight.ts          a lit-up net
+  layers/solder-side.ts            the solder side's joints, pin-1 boxes, refs and cut marks
   artists/part-artist.ts           the PartArtist interface, BoardPart, PartLabel
   artists/index.ts                 ARTISTS registry, boardParts(), drawPart(), iconsUsedBy()
   artists/ic-artist.ts             chips and dev boards: package, pin rings, pin labels
@@ -442,6 +487,13 @@ The editor then draws the active tool's preview on top (`ToolBehavior.drawPrevie
 - `selected` and `hovered`: `BoardItem`s, i.e. a part by `ref`, a wire by index, a hole by `[col, row]`
 - `startHole`: a placement's first click
 - `highlight`: a net
+- `solderSide`: the board from below instead, for soldering. `drawBoard` then draws something else
+  entirely: the board look and holes mirrored left to right (a `flipX` group, which both painters
+  support), the component side faded inside that group, and outside it, at mirrored positions so
+  text reads the right way, a solder blob on every joint (`solderJoints()`: each pin and lead, each
+  wire end), a square round each multi-pin part's pin 1, part refs, and a stripboard's cuts as red
+  crosses (`layers/solder-side.ts`). The editor shows it with the board bar's Solder side button or
+  <kbd>B</kbd> (`src/features/solder-view.ts`), read-only while it's on, and downloads it as shown.
 
 `PLAIN_VIEW` (`{}`) is the plain board. The editor builds its view in
 `src/features/board-canvas/editor-view.ts` from `SelectionState`, `DotState`/`LineState` hover,
@@ -547,6 +599,11 @@ definition's `iconFile`, else `<id>.svg`). Painters ask for icons by file name:
   solder joints of fixed-pin parts come from `part-geometry.ts`, like everywhere else).
 - The editor side is `src/features/open-3d-view.ts`, which snapshots `getSaveJson()` and
   lazy-imports the viewer, so three.js stays out of the main bundle.
+- Every hole something is soldered into (each part registers its holes with `SceneKit.solder`, each
+  wire its ends) gets a fillet underneath and a solder fill on top (`buildSolderJoints`).
+- Its controls: a toolbar (screenshot, open file, close; icons only on a phone) and an
+  Angled/Top/Bottom switch floating over the bottom of the view. Each view is framed by the
+  window's height, or its width on a tall phone screen.
 - Models for fixed-pin parts are builders in `src/viewer-3d/parts/`, picked by definition id in
   `build-catalog-parts.ts`.
 

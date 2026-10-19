@@ -1,5 +1,5 @@
 import {drawPart} from "../../board-render";
-import {ActiveTool} from "../../state/ToolState";
+import {ActiveTool, ToolState} from "../../state/ToolState";
 import {IDot} from "../../interfaces/dot.interface";
 import {getAdvancedComponentDefinition} from "../../parts/advanced-component-definitions";
 import {PlacedAdvancedComponent} from "../advanced-components/placed-advanced-component";
@@ -28,14 +28,15 @@ function spannedBlock(definitionId: string, a: IDot, b: IDot): PlacedAdvancedCom
 // Pins are rigid, so a single click anchors the component using the armed rotation, matching IC
 // placement. The exception is a gridSizable part (header pins), whose block size is chosen by the
 // user: that takes two clicks to span opposite corners, like a wire or a standard component.
-// Either way the tool stays armed for repeated placement.
+// Either way placing drops back to Select with the new part selected; Shift keeps the tool armed.
 export const advancedComponentTool: ToolBehavior<AdvancedComponentTool> = {
-  onPointerDown(tool, {hoverDot}) {
+  onPointerDown(tool, {hoverDot, keepArmed}) {
     if (!hoverDot) return false;
     const def = getAdvancedComponentDefinition(tool.definitionId);
     if (!def?.gridSizable) {
       placePart(new PlacedAdvancedComponent(tool.definitionId, hoverDot, tool.rotation));
       recordRecentKey(advancedKey(tool.definitionId));
+      if (!keepArmed) ToolState.active = {kind: "select"};
       return true;
     }
     if (!tool.start) {
@@ -46,6 +47,7 @@ export const advancedComponentTool: ToolBehavior<AdvancedComponentTool> = {
     if (block) {
       placePart(block);
       recordRecentKey(advancedKey(tool.definitionId));
+      if (!keepArmed) ToolState.active = {kind: "select"};
     }
     tool.start = undefined;
     return true;
@@ -64,8 +66,8 @@ export const advancedComponentTool: ToolBehavior<AdvancedComponentTool> = {
     const def = getAdvancedComponentDefinition(tool.definitionId);
     const name = def?.name ?? "Component";
     if (def?.gridSizable) {
-      return tool.start ? `Placing ${name} [Click opposite corner]` : `${name} Armed [Click first corner]`;
+      return tool.start ? `Placing ${name} [Click opposite corner • Shift+click to place more]` : `${name} Armed [Click first corner]`;
     }
-    return `${name} Armed [Click pad to place • R to rotate]`;
+    return `${name} Armed [Click pad to place • R to rotate • Shift+click to place more]`;
   },
 };

@@ -19,7 +19,7 @@ export const selectTool: ToolBehavior<Extract<ActiveTool, {kind: "select"}>> = {
     selectAt(x, y, true);
     return true;
   },
-  statusText: modeStatus,
+  statusText: (tool) => `${modeStatus(tool)} [Drag from a pad to wire it]`,
 };
 
 // Removes the topmost part under the pointer, else the wire, else the pad's color and note.
@@ -50,7 +50,7 @@ export const eraserTool: ToolBehavior<Extract<ActiveTool, {kind: "eraser"}>> = {
 
 export const noteTool: ToolBehavior<Extract<ActiveTool, {kind: "note"}>> = {
   onPointerDown(_tool, {hoverDot}) {
-    if (hoverDot) addDescriptionToDot(hoverDot);
+    if (hoverDot) void addDescriptionToDot(hoverDot);
     return true;
   },
   statusText: modeStatus,

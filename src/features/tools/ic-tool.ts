@@ -8,16 +8,17 @@ import {ToolBehavior} from "./tool";
 
 type IcTool = Extract<ActiveTool, {kind: "ic"}>;
 
-// One click places a copy of the armed catalog IC with its top-left pin on the pad, then disarms.
+// One click places a copy of the armed catalog IC with its top-left pin on the pad, then disarms
+// (unless Shift is held, to place another).
 export const icTool: ToolBehavior<IcTool> = {
-  onPointerDown(tool, {hoverDot}) {
+  onPointerDown(tool, {hoverDot, keepArmed}) {
     if (!hoverDot) return false;
     const newInstance = tool.template.clone();
     newInstance.updatePosition(hoverDot.x, hoverDot.y);
     placePart(newInstance);
     // The catalog entry the copy came from, which is what the Components panel lists
     recordRecentKey(icKey(tool.template.armedFrom ?? tool.template));
-    ToolState.active = {kind: "select"};
+    if (!keepArmed) ToolState.active = {kind: "select"};
     return true;
   },
 
@@ -37,6 +38,6 @@ export const icTool: ToolBehavior<IcTool> = {
   },
 
   statusText(tool) {
-    return `IC Ready: ${tool.template.name} [Click Pad to Place]`;
+    return `IC Ready: ${tool.template.name} [Click Pad to Place • Shift+click to place more]`;
   },
 };

@@ -8,6 +8,8 @@ export interface BoardClick {
   y: number;
   // The pad the click snaps to, if it's close enough to one.
   hoverDot?: IDot;
+  // Shift held: a placement tool stays armed after placing, to place another.
+  keepArmed?: boolean;
 }
 
 // What one kind of ActiveTool does. Tools only change state; the caller redraws and refreshes the

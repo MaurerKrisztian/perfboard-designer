@@ -2,11 +2,13 @@ import {GridPos, gridToPx} from "../../project-file/grid";
 import {ProjectFile} from "../../project-file/project-file";
 import {BoardView, isHovered, isSameItem} from "../board-view";
 import {BoardLook, drawMarkedHole} from "../board-looks/board-look";
-import {Painter, Point} from "../painter/painter";
-import {DEFAULT_DOT_COLOR, PAD_RADIUS, SELECTION_COLOR} from "../palette";
+import {Painter, Point, Stamp} from "../painter/painter";
+import {DEFAULT_DOT_COLOR, HOLE_RADIUS, PAD_RADIUS, SELECTION_COLOR, SOLDER_COLOR, SOLDER_EDGE} from "../palette";
+import {solderJoints} from "./solder-side";
 
-// Every hole of the board: plain holes stamped, marked ones in their colour, then the rings that
-// mark the selected, hovered or placement-start hole, then the notes written under holes. Holes
+// Every hole of the board: plain holes stamped, marked ones in their colour, solder in each hole
+// that gets some (a pin, a lead or a wire end, so the board shows where to solder), then the rings
+// that mark the selected, hovered or placement-start hole, then the notes written under holes. Holes
 // under a chip's body (`hidden`) aren't drawn, since the chip sits on top of them; its pins are.
 
 const START_RING_COLOR = "#22c55e";
@@ -16,6 +18,16 @@ const NOTE_FONT = {family: "sans", size: 10} as const;
 const NOTE_PREVIEW_LENGTH = 5;
 
 const key = ([col, row]: GridPos) => `${col},${row}`;
+
+// Fills the hole and a little of its pad, leaving the copper ring around it.
+const SOLDER_FILL: Stamp = {
+  id: "solder-fill",
+  radius: HOLE_RADIUS + 2,
+  draw(painter) {
+    painter.circle(0, 0, HOLE_RADIUS + 1, {fill: SOLDER_COLOR, stroke: {paint: SOLDER_EDGE, width: 1}});
+    painter.circle(-1.8, -1.8, 2, {fill: "#ffffff"});
+  },
+};
 
 export function drawHoles(painter: Painter, project: ProjectFile, look: BoardLook, hidden: Set<string>, view: BoardView) {
   const {cols, rows} = project.board;
@@ -32,6 +44,9 @@ export function drawHoles(painter: Painter, project: ProjectFile, look: BoardLoo
     }
   }
   painter.stamp(look.hole, plain);
+  painter.stamp(SOLDER_FILL, solderJoints(project)
+    .filter(at => !hidden.has(key(at)))
+    .map(([col, row]) => ({x: gridToPx(col), y: gridToPx(row)})));
 
   drawHoleRings(painter, view, cols, rows);
 

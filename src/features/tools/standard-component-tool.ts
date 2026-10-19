@@ -1,4 +1,4 @@
-import {ActiveTool} from "../../state/ToolState";
+import {ActiveTool, ToolState} from "../../state/ToolState";
 import {getComponentDefinition} from "../../parts/component-definitions";
 import {drawPart} from "../../board-render";
 import {PlacedStandardComponent} from "../standard-components/placed-standard-component";
@@ -9,9 +9,10 @@ import {drawStartMarker, ToolBehavior} from "./tool";
 
 type StandardComponentTool = Extract<ActiveTool, {kind: "standard-component"}>;
 
-// Two-click span (one pad per lead) that stays armed for repeated placement.
+// Two-click span (one pad per lead). Placing drops back to Select with the new part selected, so
+// its value is a tap away; Shift keeps the tool armed to place another.
 export const standardComponentTool: ToolBehavior<StandardComponentTool> = {
-  onPointerDown(tool, {hoverDot}) {
+  onPointerDown(tool, {hoverDot, keepArmed}) {
     if (!hoverDot) return false;
     if (!tool.start) {
       tool.start = hoverDot;
@@ -20,6 +21,7 @@ export const standardComponentTool: ToolBehavior<StandardComponentTool> = {
     if (tool.start !== hoverDot) {
       placePart(new PlacedStandardComponent(tool.definitionId, tool.start, hoverDot));
       recordRecentKey(standardKey(tool.definitionId));
+      if (!keepArmed) ToolState.active = {kind: "select"};
     }
     tool.start = undefined;
     return true;
@@ -38,6 +40,6 @@ export const standardComponentTool: ToolBehavior<StandardComponentTool> = {
 
   statusText(tool) {
     const name = getComponentDefinition(tool.definitionId)?.name ?? "Component";
-    return tool.start ? `Placing ${name} [Click end pad]` : `${name} Armed [Click start pad]`;
+    return tool.start ? `Placing ${name} [Click end pad • Shift+click to place more]` : `${name} Armed [Click start pad]`;
   },
 };

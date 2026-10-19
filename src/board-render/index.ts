@@ -4,6 +4,7 @@
 // src/board-render/ imports from here only. ARCHITECTURE.md ("Rendering") explains the design.
 
 export {drawBoard, boardSizePx} from "./draw-board";
+export {solderJoints} from "./layers/solder-side";
 export {renderBoardSvg, type SvgRenderOptions} from "./render-svg";
 export {type BoardItem, type BoardView, PLAIN_VIEW} from "./board-view";
 

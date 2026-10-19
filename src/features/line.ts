@@ -2,7 +2,7 @@ import {LineState} from "../state/LineState";
 import {HistoryState} from "../state/HistoryState";
 import {redrawCanvas} from "./draw-canvas";
 import {ShortcutRegistry} from "./shortcut-keys";
-import {changeSelectedDotColor} from "./dot";
+import {changeSelectedColor} from "./dot";
 import {removePart} from "./placed-parts";
 import {SelectionState} from "../state/SelectionState";
 
@@ -41,6 +41,6 @@ export function deleteLine(){
 
 ShortcutRegistry.add({key: "Delete", event: deleteLine, description: "Delete line."})
 ShortcutRegistry.add({key: "c", event: () => {
-    changeSelectedDotColor()
-  }, description: "Change dot color."})
+    changeSelectedColor()
+  }, description: "Change pad or wire color."})
 

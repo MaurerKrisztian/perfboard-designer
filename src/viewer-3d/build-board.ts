@@ -144,9 +144,10 @@ export function buildBoard(kit: SceneKit, project: ViewerProject): Group {
   return group;
 }
 
-/** A solder fillet on the underside of every hole something was soldered into. Built last,
- *  once every part has registered its holes with the kit. */
-export function buildSolderJoints(kit: SceneKit): InstancedMesh | null {
+/** A solder fillet on the underside of every hole something was soldered into, and on top the
+ *  hole filled with solder, so the joints show from above too (as the editor draws them). Built
+ *  last, once every part has registered its holes with the kit. */
+export function buildSolderJoints(kit: SceneKit): Group | null {
   const holes = Array.from(kit.solderedHoles.values());
   if (holes.length === 0) return null;
   const profile = [
@@ -160,7 +161,13 @@ export function buildSolderJoints(kit: SceneKit): InstancedMesh | null {
   // Lathe builds upward from the pad; flip it to hang down from the bottom face.
   const geometry = new LatheGeometry(profile, 20).rotateX(Math.PI);
   const material = new MeshStandardMaterial({color: "#d7dbe0", metalness: 1, roughness: 0.22});
-  return instanced(geometry as unknown as CircleGeometry, material, holes.map(h => new Vector3(h.x, BOARD_BOTTOM_Y - SURFACE_LIFT, h.z)));
+  const group = new Group();
+  group.add(instanced(geometry as unknown as CircleGeometry, material, holes.map(h => new Vector3(h.x, BOARD_BOTTOM_Y - SURFACE_LIFT, h.z))));
+  // Just over the hole's black disc (which sits 0.002 above its pad), and a little wider than the
+  // hole, so a rim shows round a wire's end or a lead, inside the copper ring.
+  const fill = new CircleGeometry(HOLE_RADIUS + 0.25, 24).rotateX(-Math.PI / 2);
+  group.add(instanced(fill, material, holes.map(h => new Vector3(h.x, SURFACE_LIFT + 0.004, h.z))));
+  return group;
 }
 
 // How a wire arches over what it doesn't join (its hops): clear of the wire underneath, or of a

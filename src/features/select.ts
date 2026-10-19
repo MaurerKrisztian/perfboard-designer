@@ -12,9 +12,12 @@ import {canPickUpParts, isOverPlacedPart} from "./hover";
 import {ViewState} from "../state/ViewState";
 import {selectAt, selectLine, setSelection} from "./board-selection";
 import {behaviorOf} from "./tools";
+import {IDot} from "../interfaces/dot.interface";
+import {cancelWireDrag, finishWireDrag, startWireDrag, wireDragFrom, wireDragStartDot} from "./wire-drag";
 
 // Board input: routes left clicks to the active tool (src/features/tools/), and owns panning,
-// the right-click context menu and Escape.
+// the right-click context menu and Escape. Mouse and pen come through here; fingers go through
+// board-touch.ts, which reuses the pieces exported below.
 
 let isPanningBoard = false;
 let panStartX = 0;
@@ -26,8 +29,11 @@ let startScrollTop = 0;
 // the click is held back until the pointer either moves this far (pan) or is released (click).
 const PAN_DRAG_THRESHOLD = 4;
 let pendingPan: {clientX: number; clientY: number; event: MouseEvent} | undefined;
+// Likewise a left press on a hole in Select mode or with the wire tool may be the start of a wire
+// dragged to another hole (wire-drag.ts), or just a click.
+let pendingWire: {clientX: number; clientY: number; event: MouseEvent; dot: IDot} | undefined;
 
-function startPan(clientX: number, clientY: number) {
+export function startPan(clientX: number, clientY: number) {
   const container = document.getElementById('canvas-container');
   if (!container) return;
   isPanningBoard = true;
@@ -36,6 +42,20 @@ function startPan(clientX: number, clientY: number) {
   startScrollLeft = container.scrollLeft;
   startScrollTop = container.scrollTop;
   Canvas.c.style.cursor = 'grabbing';
+}
+
+export function panTo(clientX: number, clientY: number) {
+  if (!isPanningBoard) return;
+  const container = document.getElementById('canvas-container');
+  if (!container) return;
+  container.scrollLeft = startScrollLeft - (clientX - panStartX);
+  container.scrollTop = startScrollTop - (clientY - panStartY);
+}
+
+export function stopPan() {
+  if (!isPanningBoard) return;
+  isPanningBoard = false;
+  Canvas.c.style.cursor = ViewState.spacePanHeld ? 'grab' : 'crosshair';
 }
 
 // What a plain click on bare board does: drop any part selection, then select the hole or wire
@@ -48,66 +68,104 @@ function clickBareBoard(e: MouseEvent) {
   updateSelectionStatus();
 }
 
-Canvas.c.addEventListener('mousedown', function(e) {
-  // Middle button, or left button while Space is held, always pans.
-  if (e.button === 1 || (e.button === 0 && ViewState.spacePanHeld)) {
+// A press of the primary button at e, handed to the active tool: in Select mode it picks up the
+// part there (bare board goes through clickBoard instead).
+export function pressBoard(e: MouseEvent) {
+  hideContextMenu();
+  const {x, y} = Canvas.toDrawingCoordinates(e);
+  const tool = ToolState.active;
+  if (!behaviorOf(tool).onPointerDown(tool, {x, y, hoverDot: DotState.hoverDot, keepArmed: e.shiftKey})) {
+    // A placement tool clicked away from any pad: plain selection instead. The wire tool
+    // doesn't pick parts up, so a slightly-off click near a pin can't grab the whole part
+    // mid-run.
+    selectAt(x, y, tool.kind !== "wire");
+  }
+  redrawCanvas();
+  updateSelectionStatus();
+}
+
+// A whole click (press and release without moving) at e.
+export function clickBoard(e: MouseEvent) {
+  const {x, y} = Canvas.toDrawingCoordinates(e);
+  if (canPickUpParts() && !isOverPlacedPart(x, y)) {
+    hideContextMenu();
+    clickBareBoard(e);
+    return;
+  }
+  pressBoard(e);
+  endDrag();
+}
+
+Canvas.c.addEventListener('pointerdown', function(e) {
+  if (e.pointerType === 'touch') return;
+  // Middle button, or left button while Space is held, always pans; so does any left drag while
+  // the solder side shows, which is only for looking at.
+  if (e.button === 1 || (e.button === 0 && (ViewState.spacePanHeld || ViewState.solderSide))) {
     e.preventDefault();
     startPan(e.clientX, e.clientY);
     return;
   }
 
   if (e.button === 0) {
-    hideContextMenu();
     const {x, y} = Canvas.toDrawingCoordinates(e);
+
+    const wireDot = wireDragStartDot(x, y, false);
+    if (wireDot) {
+      hideContextMenu();
+      pendingWire = {clientX: e.clientX, clientY: e.clientY, event: e, dot: wireDot};
+      return;
+    }
 
     // Select mode on bare board: wait and see whether this is a click or a drag-to-pan.
     if (canPickUpParts() && !isOverPlacedPart(x, y)) {
+      hideContextMenu();
       pendingPan = {clientX: e.clientX, clientY: e.clientY, event: e};
       return;
     }
 
-    const tool = ToolState.active;
-    if (!behaviorOf(tool).onPointerDown(tool, {x, y, hoverDot: DotState.hoverDot})) {
-      // A placement tool clicked away from any pad: plain selection instead. The wire tool
-      // doesn't pick parts up, so a slightly-off click near a pin can't grab the whole part
-      // mid-run.
-      selectAt(x, y, tool.kind !== "wire");
-    }
-    redrawCanvas();
-    updateSelectionStatus();
+    pressBoard(e);
   }
 });
 
-window.addEventListener('mousemove', (e) => {
+window.addEventListener('pointermove', (e) => {
+  if (e.pointerType === 'touch') return;
+  if (pendingWire && Math.hypot(e.clientX - pendingWire.clientX, e.clientY - pendingWire.clientY) >= PAN_DRAG_THRESHOLD) {
+    startWireDrag(pendingWire.dot);
+    pendingWire = undefined;
+    redrawCanvas();
+  }
   if (pendingPan && Math.hypot(e.clientX - pendingPan.clientX, e.clientY - pendingPan.clientY) >= PAN_DRAG_THRESHOLD) {
     // It's a drag: pan from where the press started (so the board doesn't jump), and drop the click.
     startPan(pendingPan.clientX, pendingPan.clientY);
     pendingPan = undefined;
   }
-  if (isPanningBoard) {
-    const container = document.getElementById('canvas-container');
-    if (container) {
-      const dx = e.clientX - panStartX;
-      const dy = e.clientY - panStartY;
-      container.scrollLeft = startScrollLeft - dx;
-      container.scrollTop = startScrollTop - dy;
-    }
-  }
+  panTo(e.clientX, e.clientY);
 });
 
-window.addEventListener('mouseup', () => {
+window.addEventListener('pointerup', (e) => {
+  if (e.pointerType === 'touch') return;
   if (pendingPan) {
     // Released without moving: it was a plain click after all.
     const {event} = pendingPan;
     pendingPan = undefined;
     clickBareBoard(event);
   }
-  if (isPanningBoard) {
-    isPanningBoard = false;
-    Canvas.c.style.cursor = ViewState.spacePanHeld ? 'grab' : 'crosshair';
+  if (pendingWire) {
+    const {event} = pendingWire;
+    pendingWire = undefined;
+    clickBoard(event);
   }
+  if (wireDragFrom()) endWireDrag();
+  stopPan();
   endDrag();
 });
+
+// Lets go of a wire being dragged: drawn to the hole under the pointer, if that's another hole.
+export function endWireDrag() {
+  finishWireDrag(DotState.hoverDot);
+  redrawCanvas();
+  updateSelectionStatus();
+}
 
 // Hold Space + drag to pan in any mode (as in Figma/Photoshop). A held modifier rather than a
 // one-shot action, so it's tracked here instead of being an entry in ShortcutRegistry.
@@ -139,11 +197,27 @@ window.addEventListener('keyup', (e) => {
 // Letting go of Space in another window would never reach us.
 window.addEventListener('blur', releaseSpacePan);
 
-// Right click context menu handler
+// Right click context menu handler. A finger's long press opens it through board-touch.ts, so the
+// browser's own long-press contextmenu is ignored.
 Canvas.c.addEventListener('contextmenu', function(e) {
   e.preventDefault();
+  if ((e as PointerEvent).pointerType === 'touch' || ViewState.solderSide) return;
+  openContextMenuAt(e);
+});
 
+// The hole the context menu was opened on, for its Start Wire Here.
+let contextHole: IDot | undefined;
+
+export function contextMenuHole(): IDot | undefined {
+  return contextHole;
+}
+
+// Opens the context menu for the part, wire or pad at e, selecting it; nothing there closes it.
+export function openContextMenuAt(e: MouseEvent) {
   const {x, y} = Canvas.toDrawingCoordinates(e);
+  contextHole = DotState.hoverDot;
+  const wireBtn = document.getElementById('ctxWireBtn');
+  if (wireBtn) wireBtn.hidden = !contextHole;
 
   const part = findPartAt(x, y);
   if (part) {
@@ -161,19 +235,27 @@ Canvas.c.addEventListener('contextmenu', function(e) {
   }
   redrawCanvas();
 
-  if (SelectionState.line || SelectionState.dot) {
+  if (SelectionState.line || SelectionState.dot || contextHole) {
     showContextMenu(e.clientX, e.clientY);
   } else {
     hideContextMenu();
   }
-});
+}
+
+// Shows a popup menu at (x, y), moved left or up as needed to stay on screen (a phone's is narrow).
+function placeMenu(menu: HTMLElement, x: number, y: number) {
+  menu.style.display = 'block';
+  const margin = 8;
+  const left = Math.max(margin, Math.min(x, window.innerWidth - menu.offsetWidth - margin));
+  const top = Math.max(margin, Math.min(y, window.innerHeight - menu.offsetHeight - margin));
+  menu.style.left = `${left}px`;
+  menu.style.top = `${top}px`;
+}
 
 export function showContextMenu(x: number, y: number) {
   const menu = document.getElementById('contextMenu');
   if (!menu) return;
-  menu.style.display = 'block';
-  menu.style.left = `${x}px`;
-  menu.style.top = `${y}px`;
+  placeMenu(menu, x, y);
 }
 
 export function hideContextMenu() {
@@ -184,15 +266,23 @@ export function hideContextMenu() {
   hideLedColorMenu();
 }
 
-export function showLedColorMenu() {
+// At (x, y), or where the context menu was shown.
+export function showLedColorMenu(x?: number, y?: number) {
   const menu = document.getElementById('ledColorMenu');
   const contextMenu = document.getElementById('contextMenu');
   if (!menu) return;
+  if (x !== undefined && y !== undefined) {
+    if (contextMenu) contextMenu.style.display = 'none';
+    placeMenu(menu, x, y);
+    return;
+  }
   if (contextMenu) {
     // Reuse the position the right-click context menu was already shown at.
-    menu.style.left = contextMenu.style.left;
-    menu.style.top = contextMenu.style.top;
+    const left = parseFloat(contextMenu.style.left) || 0;
+    const top = parseFloat(contextMenu.style.top) || 0;
     contextMenu.style.display = 'none';
+    placeMenu(menu, left, top);
+    return;
   }
   menu.style.display = 'block';
 }
@@ -212,7 +302,20 @@ window.addEventListener('click', (e) => {
   }
 });
 
+// The board bar's cancel button, shown while a placement tool is armed: drops it, as Escape
+// eventually does.
+document.getElementById('cancelToolBtn')?.addEventListener('click', () => {
+  resetInteraction();
+  hideContextMenu();
+  redrawCanvas();
+});
+
 ShortcutRegistry.add({key: "Escape", description: "Unselect dot or line", event: ()=>{
+  if (wireDragFrom()) {
+    cancelWireDrag();
+    redrawCanvas();
+    return;
+  }
   // A tool may step back first (e.g. the wire tool ends its run but stays armed); otherwise
   // Escape drops the placement tool and the selection.
   const tool = ToolState.active;

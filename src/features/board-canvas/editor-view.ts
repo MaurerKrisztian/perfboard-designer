@@ -30,6 +30,7 @@ function hoveredItems(): BoardItem[] {
 }
 
 export function editorView(): BoardView {
+  if (ViewState.solderSide) return {solderSide: true};
   const start = ToolState.pendingStart;
   const net = NetHighlightState.current;
   return {

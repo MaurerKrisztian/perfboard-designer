@@ -1,6 +1,6 @@
 import {HistoryState} from "../../state/HistoryState";
 import {LineState} from "../../state/LineState";
-import {redrawCanvas} from "../draw-canvas";
+import {onRedraw, redrawCanvas} from "../draw-canvas";
 import {Utils} from "../../utils/utils";
 import {ShortcutRegistry} from "../shortcut-keys";
 import {IChange} from "../../interfaces/change.interface";
@@ -30,18 +30,13 @@ function applyChange(change: IChange, direction: "apply" | "revert") {
     return;
   }
 
-  if (change.type === "merge") {
-    if (direction === "apply") {
-      for (const removed of change.removed) {
-        const index = LineState.lines.findIndex(l => l.start === removed.start && l.end === removed.end);
-        if (index > -1) LineState.lines.splice(index, 1);
-      }
-      LineState.lines.push(change.merged);
-    } else {
-      const index = LineState.lines.findIndex(l => l.start === change.merged.start && l.end === change.merged.end);
+  if (change.type === "replace") {
+    const [gone, back] = direction === "apply" ? [change.removed, change.added] : [change.added, change.removed];
+    for (const line of gone) {
+      const index = LineState.lines.findIndex(l => l.start === line.start && l.end === line.end);
       if (index > -1) LineState.lines.splice(index, 1);
-      LineState.lines.push(...change.removed);
     }
+    LineState.lines.push(...back);
     return;
   }
 
@@ -85,6 +80,12 @@ export function redo(){
     redrawCanvas();
   }
 }
+
+// The buttons are greyed out while there's nothing to undo or redo. Every change ends in a redraw.
+onRedraw(() => {
+  Utils.getSafeHtmlElement<HTMLButtonElement>('backBtn').disabled = HistoryState.changeIndex < 0;
+  Utils.getSafeHtmlElement<HTMLButtonElement>('forwardBtn').disabled = HistoryState.changeIndex >= HistoryState.changes.length - 1;
+});
 
 ShortcutRegistry.add({key: "z", ctrl: true, description: "Undo last change.", event: undo});
 ShortcutRegistry.add({key: "y", ctrl: true, description: "Redo last undo.", event: redo});

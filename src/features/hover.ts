@@ -13,6 +13,7 @@ import {findPartAt} from "./placed-parts";
 import {DEFAULT_DOT_COLOR} from "../board-render";
 import {PartState} from "../state/PartState";
 import {SelectionState} from "../state/SelectionState";
+import {wireDragFrom, wireDragStartDot} from "./wire-drag";
 
 export function isOverPlacedPart(x: number, y: number): boolean {
   return PartState.parts.some(part => part.containsPoint(x, y));
@@ -24,15 +25,22 @@ export function canPickUpParts(): boolean {
   return ToolState.active.kind === "select";
 }
 
-// Hint that a placed part can be picked up. Left alone while the cursor reads 'grabbing', which
-// means a drag or a board pan owns it right now.
+// Hints at what a drag would do in Select mode: move a part (over its body), draw a wire (on a
+// hole), or pan (anywhere else). Left alone while the cursor reads 'grabbing', which means a drag
+// or a board pan owns it right now.
 function updateDragCursor(x: number, y: number) {
   if (Canvas.c.style.cursor === 'grabbing') return;
   if (ViewState.spacePanHeld) {
     Canvas.c.style.cursor = 'grab';
     return;
   }
-  Canvas.c.style.cursor = canPickUpParts() && isOverPlacedPart(x, y) ? 'move' : 'crosshair';
+  if (!canPickUpParts() || wireDragFrom()) {
+    Canvas.c.style.cursor = 'crosshair';
+  } else if (wireDragStartDot(x, y, false)) {
+    Canvas.c.style.cursor = 'crosshair';
+  } else {
+    Canvas.c.style.cursor = isOverPlacedPart(x, y) ? 'move' : 'grab';
+  }
 }
 
 function findHoveredComponentValue(x: number, y: number): string | undefined {
@@ -41,7 +49,16 @@ function findHoveredComponentValue(x: number, y: number): string | undefined {
   return `${part.getDefinition()?.name}: ${part.value}`;
 }
 
-Canvas.c.addEventListener('mousemove', function(e) {
+// Works out the pad and wire under the pointer at e (and moves a dragged part along). Runs on
+// every pointer move; a finger has no hover, so board-touch.ts also calls it when one lands.
+export function hoverAt(e: MouseEvent) {
+  if (ViewState.solderSide) {
+    // Nothing on the solder side is pointed at, and a drag pans it.
+    DotState.hoverDot = undefined;
+    LineState.hoverLine = undefined;
+    if (Canvas.c.style.cursor !== 'grabbing') Canvas.c.style.cursor = 'grab';
+    return;
+  }
   const {x, y} = Canvas.toDrawingCoordinates(e);
 
   const previousHoverDot = DotState.hoverDot;
@@ -89,6 +106,13 @@ Canvas.c.addEventListener('mousemove', function(e) {
   } else {
     Utils.getSafeHtmlElement('dotDescription').innerText = findHoveredComponentValue(x, y) || '';
   }
+}
+
+// A finger hovers only where it lands (board-touch.ts): following it as it pans would redraw the
+// whole board on every move. A part it drags still follows it.
+Canvas.c.addEventListener('pointermove', (e) => {
+  if (e.pointerType === 'touch' && !DragState.target) return;
+  hoverAt(e);
 });
 
 

@@ -1,3 +1,4 @@
+import {askConfirm} from "../ask-dialog";
 import {Utils} from "../../utils/utils";
 import {ProjectState} from "../../state/ProjectState";
 import {ProjectFileError} from "../../project-file/read-project-file";
@@ -152,7 +153,7 @@ async function fetchHostedProject(link: Extract<ShareLink, {kind: "hosted"}>): P
     throw new ProjectFileError("The link's project address isn't a web address.");
   }
   if (url.protocol !== 'https:' && url.protocol !== 'http:') throw new ProjectFileError("The link's project address isn't a web address.");
-  if (!confirm(`This link opens a project file from ${url.host}:\n\n${url.href}\n\nDownload and open it?`)) return undefined;
+  if (!await askConfirm("Open a project from another site?", `This link opens a project file from ${url.host}: ${url.href}. Download and open it?`, "Download and open")) return undefined;
 
   let response: Response;
   try {

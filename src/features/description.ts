@@ -12,7 +12,5 @@ function removeDescriptionFromDot(){
   }
 }
 
-ShortcutRegistry.add({key: "d", event: () => {
-  if (addDescriptionToDot()) redrawCanvas();
-}, description: "Add description."})
+ShortcutRegistry.add({key: "d", event: () => void addDescriptionToDot(), description: "Add description."})
 ShortcutRegistry.add({key: "d", shift: true, event: removeDescriptionFromDot, description: "Remove description."})

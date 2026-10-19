@@ -50,10 +50,33 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, className: strin
   return el;
 }
 
+// The toolbar's line icons (24-unit paths), drawn in the text colour.
+const ICONS = {
+  camera: ["M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z", "M12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"],
+  folder: ["M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9l-.8-1.2A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"],
+  close: ["M18 6 6 18", "M6 6l12 12"],
+};
+
+function icon(paths: string[]): SVGSVGElement {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  svg.classList.add("viewer3d-icon");
+  for (const d of paths) {
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", d);
+    svg.appendChild(path);
+  }
+  return svg;
+}
+
+const VIEW_LABELS: Record<ViewName, string> = {angled: "Angled", top: "Top", bottom: "Bottom"};
+
 class Viewer3d {
   private readonly overlay = element("div", "viewer3d-overlay");
   private readonly host = element("div", "viewer3d-canvas-host");
   private readonly status = element("span", "viewer3d-status");
+  private readonly viewButtons = new Map<ViewName, HTMLButtonElement>();
   private readonly renderer = new WebGLRenderer({antialias: true});
   private readonly scene = new Scene();
   // A tight near/far range keeps depth precision high enough for the thin printed-on layers
@@ -95,7 +118,14 @@ class Viewer3d {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.12;
-    this.controls.addEventListener("start", () => { this.tween = undefined; });
+    this.controls.addEventListener("start", () => {
+      this.tween = undefined;
+      // Turned by hand: no longer one of the preset views.
+      for (const btn of this.viewButtons.values()) {
+        btn.classList.remove("is-active");
+        btn.setAttribute("aria-pressed", "false");
+      }
+    });
     this.controls.addEventListener("change", () => { this.needsRender = true; });
 
     this.resizeObserver = new ResizeObserver(() => this.resize());
@@ -106,6 +136,8 @@ class Viewer3d {
     this.loop();
   }
 
+  // A toolbar along the top (title, then screenshot, open and close), and the view switch floating
+  // over the bottom of the board, where a thumb reaches it.
   private buildDom() {
     const toolbar = element("div", "viewer3d-toolbar");
     const title = element("div", "viewer3d-title", "3D View");
@@ -113,17 +145,17 @@ class Viewer3d {
     toolbar.appendChild(title);
 
     const actions = element("div", "viewer3d-actions");
-    const button = (label: string, onClick: () => void, extraClass = "") => {
-      const btn = element("button", `viewer3d-btn ${extraClass}`.trim(), label);
+    const button = (label: string, paths: string[], onClick: () => void, extraClass = "") => {
+      const btn = element("button", `viewer3d-btn ${extraClass}`.trim());
       btn.type = "button";
+      btn.title = label;
+      btn.setAttribute("aria-label", label);
+      btn.append(icon(paths), element("span", "viewer3d-btn-label", label));
       btn.addEventListener("click", onClick);
       actions.appendChild(btn);
       return btn;
     };
-    button("Angled", () => this.setView("angled"));
-    button("Top", () => this.setView("top"));
-    button("Bottom", () => this.setView("bottom"));
-    button("Screenshot", () => this.screenshot());
+    button("Screenshot", ICONS.camera, () => this.screenshot());
 
     const fileInput = element("input", "viewer3d-file");
     fileInput.type = "file";
@@ -135,12 +167,28 @@ class Viewer3d {
       file.text().then(text => this.load(JSON.parse(text))).catch(() => this.showError("Couldn't read that file as a project."));
     });
     actions.appendChild(fileInput);
-    button("Open file…", () => fileInput.click());
-    button("✕ Close", () => this.close(), "viewer3d-btn-close");
+    button("Open file…", ICONS.folder, () => fileInput.click());
+    button("Close", ICONS.close, () => this.close(), "viewer3d-btn-close");
     toolbar.appendChild(actions);
 
-    const hint = element("div", "viewer3d-hint", "Drag to orbit · Right-drag to pan · Scroll to zoom · Esc to close");
-    this.overlay.append(toolbar, this.host, hint);
+    const views = element("div", "viewer3d-views");
+    views.setAttribute("role", "group");
+    views.setAttribute("aria-label", "View");
+    for (const view of Object.keys(VIEW_LABELS) as ViewName[]) {
+      const btn = element("button", "viewer3d-view", VIEW_LABELS[view]);
+      btn.type = "button";
+      btn.addEventListener("click", () => this.setView(view));
+      views.appendChild(btn);
+      this.viewButtons.set(view, btn);
+    }
+    const touch = matchMedia("(pointer: coarse)").matches;
+    const hint = element("div", "viewer3d-hint", touch
+      ? "Drag to turn · Pinch to zoom · Two fingers to pan"
+      : "Drag to orbit · Right-drag to pan · Scroll to zoom · Esc to close");
+    const dock = element("div", "viewer3d-dock");
+    dock.append(views, hint);
+    this.host.appendChild(dock);
+    this.overlay.append(toolbar, this.host);
     document.body.appendChild(this.overlay);
     document.body.style.overflow = "hidden";
   }
@@ -174,6 +222,8 @@ class Viewer3d {
     this.camera.far = radius * 12;
     this.camera.updateProjectionMatrix();
     this.controls.minDistance = 8;
+    // The view is fitted to the window's shape, which the resize observer may not have reported yet.
+    this.resize();
     this.setView("angled", false);
   }
 
@@ -183,14 +233,22 @@ class Viewer3d {
     return Math.hypot(this.board.frame.width, this.board.frame.depth) / 2 + 12;
   }
 
+  // Far enough for the board to fill the view: by its height on a wide screen (the 0.62 allows
+  // for the board lying flat), and on a tall, narrow phone screen by its width.
   private viewPosition(view: ViewName): Vector3 {
-    const fov = this.camera.fov * Math.PI / 180;
-    const fitHeight = this.boardRadius() / Math.sin(fov / 2);
-    const fitWidth = fitHeight / Math.max(0.6, Math.min(1, this.camera.aspect));
-    return VIEW_DIRECTIONS[view].clone().multiplyScalar(Math.max(fitHeight, fitWidth) * 0.62);
+    const radius = this.boardRadius();
+    const halfFov = this.camera.fov * Math.PI / 360;
+    const halfHorizontalFov = Math.atan(Math.tan(halfFov) * this.camera.aspect);
+    const byHeight = radius / Math.sin(halfFov) * 0.62;
+    const byWidth = radius / Math.sin(halfHorizontalFov) * 0.62;
+    return VIEW_DIRECTIONS[view].clone().multiplyScalar(Math.max(byHeight, byWidth));
   }
 
   setView(view: ViewName, animate = true) {
+    for (const [name, btn] of this.viewButtons) {
+      btn.classList.toggle("is-active", name === view);
+      btn.setAttribute("aria-pressed", String(name === view));
+    }
     const target = new Vector3(0, 0, 0);
     const position = this.viewPosition(view);
     if (!animate) {

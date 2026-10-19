@@ -9,17 +9,17 @@ export function setDotColor(color: string){
   }
 }
 
-export function changeSelectedDotColor(){
-  if (!SelectionState.dot){
+// Opens the colour picker for the selected pad or wire.
+export function changeSelectedColor(){
+  const target = SelectionState.dot ?? SelectionState.line;
+  if (!target){
     return;
   }
   const colorPicker = Utils.getSafeHtmlElement<HTMLInputElement>('colorPicker');
-  colorPicker.value = Utils.normalizeColor(SelectionState.dot.color, "#a4a0a0");
+  colorPicker.value = Utils.normalizeColor(target.color, "#a4a0a0");
   colorPicker.oninput = colorPicker.onchange = function() {
-    if(SelectionState.dot){
-      SelectionState.dot.color = colorPicker.value;
-      redrawCanvas();
-    }
+    target.color = colorPicker.value;
+    redrawCanvas();
   };
   colorPicker.click();
 }

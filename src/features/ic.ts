@@ -243,6 +243,8 @@ export function selectIc(id: number | string){
   setActiveTool({kind: "ic", template});
 }
 
+document.getElementById('rotateToolBtn')?.addEventListener('click', () => rotateSelectedIc());
+
 export function rotateSelectedIc() {
   const selected = SelectionState.part;
   if (selected && isRotatable(selected)) {

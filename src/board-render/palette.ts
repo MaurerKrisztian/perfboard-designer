@@ -9,6 +9,9 @@ export const HOLE_RADIUS = 6.3;
 
 export const COPPER_COLOR = "#b7733b";
 export const HOLE_COLOR = "#0a170b";
+// Solder: in each hole that gets some, and the blobs of the solder side view.
+export const SOLDER_COLOR = "#d6dbe1";
+export const SOLDER_EDGE = "#1e293b";
 
 // The colour every hole starts with in the editor; any other colour means the user marked it.
 export const DEFAULT_DOT_COLOR = "#a4a0a0";
