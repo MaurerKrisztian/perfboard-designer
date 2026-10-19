@@ -467,7 +467,8 @@ src/features/draw-canvas.ts        redrawCanvas() = drawBoard + the tool's previ
 
 `drawBoard` is the one place that knows what goes on top of what:
 
-1. the bare board (its look: fill, a stripboard's strips and cuts)
+1. the bare board (its look: fill, a stripboard's strips and cuts), and the column numbers and
+   row letters printed round its edge (when `view.holeLabels`, `layers/hole-labels.ts`)
 2. `under-board` parts: chips lie flat, under the holes
 3. holes, except those under a chip's body; marked pads, rings, notes
 4. wires, with dark edges where they go over something
@@ -484,6 +485,11 @@ The editor then draws the active tool's preview on top (`ToolBehavior.drawPrevie
 `BoardView` (`board-view.ts`) holds what to mark beyond the file:
 
 - `partLabels`
+- `holeLabels`: column numbers (from 1) and row letters (from A) round the board's edge, in the
+  strip between the edge and the first holes, as printed on a real board. The editor and its
+  downloads show them (on the solder side too, columns running right to left), and the selection
+  bar names a pad the same way (`holeName()` in `grid.ts`, "G7"); the MCP server's pictures
+  leave them off, since agents count holes from 0
 - `selected` and `hovered`: `BoardItem`s, i.e. a part by `ref`, a wire by index, a hole by `[col, row]`
 - `startHole`: a placement's first click
 - `highlight`: a net

@@ -4,6 +4,7 @@ import {ProjectFile, SavedBoard} from "../project-file/project-file";
 import {layoutProjectWires} from "../project-file/wire-crossings";
 import {BoardView, isSameItem, PLAIN_VIEW} from "./board-view";
 import {boardLookFor} from "./board-looks";
+import {drawHoleLabels} from "./layers/hole-labels";
 import {drawHoles} from "./layers/holes";
 import {drawNetHighlight} from "./layers/net-highlight";
 import {drawPartLabels} from "./layers/part-labels";
@@ -23,7 +24,7 @@ export function boardSizePx(board: SavedBoard): {width: number; height: number} 
 
 export function drawBoard(painter: Painter, project: ProjectFile, view: BoardView = PLAIN_VIEW) {
   if (view.solderSide) {
-    drawSolderSide(painter, project);
+    drawSolderSide(painter, project, !!view.holeLabels);
     return;
   }
   const {width, height} = boardSizePx(project.board);
@@ -41,8 +42,9 @@ export function drawBoard(painter: Painter, project: ProjectFile, view: BoardVie
     }
   };
 
-  // 1. The bare board, with a stripboard's strips and cuts.
+  // 1. The bare board, with a stripboard's strips and cuts, and what's printed round its edge.
   look.paintBoard(painter, project.board, width, height);
+  if (view.holeLabels) drawHoleLabels(painter, project.board, width, height);
   // 2. Chips, lying flat under the holes.
   drawLayer("under-board");
   // 3. Holes, except those a chip's body covers.
@@ -69,7 +71,7 @@ const GHOST_WIRES = 0.4;
 // The board from below, for soldering: mirrored left to right, copper side up (a stripboard's
 // strips and cuts at full strength), the component side faded behind it, every joint marked and
 // each chip's pin 1 boxed.
-function drawSolderSide(painter: Painter, project: ProjectFile) {
+function drawSolderSide(painter: Painter, project: ProjectFile, holeLabels: boolean) {
   const {width, height} = boardSizePx(project.board);
   const look = boardLookFor(project.board.type);
   const parts = boardParts(project);
@@ -92,6 +94,8 @@ function drawSolderSide(painter: Painter, project: ProjectFile) {
     painter.group({opacity: GHOST_WIRES}, () => drawWires(painter, project.wires, [], PLAIN_VIEW));
     painter.group({opacity: GHOST_PARTS}, () => drawLayer("over-wires"));
   });
+  // Outside the mirrored group, so the print reads the right way round.
+  if (holeLabels) drawHoleLabels(painter, project.board, width, height, true);
   if (project.board.type === "stripboard") drawCutMarks(painter, project.board.cuts, width);
   drawSolderJoints(painter, project, width);
   drawSolderRefs(painter, project, width);

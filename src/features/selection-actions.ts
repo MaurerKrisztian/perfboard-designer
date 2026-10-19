@@ -11,7 +11,7 @@ import {SelectionState} from "../state/SelectionState";
 import {isLed} from "../parts/component-definitions";
 import {isRotatable} from "../interfaces/placed-part.interface";
 import {DEFAULT_DOT_COLOR} from "../board-render";
-import {toGridPos} from "../project-file/grid";
+import {holeName, toGridPos} from "../project-file/grid";
 import {Utils} from "../utils/utils";
 import {updateSelectionStatus} from "./selection-status";
 
@@ -45,8 +45,7 @@ function selectionLabel(): string {
   if (!selection) return "";
   if (selection.kind === "line") return "Wire";
   if (selection.kind === "dot") {
-    const [col, row] = toGridPos(selection.dot);
-    return `Pad ${col},${row}`;
+    return `Pad ${holeName(toGridPos(selection.dot))}`;
   }
   const {part} = selection;
   const name = part.kind === "ic" ? part.name : part.getDefinition()?.name;

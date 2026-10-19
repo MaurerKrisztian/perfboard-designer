@@ -21,6 +21,18 @@ export function toGridPos(point: {x: number; y: number}): GridPos {
   return [Math.round((point.x - FIRST_HOLE_PX) / GRID_PITCH_PX), Math.round((point.y - FIRST_HOLE_PX) / GRID_PITCH_PX)];
 }
 
+// A hole's name as printed round a real board's edge: rows lettered from A (Z, then AA, AB…) and
+// columns numbered from 1, so [2, 0] is "A3". For people; files and the MCP server count from 0.
+export function rowLetters(row: number): string {
+  let name = "";
+  for (let n = row + 1; n > 0; n = Math.floor((n - 1) / 26)) name = String.fromCharCode(65 + (n - 1) % 26) + name;
+  return name;
+}
+
+export function holeName([col, row]: GridPos): string {
+  return `${rowLetters(row)}${col + 1}`;
+}
+
 // How many holes fit along a board edge this many pixels long.
 export function holesAlong(px: number): number {
   return Math.max(0, Math.ceil((px - FIRST_HOLE_PX) / GRID_PITCH_PX));

@@ -123,7 +123,8 @@ its whole style). Two painters: `CanvasPainter` (`src/features/board-canvas/canv
 browser only: Path2D, hole sprites cached per zoom, text snapped to device pixels) and
 `SvgPainter` (`painter/svg-painter.ts`, a string, runs anywhere; lets only plain colour syntax
 through, since colours come from files anyone can write). `BoardView` (`board-view.ts`) is what to
-mark beyond the file — part labels, `selected`/`hovered` items (a part by ref, a wire by index, a
+mark beyond the file — part labels, `holeLabels` (column numbers and row letters printed round the
+edge, `layers/hole-labels.ts`; on in the editor and its downloads, off in MCP pictures), `selected`/`hovered` items (a part by ref, a wire by index, a
 hole by position), a placement's `startHole`, a net `highlight`, or `solderSide` (the board from
 below for soldering, mirrored with a `flipX` group, every joint marked: `layers/solder-side.ts`,
 shown read-only by `src/features/solder-view.ts`); `PLAIN_VIEW` is none of it; the

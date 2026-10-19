@@ -30,11 +30,12 @@ function hoveredItems(): BoardItem[] {
 }
 
 export function editorView(): BoardView {
-  if (ViewState.solderSide) return {solderSide: true};
+  if (ViewState.solderSide) return {solderSide: true, holeLabels: true};
   const start = ToolState.pendingStart;
   const net = NetHighlightState.current;
   return {
     partLabels: ViewState.showPartLabels,
+    holeLabels: true,
     selected: selectedItem(),
     hovered: hoveredItems(),
     ...(start ? {startHole: toGridPos(start)} : {}),

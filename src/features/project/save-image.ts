@@ -19,8 +19,8 @@ const EXPORT_SCALE = 2;
 Utils.getSafeHtmlElement<HTMLButtonElement>('downloadBtn').addEventListener('click', () => void downloadAsImage());
 Utils.getSafeHtmlElement<HTMLButtonElement>('downloadSvgBtn').addEventListener('click', () => void downloadAsSvg());
 
-// What's on screen: part labels if they're on, or the solder side if that's showing.
-const exportView = (): BoardView => ({partLabels: ViewState.showPartLabels, solderSide: ViewState.solderSide});
+// What's on screen: the board's printed edge, part labels if they're on, or the solder side if that's showing.
+const exportView = (): BoardView => ({partLabels: ViewState.showPartLabels, holeLabels: true, solderSide: ViewState.solderSide});
 
 function download(href: string, extension: string) {
   const link = document.createElement('a');
