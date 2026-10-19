@@ -9,7 +9,7 @@
     "source": "github",
     "subfolder": "mcp"
   },
-  "version": "0.1.1",
+  "version": "0.2.0",
   "remotes": [
     {
       "type": "streamable-http",
@@ -20,7 +20,7 @@
     {
       "registryType": "npm",
       "identifier": "perfboard-designer-mcp",
-      "version": "0.1.1",
+      "version": "0.2.0",
       "transport": {
         "type": "stdio"
       },
