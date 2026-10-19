@@ -140,7 +140,8 @@ shown read-only by `src/features/solder-view.ts`); `PLAIN_VIEW` is none of it; t
 editor builds its own in `src/features/board-canvas/editor-view.ts`. `draw-board.ts` alone fixes
 the layer order: board look → under-board parts (chips) → holes (not those under a chip's body;
 solder in each joint hole, from `solderJoints()`) →
-wires → over-wires parts → junction dots → part labels → part overlays (chip pin labels) → net
+wires → over-wires parts (the wires again, faded, showing through them) → pin marks (fixed-pin parts'
+pins, `drawPinMarks`) → junction dots → part labels → part overlays (chip pin labels) → net
 highlight. Parts are drawn by one `PartArtist` per kind (`artists/`, registered in `artists/index.ts`)
 from their project-file entries; a standard part's special art (resistor bands, ceramic code, LED
 colour) is a `Decoration` in `artists/standard-decorations.ts`. Placed parts don't draw themselves

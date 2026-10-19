@@ -509,7 +509,9 @@ src/features/draw-canvas.ts        redrawCanvas() = drawBoard + the tool's previ
 2. `under-board` parts: chips lie flat, under the holes
 3. holes, except those under a chip's body; marked pads, rings, notes
 4. wires, with dark edges where they go over something
-5. `over-wires` parts: every other part
+5. `over-wires` parts: every other part, then every wire again, faded, so a wire under a part's
+   body shows through it, then each fixed-pin part's pins marked (`drawPinMarks`), so a pin under
+   a body shows too; the labels go over them
 6. junction dots
 7. part labels (when `view.partLabels`)
 8. part overlays: a chip's pin rings and pin labels

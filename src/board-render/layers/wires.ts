@@ -18,6 +18,8 @@ const JUNCTION_FILL = "#d1d5db";
 const JUNCTION_EDGE = "#374151";
 const JUNCTION_RADIUS = 6;
 const BEND_HANDLE_FILL = "#ffffff";
+// How strongly a wire shows through a part standing over it.
+const THROUGH_PART_OPACITY = 0.45;
 // How tightly a wire bends at a corner (its centreline's radius, drawing px), and in how many
 // straight steps the bend is drawn.
 const BEND_RADIUS = 14;
@@ -137,6 +139,17 @@ function sliceLine(line: Point[], from: number, to: number): Point[] {
     start = end;
   }
   return out;
+}
+
+// Every wire's line again, faded: drawn over the parts that stand above the wires, so a wire
+// running under a part's body still shows through it. Elsewhere it lands on the wire itself and
+// changes nothing.
+export function drawWiresThroughParts(painter: Painter, wires: SavedWire[]) {
+  painter.group({opacity: THROUGH_PART_OPACITY}, () => {
+    for (const wire of wires) {
+      painter.line(wireLine(wire), {paint: wire.color || DEFAULT_WIRE_COLOR, width: widthOf(wire), cap: "round", join: "round"});
+    }
+  });
 }
 
 export function drawJunctions(painter: Painter, junctions: GridPos[]) {

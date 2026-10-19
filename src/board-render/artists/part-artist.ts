@@ -32,6 +32,9 @@ export interface PartArtist<Entry> {
   // Chips lie flat under the board's holes and wires; everything else stands above the wires.
   layer: "under-board" | "over-wires";
   draw(painter: Painter, entry: Entry, look: PartLook): void;
+  // Drawn after every part, but under the labels: marks on its pins, so pins its body (or another
+  // part) covers still show.
+  drawPinMarks?(painter: Painter, entry: Entry): void;
   // Drawn after every part and label, on top of everything (a chip's pin numbers).
   drawOverlay?(painter: Painter, entry: Entry, look: PartLook): void;
   // Absent for parts that print their own name (chips).

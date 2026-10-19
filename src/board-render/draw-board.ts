@@ -8,7 +8,7 @@ import {drawHoleLabels} from "./layers/hole-labels";
 import {drawHoles} from "./layers/holes";
 import {drawNetHighlight} from "./layers/net-highlight";
 import {drawPartLabels} from "./layers/part-labels";
-import {drawJunctions, drawWires} from "./layers/wires";
+import {drawJunctions, drawWires, drawWiresThroughParts} from "./layers/wires";
 import {drawCutMarks, drawSolderJoints, drawSolderRefs} from "./layers/solder-side";
 import {gridToPx} from "../project-file/grid";
 import {Painter, Point} from "./painter/painter";
@@ -51,8 +51,11 @@ export function drawBoard(painter: Painter, project: ProjectFile, view: BoardVie
   drawHoles(painter, project, look, holesUnderChips(project), view);
   // 4. Wires, each with dark edges where it goes over something it doesn't join.
   drawWires(painter, project.wires, wireLayout.hops, view);
-  // 5. Every other part, standing above the wires.
+  // 5. Every other part, standing above the wires; the wires show through them, faded.
   drawLayer("over-wires");
+  drawWiresThroughParts(painter, project.wires);
+  // 5b. Each part's pins, so a pin under a body still shows (under the labels, which stay readable).
+  for (const part of parts) artistFor(part).drawPinMarks?.(painter, part.entry);
   // 6. Solder dots where three or more things are joined, over component leads too.
   drawJunctions(painter, wireLayout.junctions);
   // 7. Refs and values.

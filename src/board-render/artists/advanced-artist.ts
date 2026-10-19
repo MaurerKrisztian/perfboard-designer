@@ -12,6 +12,8 @@ import {labelText, PartArtist, PartLook} from "./part-artist";
 // or a box around the pins), the part's icon on it, and the pin numbers.
 
 const PIN_MARKER_RADIUS = 3;
+// The ring marking each pin, inside the pad around it.
+const PIN_RING_RADIUS = 7;
 const PIN1_MARKER_RADIUS = 4;
 const BODY_COLOR = "rgba(17,24,39,0.85)";
 const BODY_COLOR_SELECTED = "rgba(30,58,138,0.9)";
@@ -139,6 +141,17 @@ export const advancedArtist: PartArtist<SavedAdvancedComponent> = {
     painter.group(look.ghost ? {opacity: GHOST_OPACITY} : {}, () => {
       if (g.def.perPinIcon) drawTiledPins(painter, g, look);
       else drawBody(painter, g, part.rotation, look);
+    });
+  },
+
+  // Each pin marked, so the pins show where the body covers them: a blue ring with the pin's dot
+  // (pin 1's blue) in it. Not for pin blocks, whose tiles are the pins.
+  drawPinMarks(painter, part) {
+    const g = advancedPartGeometry(part);
+    if (!g || g.def.perPinIcon) return;
+    g.pins.forEach((pin, i) => {
+      painter.circle(pin.x, pin.y, PIN_RING_RADIUS, {stroke: {paint: SELECTION_COLOR, width: 2}});
+      painter.circle(pin.x, pin.y, PIN_MARKER_RADIUS, {fill: i === 0 ? PIN1_COLOR : PIN_COLOR});
     });
   },
 
