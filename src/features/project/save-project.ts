@@ -8,7 +8,6 @@ import type {PlacedStandardComponent} from "../standard-components/placed-standa
 import type {PlacedAdvancedComponent} from "../advanced-components/placed-advanced-component";
 import {fileVersionFor, ProjectFile, SavedBoard, SavedPad, SavedWire} from "../../project-file/project-file";
 import {holesAlong, toGridPos} from "../../project-file/grid";
-import {DEFAULT_DOT_COLOR} from "../../board-render";
 import {BoardState} from "../../state/BoardState";
 import {ProjectState} from "../../state/ProjectState";
 
@@ -43,15 +42,9 @@ function savedBoard(): SavedBoard {
   return {type: "stripboard", cols, rows, strips: BoardState.setup.strips, cuts};
 }
 
-// Marked holes only: a color other than the default, or a note.
+// Holes with a note.
 function savedPads(): SavedPad[] {
-  const pads: SavedPad[] = [];
-  for (const dot of DotState.dots) {
-    const color = dot.color && dot.color.toLowerCase() !== DEFAULT_DOT_COLOR ? dot.color : undefined;
-    const note = dot.description?.trim() ? dot.description : undefined;
-    if (color || note) pads.push({at: toGridPos(dot), ...(color ? {color} : {}), ...(note ? {note} : {})});
-  }
-  return pads;
+  return DotState.dots.flatMap(dot => dot.description?.trim() ? [{at: toGridPos(dot), note: dot.description}] : []);
 }
 
 function savedWires(): SavedWire[] {

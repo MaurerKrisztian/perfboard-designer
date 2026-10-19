@@ -351,7 +351,7 @@ function setBoard(project: ProjectFile, op: Op<"set_board">): string {
     const what = [
       parts.join(", "),
       wires.length > 6 ? `${wires.length} wires (${wires.slice(0, 6).join(", ")}...)` : wires.join(", "),
-      pads ? plural(pads, "marked hole") : "",
+      pads ? plural(pads, "note") : "",
     ].filter(Boolean);
     throw new OpError(`These would be off the edge of a board ${cols}×${rows} holes: ${what.join("; ")}. Move or remove them first.`);
   }
@@ -392,9 +392,9 @@ function removeCuts(project: ProjectFile, op: Op<"remove_cuts">): string {
 function setPad(project: ProjectFile, op: Op<"set_pad">): string {
   checkOnBoard(project, op.at, "`at`");
   project.pads = project.pads.filter(pad => !sameHole(pad.at, op.at));
-  if (!op.color && !op.note) return `Unmarked hole ${showHole(op.at)}.`;
-  project.pads.push({at: toGridPos(op.at), ...(op.color ? {color: op.color} : {}), ...(op.note ? {note: op.note} : {})});
-  return `Marked hole ${showHole(op.at)}.`;
+  if (!op.note) return `Removed the note on hole ${showHole(op.at)}.`;
+  project.pads.push({at: toGridPos(op.at), note: op.note});
+  return `Noted "${op.note}" on hole ${showHole(op.at)}.`;
 }
 
 function checkOnBoard(project: ProjectFile, at: readonly number[], what: string) {

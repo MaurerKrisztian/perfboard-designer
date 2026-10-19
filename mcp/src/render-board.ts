@@ -25,7 +25,7 @@ function runMark([dx, dy]: number[]): string {
 const KEY_TEXT = [
   ". empty hole", "a1 pin 1 of part a", "# under a part's body", "o wire end", "* 3+ things joined",
   "- | \\ / ~ wire passing over (not joined)", "% wire bending over (not joined)", "+ wires passing over each other",
-  "x strip cut", "@ marked hole",
+  "x strip cut", "@ hole with a note",
 ].join(", ");
 
 export function renderBoard(project: ProjectFile, area?: Area): string {

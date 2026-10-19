@@ -12,7 +12,6 @@ export type Rotation = 0 | 90 | 180 | 270;
 export interface ViewerDot {
   x: number;
   y: number;
-  color?: string;
 }
 
 export type ViewerBoard =
@@ -101,12 +100,9 @@ export function readProject(raw: unknown): ViewerProject {
     ? {type: "stripboard", strips: project.board.strips, cuts: project.board.cuts.map(px)}
     : {type: "perfboard"};
 
-  const padColors = new Map(project.pads.filter(pad => pad.color).map(pad => [`${pad.at[0]},${pad.at[1]}`, pad.color]));
   const dots: ViewerDot[] = [];
   for (let col = 0; col < cols; col++) {
-    for (let row = 0; row < rows; row++) {
-      dots.push({...px([col, row]), color: padColors.get(`${col},${row}`)});
-    }
+    for (let row = 0; row < rows; row++) dots.push(px([col, row]));
   }
 
   const {hops} = layoutProjectWires(project);

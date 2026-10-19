@@ -323,7 +323,7 @@
             A ring on the hole under the pointer means a click there connects the wire.
           </p>
           <ul>
-            <li>Pick a <strong>color</strong> before you draw (red for power and black for ground keeps a board readable), or add your own with the <strong>+</strong> button.</li>
+            <li>Pick a <strong>color</strong> before you draw (red for power and black for ground keeps a board readable), or add your own with the <strong>+</strong> button. Every color a wire on the board already has shows up there too, so it's easy to match.</li>
             <li>Choose <strong>Thin</strong>, <strong>Normal</strong> or <strong>Thick</strong> wire.</li>
             <li>Start or end a wire at another wire's free end (a hole with nothing else in it), in the same color and thickness, and it carries that wire on: the two become one wire, bending where they met.</li>
             <li>Where one wire ends on another, the two are joined, whichever you draw first: the wire running past is split at that hole, and a solder dot marks the joint. Wires that only cross each other stay apart.</li>
@@ -363,9 +363,9 @@
           <h2>Select, move and delete</h2>
           <ul>
             <li><strong>Select</strong> (the default tool): click a part, wire or hole to select it. Drag a part to move it to new holes.</li>
-            <li>A selected item gets a bar along the bottom of the board with what you can do to it: <strong>Rotate</strong> a chip or other part that turns, change the <strong>Color</strong> of a wire, hole or LED, <strong>Straighten</strong> a bent wire, set a part's <strong>Value</strong>, add a <strong>Note</strong> to a hole, and <strong>Delete</strong>. <strong>Right-click</strong> anything for the same actions as a menu.</li>
+            <li>A selected item gets a bar along the bottom of the board with what you can do to it: <strong>Rotate</strong> a chip or other part that turns, change the <strong>Color</strong> of a wire or LED, <strong>Straighten</strong> a bent wire, set a part's <strong>Value</strong>, add a <strong>Note</strong> to a hole, and <strong>Delete</strong>. <strong>Right-click</strong> anything for the same actions as a menu.</li>
             <li><kbd>Delete</kbd> removes the selected part or wire.</li>
-            <li><strong>Eraser</strong>: click a part or wire to remove it, or a hole to clear its color and note.</li>
+            <li><strong>Eraser</strong>: click a part or wire to remove it, or a hole to clear its note.</li>
             <li><strong>Note</strong>: click a hole to write a note on it, such as "to 9V battery" or "solder last". Notes show in the bar below the board when you point at the hole. With a hole selected, <kbd>D</kbd> adds a note and <kbd>Shift</kbd>+<kbd>D</kbd> removes it.</li>
             <li><strong>Undo</strong> and <strong>Redo</strong> with <kbd>Ctrl</kbd>+<kbd>Z</kbd> and <kbd>Ctrl</kbd>+<kbd>Y</kbd>, or the arrow buttons above the board. They're greyed out when there's nothing to undo or redo.</li>
           </ul>
@@ -550,10 +550,10 @@
                 <tr><td><kbd>/</kbd> while dragging a wire</td><td>Flip its L</td></tr>
                 <tr><td><kbd>Shift</kbd> while dragging a wire</td><td>Draw it straight</td></tr>
                 <tr><td><kbd>Delete</kbd></td><td>Delete the selected part or wire</td></tr>
-                <tr><td><kbd>C</kbd></td><td>Change the color of the selected hole or wire</td></tr>
+                <tr><td><kbd>C</kbd></td><td>Change the color of the selected wire</td></tr>
                 <tr><td><kbd>D</kbd></td><td>Add a note to the selected hole</td></tr>
                 <tr><td><kbd>Shift</kbd>+<kbd>D</kbd></td><td>Remove the selected hole's note</td></tr>
-                <tr><td><kbd>M</kbd></td><td>Move the selected hole's color and note to the hole under the pointer</td></tr>
+                <tr><td><kbd>M</kbd></td><td>Move the selected hole's note to the hole under the pointer</td></tr>
                 <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Undo</td></tr>
                 <tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Redo</td></tr>
                 <tr><td><kbd>P</kbd></td><td>Download the board as a PNG image</td></tr>

@@ -1,8 +1,8 @@
 import {GridPos} from "./grid";
 
 // The project file format, version 4. Positions are grid [column, row] pairs counted from the
-// top-left hole (column = left to right, row = top to bottom), not pixels, and only holes the user
-// marked are listed. Older files are still read, see read-project-file.ts:
+// top-left hole (column = left to right, row = top to bottom), not pixels, and only holes with a
+// note are listed. Older files are still read, see read-project-file.ts:
 // - version 3: the same, minus bent wires (a wire's `via`).
 // - version 2: the same as 3, minus the board type (always a perfboard) and part refs.
 // - version 1 (no `version` field): pixel coordinates, every hole listed, the whole IC catalog.
@@ -44,11 +44,12 @@ export interface SavedStripboard {
 
 export type SavedBoard = SavedPerfboard | SavedStripboard;
 
-// A hole the user marked. Purely a visual note: it says nothing about what's connected.
+// A hole with a note on it ("+9V", "GND", "to battery"). Purely a label: it says nothing about
+// what's connected. (Files from before notes were the only mark may give a hole a `color` too;
+// it's ignored.)
 export interface SavedPad {
   at: GridPos;
-  color?: string;
-  note?: string;
+  note: string;
 }
 
 // An insulated jumper wire. It joins the holes at its two ends and nothing else: not the holes it

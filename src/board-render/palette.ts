@@ -2,7 +2,7 @@
 // place only stays next to the code that draws it.
 
 // Drawing pixels; one hole pitch is GRID_PITCH_PX (50). The copper ring around a hole (a
-// perfboard's pad, or a marked hole on either board) and the drilled hole itself. Selection and
+// perfboard's pad) and the drilled hole itself. Selection and
 // hover rings are sized from the pad.
 export const PAD_RADIUS = 10.5;
 export const HOLE_RADIUS = 6.3;
@@ -13,8 +13,6 @@ export const HOLE_COLOR = "#0a170b";
 export const SOLDER_COLOR = "#d6dbe1";
 export const SOLDER_EDGE = "#1e293b";
 
-// The colour every hole starts with in the editor; any other colour means the user marked it.
-export const DEFAULT_DOT_COLOR = "#a4a0a0";
 
 // What's selected, and the edge of a selected part.
 export const SELECTION_COLOR = "#38bdf8";

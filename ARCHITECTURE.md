@@ -353,7 +353,7 @@ redraw. History is cleared whenever the board is replaced (load, reset, resize) 
 MCP server.
 
 - `project-file.ts` defines version 4, with every field documented there. It holds grid
-  `[col, row]` positions, the board type with a stripboard's strips and cuts, only marked pads,
+  `[col, row]` positions, the board type with a stripboard's strips and cuts, only holes with notes,
   wires with the corners they bend at (`via`: bends, never joints), per-kind part arrays with
   refs, and the user's custom ICs. It's written to be read by people and programs: facts only,
   nothing derivable (no nets, strip segments or resolved pin positions).
@@ -478,7 +478,7 @@ src/board-render/                  PURE: no DOM, no editor state
   painter/svg-painter.ts           SvgPainter: writes SVG as a string, runs anywhere
   painter/fonts.ts                 font stacks, CSS font strings, text width estimates for SVG
   board-looks/                     one BoardLook per board type, boardLookFor(type)
-  layers/holes.ts                  holes, marked pads, solder in joint holes, notes, rings
+  layers/holes.ts                  holes, solder in joint holes, notes, rings
   layers/wires.ts                  wires, selection glow, over-edges, junction dots
   layers/part-labels.ts            refs and values, kept on the board
   layers/net-highlight.ts          a lit-up net
@@ -507,7 +507,7 @@ src/features/draw-canvas.ts        redrawCanvas() = drawBoard + the tool's previ
 1. the bare board (its look: fill, a stripboard's strips and cuts), and the column numbers and
    row letters printed round its edge (when `view.holeLabels`, `layers/hole-labels.ts`)
 2. `under-board` parts: chips lie flat, under the holes
-3. holes, except those under a chip's body; marked pads, rings, notes
+3. holes, except those under a chip's body; rings, notes
 4. wires, with dark edges where they go over something
 5. `over-wires` parts: every other part, then every wire again, faded, so a wire under a part's
    body shows through it, then each fixed-pin part's pins marked (`drawPinMarks`), so a pin under

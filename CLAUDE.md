@@ -234,7 +234,7 @@ board is replaced (load, reset, resize) via `resetForNewBoard()`.
 **Persistence**: the project file format lives in `src/project-file/` — pure code (no DOM, no
 editor state) shared by the editor and the 3D viewer. `project-file.ts` defines the current format
 (version 4: grid `[col, row]` positions, the board type with a stripboard's strip direction and
-cuts, only marked pads, wires with the corners they bend at (`via`, never joints; `wire-path.ts`
+cuts, only holes with notes, wires with the corners they bend at (`via`, never joints; `wire-path.ts`
 gives a wire's points and legs), per-kind part arrays with each part's `ref`, the user's custom
 ICs). A file says the oldest version that holds it (`fileVersionFor()`: 3 unless a wire bends), so
 boards without bends still open in older editors and the published MCP server. It's

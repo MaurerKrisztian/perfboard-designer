@@ -33,11 +33,7 @@ export function loadProject(raw: unknown): {skipped: number} {
   const dots = buildDotIndex();
   const dotAt = ([col, row]: GridPos): IDot => dots.get(dotPositionKey(gridToPx(col), gridToPx(row))) as IDot;
 
-  for (const pad of project.pads) {
-    const dot = dotAt(pad.at);
-    if (pad.color) dot.color = pad.color;
-    if (pad.note) dot.description = pad.note;
-  }
+  for (const pad of project.pads) dotAt(pad.at).description = pad.note;
   if (board.type === "stripboard") {
     for (const at of board.cuts) dotAt(at).cut = true;
   }

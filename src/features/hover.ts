@@ -10,7 +10,6 @@ import {DragState} from "../state/DragState";
 import {updateDrag} from "./component-drag";
 import {ViewState} from "../state/ViewState";
 import {findPartAt} from "./placed-parts";
-import {DEFAULT_DOT_COLOR} from "../board-render";
 import {PartState} from "../state/PartState";
 import {SelectionState} from "../state/SelectionState";
 import {wireDragFrom, wireDragStartDot} from "./wire-drag";
@@ -114,15 +113,13 @@ Canvas.c.addEventListener('pointermove', (e) => {
 });
 
 
-// Moves the selected pad's color and note onto the hovered pad. The pads themselves stay put:
-// wires and parts are pinned to these dot objects, so replacing them would cut those links.
-ShortcutRegistry.add({key: "m", description: "Move the point. select a point, then move the mouse pointer to another point, then press 'm'", event: ()=>{
+// Moves the selected hole's note onto the hovered hole. The holes themselves stay put: wires and
+// parts are pinned to these dot objects, so replacing them would cut those links.
+ShortcutRegistry.add({key: "m", description: "Move the selected hole's note to the hole under the pointer.", event: ()=>{
   const from = SelectionState.dot;
   const to = DotState.hoverDot;
   if (!from || !to || from === to) return;
-  to.color = from.color;
   to.description = from.description;
-  from.color = DEFAULT_DOT_COLOR;
   from.description = undefined;
   SelectionState.clear("dot");
   redrawCanvas();

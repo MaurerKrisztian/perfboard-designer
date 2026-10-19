@@ -11,7 +11,6 @@ import {Canvas} from "../../state/Canvas";
 import {applyCanvasResolution} from "../canvas-sizing";
 import {getCurrentZoom, fitToScreen} from "../view-controls";
 import {GRID_PRESETS} from "./grid-presets";
-import {DEFAULT_DOT_COLOR} from "../../board-render";
 import {buildDotIndex, dotPositionKey} from "../dot-lookup";
 import {resetForNewBoard} from "../reset-interaction";
 
@@ -32,7 +31,7 @@ export function createDotGrid(horizontalDotNumbers: number, verticalDotNumbers: 
   DotState.dots = [];
   for(let x =  GridConfig.dotSpace / 2; x < Canvas.gridWidth; x +=  GridConfig.dotSpace){
     for(let y =  GridConfig.dotSpace / 2; y < Canvas.gridHeight; y +=  GridConfig.dotSpace){
-      DotState.dots.push(keep?.get(dotPositionKey(x, y)) ?? {x: x, y: y, description: null, color: DEFAULT_DOT_COLOR});
+      DotState.dots.push(keep?.get(dotPositionKey(x, y)) ?? {x: x, y: y, description: null});
     }
   }
 }

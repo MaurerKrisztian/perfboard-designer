@@ -1,10 +1,34 @@
 import {ToolState} from "../state/ToolState";
+import {LineState} from "../state/LineState";
 import {setLineColor} from "./line";
 import {updateSelectionStatus} from "./selection-status";
 import {SelectionState} from "../state/SelectionState";
+import {onRedraw} from "./draw-canvas";
+import {Utils} from "../utils/utils";
 
-// Custom Colors Palette & LocalStorage Persistence
+// The wire palette: the built-in colors, the custom ones the user saved (kept in localStorage),
+// and every other color a wire on this board has, however it got it (the selection bar's Color
+// button, a loaded project), so any color in use is a click away.
+const DEFAULT_COLORS = ["#ef4444", "#3b82f6", "#10b981", "#eab308", "#f97316", "#a855f7", "#ffffff", "#1e293b"];
+// How a wire without a color of its own is drawn (the renderer's DEFAULT_WIRE_COLOR).
+const UNCOLORED_WIRE = "#777676";
+
 let customColors: string[] = [];
+// The board's wire colors not among the defaults or custom ones, in the order wires use them.
+let boardColors: string[] = [];
+
+// As "#rrggbb" in lowercase, or "" for anything else (only hex colors go into the swatches' HTML).
+const hex = (color: string | undefined) => Utils.normalizeColor(color ?? UNCOLORED_WIRE, "").toLowerCase();
+
+function colorsOnBoard(): string[] {
+  const known = new Set([...DEFAULT_COLORS, ...customColors].map(hex));
+  const found: string[] = [];
+  for (const line of LineState.lines) {
+    const color = hex(line.color);
+    if (color && !known.has(color) && !found.includes(color)) found.push(color);
+  }
+  return found;
+}
 
 function saveCustomColorsToLocalStorage() {
   try {
@@ -32,16 +56,18 @@ function loadCustomColorsFromLocalStorage() {
 function renderSwatches() {
   const container = document.getElementById('quickSwatches');
   if (!container) return;
-  const defaultColors = ["#ef4444", "#3b82f6", "#10b981", "#eab308", "#f97316", "#a855f7", "#ffffff", "#1e293b"];
-
   let html = `<button class="color-swatch color-swatch-add" id="toggleCustomColorPanelBtn" title="Custom color">＋</button>`;
 
-  html += defaultColors.map(c =>
+  html += DEFAULT_COLORS.map(c =>
     `<button class="color-swatch" data-color="${c}" style="background:${c};" title="${c}"></button>`
   ).join('');
 
   html += customColors.map(c =>
     `<button class="color-swatch" data-color="${c}" data-custom="true" style="background:${c}; position:relative; border-color:#38bdf8;" title="${c} (Right-click to delete)"></button>`
+  ).join('');
+
+  html += boardColors.map(c =>
+    `<button class="color-swatch" data-color="${c}" style="background:${c};" title="${c} (used on this board)"></button>`
   ).join('');
 
   container.innerHTML = html;
@@ -83,6 +109,7 @@ function renderSwatches() {
         if (color) {
           customColors = customColors.filter(c => c !== color);
           saveCustomColorsToLocalStorage();
+          boardColors = colorsOnBoard();
           renderSwatches();
         }
       }
@@ -92,6 +119,14 @@ function renderSwatches() {
 
 loadCustomColorsFromLocalStorage();
 renderSwatches();
+
+// Every change ends in a redraw: the palette follows the board's wire colors.
+onRedraw(() => {
+  const colors = colorsOnBoard();
+  if (colors.join() === boardColors.join()) return;
+  boardColors = colors;
+  renderSwatches();
+});
 
 // Mouse-Interactive 2D Color Spectrum Selector Handlers
 const spectrumCanvas = document.getElementById('colorSpectrumCanvas') as HTMLCanvasElement;
@@ -194,6 +229,7 @@ document.getElementById('addCustomColorToPaletteBtn')?.addEventListener('click',
     if (!customColors.includes(hex)) {
       customColors.push(hex);
       saveCustomColorsToLocalStorage();
+      boardColors = colorsOnBoard();
       renderSwatches();
     }
     ToolState.activeWireColor = hex;

@@ -75,8 +75,7 @@ export const editOp = z.discriminatedUnion("op", [
   z.object({
     op: z.literal("set_pad"),
     at: hole,
-    color: z.string().optional(),
-    note: z.string().optional().describe("Both color and note left out (or \"\") unmarks the hole."),
+    note: z.string().optional().describe('A label on the hole, such as "+9V", "GND" or "to battery". Left out (or "") removes it.'),
   }),
 ]);
 

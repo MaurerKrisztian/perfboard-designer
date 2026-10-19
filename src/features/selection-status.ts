@@ -3,6 +3,7 @@ import {SelectionState} from "../state/SelectionState";
 import {notifyArmedPartChanged} from "./catalog/catalog-events";
 import {behaviorOf} from "./tools";
 import {ViewState} from "../state/ViewState";
+import {holeName, toGridPos} from "../project-file/grid";
 
 const SWATCH_STYLE = "display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;";
 // A finger taps rather than clicks, has no keys for the hints in brackets (the selection bar shows
@@ -93,7 +94,7 @@ export function updateSelectionStatus() {
     const unbend = tool.kind === "select" && selection.line.via?.length ? "Double-click a bend to remove it • " : "";
     setStatus(statusEl, `Line Selected (${selection.line.width || 4}px) [${reshape}${unbend}Mode: ${modeLabel}]`, selection.line.color || '#777676');
   } else if (selection?.kind === "dot") {
-    setStatus(statusEl, `Pad Selected (${selection.dot.x}, ${selection.dot.y}) [Mode: ${modeLabel}]`, selection.dot.color || '#a4a0a0');
+    setStatus(statusEl, `Pad ${holeName(toGridPos(selection.dot))} Selected [Mode: ${modeLabel}]`);
   } else {
     setStatus(statusEl, toolText);
   }

@@ -1,5 +1,5 @@
 import {
-  CircleGeometry, Color, DoubleSide, ExtrudeGeometry, Group, InstancedMesh, LatheGeometry, Matrix4,
+  CircleGeometry, DoubleSide, ExtrudeGeometry, Group, InstancedMesh, LatheGeometry, Matrix4,
   Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry, RingGeometry, Shape, Vector2, Vector3,
 } from "three";
 import {BOARD_BOTTOM_Y, BOARD_THICKNESS, BoardFrame, PITCH, PX_PER_PITCH, SceneKit} from "./scene-kit";
@@ -11,8 +11,6 @@ const PERFBOARD_COLOR = "#0e5a27";
 // Stripboards are usually SRBP (paper-based), a warm brown.
 const STRIPBOARD_COLOR = "#7a5230";
 const COPPER_COLOR = "#c98a4f";
-// The editor's untouched dot color; any other color means the user marked that hole.
-const DEFAULT_DOT_COLOR = "#a4a0a0";
 const HOLE_RADIUS = 0.5;
 const PAD_RADIUS = 0.95;
 const CORNER_RADIUS = 1.2;
@@ -56,27 +54,17 @@ function buildSlab(frame: BoardFrame, color: string): Mesh {
   return slab;
 }
 
-/** Copper rings around holes (in their marked color, if marked) and the holes themselves, on both
- *  faces. A perfboard has a pad at every hole; a stripboard only rings the holes the user marked,
- *  its copper being the strips. */
+/** The holes, on both faces, with a copper ring round each on a perfboard (a stripboard's copper
+ *  is its strips). */
 function buildPadsAndHoles(frame: BoardFrame, dots: ViewerDot[], padEveryHole: boolean): Group {
   const group = new Group();
-  const markColor = (dot: ViewerDot) =>
-    dot.color && dot.color.toLowerCase() !== DEFAULT_DOT_COLOR ? dot.color : undefined;
-  const padded = padEveryHole ? dots : dots.filter(dot => markColor(dot));
-
-  const padMaterial = new MeshStandardMaterial({color: "#ffffff", metalness: 1, roughness: 0.38, side: DoubleSide});
+  const padMaterial = new MeshStandardMaterial({color: COPPER_COLOR, metalness: 1, roughness: 0.38, side: DoubleSide});
   const holeMaterial = new MeshBasicMaterial({color: "#040604", side: DoubleSide});
   const padGeometry = new RingGeometry(HOLE_RADIUS, PAD_RADIUS, 24).rotateX(-Math.PI / 2);
   const holeGeometry = new CircleGeometry(HOLE_RADIUS, 16).rotateX(-Math.PI / 2);
-  const padColors = padded.map(dot => new Color(markColor(dot) ?? COPPER_COLOR));
 
   for (const faceY of [SURFACE_LIFT, BOARD_BOTTOM_Y - SURFACE_LIFT]) {
-    if (padded.length > 0) {
-      const pads = instanced(padGeometry, padMaterial, padded.map(dot => frame.point(dot.x, dot.y, faceY)));
-      padColors.forEach((color, i) => pads.setColorAt(i, color));
-      group.add(pads);
-    }
+    if (padEveryHole) group.add(instanced(padGeometry, padMaterial, dots.map(dot => frame.point(dot.x, dot.y, faceY))));
     // Holes sit a hair above their pads' plane so the black disc always wins the depth test.
     const holeY = faceY + Math.sign(faceY || 1) * 0.002;
     group.add(instanced(holeGeometry, holeMaterial, dots.map(dot => frame.point(dot.x, dot.y, holeY))));

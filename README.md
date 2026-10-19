@@ -169,7 +169,7 @@ galleries: [connectors](examples/new-components-connectors.json),
 | Rotate the selected chip or part | `R` |
 | Add a note to the selected hole | `D` |
 | Remove a hole's note | `Shift` + `D` |
-| Change the selected hole's color | `C` |
+| Change the selected wire's color | `C` |
 | Delete the selected part or wire | `Delete` |
 | Undo / redo | `Ctrl` + `Z` / `Ctrl` + `Y` |
 | Deselect, or step back out of a tool | `Esc` |

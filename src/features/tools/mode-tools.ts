@@ -2,7 +2,6 @@ import {HistoryState} from "../../state/HistoryState";
 import {LineState} from "../../state/LineState";
 import {SelectionState} from "../../state/SelectionState";
 import {ActiveTool} from "../../state/ToolState";
-import {DEFAULT_DOT_COLOR} from "../../board-render";
 import {selectAt, selectLine} from "../board-selection";
 import {addDescriptionToDot} from "../dot-notes";
 import {findPartAt, removePart} from "../placed-parts";
@@ -22,7 +21,7 @@ export const selectTool: ToolBehavior<Extract<ActiveTool, {kind: "select"}>> = {
   statusText: (tool) => `${modeStatus(tool)} [Drag from a pad to wire it]`,
 };
 
-// Removes the topmost part under the pointer, else the wire, else the pad's color and note.
+// Removes the topmost part under the pointer, else the wire, else the hole's note.
 export const eraserTool: ToolBehavior<Extract<ActiveTool, {kind: "eraser"}>> = {
   onPointerDown(_tool, {x, y, hoverDot}) {
     const part = findPartAt(x, y);
@@ -39,10 +38,7 @@ export const eraserTool: ToolBehavior<Extract<ActiveTool, {kind: "eraser"}>> = {
       SelectionState.clear();
       return true;
     }
-    if (hoverDot) {
-      if (hoverDot.color && hoverDot.color !== DEFAULT_DOT_COLOR) hoverDot.color = DEFAULT_DOT_COLOR;
-      if (hoverDot.description) hoverDot.description = undefined;
-    }
+    if (hoverDot?.description) hoverDot.description = undefined;
     return true;
   },
   statusText: modeStatus,

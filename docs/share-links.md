@@ -157,8 +157,8 @@ fine for a board without them). It's documented field by field in
   Neighbouring holes are 2.54 mm (0.1 in) apart.
 - `board`: `{"type": "perfboard", "cols": 12, "rows": 8}`, or a stripboard with
   `"strips": "horizontal" | "vertical"` and `"cuts": [[col, row], ...]`.
-- `pads`: holes marked with a `color` and/or a `note` (like `+9V` or `GND`). Purely visual: it
-  doesn't connect anything.
+- `pads`: holes with a `note` (like `+9V` or `GND`), as `{"at": [c, r], "note": "+9V"}`. Purely
+  a label: it doesn't connect anything.
 - `wires`: `{"from": [c, r], "to": [c, r]}`, with optional `color` (`"#rrggbb"`) and `width`. A
   wire joins only its two end holes. With `"via": [[c, r], ...]` (version 4) it bends at those
   holes on its way, in order; a bend joins nothing.
@@ -198,7 +198,7 @@ A 9 V LED circuit on a 12 × 8 perfboard:
 {
   "version": 3,
   "board": {"type": "perfboard", "cols": 12, "rows": 8},
-  "pads": [{"at": [1, 1], "color": "#ef4444", "note": "+9V"}, {"at": [1, 6], "note": "GND"}],
+  "pads": [{"at": [1, 1], "note": "+9V"}, {"at": [1, 6], "note": "GND"}],
   "wires": [
     {"from": [1, 1], "to": [3, 1], "color": "#ef4444"},
     {"from": [8, 4], "to": [8, 6]},

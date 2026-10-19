@@ -13,7 +13,7 @@ export function setLineColor(color: string){
   }
 }
 
-// Deletes whatever is selected: a placed part, else a wire, else a pad's color and note.
+// Deletes whatever is selected: a placed part, else a wire, else a hole's note.
 export function deleteLine(){
   const part = SelectionState.part;
   if (part && removePart(part)) {
@@ -32,7 +32,6 @@ export function deleteLine(){
     }
   }
   if (SelectionState.dot) {
-    SelectionState.dot.color = "#a4a0a0";
     SelectionState.dot.description = undefined;
     SelectionState.clear("dot");
     redrawCanvas();
@@ -42,5 +41,5 @@ export function deleteLine(){
 ShortcutRegistry.add({key: "Delete", event: deleteLine, description: "Delete line."})
 ShortcutRegistry.add({key: "c", event: () => {
     changeSelectedColor()
-  }, description: "Change pad or wire color."})
+  }, description: "Change wire color."})
 

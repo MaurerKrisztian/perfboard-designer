@@ -1,19 +1,19 @@
 import {GridPos, gridToPx} from "../../project-file/grid";
 import {ProjectFile} from "../../project-file/project-file";
 import {BoardView, isHovered, isSameItem} from "../board-view";
-import {BoardLook, drawMarkedHole} from "../board-looks/board-look";
+import {BoardLook} from "../board-looks/board-look";
 import {Painter, Point, Stamp} from "../painter/painter";
-import {DEFAULT_DOT_COLOR, HOLE_RADIUS, PAD_RADIUS, SELECTION_COLOR, SOLDER_COLOR, SOLDER_EDGE} from "../palette";
+import {HOLE_RADIUS, PAD_RADIUS, SELECTION_COLOR, SOLDER_COLOR, SOLDER_EDGE} from "../palette";
 import {solderJoints} from "./solder-side";
 
-// Every hole of the board: plain holes stamped, marked ones in their colour, solder in each hole
-// that gets some (a pin, a lead or a wire end, so the board shows where to solder), then the rings
+// Every hole of the board: holes stamped, solder in each hole that gets some (a pin, a lead or a wire end, so the board shows where to solder), then the rings
 // that mark the selected, hovered or placement-start hole, then the notes written under holes. Holes
 // under a chip's body (`hidden`) aren't drawn, since the chip sits on top of them; its pins are.
 
 const START_RING_COLOR = "#22c55e";
 const HOVER_RING_COLOR = "#e2e8f0";
 const NOTE_FONT = {family: "sans", size: 10} as const;
+const NOTE_COLOR = "#a4a0a0";
 // Notes show their first few letters, and all of it while the hole is hovered.
 const NOTE_PREVIEW_LENGTH = 5;
 
@@ -31,19 +31,13 @@ const SOLDER_FILL: Stamp = {
 
 export function drawHoles(painter: Painter, project: ProjectFile, look: BoardLook, hidden: Set<string>, view: BoardView) {
   const {cols, rows} = project.board;
-  const pads = new Map(project.pads.map(pad => [key(pad.at), pad]));
-  const marked = (color?: string) => color && color.toLowerCase() !== DEFAULT_DOT_COLOR ? color : undefined;
-
-  const plain: Point[] = [];
+  const holes: Point[] = [];
   for (let col = 0; col < cols; col++) {
     for (let row = 0; row < rows; row++) {
-      if (hidden.has(key([col, row]))) continue;
-      const color = marked(pads.get(key([col, row]))?.color);
-      if (color) drawMarkedHole(painter, gridToPx(col), gridToPx(row), color);
-      else plain.push({x: gridToPx(col), y: gridToPx(row)});
+      if (!hidden.has(key([col, row]))) holes.push({x: gridToPx(col), y: gridToPx(row)});
     }
   }
-  painter.stamp(look.hole, plain);
+  painter.stamp(look.hole, holes);
   painter.stamp(SOLDER_FILL, solderJoints(project)
     .filter(at => !hidden.has(key(at)))
     .map(([col, row]) => ({x: gridToPx(col), y: gridToPx(row)})));
@@ -51,11 +45,10 @@ export function drawHoles(painter: Painter, project: ProjectFile, look: BoardLoo
   drawHoleRings(painter, view, cols, rows);
 
   for (const pad of project.pads) {
-    if (!pad.note) continue;
     const hovered = isHovered(view, {kind: "hole", at: pad.at});
     const text = hovered ? pad.note : pad.note.substring(0, NOTE_PREVIEW_LENGTH);
     painter.text(text, gridToPx(pad.at[0]), gridToPx(pad.at[1]) + PAD_RADIUS + 11, {
-      font: NOTE_FONT, color: pad.color || DEFAULT_DOT_COLOR, align: "center",
+      font: NOTE_FONT, color: NOTE_COLOR, align: "center",
     });
   }
 }

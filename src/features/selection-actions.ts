@@ -10,7 +10,6 @@ import type {LedColor} from "./standard-components/standard-component-actions";
 import {SelectionState} from "../state/SelectionState";
 import {isLed} from "../parts/component-definitions";
 import {isRotatable} from "../interfaces/placed-part.interface";
-import {DEFAULT_DOT_COLOR} from "../board-render";
 import {holeName, toGridPos} from "../project-file/grid";
 import {Utils} from "../utils/utils";
 import {updateSelectionStatus} from "./selection-status";
@@ -27,11 +26,7 @@ function availableActions(): Action[] {
   const selection = SelectionState.current;
   if (!selection) return [];
   if (selection.kind === "line") return selection.line.via?.length ? ["color", "straighten", "delete"] : ["color", "delete"];
-  if (selection.kind === "dot") {
-    const {dot} = selection;
-    const marked = !!dot.description || (!!dot.color && dot.color !== DEFAULT_DOT_COLOR);
-    return marked ? ["wire", "color", "note", "delete"] : ["wire", "color", "note"];
-  }
+  if (selection.kind === "dot") return selection.dot.description ? ["wire", "note", "delete"] : ["wire", "note"];
   const {part} = selection;
   const actions: Action[] = [];
   if (isRotatable(part)) actions.push("rotate");

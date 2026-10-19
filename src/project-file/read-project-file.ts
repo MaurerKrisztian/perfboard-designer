@@ -21,8 +21,6 @@ const NOT_A_PROJECT = "This file isn't a Perfboard Designer project.";
 // A bigger board almost certainly means a corrupt or hostile file, and building it would hang the
 // tab. Far beyond any real perfboard (the largest preset is 29 x 43).
 const MAX_BOARD_SIDE = 500;
-// Version 1 stored this color on every hole the user hadn't marked.
-const V1_UNMARKED_COLOR = "#a4a0a0";
 
 type Entry = Record<string, unknown>;
 
@@ -120,19 +118,20 @@ class Reader {
     return result;
   }
 
-  // Marked holes only: an entry with neither a color nor a note says nothing worth keeping.
-  pads(value: unknown, read: (entry: Entry) => {at?: GridPos; color?: string; note?: string}): SavedPad[] {
+  // Holes with a note only: an entry without one (an older file's coloured hole) says nothing
+  // worth keeping.
+  pads(value: unknown, read: (entry: Entry) => {at?: GridPos; note?: string}): SavedPad[] {
     const pads: SavedPad[] = [];
     for (const item of Array.isArray(value) ? value : []) {
       const entry = asEntry(item);
       if (!entry) continue;
-      const {at, color, note} = read(entry);
-      if (!color && !note) continue;
+      const {at, note} = read(entry);
+      if (!note) continue;
       if (!at) {
         this.skipped++;
         continue;
       }
-      pads.push({at, ...(color ? {color} : {}), ...(note ? {note} : {})});
+      pads.push({at, note});
     }
     return pads;
   }
@@ -220,7 +219,7 @@ function readGridFile(data: Entry, version: 2 | 3 | 4): ReadProjectResult {
   const r = new Reader(cols, rows);
   const board = version >= 3 ? r.board(boardEntry) : r.perfboard();
 
-  const pads = r.pads(data.pads, entry => ({at: r.gridPos(entry.at), color: text(entry.color), note: text(entry.note)}));
+  const pads = r.pads(data.pads, entry => ({at: r.gridPos(entry.at), note: text(entry.note)}));
 
   const wires = r.list<SavedWire>(data.wires, entry => {
     const from = r.gridPos(entry.from);
@@ -284,14 +283,7 @@ function readV1(data: Entry): ReadProjectResult {
   if (!cols || !rows) throw new ProjectFileError(NOT_A_PROJECT);
   const r = new Reader(cols, rows);
 
-  const pads = r.pads(data.dots, entry => {
-    const color = text(entry.color);
-    return {
-      at: r.pxPos(entry.x, entry.y),
-      color: color && color.toLowerCase() !== V1_UNMARKED_COLOR ? color : undefined,
-      note: text(entry.description),
-    };
-  });
+  const pads = r.pads(data.dots, entry => ({at: r.pxPos(entry.x, entry.y), note: text(entry.description)}));
 
   const point = (value: unknown) => {
     const entry = asEntry(value);
