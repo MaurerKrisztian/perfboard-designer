@@ -114,19 +114,22 @@ export type IcSide = "left" | "right" | "top" | "bottom";
 export function icPins(ic: IcPlacement): {pin: number; at: [number, number]; side: IcSide}[] {
   const [left, top] = ic.at;
   const pins: {pin: number; at: [number, number]; side: IcSide}[] = [];
+  // Turning the chip moves pin 1 round the corners clockwise: top left (0°), top right (90°),
+  // bottom right (180°), bottom left (270°). Pins 1..n run down from it along its row, and
+  // n+1..2n back along the other, so numbering stays counter-clockwise: a turn, never a mirror.
   if (ic.rotation === 0 || ic.rotation === 180) {
     const perSide = ic.heightPin;
     const right = left + ic.widthPin - 1;
     for (let i = 0; i < perSide; i++) {
-      pins.push({pin: ic.rotation === 0 ? i + 1 : perSide * 2 - i, at: [left, top + i], side: "left"});
-      pins.push({pin: ic.rotation === 0 ? perSide * 2 - i : i + 1, at: [right, top + i], side: "right"});
+      pins.push({pin: ic.rotation === 0 ? i + 1 : perSide + 1 + i, at: [left, top + i], side: "left"});
+      pins.push({pin: ic.rotation === 0 ? perSide * 2 - i : perSide - i, at: [right, top + i], side: "right"});
     }
   } else {
     const perSide = ic.widthPin;
     const bottom = top + ic.heightPin - 1;
     for (let i = 0; i < perSide; i++) {
-      pins.push({pin: ic.rotation === 90 ? i + 1 : perSide * 2 - i, at: [left + i, top], side: "top"});
-      pins.push({pin: ic.rotation === 90 ? perSide * 2 - i : i + 1, at: [left + i, bottom], side: "bottom"});
+      pins.push({pin: ic.rotation === 90 ? perSide - i : perSide * 2 - i, at: [left + i, top], side: "top"});
+      pins.push({pin: ic.rotation === 90 ? perSide + 1 + i : i + 1, at: [left + i, bottom], side: "bottom"});
     }
   }
   return pins.sort((a, b) => a.pin - b.pin);
