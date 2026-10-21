@@ -2,15 +2,17 @@ import {GridPos} from "./grid";
 import {ProjectFile} from "./project-file";
 import {partPins} from "./pin-positions";
 import {PartKind} from "./part-refs";
+import {isSolderPath, legsMeet, solderPathHoles, wireLegs} from "./wire-path";
 
 // Which pins are connected to which: the board's nets, worked out from a project file and nothing
 // else, so the editor (from its save snapshot) and any program reading the same file always agree.
 // Nets are derived, never saved in the file.
 //
-// What connects: a wire joins the holes at its two ends, never the holes it passes over or bends
-// over (its `via` corners); things in the same hole are joined (one pad); on a stripboard every
-// hole along a strip is joined up to the next cut. A cut hole has no copper, so whatever is in it
-// connects to nothing there.
+// What connects: a jumper wire joins the holes at its two ends, never the holes it passes over or
+// bends over (its `via` corners); a solder path joins every hole it covers, and every solder path
+// it touches; things in the same hole are joined (one pad); on a stripboard every hole along a
+// strip is joined up to the next cut. A cut hole has no copper, so whatever is in it connects to
+// nothing there.
 
 export interface NetPin {
   ref: string;
@@ -29,7 +31,7 @@ export interface Net {
   pins: NetPin[];
   // Indexes into the project's wires.
   wires: number[];
-  // Holes with a pin or a wire end on the net (not every hole along its strips).
+  // Holes with a pin, a wire end or a solder path on the net (not every hole along its strips).
   holes: GridPos[];
 }
 
@@ -127,11 +129,27 @@ export function computeNets(project: ProjectFile): Netlist {
     }
   }
 
-  const wireNodes = project.wires.map(wire => {
+  // A solder path is a node of its own, joined to each of its holes but cut ones.
+  const solderHoles = project.wires.map(wire => isSolderPath(wire) ? solderPathHoles(wire).filter(at => !cuts.has(key(at))) : []);
+  const wireNodes = project.wires.map((wire, i) => {
+    if (isSolderPath(wire)) {
+      const node = `solder#${i}`;
+      parent.set(node, node);
+      for (const at of solderHoles[i]) union(node, key(at));
+      return node;
+    }
     const from = nodeAt(wire.from);
     union(from, nodeAt(wire.to));
     return from;
   });
+  // Solder paths touching anywhere, even between holes (two crossing diagonally), are one blob.
+  const solderPaths = project.wires.flatMap((wire, i) => isSolderPath(wire) ? [{i, legs: wireLegs(wire)}] : []);
+  for (let a = 0; a < solderPaths.length; a++) {
+    for (let b = a + 1; b < solderPaths.length; b++) {
+      const touch = solderPaths[a].legs.some(legA => solderPaths[b].legs.some(legB => legsMeet(legA, legB)));
+      if (touch) union(wireNodes[solderPaths[a].i], wireNodes[solderPaths[b].i]);
+    }
+  }
 
   const pinNodes = boardPins(project).map(pin => ({pin, node: nodeAt(pin.at)}));
 
@@ -156,8 +174,7 @@ export function computeNets(project: ProjectFile): Netlist {
   project.wires.forEach((wire, i) => {
     const net = netFor(wireNodes[i]);
     net.wires.push(i);
-    addHole(net, wire.from);
-    addHole(net, wire.to);
+    for (const at of isSolderPath(wire) ? solderHoles[i] : [wire.from, wire.to]) addHole(net, at);
   });
 
   const nets = [...byRoot.values()];

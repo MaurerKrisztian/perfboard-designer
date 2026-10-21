@@ -97,7 +97,7 @@ export function registerProjectTools(server: McpServer) {
 
   server.registerTool("get_project", {
     title: "Get project",
-    description: "The whole project file of a project kept here, as the editor would save it (version 3, or 4 once a wire bends), one entry per line.",
+    description: "The whole project file of a project kept here, as the editor would save it (through version 8, preserving component identities and optional requirements), one entry per line.",
     inputSchema: {projectId: z.string()},
     annotations: {readOnlyHint: true, openWorldHint: false},
   }, async ({projectId}) => {
@@ -110,7 +110,7 @@ export function registerProjectTools(server: McpServer) {
 // An empty board; a stripboard when it has strips.
 function blankProject(cols: number, rows: number, strips?: "horizontal" | "vertical"): ProjectFile {
   return {
-    version: fileVersionFor({wires: []}),
+    version: fileVersionFor({wires: [], placedAdvancedComponents: []}),
     board: strips ? {type: "stripboard", cols, rows, strips, cuts: []} : {type: "perfboard", cols, rows},
     pads: [], wires: [], placedIcs: [], placedStandardComponents: [], placedAdvancedComponents: [], customIcs: [],
   };
@@ -121,6 +121,10 @@ function blankProject(cols: number, rows: number, strips?: "horizontal" | "verti
 function checkedProject(held: HeldProject) {
   const {project, expectNets} = held;
   const {ok, problems, notes} = validateProject(project, expectNets);
+  const checkedAgainst = [
+    expectNets ? `expectNets (${plural(expectNets.length, "net")})` : undefined,
+    project.requirements?.validate ? "saved requirements" : undefined,
+  ].filter(Boolean).join("; ");
   const nets = ok ? netsReport(project, computeNets(project), layoutProjectWires(project), i => i) : undefined;
   return {
     projectId: held.id,
@@ -129,7 +133,7 @@ function checkedProject(held: HeldProject) {
     parts: partCount(project),
     wires: project.wires.length,
     ok,
-    ...(expectNets ? {checkedAgainst: `expectNets (${plural(expectNets.length, "net")})`} : {}),
+    ...(checkedAgainst ? {checkedAgainst} : {}),
     problems,
     ...(notes.length ? {notes: `${plural(notes.length, "note")} (wires crossing and the like): validate_project lists them.`} : {}),
     ...(nets

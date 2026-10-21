@@ -1,15 +1,16 @@
 import {Canvas} from "../state/Canvas";
-import {ToolState} from "../state/ToolState";
+import {isPlacementTool, ToolState} from "../state/ToolState";
 import {Utils} from "../utils/utils";
-import {setActiveTool} from "./active-tool";
+import {onToolPicked, setActiveTool} from "./active-tool";
 import {onRedraw} from "./draw-canvas";
 import {showWholeBoard} from "./view-controls";
 
 // The phone layout (style.css, under the same media query, which also takes touch tablets and
 // phones held sideways): the board fills the screen, a toolbar along the bottom (#mobileNav) holds
-// Select, Wire, Add, Nets and More, and the sidebars become sheets that slide up over the board, one
-// at a time. Add and More are both the left sidebar (#controls): Add shows only the parts catalog,
-// More the rest (tools, board, wire style); the stylesheet hides the other half by its data-view.
+// Select, Wire, Solder, Add, Nets and More, and the sidebars become sheets that slide up over the
+// board, one at a time. Add and More are both the left sidebar (#controls): Add shows only the parts
+// catalog, More the rest (tools, board, wire style); the stylesheet hides the other half by its
+// data-view.
 
 const phone = matchMedia("(max-width: 768px), (pointer: coarse) and (max-width: 1024px), (pointer: coarse) and (max-height: 500px)");
 const nav = Utils.getSafeHtmlElement("mobileNav");
@@ -47,8 +48,8 @@ nav.addEventListener("click", (e) => {
     return;
   }
   setOpenSheet(undefined);
-  if (tool === "wire") {
-    setActiveTool(ToolState.active.kind === "wire" ? {kind: "select"} : {kind: "wire"});
+  if (tool === "wire" || tool === "solder") {
+    setActiveTool(ToolState.active.kind === tool ? {kind: "select"} : {kind: tool});
   } else if (tool === "select") {
     setActiveTool({kind: "select"});
   }
@@ -66,6 +67,10 @@ controls.addEventListener("click", () => {
     if (phone.matches && ToolState.active !== before) setOpenSheet(undefined);
   });
 }, true);
+// So does a part armed from outside the sheet, e.g. by saving a new custom module in its dialog.
+onToolPicked(() => {
+  if (phone.matches && isPlacementTool(ToolState.active)) setOpenSheet(undefined);
+});
 
 // On a phone the board's toolbar floats over the board rather than taking a row of its own.
 const statusBar = Utils.getSafeHtmlElement("boardBar");

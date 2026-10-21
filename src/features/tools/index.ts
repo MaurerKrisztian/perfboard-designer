@@ -2,7 +2,7 @@ import {ActiveTool} from "../../state/ToolState";
 import {ToolBehavior} from "./tool";
 import {eraserTool, noteTool, selectTool} from "./mode-tools";
 import {cutTool} from "./cut-tool";
-import {wireTool} from "./wire-tool";
+import {solderTool, wireTool} from "./wire-tool";
 import {icTool} from "./ic-tool";
 import {standardComponentTool} from "./standard-component-tool";
 import {advancedComponentTool} from "./advanced-component-tool";
@@ -13,6 +13,7 @@ const BEHAVIORS: {[K in ActiveTool["kind"]]: ToolBehavior<Extract<ActiveTool, {k
   "note": noteTool,
   "cut": cutTool,
   "wire": wireTool,
+  "solder": solderTool,
   "ic": icTool,
   "standard-component": standardComponentTool,
   "advanced-component": advancedComponentTool,

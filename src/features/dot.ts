@@ -5,7 +5,7 @@ import {SelectionState} from "../state/SelectionState";
 // Opens the colour picker for the selected wire.
 export function changeSelectedColor(){
   const line = SelectionState.line;
-  if (!line){
+  if (!line || line.kind === "solder"){
     return;
   }
   const colorPicker = Utils.getSafeHtmlElement<HTMLInputElement>('colorPicker');

@@ -42,7 +42,7 @@ export function registerShareLinkTools(server: McpServer, DEFAULT_EDITOR_URL: st
       "Turns a project into a link that opens it in Perfboard Designer: the project travels inside the link, so it works without any server. Give the link to the user.",
       ...(imageUrl ? ["Also returns `image`, the address of an SVG picture of the board (as the editor draws it), for showing it where images from links display, e.g. in Markdown (not in Claude or ChatGPT, which don't load them: show_board shows the board there)."] : []),
       ...(storage ? ["With store, the project is also stored on the Perfboard Designer server under a short id, and `stored` gives a short link to it, its file and its pictures (SVG and PNG): give the user both links."] : []),
-      "The project is validated first (against expectNets too, given or remembered for its projectId); a project with errors gets the list of problems instead of a link, unless allowErrors is set.",
+      "The project is validated first (against enabled saved requirements and expectNets too, given or remembered for its projectId); a project with errors gets the list of problems instead of a link, unless allowErrors is set.",
     ].join(" "),
     // Without storage, store and storeAs aren't offered, so they never come.
     inputSchema: storage ? inputs : (baseInputs as typeof inputs),
@@ -78,7 +78,7 @@ export function registerShareLinkTools(server: McpServer, DEFAULT_EDITOR_URL: st
 
   server.registerTool("read_share_link", {
     title: "Read share link",
-    description: "Reads the project out of a Perfboard Designer share link (any of its forms: z=, json= or src=, which is downloaded; a stored project's short link too), so you can look at or change a board the user shared. Returns the project as a project file (version 3, or 4 when a wire bends), kept here under the projectId it returns: change it with edit_project.",
+    description: "Reads the project out of a Perfboard Designer share link (z=, json=, downloaded src=, or a stored short link). Returns a project file through version 8, preserving component identities and optional requirements, kept under the returned projectId: change it with edit_project.",
     inputSchema: {
       link: z.string().describe("The whole link, or just the part after #."),
     },

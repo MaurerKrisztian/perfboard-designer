@@ -6,8 +6,9 @@ import {changeSelectedColor} from "./dot";
 import {removePart} from "./placed-parts";
 import {SelectionState} from "../state/SelectionState";
 
+// A solder path has no colour to set.
 export function setLineColor(color: string){
-  if (SelectionState.line){
+  if (SelectionState.line && SelectionState.line.kind !== "solder"){
     SelectionState.line.color = color;
     redrawCanvas();
   }

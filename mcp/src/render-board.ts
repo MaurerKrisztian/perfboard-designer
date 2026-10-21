@@ -1,4 +1,6 @@
-import {computeNets, GridPos, holesAlong, layoutProjectWires, Net, partPins, pinName, ProjectFile, wireLegs, wirePoints} from "./editor";
+import {
+  computeNets, GridPos, holesAlong, isSolderPath, layoutProjectWires, Net, partPins, pinName, ProjectFile, solderPathHoles, wireLegs, wirePoints,
+} from "./editor";
 import {holeKey, joinList, showHole} from "./text";
 
 // render_board's text drawing of a board: one cell per hole, so an agent can see where things are,
@@ -25,6 +27,7 @@ function runMark([dx, dy]: number[]): string {
 const KEY_TEXT = [
   ". empty hole", "a1 pin 1 of part a", "# under a part's body", "o wire end", "* 3+ things joined",
   "- | \\ / ~ wire passing over (not joined)", "% wire bending over (not joined)", "+ wires passing over each other",
+  "= solder path (joins every hole it covers)",
   "x strip cut", "@ hole with a note",
 ].join(", ");
 
@@ -49,6 +52,7 @@ export function renderBoard(project: ProjectFile, area?: Area): string {
     set(at, before && before !== "@" && before !== mark ? "+" : mark);
   };
   project.wires.forEach(wire => {
+    if (isSolderPath(wire)) return;
     for (const leg of wireLegs(wire)) {
       const mark = runMark([leg.to[0] - leg.from[0], leg.to[1] - leg.from[1]]);
       for (const {at} of holesAlong(leg)) overRun(at, mark);
@@ -56,8 +60,10 @@ export function renderBoard(project: ProjectFile, area?: Area): string {
     for (const corner of wire.via ?? []) overRun(corner, "%");
   });
   for (const part of parts) part.coveredHoles.forEach(at => set(at, "#"));
+  // On the copper side, under any body, and joined to every hole it covers.
+  for (const wire of project.wires) if (isSolderPath(wire)) solderPathHoles(wire).forEach(at => set(at, "="));
   if (board.type === "stripboard") board.cuts.forEach(at => set(at, "x"));
-  for (const wire of project.wires) [wire.from, wire.to].forEach(at => set(at, "o"));
+  for (const wire of project.wires) if (!isSolderPath(wire)) [wire.from, wire.to].forEach(at => set(at, "o"));
   layout.junctions.forEach(at => set(at, "*"));
   parts.forEach((part, i) => part.pins.forEach(pin => set(pin.at, `${partKey(i)}${pin.pin}`)));
 
@@ -113,7 +119,7 @@ export function renderBoard(project: ProjectFile, area?: Area): string {
     out.push("", "Wires (index: ends, net):");
     for (const {wire, i} of shownWires) {
       const bends = wire.via?.length ? ` bending at ${wire.via.map(showHole).join(", ")}` : "";
-      out.push(`${i}: ${showHole(wire.from)}-${showHole(wire.to)}${bends}, ${netText(netOf.get(i))}`);
+      out.push(`${i}: ${isSolderPath(wire) ? "solder path " : ""}${showHole(wire.from)}-${showHole(wire.to)}${bends}, ${netText(netOf.get(i))}`);
     }
   }
   return out.join("\n");

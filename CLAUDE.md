@@ -26,6 +26,22 @@ tests changes manually in the browser.
 
 ## Architecture
 
+**Requirements**: each placed part has an `instanceId` (`src/project-file/component-ids.ts`;
+version 7, but it never raises a file's version); never generate identities during serialization. Version
+8's optional `requirements` is independent intended connectivity, never a second copy of actual
+nets. `src/project-file/requirements.ts` owns its types, strict reader, inventory, net editing and
+pure comparison. Stable component IDs plus numeric pins bind requirements; snapshots keep missing
+parts/pins reportable. Unspecified pins are unchecked, not implicitly unused; only full coverage
+without mismatches may report a match; turning checking off is a saved choice the reader and
+writer must preserve. The editor holds them in `RequirementsState` and has no UI to edit them;
+`requirements-validation.ts` renders diagnostics in the Nets panel. Preserve multi-net
+requirement highlights instead of following only one actual net. `placePart()` records a new
+part's required inventory entry and the physical part in one history batch. Deleted parts remain
+required until explicitly forgotten. New projects clear requirements; resizing/copying and MCP
+edits preserve them. MCP validation checks saved requirements only when enabled; `expectNets` is
+unchanged. A top-level `schematic` field from older editors is read and ignored. Release the
+frontend, MCP and hosted reader together for format-8 files.
+
 `ARCHITECTURE.md` (repo root) is the developer guide to all of this, for people: how each part
 works and how to extend it. Keep it in step with this file: a change that makes a section of
 either wrong fixes both.
@@ -72,7 +88,7 @@ keeps the tool armed (`BoardClick.keepArmed`).
 
 **Phone layout**: on a small or touch screen (one media query, in both the end of `src/style.css`
 and `src/features/mobile-layout.ts`; keep them the same) the board fills the screen, a bottom
-toolbar (`#mobileNav`: Select, Wire, Add, Nets, More) opens slide-up sheets (Add/More are
+toolbar (`#mobileNav`: Select, Wire, Solder, Add, Nets, More) opens slide-up sheets (Add/More are
 `#controls` with a `data-view`, Nets is the right sidebar), and the board toolbar floats over the
 board.
 
@@ -89,7 +105,7 @@ coordinate mapping), `GridConfig` (grid constants like dot spacing/radius), `Dot
 discriminated unions keep "only one at a time" true by
 construction: `SelectionState.current` (one selected pad, wire *or* part) and `ToolState.active`
 (what a click on the board does: a toolbar mode — select/eraser/note/cut — or a placement tool —
-wire, IC, standard or advanced component — with its pending first click). Switch tools through
+wire, solder path, IC, standard or advanced component — with its pending first click). Switch tools through
 `setActiveTool()` (`src/features/active-tool.ts`); `resetInteraction()` clears the selection and
 drops a placement tool back to Select. Toolbar/catalog highlights are derived from this state in
 `updateSelectionStatus()`.
@@ -104,11 +120,15 @@ drag pans or moves a part, two-finger pinch zooms and pans, long press = context
 drag that starts on a hole in Select mode or with the wire tool draws a wire to the hole it ends on,
 an L bending the way the pointer moved first (`wire-drag.ts`: `/` flips it, Shift straightens it;
 a part's pins wire, its body moves it). A finger's drag never wires (it pans): it wires after a
-long press (drag on, a second finger flipping the L, or the menu's Start Wire Here, which arms the
-wire tool). The wire tool (`wire-tool.ts`) clicks a route: an empty hole bends the wire (`via`), a
+long press (drag on, a second finger flipping the L, or the menu's Start Wire Here / Start Solder
+Path Here, which arms that tool). On the selected wire's handles a finger's drag bends it, held
+still first or not (the long press's menu closes as it moves on). The wire tool (`wire-tool.ts`) clicks a route: an empty hole bends the wire (`via`), a
 hole it would connect to there (`connectsAt()` in `wire-merge.ts`: a pin, a wire, a stripboard's
 strip) ends it; the last hole again or Enter (`ToolBehavior.finish`) ends it on an empty hole, Esc
-takes back a bend. A selected wire's handles (drawn by `layers/wires.ts`) bend it in Select mode
+takes back a bend. The solder path tool (`solder`, <kbd>S</kbd>) is the same behaviour (`routeTool`
+in `wire-tool.ts`; `RouteTool`/`isRouteTool()` name the pair, and a drag with it armed draws one)
+placing solder paths: an `ILine` with `kind: "solder"`, no colour or width, joining every hole it
+covers (Nets below); everything else treats it as a wire. A selected wire's handles (drawn by `layers/wires.ts`) bend it in Select mode
 (`wire-reshape.ts`): drag a leg to pull out a bend, drag a bend or an end to move it, double-click
 (double-tap) a bend to take it out, the selection bar's Straighten for all of them; the wire changes
 live and its new route goes through the wire tool's `routeWire` (as placing does) as one undoable
@@ -192,7 +212,16 @@ means a new look there plus a `BoardType` in the project file.
   (ICs-adjacent, pots, etc.) defined by `AdvancedComponentDefinition` in
   `src/parts/advanced-component-definitions.ts`. Placed via a single anchor dot + rotation;
   pin/shaded-hole/body-outline offsets (in grid units, relative to the anchor) are rotated
-  (`rotate-offset.ts`) by the shared part geometry (below).
+  (`rotate-offset.ts`) by the shared part geometry (below). **Custom modules** are fixed-pin parts
+  the user makes (`src/parts/custom-parts.ts`: a `CustomPartSpec`, its size in holes, its pins'
+  holes in order with optional names, a colour): a placed one has `definitionId: "custom"` and
+  carries its whole spec in `custom`, which `customPartDefinition()` turns into an
+  `AdvancedComponentDefinition` (`noIcon`: drawn as its colour with its name). So look a placed
+  fixed-pin part's definition up with `advancedDefinitionFor(part)`, never by its id alone. The
+  creator is `src/features/custom-part-modal.ts`, the catalog entries (Modules › Custom) the
+  `CustomParts` store in `src/features/custom-parts.ts` (localStorage `custom_parts`, merged in
+  from loaded boards and parts library files; placed parts keep their own copy, so editing or
+  deleting an entry never changes a board).
 - IC chips (`src/features/ic.ts`, `ic-editor-modal.ts`) are a third, older placement concept
   (dual-row multi-pin part with labelled pins), separate from both of the above. It backs both
   DIP ICs and dual-row dev boards (Modules › Dev Boards); built-ins are data in
@@ -202,6 +231,9 @@ means a new look there plus a `BoardType` in the project file.
   identifies the catalog entry, and catalog entries are saved through `Ic.customIcEntries()`,
   which picks its fields (including `category`). Loading *merges* custom ICs into the catalog —
   never replace `Ic.IC_CONTAINER` wholesale, or built-ins added later go missing.
+- File → Export / Import Custom Parts (`src/features/project/custom-parts-library.ts`) writes and
+  reads a parts library file of the user's custom ICs and modules (`src/project-file/parts-library.ts`,
+  format `perfboard-designer-parts`); importing adds what's new, never changing what's there.
 
 **Part geometry** is worked out once, in grid units, in `src/parts/part-geometry.ts`:
 `advancedPartShape()` (a fixed-pin part's pins, covered holes, outline, icon anchor, body box),
@@ -225,28 +257,32 @@ via `src/features/placed-parts.ts` (`placePart`/`removePart` record history, `ad
 **Undo/redo** (`src/features/project/undo-redo.ts` + `src/state/HistoryState.ts`): every mutation
 that should be undoable calls `HistoryState.record(change)` with an `IChange`
 (`src/interfaces/change.interface.ts`): `add`/`remove`/`replace` of a line (a placed wire splits
-wires passing over its end holes to join them, is itself cut where it passes over other wires'
-ends, and started or ended at a wire's free end (same colour and width, nothing else in the hole)
-carries that wire on as one bent wire into one it continues: `wire-merge.ts`), `add`/`remove`/`move`
+jumpers passing over its end holes to join them, is itself cut where it passes over other wires'
+ends, and started or ended at a wire's free end (same kind, and for jumpers the same colour and
+width, nothing else in the hole) carries that wire on as one bent wire into one it continues:
+`wire-merge.ts`; a solder path joins every hole it covers already, so it's never split or cut), `add`/`remove`/`move`
 of a part, or `set` of a strip cut or of the board setup. `undo`/`redo` replay these and call `redrawCanvas()`. History is cleared whenever the
 board is replaced (load, reset, resize) via `resetForNewBoard()`.
 
 **Persistence**: the project file format lives in `src/project-file/` — pure code (no DOM, no
 editor state) shared by the editor and the 3D viewer. `project-file.ts` defines the current format
-(version 4: grid `[col, row]` positions, the board type with a stripboard's strip direction and
-cuts, only holes with notes, wires with the corners they bend at (`via`, never joints; `wire-path.ts`
-gives a wire's points and legs), per-kind part arrays with each part's `ref`, the user's custom
-ICs). A file says the oldest version that holds it (`fileVersionFor()`: 3 unless a wire bends), so
-boards without bends still open in older editors and the published MCP server. It's
+(version 8 adds optional requirements; version 7 part identities; grid `[col, row]` positions, the board type with a stripboard's strip direction and
+cuts, only holes with notes, wires with the corners they bend at (`via`) and their `kind` (absent:
+a jumper, whose corners never join; `"solder"`: a solder path, which joins every hole it covers;
+`wire-path.ts` gives a wire's points, legs and a solder path's holes), per-kind part arrays with
+each part's `ref` (a custom module with its whole spec in `custom`), the user's custom ICs). A file
+says the oldest version that holds it (`fileVersionFor()`: 8 with requirements, else 6 with a custom module, else 5 with a
+solder path, else 4 if a wire bends, else 3), so boards without them
+still open in older editors and the published MCP server. It's
 written to be read by people and programs (e.g. the MCP server) as well as the editor: facts
 only, nothing derivable (no nets, strip segments or resolved pin positions), every field
-documented there. `read-project-file.ts` reads any version (v3: no bends; v2: no board type or refs; files
+documented there. `read-project-file.ts` reads any version (v5: no custom modules; v4: no solder paths; v3: no bends; v2: no board type or refs; files
 without `version` are v1: pixel coordinates, every hole, the whole IC catalog) into that shape,
 validating everything and throwing `ProjectFileError` for non-projects before the board is
 touched; bad entries are skipped and counted (a wire with a corner off the board too), and parts without a usable ref are numbered. `save-project.ts`'s `getSaveJson()` always writes the current format (each part's
 `serialize()` returns its entry); `load-project.ts`'s `loadProject(raw)` reads and then rebuilds
 the board, pinning wires and parts to the shared dot objects, and merges (never replaces) custom
-ICs into the catalog. Projects are also kept in the browser: `project-store.ts` is the
+ICs and custom modules into the catalog. Projects are also kept in the browser: `project-store.ts` is the
 `localStorage` layout (two keys per project, its file and `{name, updatedAt}`, so tabs on
 different projects never write the same key), `current-project.ts` tracks which one is open
 (`ProjectState.current`), opens/creates/imports/deletes them, and autosaves the open one shortly
@@ -288,7 +324,7 @@ by group (`catalog-tools.ts`: list/get parts; `project-tools.ts`: new/edit/get p
 reply formatting in `reply.ts`, wording helpers (holes, plurals, lists) in `text.ts`.
 It can: list parts, start a project (`new_project`, blank or
 from an example), change it with small ops (`edit_project`, whose wire ends can be pins by name and
-whose wires bend at `via` holes; a `path`'s corners are wire ends instead),
+whose wires bend at `via` holes; a `path`'s corners are wire ends instead; `solder: true` makes a solder path),
 get pin positions, draw it as text (`render_board`, `mcp/src/render-board.ts`), list the board's
 nets (`get_nets`), validate it, make and read share links. `make_share_link` also returns `image`:
 the Worker's `GET /render.svg?<a share link's fragment>` (`mcp/src/image-requests.ts`, `z=`/`json=`
@@ -358,9 +394,10 @@ running Claude session keeps the old build until it reconnects.
 
 **Nets** (`src/project-file/nets.ts`): which pins the board connects, computed from a project file
 and nothing else (`computeNets(project)`), so the editor and any program reading the file (the MCP
-server) always agree. A wire
-joins only its two end holes; things in one hole are joined; on a stripboard a strip joins its
-holes up to the next cut, and a cut hole joins nothing. Nets are derived — never saved in the file.
+server) always agree. A jumper wire
+joins only its two end holes; a solder path joins every hole it covers (but a cut one) and any
+solder path it touches; things in one hole are joined; on a stripboard a strip joins its holes up
+to the next cut, and a cut hole joins nothing. Nets are derived — never saved in the file.
 The editor shows them live in the right sidebar above the shortcuts (`src/features/nets-panel.ts`),
 recomputed from `getSaveJson()` shortly after a redraw that changed the board. Unconnected pins
 and wires connecting no pins are in folds above the nets (likely mistakes, kept in sight). Clicking a net, an unconnected pin or
@@ -368,10 +405,19 @@ such wires lights it up on the board until clicked again: `NetHighlightState` ho
 wires, drawn by the renderer (`view.highlight`, `src/board-render/layers/net-highlight.ts`), and the panel moves it to whichever net holds most of its pins
 after each change (most of its wires, for wires connecting no pins).
 
-**Wire crossings** (`src/project-file/wire-crossings.ts`): wires are insulated jumpers, so where
+**Component list** (`src/project-file/part-list.ts`): the parts as a bill of materials, from a
+project file alone like the nets: each part's ref, catalog name, value with its unit (an LED's
+colour by name: the LED colours, names and paints, live in `src/parts/component-definitions.ts`),
+type and pin 1's hole, or grouped by part and value, and either as CSV. The editor shows it in
+File → Component List (`src/features/project/part-list-modal.ts`, a click selects the part) and
+downloads what it shows.
+
+**Wire crossings** (`src/project-file/wire-crossings.ts`): jumper wires are insulated, so where
 one runs across another wire, or over a hole holding a pin, a lead or another wire's end, it goes
 *over* it (of two crossing wires, the later one in the list), and so does a bend sitting on such a
-hole; where three or more things meet at a hole they're joined. `layoutWires()` works this out leg
+hole; where three or more things meet at a hole they're joined. Solder paths (on the copper side,
+joining what they touch) play no part in it; the 2D renderer draws them under the jumpers as a
+trail of solder with a bead on each hole, the 3D viewer flat along the bottom face. `layoutWires()` works this out leg
 by leg (each hop says which `leg`) from wire ends, corners and pin holes, and
 `layoutProjectWires()` from a project file: the 2D renderer draws it (`src/board-render/layers/wires.ts`:
 each bend rounded off, a dark edge either side of a wire where it goes over something, and a solder dot at each junction), and the 3D viewer

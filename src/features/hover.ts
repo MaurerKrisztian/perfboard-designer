@@ -16,6 +16,7 @@ import {wireDragFrom, wireDragStartDot} from "./wire-drag";
 import {lineLegs} from "./line-path";
 import {isReshaping, reshapeTo, wireGripAt} from "./wire-reshape";
 import {IDot} from "../interfaces/dot.interface";
+import {ILine} from "../interfaces/line.interface";
 
 export function isOverPlacedPart(x: number, y: number): boolean {
   return PartState.parts.some(part => part.containsPoint(x, y));
@@ -87,7 +88,9 @@ export function hoverAt(e: MouseEvent) {
   // the leg's length.
   const nearLeg = ([a, b]: [IDot, IDot]) =>
     Math.abs(Math.hypot(b.x - a.x, b.y - a.y) - Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y)) < GridConfig.lineSelectTolerance;
-  LineState.hoverLine = LineState.lines.find(line => lineLegs(line).some(nearLeg));
+  // A jumper first: it's drawn over the solder paths.
+  const nearLine = (line: ILine) => lineLegs(line).some(nearLeg);
+  LineState.hoverLine = LineState.lines.find(line => line.kind !== "solder" && nearLine(line)) ?? LineState.lines.find(nearLine);
 
 
   // A part, or a selected wire's handle, being dragged follows the pointer.

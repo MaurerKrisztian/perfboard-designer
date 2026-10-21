@@ -3,12 +3,13 @@ import {DotState} from "../state/DotState";
 import {GridConfig} from "../state/GridConfig";
 import {PartState} from "../state/PartState";
 import {SelectionState} from "../state/SelectionState";
-import {ToolState} from "../state/ToolState";
+import {isRouteTool, RouteTool, ToolState} from "../state/ToolState";
 import {placeWire} from "./tools/wire-tool";
 import {findDotAt} from "./dot-lookup";
 import {requestRedraw} from "./redraw-request";
 
-// Drawing a wire by dragging from one hole to another, in Select mode or with the wire tool.
+// Drawing a wire by dragging from one hole to another, in Select mode or with the wire tool (or a
+// solder path, with the solder path tool).
 // select.ts (mouse) and board-touch.ts (fingers) start it once a press on a hole begins to move,
 // and finish it on the hole under the pointer when it's let go; the board draws it dashed until
 // then (draw-canvas.ts). Callers redraw.
@@ -34,7 +35,7 @@ function isPinHole(dot: IDot): boolean {
 // The hole a press at (x, y) would drag a wire from, if it would.
 export function wireDragStartDot(x: number, y: number, finger: boolean): IDot | undefined {
   const tool = ToolState.active.kind;
-  if (tool !== "select" && tool !== "wire") return undefined;
+  if (tool !== "select" && !isRouteTool(ToolState.active)) return undefined;
   const dot = DotState.hoverDot;
   if (!dot) return undefined;
   if (!finger && Math.hypot(x - dot.x, y - dot.y) > MOUSE_GRAB_RADIUS) return undefined;
@@ -72,6 +73,11 @@ export function setWireDragStraight(on: boolean) {
   straight = on;
 }
 
+// What the drag draws: a solder path with the solder path tool armed, else a jumper wire.
+export function wireDragKind(): RouteTool["kind"] {
+  return ToolState.active.kind === "solder" ? "solder" : "wire";
+}
+
 // The holes the dragged wire would run through to `to`: its start, its bend (if it needs one) and
 // `to`.
 export function wireDragRoute(to: IDot): IDot[] {
@@ -91,10 +97,10 @@ export function finishWireDrag(to: IDot | undefined): boolean {
   }
   const route = wireDragRoute(to);
   from = undefined;
-  SelectionState.current = {kind: "line", line: placeWire(start, to, route.slice(1, -1))};
+  SelectionState.current = {kind: "line", line: placeWire(start, to, route.slice(1, -1), wireDragKind())};
   // The wire tool's next click starts a new run rather than continuing from somewhere else.
   const tool = ToolState.active;
-  if (tool.kind === "wire") {
+  if (isRouteTool(tool)) {
     tool.start = undefined;
     tool.via = [];
   }

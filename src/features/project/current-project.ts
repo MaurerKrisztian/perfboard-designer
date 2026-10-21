@@ -116,7 +116,7 @@ export function newProject(name: string): boolean {
   const current = getSaveJson();
   const board = current.board.type === "stripboard" ? {...current.board, cuts: []} : current.board;
   return createAndOpen(name, {
-    ...current, board, pads: [], wires: [], placedIcs: [], placedStandardComponents: [], placedAdvancedComponents: [],
+    ...current, requirements: undefined, board, pads: [], wires: [], placedIcs: [], placedStandardComponents: [], placedAdvancedComponents: [],
   });
 }
 

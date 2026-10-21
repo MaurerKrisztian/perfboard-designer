@@ -14,3 +14,8 @@ export function advancedKey(definitionId: string): string {
 export function icKey(ic: {id: number | string; definitionId?: string}): string {
   return `ic:${ic.definitionId ?? ic.id}`;
 }
+
+// User-made parts with pins anywhere (src/parts/custom-parts.ts), by their catalog id.
+export function customPartKey(id: string | undefined): string {
+  return `custom-part:${id ?? ""}`;
+}

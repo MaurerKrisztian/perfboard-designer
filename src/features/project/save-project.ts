@@ -10,6 +10,7 @@ import {fileVersionFor, ProjectFile, SavedBoard, SavedPad, SavedWire} from "../.
 import {holesAlong, toGridPos} from "../../project-file/grid";
 import {BoardState} from "../../state/BoardState";
 import {ProjectState} from "../../state/ProjectState";
+import {RequirementsState} from "../../state/RequirementsState";
 
 const saveBtn = Utils.getSafeHtmlElement<HTMLButtonElement>('saveProjectBtn');
 saveBtn.addEventListener('click', function() {
@@ -52,8 +53,10 @@ function savedWires(): SavedWire[] {
     from: toGridPos(line.start),
     to: toGridPos(line.end),
     ...(line.via?.length ? {via: line.via.map(toGridPos)} : {}),
-    ...(line.color ? {color: line.color} : {}),
-    ...(line.width ? {width: line.width} : {}),
+    ...(line.kind === "solder" ? {kind: "solder" as const} : {
+      ...(line.color ? {color: line.color} : {}),
+      ...(line.width ? {width: line.width} : {}),
+    }),
   }));
 }
 
@@ -62,16 +65,21 @@ function savedWires(): SavedWire[] {
 export function getSaveJson(): ProjectFile {
   const parts = PartState.parts;
   const wires = savedWires();
+  const placedAdvancedComponents = parts
+    .filter((p): p is PlacedAdvancedComponent => p.kind === "advanced-component").map(p => p.serialize());
+  const placedIcs = parts.filter((p): p is Ic => p.kind === "ic").map(p => p.serialize());
+  const placedStandardComponents = parts
+    .filter((p): p is PlacedStandardComponent => p.kind === "standard-component").map(p => p.serialize());
+  const requirements = RequirementsState.current;
   return {
-    version: fileVersionFor({wires}),
+    version: fileVersionFor({wires, placedAdvancedComponents, requirements}),
+    ...(requirements ? {requirements} : {}),
     board: savedBoard(),
     pads: savedPads(),
     wires,
-    placedIcs: parts.filter((p): p is Ic => p.kind === "ic").map(p => p.serialize()),
-    placedStandardComponents: parts
-      .filter((p): p is PlacedStandardComponent => p.kind === "standard-component").map(p => p.serialize()),
-    placedAdvancedComponents: parts
-      .filter((p): p is PlacedAdvancedComponent => p.kind === "advanced-component").map(p => p.serialize()),
+    placedIcs,
+    placedStandardComponents,
+    placedAdvancedComponents,
     customIcs: Ic.customIcEntries(),
   };
 }

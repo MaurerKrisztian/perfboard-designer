@@ -1,7 +1,7 @@
 import {Group, Material, Mesh} from "three";
 import {BoardFrame, SceneKit} from "./scene-kit";
 import {ViewerProject} from "./project-data";
-import {buildBoard, buildSolderJoints, buildWires} from "./build-board";
+import {buildBoard, buildSolderJoints, buildSolderPaths, buildWires} from "./build-board";
 import {buildStandardPart} from "./build-standard-parts";
 import {buildAdvancedPart} from "./build-advanced-parts";
 import {buildIc} from "./build-ics";
@@ -33,6 +33,7 @@ export function buildBoardScene(project: ViewerProject): BuiltBoard {
   const componentHoles = new Set(kit.solderedHoles.keys());
   const wires = chainWires(project.wires, componentHoles);
   root.add(buildWires(kit, wires));
+  root.add(buildSolderPaths(kit, project.solderPaths));
 
   let partCount = 0;
   for (const part of parts) {

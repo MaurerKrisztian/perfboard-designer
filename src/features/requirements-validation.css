@@ -1,0 +1,51 @@
+.requirements-validation {
+  color: #b9c9de;
+  background: #111e30;
+  border: 1px solid #2b405a;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+.requirements-validation summary {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.requirements-validation[data-status="match"] summary {
+  color: #5eead4;
+}
+.requirements-validation[data-status="mismatch"] summary {
+  color: #fda4af;
+}
+.requirements-validation[data-status="incomplete"] summary {
+  color: #fcd34d;
+}
+.requirements-validation-body {
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 0 12px 10px;
+  overflow-wrap: anywhere;
+}
+.requirements-validation-body p {
+  margin: 4px 0 10px;
+}
+.requirements-validation-body button {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #31465e;
+  border-radius: 6px;
+  color: #d5e1f2;
+  background: #17263a;
+  text-align: left;
+  font-size: 12px;
+  cursor: pointer;
+}
+.requirements-validation-body button:hover {
+  background: #223b53;
+}
+.requirements-validation :focus-visible {
+  outline: 2px solid #67e8f9;
+  outline-offset: 2px;
+}

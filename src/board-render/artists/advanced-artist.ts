@@ -94,29 +94,33 @@ function drawBody(painter: Painter, g: AdvancedGeometry, rotation: number, look:
     painter.circle(pin.x, pin.y, i === 0 ? PIN1_MARKER_RADIUS : PIN_MARKER_RADIUS, {fill: i === 0 ? PIN1_COLOR : PIN_COLOR});
   });
 
-  const icon = getIconFile(def);
-  const iconAvailable = painter.iconSize(icon) !== undefined;
+  // A user-made part has no artwork: its body is its colour, with its name on it.
+  const icon = def.noIcon ? undefined : getIconFile(def);
+  const iconAvailable = icon !== undefined && painter.iconSize(icon) !== undefined;
   // For parts whose icon is meant to be the entire visible body, skip the box (fill + border)
   // entirely once the icon is there, so only the SVG artwork shows.
   const skipBody = def.iconFillsBody && iconAvailable;
   if (!skipBody) {
     drawBodyShape(painter, g, {
-      fill: look.selected ? BODY_COLOR_SELECTED : BODY_COLOR,
+      fill: def.bodyColor ?? (look.selected ? BODY_COLOR_SELECTED : BODY_COLOR),
       stroke: {paint: look.selected ? SELECTION_COLOR : BORDER_COLOR, width: look.selected ? 3 : 2, ...(look.ghost ? {dash: GHOST_DASH} : {})},
     });
   }
 
-  const quarterTurned = rotation === 90 || rotation === 270;
-  const {w, h} = iconBox(painter, g, g.bodyRect, quarterTurned);
   // Only the artwork turns with the part - the stand-in label and pin numbers stay upright so
   // they remain readable at every rotation.
   let drawn = false;
-  painter.group({translate: [g.iconAnchor.x, g.iconAnchor.y], rotate: (rotation * Math.PI) / 180}, () => {
-    drawn = painter.image(icon, -w / 2, -h / 2, w, h);
-  });
+  if (icon) {
+    const {w, h} = iconBox(painter, g, g.bodyRect, rotation === 90 || rotation === 270);
+    painter.group({translate: [g.iconAnchor.x, g.iconAnchor.y], rotate: (rotation * Math.PI) / 180}, () => {
+      drawn = painter.image(icon, -w / 2, -h / 2, w, h);
+    });
+  }
   if (!drawn) {
     painter.text(def.fallbackLabel, g.iconAnchor.x, g.iconAnchor.y, {
-      font: {family: "sans", size: 11, weight: 700}, color: "#ffffff", align: "center", baseline: "middle",
+      font: {family: "sans", size: def.noIcon ? 13 : 11, weight: 700}, color: "#ffffff", align: "center", baseline: "middle",
+      // A user-made part's name is as long as its maker wrote it: kept within the body.
+      ...(def.noIcon ? {maxWidth: Math.max(10, g.bodyRect.w - 8), halo: LABEL_HALO} : {}),
     });
   }
 
@@ -126,7 +130,7 @@ function drawBody(painter: Painter, g: AdvancedGeometry, rotation: number, look:
   const offset = def.pinLabelOffset ?? PIN_LABEL_OFFSET;
   const shift = rotateOffset(offset.dx, offset.dy, rotation as 0 | 90 | 180 | 270);
   g.pins.forEach((pin, i) => {
-    painter.text(def.pinLabels?.[i] ?? String(i + 1), pin.x + shift.x * GRID_PITCH_PX, pin.y + shift.y * GRID_PITCH_PX, {
+    painter.text(def.pinLabels?.[i] || String(i + 1), pin.x + shift.x * GRID_PITCH_PX, pin.y + shift.y * GRID_PITCH_PX, {
       font: PIN_LABEL_FONT, color: PIN_LABEL_COLOR, align: "center", baseline: "middle", halo: LABEL_HALO,
     });
   });

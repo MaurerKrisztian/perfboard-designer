@@ -3,6 +3,8 @@ import {PartState} from "../state/PartState";
 import {HistoryState} from "../state/HistoryState";
 import {SelectionState} from "../state/SelectionState";
 import {BoardRefs, refPrefixFor} from "../project-file/part-refs";
+import {RequirementsState} from "../state/RequirementsState";
+import {includeRequiredComponents} from "../project-file/requirements";
 
 // Stacking group of each kind within PartState.parts.
 const KIND_ORDER: Record<Part["kind"], number> = {"ic": 0, "standard-component": 1, "advanced-component": 2};
@@ -35,7 +37,19 @@ export function placePart(part: Part) {
   giveRef(part);
   addToBoard(part);
   SelectionState.current = {kind: "part", part};
-  HistoryState.record({type: "add", kind: "part", part});
+  const before = RequirementsState.current;
+  if (before) {
+    const next = includeRequiredComponents(before, {
+      placedIcs: part.kind === "ic" ? [part.serialize()] : [],
+      placedStandardComponents: part.kind === "standard-component" ? [part.serialize()] : [],
+      placedAdvancedComponents: part.kind === "advanced-component" ? [part.serialize()] : [],
+    });
+    RequirementsState.current = next;
+    HistoryState.record({type: "batch", kind: "batch", changes: [
+      {type: "add", kind: "part", part},
+      {type: "set", kind: "requirements", from: before, to: next},
+    ]});
+  } else HistoryState.record({type: "add", kind: "part", part});
 }
 
 // Removes a part as one undoable step. Returns false if it wasn't on the board.

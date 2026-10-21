@@ -153,6 +153,7 @@ for both in [`docs/share-links.md`](../docs/share-links.md):
 | Request | Answer |
 | --- | --- |
 | `POST /projects` with `{"project": {…}, "id": "led-blinker", "name": "LED blinker"}` (`id` and `name` optional) | `{id, link, file, image, png}`: the id it got, a short editor link, the file and its pictures |
+| `GET /projects?q=blinker&limit=20` | Stored projects matching the id or name, newest first, with links and a pagination cursor |
 | `GET /<id>.json` | the project file |
 | `GET /<id>.png`, `GET /<id>.svg` | pictures of it |
 
@@ -174,6 +175,34 @@ for both in [`docs/share-links.md`](../docs/share-links.md):
   stdio server stores through `POST /projects`.
 
 There's no sign-in or rate limit yet: anyone can store projects.
+
+#### Querying stored projects
+
+The listing is public and requires no token. Deploy from `mcp/`:
+
+```bash
+npm run worker:deploy
+```
+
+Then query it:
+
+```bash
+curl 'https://projects.perfboarddesigner.com/projects?q=blinker&limit=20'
+```
+
+Omit `q` to list all indexed projects. Search matches a literal substring of the id or name
+(ASCII case-insensitive). `limit` defaults to 20 and accepts 1–100. The response is
+`{projects: [{id, name?, storedAt, link, file, image, png}], nextCursor}`; `storedAt` is the
+original save time in Unix milliseconds. Pass `nextCursor` as the URL-encoded `cursor` query
+parameter with the same `q` to get the next page; `null` means there are no more results.
+Listings are not cached and do not extend projects' lifetimes.
+
+The `StoredProjectIndex` Durable Object tracks new saves and removes expired projects. Existing
+projects from before this index was deployed appear when saved again or read from their storage
+object (an edge-cache hit does not reach storage). This is not a complete historical inventory:
+there was no central index before. Temporary MCP working projects are not included.
+
+For local use, run `npm run worker:dev` and query `http://localhost:8787/projects`.
 
 Try it locally (at http://localhost:8787/mcp):
 
@@ -266,3 +295,20 @@ says how to remake them).
 | `npm run worker:deploy` | Publish the Worker to Cloudflare |
 | `npm version patch`, then `npm publish` | Release a new version to npm (`prepublishOnly` builds first; npm asks for 2FA) |
 | `npm run inspect` | Open the server in the [MCP Inspector](https://github.com/modelcontextprotocol/inspector) to try the tools by hand |
+
+### Requirements and component identities
+
+The shared reader supports format 8, including optional independent `requirements`; format 7
+adds project-scoped component `instanceId` fields. `edit_project` preserves all intended nets,
+gives new parts fresh identities, and includes them in the requirement inventory without
+assigning connections. Removed required parts remain reportable by identity, even if another
+part reuses their reference name. A `schematic` field from older editors is ignored.
+
+When `requirements.validate` is true, checks also compare the board with the saved requirements:
+missing components/pins, missing connections and unexpected joins are errors; incomplete coverage
+is a warning and never described as a full requirement match. Unspecified pins remain unchecked.
+This is independent of the existing complete-list `expectNets` contract, which is unchanged.
+The project-format resource includes the requirement types.
+
+Deploy this shared reader with the frontend before sharing version-8 files through hosted
+storage. Embedded links remain usable without hosted storage.

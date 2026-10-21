@@ -6,6 +6,8 @@ import {GRID_PITCH_PX, GridPos, gridToPx} from "../project-file/grid";
 import {readProjectFile} from "../project-file/read-project-file";
 import {StripDirection} from "../project-file/project-file";
 import {layoutProjectWires} from "../project-file/wire-crossings";
+import {isSolderPath, solderPathHoles, wirePoints} from "../project-file/wire-path";
+import type {CustomPartSpec} from "../parts/custom-parts";
 
 export type Rotation = 0 | 90 | 180 | 270;
 
@@ -42,6 +44,12 @@ export interface ViewerWire {
   hops: ViewerHop[];
 }
 
+// A solder path on the copper side (SavedWire.kind "solder"): its route, and every hole it covers.
+export interface ViewerSolderPath {
+  points: ViewerDot[];
+  holes: ViewerDot[];
+}
+
 export interface ViewerIc {
   name: string;
   widthPin: number;
@@ -66,6 +74,8 @@ export interface ViewerStandardPart {
 
 export interface ViewerAdvancedPart {
   definitionId: string;
+  // A user-made part's own definition (SavedAdvancedComponent.custom).
+  custom?: CustomPartSpec;
   value?: string;
   rotationAngle: Rotation;
   anchorX: number;
@@ -79,7 +89,9 @@ export interface ViewerProject {
   canvasHeight: number;
   board: ViewerBoard;
   dots: ViewerDot[];
+  // The jumper wires; solder paths are listed apart.
   wires: ViewerWire[];
+  solderPaths: ViewerSolderPath[];
   ics: ViewerIc[];
   standardParts: ViewerStandardPart[];
   advancedParts: ViewerAdvancedPart[];
@@ -106,10 +118,11 @@ export function readProject(raw: unknown): ViewerProject {
   }
 
   const {hops} = layoutProjectWires(project);
-  const wires: ViewerWire[] = project.wires.map((wire, i) => {
+  const wires: ViewerWire[] = project.wires.flatMap((wire, i) => {
+    if (isSolderPath(wire)) return [];
     const from = px(wire.from);
     const to = px(wire.to);
-    return {
+    return [{
       x1: from.x, y1: from.y, x2: to.x, y2: to.y,
       via: (wire.via ?? []).map(px),
       color: wire.color ?? DEFAULT_WIRE_COLOR, width: wire.width ?? DEFAULT_WIRE_WIDTH,
@@ -118,8 +131,13 @@ export function readProject(raw: unknown): ViewerProject {
         leg: hop.leg,
         ...(hop.under !== undefined ? {underWidth: project.wires[hop.under].width ?? DEFAULT_WIRE_WIDTH} : {}),
       })),
-    };
+    }];
   });
+
+  const solderPaths: ViewerSolderPath[] = project.wires.filter(isSolderPath).map(wire => ({
+    points: wirePoints(wire).map(px),
+    holes: solderPathHoles(wire).map(px),
+  }));
 
   const ics: ViewerIc[] = project.placedIcs.map(ic => {
     const {x: left, y: top} = px(ic.at);
@@ -147,13 +165,13 @@ export function readProject(raw: unknown): ViewerProject {
   const advancedParts: ViewerAdvancedPart[] = project.placedAdvancedComponents.map(part => {
     const anchor = px(part.at);
     return {
-      definitionId: part.definitionId, value: part.value, rotationAngle: part.rotation,
+      definitionId: part.definitionId, ...(part.custom ? {custom: part.custom} : {}), value: part.value, rotationAngle: part.rotation,
       anchorX: anchor.x, anchorY: anchor.y, rows: part.rows, cols: part.cols,
     };
   });
 
   return {
     canvasWidth: cols * GRID_PITCH_PX, canvasHeight: rows * GRID_PITCH_PX,
-    board, dots, wires, ics, standardParts, advancedParts,
+    board, dots, wires, solderPaths, ics, standardParts, advancedParts,
   };
 }

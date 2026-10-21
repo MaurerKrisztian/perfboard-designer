@@ -60,6 +60,7 @@
             {"@type": "Question", "name": "How do I cut a strip on a stripboard?", "acceptedAnswer": {"@type": "Answer", "text": "Switch the board to Stripboard, pick the Cut tool in the Tools panel and click the hole where the strip should break. Click a cut hole again to mend it."}},
             {"@type": "Question", "name": "How do I rotate a component?", "acceptedAnswer": {"@type": "Answer", "text": "Press R. It turns the part you are about to place, or the selected part on the board. You can also right-click a part and choose Rotate Component."}},
             {"@type": "Question", "name": "Why are two wires that cross not connected?", "acceptedAnswer": {"@type": "Answer", "text": "Wires are insulated jumpers: a wire only connects the holes at its two ends. Where it runs over another wire or a hole it goes over it without joining. To connect, end the wires in the same hole."}},
+            {"@type": "Question", "name": "Can I draw solder bridges instead of jumper wires?", "acceptedAnswer": {"@type": "Answer", "text": "Yes: use the Solder Path tool (press S). A solder path is a trail of solder on the copper side, and unlike a wire it connects every hole it runs over."}},
             {"@type": "Question", "name": "Does it work on a phone?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. On a phone or tablet the board fills the screen, with the tools on a toolbar along the bottom. Tap + to add a part, tap the board to place it, drag to pan and pinch to zoom. Tap a part to select it, and a bar shows what you can do to it."}},
             {"@type": "Question", "name": "Where are my projects saved?", "acceptedAnswer": {"@type": "Answer", "text": "In your own browser, automatically as you edit. Use File, Save Project to File to keep a copy on disk, or Share Link to send the board to someone."}},
             {"@type": "Question", "name": "Can I share a board without an account?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. File, Share Link makes a link that carries the whole board. Whoever opens it gets their own copy as a new project. No account is needed."}}
@@ -177,7 +178,7 @@
           <p>The editor has four areas:</p>
           <ul>
             <li><strong>Header:</strong> the <strong>File</strong> menu (new, open, import, save, share, download), the <strong>View</strong> menu (fullscreen, 3D view, show or hide the side panels), the name of the open project (click it to see all your projects), and the <strong>Share</strong> and <strong>3D View</strong> buttons.</li>
-            <li><strong>Left sidebar:</strong> <strong>Tools</strong> (Select, Eraser, Note, and Cut on a stripboard), <strong>Board</strong> type and size, the <strong>Wire</strong> tool with its colors and thicknesses, and the <strong>Components</strong> library.</li>
+            <li><strong>Left sidebar:</strong> <strong>Tools</strong> (Select, Eraser, Note, and Cut on a stripboard), <strong>Board</strong> type and size, the <strong>Wire</strong> and <strong>Solder Path</strong> tools with the wire colors and thicknesses, and the <strong>Components</strong> library.</li>
             <li><strong>Board:</strong> the hole grid you design on. The toolbar above it starts with a badge that tells you what the next click will do; while you are placing a part it also has a <strong>✕</strong> to cancel, and a rotate button for parts that turn. Then come <strong>Undo</strong> and <strong>Redo</strong>, zoom and <strong>Fit</strong>, <strong>Labels</strong> and <strong>Focus</strong>. When something is selected, a bar along the bottom of the board shows what you can do to it. The bar under the board shows the note or value of whatever you point at.</li>
             <li><strong>Right sidebar:</strong> the live <strong>Nets</strong> panel and the list of keyboard shortcuts.</li>
           </ul>
@@ -280,18 +281,47 @@
         <section id="custom-ics">
           <h2>Custom ICs and modules</h2>
           <p>
-            If a chip or breakout board isn't in the library, make it. Click <strong>Custom…</strong>
-            at the top of the Components list to open the editor, then set:
+            If a chip or breakout board isn't in the library, make it. The top of the Components
+            list has two ways to.
           </p>
+          <h3>Chips and dev boards: Custom IC or dev board…</h3>
+          <p>For a part with two rows of pins, like a DIP chip or an ESP32 board, set:</p>
           <ul>
             <li><strong>Name</strong>, such as "ESP8266-01" or "LM2596 module".</li>
             <li><strong>Type</strong>: an IC, listed under ICs › Custom, or a module, listed under Modules › Custom.</li>
             <li><strong>Body width</strong> in holes, including both pin rows, and the number of <strong>pins per side</strong>.</li>
             <li>A <strong>label for every pin</strong>, numbered from pin 1 at the notch, like a datasheet.</li>
           </ul>
+          <h3>Anything else: Custom module (any pins)…</h3>
           <p>
-            Custom parts are kept in your browser and travel with every project and share link that
-            uses them, so a board opens with its chips intact on any computer.
+            For a sensor breakout, a relay board, a display or a connector with an odd layout, draw
+            the part itself:
+          </p>
+          <ul>
+            <li><strong>Name</strong>, such as "HC-SR04", and the <strong>ref letters</strong> its copies are numbered with (M makes M1, M2…).</li>
+            <li>Its <strong>width and height in holes</strong>, and a <strong>board colour</strong>.</li>
+            <li>
+              Its <strong>pins</strong>: click a hole to add a pin there, click it again to take it away.
+              Pins are numbered in the order you click them, and pin 1 is the hole you place the module
+              by. <strong>Top row</strong>, <strong>Bottom row</strong>, <strong>Left column</strong>
+              and <strong>Right column</strong> add a whole edge at once.
+            </li>
+            <li>A <strong>name for each pin</strong> (optional), such as VCC, TRIG, ECHO, GND. Named pins name the nets they're on.</li>
+          </ul>
+          <p>
+            <strong>Save Module</strong> lists it under Modules › Custom and picks it up, ready to
+            click onto the board; rotate it with <kbd>R</kbd> like any part.
+          </p>
+          <p>
+            Click <strong>✎</strong> beside a custom part in the list to change it, or
+            <strong>✕</strong> to delete it. Parts already on a board keep the way they were placed:
+            custom parts are kept in your browser and travel with every project and share link that
+            uses them, so a board opens with its parts intact on any computer.
+          </p>
+          <p>
+            To use your custom parts in another browser, <strong>File › Export Custom Parts…</strong>
+            downloads them all as one file, and <strong>File › Import Custom Parts…</strong> adds the
+            ones you don't have yet.
           </p>
         </section>
 
@@ -357,6 +387,21 @@
             only passes over stays empty. To see the joints from the side you solder on, use the
             <a href="#solder-side">solder side view</a>.
           </p>
+          <h3 id="solder-paths">Solder paths</h3>
+          <p>
+            Instead of a jumper wire, you can join neighbouring holes the way many people do on the
+            copper side: with a <strong>solder path</strong>, a trail of solder bridging pad to pad.
+            Click <strong>Solder Path</strong> next to the Wire Tool, or press <kbd>S</kbd>, and draw
+            it exactly like a wire: click the holes it runs through, or drag from one hole to another.
+            The editor draws it as silver solder with a bead on each hole, under the jumper wires.
+          </p>
+          <ul>
+            <li><strong>A solder path connects every hole it runs over</strong>: its ends, its bends and each hole along the way, plus any other solder path it touches. Run it only over holes that should be joined.</li>
+            <li>It has no color or thickness. Select, bend, erase and undo work on it the same as on a wire.</li>
+            <li>A jumper wire crossing a solder path doesn't touch it: the wire is on the component side, the solder on the copper side.</li>
+            <li>On a stripboard, a solder path can't join a cut hole: there's no copper there.</li>
+            <li>The <a href="#solder-side">solder side view</a> and the <a href="#3d-view">3D view</a>'s Bottom show it where you'll make it, under the board.</li>
+          </ul>
         </section>
 
         <section id="editing">
@@ -383,13 +428,14 @@
 
         <section id="phone">
           <h2>On a phone or tablet</h2>
-          <p>On a small or touch screen the board fills the screen. A toolbar along the bottom holds <strong>Select</strong>, <strong>Wire</strong>, the round <strong>+</strong> button to add a part, <strong>Nets</strong> and <strong>More</strong>. <strong>Undo</strong> and <strong>Redo</strong> float over the board's top left corner, <strong>Fit</strong> and <strong>Labels</strong> over its top right.</p>
+          <p>On a small or touch screen the board fills the screen. A toolbar along the bottom holds <strong>Select</strong>, <strong>Wire</strong>, <strong>Solder</strong>, the round <strong>+</strong> button to add a part, <strong>Nets</strong> and <strong>More</strong>. <strong>Undo</strong> and <strong>Redo</strong> float over the board's top left corner, <strong>Fit</strong> and <strong>Labels</strong> over its top right.</p>
           <ul>
             <li><strong>+</strong> slides up the Components library. Pick a part and it slides away again, ready for you to tap the board.</li>
             <li>While you place a part or a wire, a hint over the board says what to tap next, such as "Tap start pad", with a button to cancel and, for chips, one to rotate the part first.</li>
-            <li>Tap a part, wire or hole to select it. A bar along the bottom shows what you can do to it: wire, rotate, color, value, note and delete. Pressing and holding it opens the same actions as a menu.</li>
-            <li>Drag with one finger to pan. In Select mode, drag a part's body to move it, or a selected wire's handles to <a href="#wires">bend it</a> (double-tap a bend to take it out).</li>
+            <li>Tap a part, wire or hole to select it. A bar along the bottom shows what you can do to it: wire, solder, rotate, color, value, note and delete. Pressing and holding it opens the same actions as a menu.</li>
+            <li>Drag with one finger to pan. In Select mode, drag a part's body to move it, or a selected wire's handles to <a href="#wires">bend it</a>, straight away or after holding your finger still (double-tap a bend to take it out).</li>
             <li>To draw a wire, press and hold a hole or a pin and choose <strong>Start Wire Here</strong>, then tap the holes it bends at and the one it goes to. Or keep your finger down after the menu appears and drag to that hole: the wire bends once, as an L, and a tap with a second finger flips it. Tapping a hole also gives a <strong>Wire</strong> button in the bar along the bottom.</li>
+            <li>To draw a <a href="#solder-paths">solder path</a>, tap <strong>Solder</strong> in the bottom toolbar, then tap the holes it runs through; tap the last one again to end it. Pressing and holding a hole also offers <strong>Start Solder Path Here</strong>, and a selected hole has a <strong>Solder</strong> button.</li>
             <li>Pinch with two fingers to zoom, and drag with two fingers to pan with any tool.</li>
             <li><strong>More</strong> slides up the other tools (Eraser, Note, Cut), the board type and size, and the wire colors and thicknesses.</li>
             <li><strong>Nets</strong> slides up the Nets panel.</li>
@@ -454,7 +500,8 @@
             <kbd>B</kbd>). The board turns over: you see it from below, mirrored the way it looks in
             your hand with the copper side up. The parts and wires show faintly through it for
             bearings, and every hole you need to solder gets a bright solder blob: each pin and lead,
-            and each end of a wire.
+            each end of a wire, and every hole a solder path covers. Solder paths show at full
+            strength, since this is the side you make them on.
           </p>
           <ul>
             <li>A yellow square marks pin 1 of every chip and other part with more than two pins, so nothing goes in backwards.</li>
@@ -466,6 +513,18 @@
           </ul>
         </section>
 
+        <section id="requirements">
+          <h2>Requirements check</h2>
+          <p>A project can carry <strong>requirements</strong>: the connections the board is meant
+            to have, which an AI agent or another program can write into the project file. When a
+            board has them, the <strong>Nets</strong> panel shows a Requirements card that reports
+            missing connections, unexpected joins, missing components or pins, and pins nobody has
+            specified. Click a report to highlight its board nets. An incomplete plan never reports
+            a full match, and this checks connectivity, not whether the circuit will operate.</p>
+          <p>Requirements are saved in the project file and share links, and editing the board
+            never changes them. Parts you add are added to their list of components without being
+            connected to anything.</p>
+        </section>
         <section id="3d-view">
           <h2>Preview the board in 3D</h2>
           <p>
@@ -520,6 +579,15 @@
             Turn on <strong>Labels</strong> first to include part names and values, or switch to the
             <a href="#solder-side">solder side</a> to save that instead.
           </p>
+          <h3 id="component-list">Component list</h3>
+          <p>
+            <strong>File › Component List…</strong> shows every part on the board in a table: its
+            name (R1, U1…), what it is, its value, its type and the hole its pin 1 is in, such as
+            B12. Click a part to find it on the board. <strong>Grouped by value</strong> turns the
+            table into a shopping list, with how many of each part and value you need, smallest value
+            first. <strong>Download CSV</strong> saves the table as shown, ready for Excel, Google
+            Sheets or a supplier's order form.
+          </p>
         </section>
 
         <section id="ai">
@@ -544,6 +612,7 @@
               <tbody>
                 <tr><td><kbd>/</kbd></td><td>Search components</td></tr>
                 <tr><td><kbd>W</kbd></td><td>Turn the wire tool on or off</td></tr>
+                <tr><td><kbd>S</kbd></td><td>Turn the solder path tool on or off</td></tr>
                 <tr><td><kbd>R</kbd></td><td>Rotate the part you're placing, or the selected part</td></tr>
                 <tr><td><kbd>Esc</kbd></td><td>Take back a wire's last bend, end a wire run, put down the part you're placing, or clear the selection</td></tr>
                 <tr><td><kbd>Enter</kbd></td><td>End the wire you're drawing at its last bend</td></tr>
@@ -594,6 +663,10 @@
             <details>
               <summary>Why are two wires that cross not connected?</summary>
               <p>Wires are insulated jumpers: a wire only connects the holes at its two ends. Where it runs over another wire or a hole it goes over it without joining. To connect, end the wires in the same hole.</p>
+            </details>
+            <details>
+              <summary>Can I draw solder bridges instead of jumper wires?</summary>
+              <p>Yes: use the Solder Path tool (press S). A solder path is a trail of solder on the copper side, and unlike a wire it connects every hole it runs over.</p>
             </details>
             <details>
               <summary>Does it work on a phone?</summary>

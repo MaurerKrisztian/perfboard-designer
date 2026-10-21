@@ -1,6 +1,6 @@
 import {ProjectFile} from "../../project-file/project-file";
 import {getComponentDefinition, getIconFile} from "../../parts/component-definitions";
-import {getAdvancedComponentDefinition} from "../../parts/advanced-component-definitions";
+import {advancedDefinitionFor} from "../../parts/custom-parts";
 import {Painter} from "../painter/painter";
 import {advancedArtist} from "./advanced-artist";
 import {icArtist} from "./ic-artist";
@@ -43,8 +43,8 @@ export function iconsUsedBy(project: ProjectFile): string[] {
     if (def) icons.add(getIconFile(def));
   }
   for (const part of project.placedAdvancedComponents) {
-    const def = getAdvancedComponentDefinition(part.definitionId);
-    if (def) icons.add(getIconFile(def));
+    const def = advancedDefinitionFor(part);
+    if (def && !def.noIcon) icons.add(getIconFile(def));
   }
   return [...icons];
 }

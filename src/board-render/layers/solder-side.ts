@@ -1,6 +1,7 @@
 import {GridPos, gridToPx} from "../../project-file/grid";
 import {partPins} from "../../project-file/pin-positions";
 import {ProjectFile} from "../../project-file/project-file";
+import {isSolderPath, solderPathHoles} from "../../project-file/wire-path";
 import {Painter} from "../painter/painter";
 import {LABEL_COLOR, LABEL_HALO, PAD_RADIUS, SOLDER_COLOR, SOLDER_EDGE} from "../palette";
 
@@ -16,15 +17,15 @@ const REF_FONT = {family: "sans", size: 11, weight: 700} as const;
 
 const key = ([col, row]: GridPos) => `${col},${row}`;
 
-// Every hole to solder: each part's pins and leads, and each wire's ends. Once each.
+// Every hole to solder: each part's pins and leads, each jumper's ends and every hole a solder
+// path covers. Once each.
 export function solderJoints(project: ProjectFile): GridPos[] {
   const joints = new Map<string, GridPos>();
   for (const part of partPins(project)) {
     for (const pin of part.pins) joints.set(key(pin.at), pin.at);
   }
   for (const wire of project.wires) {
-    joints.set(key(wire.from), wire.from);
-    joints.set(key(wire.to), wire.to);
+    for (const at of isSolderPath(wire) ? solderPathHoles(wire) : [wire.from, wire.to]) joints.set(key(at), at);
   }
   return [...joints.values()];
 }

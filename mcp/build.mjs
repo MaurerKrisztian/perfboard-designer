@@ -51,7 +51,7 @@ const shared = {
   format: "esm",
   define: {
     SHARE_LINKS_DOC: JSON.stringify(read("../docs/share-links.md")),
-    PROJECT_FILE_SOURCE: JSON.stringify(read("../src/project-file/project-file.ts")),
+    PROJECT_FILE_SOURCE: JSON.stringify(read("../src/project-file/project-file.ts") + "\n" + read("../src/project-file/requirements.ts").split("type Inventory")[0]),
     SERVER_VERSION: JSON.stringify(version),
     EXAMPLE_PROJECTS: JSON.stringify(Object.fromEntries(Object.entries(EXAMPLES).map(([id, file]) => [id, read(`../examples/${file}`)]))),
     COMPONENT_ICONS: JSON.stringify(COMPONENT_ICONS),

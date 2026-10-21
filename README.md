@@ -246,7 +246,7 @@ it, and three.js powers the 3D view (it's lazy-loaded, so the editor itself stay
 
 ## Project file format
 
-Projects are saved as plain, readable JSON (format version 4, or 3 when no wire bends): the board
+Projects are saved as plain, readable JSON (format version 8 with optional requirements, else the oldest version that holds the board): the board
 type and size, strip cuts, wires (with any corners they bend at), and every part with its reference
 designator, all as `[column, row]` grid positions rather than pixels. Files from older versions
 still open. The format is documented field by field
@@ -254,6 +254,15 @@ in [`src/project-file/project-file.ts`](src/project-file/project-file.ts), and t
 [`examples/`](examples) folder has sample projects to open with **File → Import Project from File**.
 Share links carry the same file, and can be made by other programs (an AI agent designing a board,
 say): see [docs/share-links.md](docs/share-links.md).
+
+## Requirements
+
+A project file can carry optional **requirements**: the connections the board is meant to have,
+written by an AI agent (through the MCP server) or another program. When a board has them and
+checking is on, the **Nets** panel compares them with the actual wiring and reports missing
+connections, unexpected joins and missing components or pins; click a report to highlight its
+board nets. Unspecified pins stay unchecked, so partial requirements never report a full match.
+Board edits never change requirements, and parts you add join their component list unconnected.
 
 ## Design boards with AI (MCP server)
 

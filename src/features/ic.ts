@@ -29,6 +29,7 @@ export class Ic implements PlacedPart {
 
   public id = Math.random() * 100;
   public ref = "";
+  public instanceId: string = crypto.randomUUID();
   public isCustom?: boolean = false;
   // Where a catalog template is listed in the Components panel tree.
   public category: CategoryId = "ics.custom";
@@ -161,6 +162,7 @@ export class Ic implements PlacedPart {
   serialize(): SavedIc {
     return {
       ref: this.ref,
+      instanceId: this.instanceId,
       name: this.name,
       widthPin: this.widthPin,
       heightPin: this.heightPin,

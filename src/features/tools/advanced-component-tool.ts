@@ -1,15 +1,24 @@
 import {drawPart} from "../../board-render";
 import {ActiveTool, ToolState} from "../../state/ToolState";
 import {IDot} from "../../interfaces/dot.interface";
-import {getAdvancedComponentDefinition} from "../../parts/advanced-component-definitions";
+import {advancedDefinitionFor} from "../../parts/custom-parts";
 import {PlacedAdvancedComponent} from "../advanced-components/placed-advanced-component";
 import {findDotAt} from "../dot-lookup";
 import {placePart} from "../placed-parts";
-import {advancedKey} from "../catalog/catalog-keys";
+import {advancedKey, customPartKey} from "../catalog/catalog-keys";
 import {recordRecentKey} from "../catalog/recent-components";
 import {ToolBehavior} from "./tool";
 
 type AdvancedComponentTool = Extract<ActiveTool, {kind: "advanced-component"}>;
+
+// The part the tool places at `dot`, a user-made part with its spec.
+function partAt(tool: AdvancedComponentTool, dot: IDot, rotation = tool.rotation): PlacedAdvancedComponent {
+  const part = new PlacedAdvancedComponent(tool.definitionId, dot, rotation);
+  if (tool.custom) part.custom = tool.custom;
+  return part;
+}
+
+const recentKey = (tool: AdvancedComponentTool) => tool.custom ? customPartKey(tool.custom.id) : advancedKey(tool.definitionId);
 
 // A grid-sizable block (header pins) spanned between two corner pads. The lattice grows
 // right/down from its anchor, so the anchor is the top-left corner of the spanned rect - neither
@@ -32,10 +41,10 @@ function spannedBlock(definitionId: string, a: IDot, b: IDot): PlacedAdvancedCom
 export const advancedComponentTool: ToolBehavior<AdvancedComponentTool> = {
   onPointerDown(tool, {hoverDot, keepArmed}) {
     if (!hoverDot) return false;
-    const def = getAdvancedComponentDefinition(tool.definitionId);
+    const def = advancedDefinitionFor(tool);
     if (!def?.gridSizable) {
-      placePart(new PlacedAdvancedComponent(tool.definitionId, hoverDot, tool.rotation));
-      recordRecentKey(advancedKey(tool.definitionId));
+      placePart(partAt(tool, hoverDot));
+      recordRecentKey(recentKey(tool));
       if (!keepArmed) ToolState.active = {kind: "select"};
       return true;
     }
@@ -46,7 +55,7 @@ export const advancedComponentTool: ToolBehavior<AdvancedComponentTool> = {
     const block = spannedBlock(tool.definitionId, tool.start, hoverDot);
     if (block) {
       placePart(block);
-      recordRecentKey(advancedKey(tool.definitionId));
+      recordRecentKey(recentKey(tool));
       if (!keepArmed) ToolState.active = {kind: "select"};
     }
     tool.start = undefined;
@@ -54,16 +63,16 @@ export const advancedComponentTool: ToolBehavior<AdvancedComponentTool> = {
   },
 
   drawPreview(tool, hoverDot, painter) {
-    const def = getAdvancedComponentDefinition(tool.definitionId);
+    const def = advancedDefinitionFor(tool);
     if (!def) return;
     // Second half of a two-click span: preview the whole block the commit would place.
     const ghost = (def.gridSizable && tool.start && spannedBlock(def.id, tool.start, hoverDot))
-      || new PlacedAdvancedComponent(def.id, hoverDot, def.gridSizable ? 0 : tool.rotation);
+      || partAt(tool, hoverDot, def.gridSizable ? 0 : tool.rotation);
     drawPart(painter, {kind: "advanced-component", entry: ghost.serialize()}, {ghost: true});
   },
 
   statusText(tool) {
-    const def = getAdvancedComponentDefinition(tool.definitionId);
+    const def = advancedDefinitionFor(tool);
     const name = def?.name ?? "Component";
     if (def?.gridSizable) {
       return tool.start ? `Placing ${name} [Click opposite corner • Shift+click to place more]` : `${name} Armed [Click first corner]`;

@@ -62,6 +62,10 @@ export interface AdvancedComponentDefinition {
   // rather than one image stretched across the whole body. Implies no body box, no pin markers
   // and no pin numbers - the tiles themselves are the part.
   perPinIcon?: boolean;
+  // Drawn without artwork: the body in `bodyColor` (else the default dark box) with the part's
+  // name on it. For user-made parts (custom-parts.ts), which have no icon file.
+  noIcon?: boolean;
+  bodyColor?: string;
 }
 
 // Half-extent (grid units) of one perPinIcon tile. At 0.5 a tile is exactly one grid pitch

@@ -1,8 +1,9 @@
-import {BoardRefs, boardPins, fileVersionFor, GridPos, isValidRef, partPins, pinName, ProjectFile, Rotation, SavedWire} from "./editor";
+import {BoardRefs, boardPins, fileVersionFor, GridPos, isSolderPath, isValidRef, partPins, pinName, ProjectFile, Rotation, SavedWire} from "./editor";
 import {findPart, icEntry, noSuchPart} from "./parts";
 import {findPin, pinsByRef} from "./expected-nets";
 import {EditOp, Op} from "./edit-ops";
 import {offBoard, plural, sameHole, showHole, toGridPos} from "./text";
+import {ensureComponentIds, includeRequiredComponents} from "./editor";
 
 // edit_project's operations (edit-ops.ts): small changes to a project (add a part, route a wire,
 // cut a strip) so an agent never rewrites the whole file to change one thing. They only edit the
@@ -36,6 +37,8 @@ export function applyEdits(project: ProjectFile, ops: EditOp[]): EditResult {
   });
   // The version that holds what the ops made: a bend needs version 4, or reading the file back
   // would straighten the wire.
+  ensureComponentIds(draft);
+  if (draft.requirements) draft.requirements = includeRequiredComponents(draft.requirements, draft);
   draft.version = fileVersionFor(draft);
   // Parts removed after being placed have nothing to report.
   const refs = new Set(allParts(draft).map(part => part.ref));
@@ -241,6 +244,7 @@ type WireEnd = readonly number[] | string;
 
 function addWire(project: ProjectFile, op: Op<"add_wire">): string {
   if (op.path && (op.from || op.to)) throw new OpError("Give either `path` or `from` and `to`, not both.");
+  if (op.solder) return addSolderPath(project, op);
   if (op.path && op.via) throw new OpError("`via` goes with `from` and `to`; a `path`'s corners are wire ends instead.");
   if (op.via && op.from && op.to) return addBentWire(project, op, op.from, op.to, op.via);
   const given = op.path ?? (op.from && op.to ? [op.from, op.to] : undefined);
@@ -274,6 +278,22 @@ function addBentWire(project: ProjectFile, op: Op<"add_wire">, fromEnd: WireEnd,
   return `Added wires[${project.wires.length - 1}] from ${from.said} to ${to.said}${bendsSaid(wire)}.`;
 }
 
+// One solder path along `path`, or from `from` to `to` bending at `via`. Its bends join like the
+// rest of its holes, so a path's corners are just bends here.
+function addSolderPath(project: ProjectFile, op: Op<"add_wire">): string {
+  if (op.color !== undefined || op.width !== undefined) throw new OpError("A solder path is bare solder: it takes no `color` or `width`.");
+  if (op.path && op.via) throw new OpError("Give a solder path's bends as `path` or as `via` with `from` and `to`, not both.");
+  const given = op.path ?? (op.from && op.to ? [op.from, ...(op.via ?? []), op.to] : undefined);
+  if (!given) throw new OpError("A solder path needs `from` and `to`, or a `path` of two or more holes.");
+  const points = given.map((end, i) => wireEndAt(project, end, op.path ? `path[${i}]` : i === 0 ? "`from`" : i === given.length - 1 ? "`to`" : `via[${i - 1}]`));
+  const [from, to] = [points[0], points[points.length - 1]];
+  const wire: SavedWire = {
+    from: from.at, to: to.at, ...withBends(project, from.at, to.at, points.slice(1, -1).map(point => point.at)), kind: "solder",
+  };
+  project.wires.push(wire);
+  return `Added wires[${project.wires.length - 1}], a solder path from ${from.said} to ${to.said}${bendsSaid(wire)}.`;
+}
+
 // A wire's `via` from the holes given: each on the board, a hole repeating the one before it left
 // out. Refuses a wire that would start and end in one hole.
 function withBends(project: ProjectFile, from: GridPos, to: GridPos, via: number[][]): Pick<SavedWire, "via"> {
@@ -290,6 +310,9 @@ function updateWire(project: ProjectFile, op: Op<"update_wire">): string {
   const i = findWire(project, op.wire);
   const from = op.from === undefined ? undefined : wireEndAt(project, op.from, "`from`");
   const to = op.to === undefined ? undefined : wireEndAt(project, op.to, "`to`");
+  if (isSolderPath(project.wires[i]) && (op.color !== undefined || op.width !== undefined)) {
+    throw new OpError(`wires[${i}] is a solder path: it has no \`color\` or \`width\`.`);
+  }
   const updated: SavedWire = {
     ...project.wires[i], ...(from ? {from: from.at} : {}), ...(to ? {to: to.at} : {}),
     ...(op.color !== undefined ? {color: op.color} : {}), ...(op.width !== undefined ? {width: op.width} : {}),

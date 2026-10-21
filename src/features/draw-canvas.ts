@@ -4,7 +4,7 @@ import {DotState} from "../state/DotState";
 import {ToolState} from "../state/ToolState";
 import {behaviorOf} from "./tools";
 import {drawWirePreview} from "./tools/wire-tool";
-import {wireDragFrom, wireDragRoute} from "./wire-drag";
+import {wireDragFrom, wireDragKind, wireDragRoute} from "./wire-drag";
 import {setRedraw} from "./redraw-request";
 import {CanvasPainter} from "./board-canvas/canvas-painter";
 import {browserIcons} from "./board-canvas/browser-icons";
@@ -39,7 +39,7 @@ export function redrawCanvas() {
   const tool = ToolState.active;
   const dragFrom = wireDragFrom();
   if (dragFrom) {
-    if (DotState.hoverDot && DotState.hoverDot !== dragFrom) drawWirePreview(painter, wireDragRoute(DotState.hoverDot));
+    if (DotState.hoverDot && DotState.hoverDot !== dragFrom) drawWirePreview(painter, wireDragRoute(DotState.hoverDot), false, wireDragKind());
   } else if (DotState.hoverDot) {
     behaviorOf(tool).drawPreview?.(tool, DotState.hoverDot, painter);
   }

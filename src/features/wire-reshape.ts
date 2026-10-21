@@ -5,7 +5,7 @@ import {GridConfig} from "../state/GridConfig";
 import {SelectionState} from "../state/SelectionState";
 import {ToolState} from "../state/ToolState";
 import {lineLegs, linePoints} from "./line-path";
-import {NewEnds, routeWire} from "./tools/wire-tool";
+import {NewEnds, routeWire, styleOf} from "./tools/wire-tool";
 
 // Bending a selected wire by its handles, in Select mode (the board draws them: layers/wires.ts):
 // - drag a leg (anywhere along it, or its midpoint dot) to pull a new bend out of it, which
@@ -150,7 +150,7 @@ export function straightenWire(line: ILine) {
 // `line` taking the route through `points`, selected afterwards: the piece holding `keep`, if
 // it's cut into pieces.
 function reroute(line: ILine, points: IDot[], newEnds: NewEnds, keep?: IDot) {
-  const pieces = routeWire(points, {color: line.color, width: line.width}, line, newEnds);
+  const pieces = routeWire(points, styleOf(line), line, newEnds);
   if (!pieces.length) return;
   const piece = (keep && pieces.find(p => linePoints(p).includes(keep))) || pieces[0];
   SelectionState.current = {kind: "line", line: piece};

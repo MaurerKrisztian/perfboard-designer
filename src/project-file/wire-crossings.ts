@@ -1,17 +1,18 @@
 import {GridPos} from "./grid";
 import {ProjectFile} from "./project-file";
 import {partPins} from "./pin-positions";
-import {WireLeg, wireLegs, WireRoute} from "./wire-path";
+import {holesAlong, isSolderPath, legsMeet, WireLeg, wireLegs, WireRoute} from "./wire-path";
 
 // Where wires pass over things without joining them, and where things do join: what the 2D and
 // 3D views draw so a crossing never passes for a joint. A wire joins only the holes at its two
 // ends (see nets.ts), so a wire running across another wire, or over a hole holding a pin, a lead
 // or another wire's end, goes over it, and so does a bend sitting on such a hole. Of two wires
 // crossing between their ends, the later one in the list is on top: the order the editor draws
-// them in.
+// them in. Solder paths are on the other side of the board, and join what they touch: they play
+// no part here (no hops on or under them, and their holes count for nothing).
 
-// A wire's ends and corners: all the crossings need.
-export type WireEnds = WireRoute;
+// A wire's ends and corners, and whether it's a solder path: all the crossings need.
+export type WireEnds = WireRoute & {kind?: string};
 
 // One place a wire goes over something.
 export interface WireHop {
@@ -34,18 +35,6 @@ export interface WireLayout {
 }
 
 const key = ([c, r]: readonly number[]) => `${c},${r}`;
-const gcd = (a: number, b: number): number => b ? gcd(b, a % b) : a;
-
-// The holes a straight leg runs over between its ends (it joins none of them), from its `from`
-// end, with how far along it each is (0 to 1).
-export function holesAlong(leg: WireLeg): {at: GridPos; along: number}[] {
-  const [x1, y1] = leg.from;
-  const [x2, y2] = leg.to;
-  const steps = gcd(Math.abs(x2 - x1), Math.abs(y2 - y1));
-  const holes: {at: GridPos; along: number}[] = [];
-  for (let k = 1; k < steps; k++) holes.push({at: [x1 + (x2 - x1) / steps * k, y1 + (y2 - y1) / steps * k], along: k / steps});
-  return holes;
-}
 
 // A wire's legs, each with how far along the whole wire it starts and how long it is.
 function measuredLegs(wire: WireEnds): {leg: WireLeg; start: number; length: number}[] {
@@ -58,34 +47,16 @@ function measuredLegs(wire: WireEnds): {leg: WireLeg; start: number; length: num
   });
 }
 
-// Where two straight legs meet, ends and corners included, as a fraction along each (exact: `t`
-// and `u` are 0 or 1 only at an end of the leg). Parallel legs never meet: one lying along the
-// other passes over its holes instead.
-function legsMeet(a: WireLeg, b: WireLeg): {at: [number, number]; t: number; u: number} | undefined {
-  const [ax, ay] = a.from;
-  const [bx, by] = b.from;
-  const rx = a.to[0] - ax, ry = a.to[1] - ay;
-  const sx = b.to[0] - bx, sy = b.to[1] - by;
-  let denom = rx * sy - ry * sx;
-  if (denom === 0) return undefined;
-  let tNum = (bx - ax) * sy - (by - ay) * sx;
-  let uNum = (bx - ax) * ry - (by - ay) * rx;
-  if (denom < 0) [denom, tNum, uNum] = [-denom, -tNum, -uNum];
-  if (tNum < 0 || tNum > denom || uNum < 0 || uNum > denom) return undefined;
-  const t = tNum === 0 ? 0 : tNum === denom ? 1 : tNum / denom;
-  const u = uNum === 0 ? 0 : uNum === denom ? 1 : uNum / denom;
-  const at: [number, number] = t === 0 ? [ax, ay] : t === 1 ? [a.to[0], a.to[1]] : [ax + t * rx, ay + t * ry];
-  return {at, t, u};
-}
-
 export function layoutWires(wires: WireEnds[], pinHoles: GridPos[]): WireLayout {
   const pins = new Set(pinHoles.map(key));
   const ends = new Map<string, number>();
-  for (const wire of wires) {
+  const jumper = (i: number) => !isSolderPath(wires[i]);
+  for (const wire of wires.filter((_, i) => jumper(i))) {
     for (const end of [wire.from, wire.to]) ends.set(key(end), (ends.get(key(end)) ?? 0) + 1);
   }
   const holds = (at: readonly number[]) => pins.has(key(at)) || ends.has(key(at));
-  const legs = wires.map(measuredLegs);
+  // A solder path has no legs as far as crossings go.
+  const legs = wires.map((wire, i) => jumper(i) ? measuredLegs(wire) : []);
 
   // `along`: how far along the whole wire, to put each wire's hops in order.
   const hops: (WireHop & {along: number})[] = [];

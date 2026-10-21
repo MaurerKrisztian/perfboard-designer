@@ -7,7 +7,10 @@ import {editCustomIc, openIcEditor} from "../ic-editor-modal";
 import {ToolState} from "../../state/ToolState";
 import {setActiveTool} from "../active-tool";
 import {CategoryId} from "../../parts/catalog-categories";
-import {advancedKey, icKey, standardKey} from "./catalog-keys";
+import {advancedKey, customPartKey, icKey, standardKey} from "./catalog-keys";
+import {CUSTOM_PART_ID} from "../../parts/custom-parts";
+import {CustomParts, customPartIconSvg, isArmed as isCustomPartArmed} from "../custom-parts";
+import {openCustomPartEditor} from "../custom-part-modal";
 
 // One entry in the Components panel, whichever placement system backs it. The panel and search
 // only ever deal with these - activate/isArmed/remove hide which system a part belongs to.
@@ -37,6 +40,7 @@ function isArmed(kind: "standard-component" | "advanced-component", definitionId
 }
 
 const CUSTOM_ACTION_KEYWORDS = ["custom", "new", "create", "add"];
+const CUSTOM_MODULE_KEYWORDS = ["custom", "module", "breakout", "sensor", "board", "pins", "new", "create", "add"];
 
 // The IC icons are drawn in code (generic DIP / dev board), not stored as files.
 function svgDataUri(svg: string): string {
@@ -48,9 +52,14 @@ function svgDataUri(svg: string): string {
 export function buildCatalog(): CatalogItem[] {
   const items: CatalogItem[] = [
     {
-      key: "action:custom", isAction: true, name: "Custom…",
+      key: "action:custom", isAction: true, name: "Custom IC or dev board…",
       keywords: CUSTOM_ACTION_KEYWORDS, emoji: "➕",
       activate: () => openIcEditor("ic"), isArmed: () => false
+    },
+    {
+      key: "action:custom-module", isAction: true, name: "Custom module (any pins)…",
+      keywords: CUSTOM_MODULE_KEYWORDS, emoji: "➕",
+      activate: () => openCustomPartEditor(), isArmed: () => false
     },
   ];
 
@@ -89,6 +98,20 @@ export function buildCatalog(): CatalogItem[] {
       },
       edit: ic.isCustom ? () => editCustomIc(ic) : undefined,
       remove: ic.isCustom ? () => deleteCustomIc(ic.id) : undefined
+    });
+  }
+
+  // The user's own modules with pins anywhere, each placed with its own spec.
+  for (const part of CustomParts.parts) {
+    items.push({
+      key: customPartKey(part.id), isAction: false, name: part.name, categoryId: "modules.custom",
+      keywords: ["custom", "module"], iconPath: svgDataUri(customPartIconSvg(part)), emoji: "📟",
+      activate: () => setActiveTool(isCustomPartArmed(part.id)
+        ? {kind: "select"}
+        : {kind: "advanced-component", definitionId: CUSTOM_PART_ID, rotation: 0, custom: part}),
+      isArmed: () => isCustomPartArmed(part.id),
+      edit: () => openCustomPartEditor(part),
+      remove: () => part.id && CustomParts.remove(part.id),
     });
   }
 

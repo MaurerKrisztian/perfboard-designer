@@ -17,7 +17,7 @@ The full guide, with more on all this and on changing a board the user shares (r
 
 export const GUIDE = `# Designing a board with Perfboard Designer
 
-Perfboard Designer (https://perfboarddesigner.com) is a browser editor for perfboard and stripboard layouts. With these tools you design a board as a project file (JSON, format version 3, or 4 when a wire bends) and give the user a link that opens it in the editor, where they can see and change it. The goal is a board that's electrically right, looks neat and is easy to solder by hand: the user will build it.
+Perfboard Designer (https://perfboarddesigner.com) is a browser editor for perfboard and stripboard layouts. With these tools you design a board as a project file (JSON through version 8) and give the user a link that opens it in the editor. Parts may carry an instanceId; version 8 adds optional requirements (independent intended nets, unused pins, component snapshots and a validate flag). Preserve these when editing. Requirement connections never derive from the board's wiring. When requirements.validate is true, validation also reports missing components/pins, missing or unexpected connections, and incomplete pin coverage. Unspecified pins are unchecked, not assumed disconnected; this differs from the existing complete-list expectNets contract. New parts join the requirement inventory unconnected; board changes must never overwrite intended nets. The goal is a board that's electrically right, looks neat and is easy to solder by hand: the user will build it.
 
 ## Workflow
 
@@ -44,6 +44,8 @@ Wires are insulated jumpers: a wire joins only the holes at its two ends, never 
 
 A wire can bend: add_wire's "via" lists the holes it bends at on its way, in order, and the file keeps them as the wire's "via" (format version 4). A bend joins nothing, like a hole a wire passes over: the wire is one piece of wire, soldered only at its two ends. update_wire's "via" replaces a wire's bends ([] straightens it). add_wire's "path" is different: each corner of a path is the end of one wire and the start of the next, so it joins whatever is in that hole; use it only when a corner should connect.
 
+A solder path is the other way to connect holes: a trail of solder bridging pad to pad on the copper side, which many people use instead of short jumpers. add_wire with "solder": true makes one ("from"/"to" with "via", or a "path", which here makes one solder path bending at its corners); the file marks it "kind": "solder" (format version 5), with no color or width. Unlike a jumper it's bare metal: it joins every hole it runs over, its ends, its bends and each hole between, and any solder path it touches, so run it only over holes that belong to one net, and never across another net's pins or solder path. Keep them short and straight, along a row or column between neighbouring parts; use jumper wires for longer runs and wherever a connection has to cross another. In render_board's text a solder path's holes show as "=", and its wire list says "solder path".
+
 ## Laying it out well
 
 A board that's right isn't done until it looks neat and someone can easily solder it. Prefer a readable, compact, physically practical layout, like one a person would lay out by hand, over the shortest total wire length:
@@ -59,5 +61,5 @@ A board that's right isn't done until it looks neat and someone can easily solde
 
 ## More
 
-get_project returns the whole file. Kept projects don't last forever (on your computer, only while the server runs; hosted, 30 days unused); a whole project file works in place of a projectId everywhere. To change a board the user shares with you, read it with read_share_link: it returns a projectId to edit. The format is documented in the resource perfboard://docs/project-file, links in perfboard://docs/share-links, and the whole parts catalog is perfboard://parts.
+get_project returns the whole file. Kept projects don't last forever (on your computer, only while the server runs; hosted, 30 days unused); a whole project file works in place of a projectId everywhere. To change a board the user shares with you, read it with read_share_link: it returns a projectId to edit. Such a board may hold the user's own parts, made in the editor: custom ICs and dev boards (the file's customIcs, placed as placedIcs) and custom modules (format version 6: a placedAdvancedComponents entry with definitionId "custom" carrying the whole part in "custom": its size, its pins' holes and names). Wire to their pins by name like any part's ("M1.VCC" or "M1.1") and keep them as they are; edit_project can remove them but not make new ones. The format is documented in the resource perfboard://docs/project-file, links in perfboard://docs/share-links, and the whole parts catalog is perfboard://parts.
 `;

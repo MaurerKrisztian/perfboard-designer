@@ -1,4 +1,4 @@
-import {ToolState} from "../state/ToolState";
+import {isRouteTool, ToolState} from "../state/ToolState";
 import {DotState} from "../state/DotState";
 import {redrawCanvas} from "./draw-canvas";
 import {Canvas} from "../state/Canvas";
@@ -82,7 +82,7 @@ export function pressBoard(e: MouseEvent) {
     // A placement tool clicked away from any pad: plain selection instead. The wire tool
     // doesn't pick parts up, so a slightly-off click near a pin can't grab the whole part
     // mid-run.
-    selectAt(x, y, tool.kind !== "wire");
+    selectAt(x, y, !isRouteTool(tool));
   }
   redrawCanvas();
   updateSelectionStatus();
@@ -255,8 +255,10 @@ export function contextMenuHole(): IDot | undefined {
 export function openContextMenuAt(e: MouseEvent) {
   const {x, y} = Canvas.toDrawingCoordinates(e);
   contextHole = DotState.hoverDot;
-  const wireBtn = document.getElementById('ctxWireBtn');
-  if (wireBtn) wireBtn.hidden = !contextHole;
+  for (const id of ['ctxWireBtn', 'ctxSolderBtn']) {
+    const startBtn = document.getElementById(id);
+    if (startBtn) startBtn.hidden = !contextHole;
+  }
 
   const part = findPartAt(x, y);
   if (part) {

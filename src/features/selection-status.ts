@@ -4,6 +4,7 @@ import {notifyArmedPartChanged} from "./catalog/catalog-events";
 import {behaviorOf} from "./tools";
 import {ViewState} from "../state/ViewState";
 import {holeName, toGridPos} from "../project-file/grid";
+import {SOLDER_COLOR} from "../board-render";
 
 const SWATCH_STYLE = "display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;";
 // A finger taps rather than clicks, has no keys for the hints in brackets (the selection bar shows
@@ -45,6 +46,7 @@ function setStatus(statusEl: HTMLElement, text: string, swatchColor?: string) {
 function syncToolHighlights() {
   const kind = ToolState.active.kind;
   document.getElementById('wireArmBtn')?.classList.toggle('active-mode', kind === "wire");
+  document.getElementById('solderArmBtn')?.classList.toggle('active-mode', kind === "solder");
   document.querySelectorAll('#toolModeSelector .tool-mode-btn').forEach(btn => {
     btn.classList.toggle('active-mode', btn.getAttribute('data-mode') === kind);
   });
@@ -92,7 +94,11 @@ export function updateSelectionStatus() {
   } else if (selection?.kind === "line") {
     const reshape = tool.kind === "select" ? "Drag it to bend it • Drag a bend or an end to move it • " : "";
     const unbend = tool.kind === "select" && selection.line.via?.length ? "Double-click a bend to remove it • " : "";
-    setStatus(statusEl, `Line Selected (${selection.line.width || 4}px) [${reshape}${unbend}Mode: ${modeLabel}]`, selection.line.color || '#777676');
+    if (selection.line.kind === "solder") {
+      setStatus(statusEl, `Solder Path Selected [${reshape}${unbend}Mode: ${modeLabel}]`, SOLDER_COLOR);
+    } else {
+      setStatus(statusEl, `Line Selected (${selection.line.width || 4}px) [${reshape}${unbend}Mode: ${modeLabel}]`, selection.line.color || '#777676');
+    }
   } else if (selection?.kind === "dot") {
     setStatus(statusEl, `Pad ${holeName(toGridPos(selection.dot))} Selected [Mode: ${modeLabel}]`);
   } else {

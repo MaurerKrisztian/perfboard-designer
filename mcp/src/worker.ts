@@ -10,6 +10,8 @@ import {
   ProjectStorage, projectsBaseUrl, PutResult, StoredProject, storeUnderFreeId,
 } from "./stored-projects";
 import {PUBLIC_EDITOR_URL} from "./tools/share-link-tools";
+import {handleListProjectsRequest, StoredProjectIndex} from "./project-index";
+export {StoredProjectIndex} from "./project-index";
 // Uploaded with the Worker: build.mjs copies it next to worker.js.
 import resvgWasm from "./resvg.wasm";
 
@@ -23,6 +25,7 @@ import resvgWasm from "./resvg.wasm";
 interface Env {
   PROJECTS: DurableObjectNamespace<ProjectHolder>;
   STORED_PROJECTS: DurableObjectNamespace<StoredProjectHolder>;
+  PROJECT_INDEX: DurableObjectNamespace<StoredProjectIndex>;
   // Where share links open; the public editor when unset (wrangler.toml's [vars]).
   PERFBOARD_EDITOR_URL?: string;
   // Where stored projects are served; https://projects.perfboarddesigner.com when unset.
@@ -77,13 +80,23 @@ export class StoredProjectHolder extends DurableObject<Env> {
     if (held && held.hash !== entry.hash) return "taken";
     if (!held) await this.ctx.storage.put("entry", entry);
     await this.keep();
+    await this.index(held ?? entry);
     return held ? "same" : "stored";
   }
 
   async load(): Promise<ProjectFile | undefined> {
     const entry = await this.ctx.storage.get<StoredProject>("entry");
-    if (entry) await this.keep();
+    if (entry) {
+      await this.keep();
+      await this.index(entry);
+    }
     return entry?.project;
+  }
+
+  private async index(entry: StoredProject): Promise<void> {
+    if (await this.ctx.storage.get<boolean>("indexed")) return;
+    await projectIndex(this.env).put(entry);
+    await this.ctx.storage.put("indexed", true);
   }
 
   // Pushes back the day it's deleted; at most once a day, as every opening and picture comes here.
@@ -93,9 +106,16 @@ export class StoredProjectHolder extends DurableObject<Env> {
   }
 
   async alarm(): Promise<void> {
+    // Opened again while this alarm was on its way: keep() has set the next one already.
+    const due = await this.ctx.storage.getAlarm();
+    if (due !== null && due > Date.now()) return;
+    const entry = await this.ctx.storage.get<StoredProject>("entry");
+    if (entry) await projectIndex(this.env).remove(entry.id, entry.storedAt);
     await this.ctx.storage.deleteAll();
   }
 }
+
+const projectIndex = (env: Env) => env.PROJECT_INDEX.get(env.PROJECT_INDEX.idFromName("stored-projects"));
 
 function durableProjectStorage(env: Env): ProjectStorage {
   const holder = (id: string) => env.STORED_PROJECTS.get(env.STORED_PROJECTS.idFromName(id));
@@ -157,7 +177,15 @@ export default {
     if (pathname === "/") return withCors(new Response(ABOUT.replaceAll("<this address>", origin), {headers: {"Content-Type": "text/plain; charset=utf-8"}}));
     if (pathname === "/render.svg") return withCors(await edgeCached(request, ctx, () => handleImageRequest(request, "svg")));
     if (pathname === "/render.png") return withCors(await edgeCached(request, ctx, () => handleImageRequest(request, "png")));
-    if (pathname === "/projects") return withCors(await handleStoreRequest(request, durableProjectStorage(env), editorBase(env)));
+    if (pathname === "/projects") {
+      if (request.method === "GET") {
+        return withCors(await handleListProjectsRequest(request, projectIndex(env), projectsBaseUrl(env.PERFBOARD_PROJECTS_URL), editorBase(env)));
+      }
+      if (request.method !== "POST") {
+        return withCors(new Response("Method not allowed: GET or POST /projects.\n", {status: 405, headers: {Allow: "GET, POST, OPTIONS"}}));
+      }
+      return withCors(await handleStoreRequest(request, durableProjectStorage(env), editorBase(env)));
+    }
     if (isStoredProjectPath(pathname)) {
       return withCors(await edgeCached(request, ctx, () => handleStoredProjectRequest(request, durableProjectStorage(env))));
     }

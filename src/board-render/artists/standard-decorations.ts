@@ -1,4 +1,4 @@
-import {ComponentDefinition} from "../../parts/component-definitions";
+import {ComponentDefinition, ledPaint} from "../../parts/component-definitions";
 import {parseComponentValue} from "../../parts/component-value";
 import {getCeramicCapacitorCode, getResistorBandColors} from "../../parts/component-value-codes";
 import {SavedStandardComponent} from "../../project-file/project-file";
@@ -28,12 +28,6 @@ const CERAMIC_CODE_FONT_RATIO = 0.4;
 // Mirrors the flat-cathode-edge body path baked into led.svg - keep these in sync so the
 // color fill lines up with the artwork's silhouette instead of spilling past its edges.
 const LED_BODY_PATH = "M6 23.47A48 48 0 1 1 6 76.53Z";
-export const LED_SOLID_COLORS: Record<string, string> = {
-  red: "#ef4444",
-  green: "#22c55e",
-  blue: "#3b82f6",
-  yellow: "#facc15",
-};
 const LED_RGB_STRIPE_COLORS = ["#ef4444", "#22c55e", "#3b82f6"];
 
 // Inside the icon's 100x100 viewBox, so paths baked into the artwork can be reused as is.
@@ -69,7 +63,7 @@ const ledColor: Decoration = (painter, part, bodyStart, bodySize) => {
       const stripe = 100 / LED_RGB_STRIPE_COLORS.length;
       LED_RGB_STRIPE_COLORS.forEach((stripeColor, i) => painter.rect(0, i * stripe, 100, stripe, {fill: stripeColor}));
     } else {
-      painter.rect(0, 0, 100, 100, {fill: LED_SOLID_COLORS[color] ?? color});
+      painter.rect(0, 0, 100, 100, {fill: ledPaint(color) ?? color});
     }
   });
 };

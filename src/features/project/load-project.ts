@@ -14,6 +14,8 @@ import {readProjectFile} from "../../project-file/read-project-file";
 import {setBoardSetup} from "../board-type";
 import {isCategoryId} from "../../parts/catalog-categories";
 import {isModuleName} from "../../parts/ic-package";
+import {CustomParts} from "../custom-parts";
+import {RequirementsState} from "../../state/RequirementsState";
 
 // Replaces the board with a project file's (any version). The file is read and checked in full
 // first, so a file that isn't a project throws ProjectFileError with the board untouched.
@@ -22,6 +24,7 @@ export function loadProject(raw: unknown): {skipped: number} {
   const {project, skipped} = readProjectFile(raw);
 
   resetForNewBoard();
+  RequirementsState.current = project.requirements;
   const {board} = project;
   widthInput.value = String(board.cols);
   heightInput.value = String(board.rows);
@@ -41,13 +44,14 @@ export function loadProject(raw: unknown): {skipped: number} {
   LineState.lines = project.wires.map(wire => ({
     start: dotAt(wire.from), end: dotAt(wire.to),
     ...(wire.via ? {via: wire.via.map(dotAt)} : {}),
-    color: wire.color, width: wire.width,
+    ...(wire.kind === "solder" ? {kind: "solder" as const} : {color: wire.color, width: wire.width}),
   }));
 
   const parts: Part[] = [];
   for (const saved of project.placedIcs) {
     const ic = new Ic(saved.widthPin, saved.heightPin, {...saved.pinDescription}, saved.name);
     ic.ref = saved.ref;
+    ic.instanceId = saved.instanceId as string;
     ic.category = isCategoryId(saved.category) ? saved.category : isModuleName(saved.name) ? "modules.custom" : "ics.custom";
     ic.rotationAngle = saved.rotation;
     ic.topLeftDot = dotAt(saved.at);
@@ -56,13 +60,16 @@ export function loadProject(raw: unknown): {skipped: number} {
   for (const saved of project.placedStandardComponents) {
     const component = new PlacedStandardComponent(saved.definitionId, dotAt(saved.from), dotAt(saved.to));
     component.ref = saved.ref;
+    component.instanceId = saved.instanceId as string;
     component.value = saved.value;
     component.color = saved.color;
     parts.push(component);
   }
   for (const saved of project.placedAdvancedComponents) {
     const component = new PlacedAdvancedComponent(saved.definitionId, dotAt(saved.at), saved.rotation);
+    if (saved.custom) component.custom = saved.custom;
     component.ref = saved.ref;
+    component.instanceId = saved.instanceId as string;
     component.rows = saved.rows;
     component.cols = saved.cols;
     component.value = saved.value;
@@ -71,8 +78,10 @@ export function loadProject(raw: unknown): {skipped: number} {
   // Kind by kind, in the grouped order PartState.parts keeps.
   PartState.parts = parts;
 
-  // A file's custom ICs join the catalog (and are kept, like ones made here) rather than replacing it.
+  // A file's custom ICs join the catalog (and are kept, like ones made here) rather than replacing it,
+  // and so do the custom parts placed on it, so more of them can be placed.
   if (Ic.addCustomIcs(project.customIcs) > 0) Ic.saveCustomIcsToLocalStorage();
+  CustomParts.merge(project.placedAdvancedComponents.flatMap(part => part.custom ? [part.custom] : []));
 
   redrawCanvas();
   return {skipped};

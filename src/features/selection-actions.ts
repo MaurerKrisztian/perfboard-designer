@@ -6,7 +6,7 @@ import {changeSelectedColor} from "./dot";
 import {addDescriptionToDot} from "./dot-notes";
 import {deleteLine} from "./line";
 import {setSelectedComponentValue, setSelectedLedColor} from "./standard-components/standard-component-actions";
-import type {LedColor} from "./standard-components/standard-component-actions";
+import type {LedColor} from "../parts/component-definitions";
 import {SelectionState} from "../state/SelectionState";
 import {isLed} from "../parts/component-definitions";
 import {isRotatable} from "../interfaces/placed-part.interface";
@@ -20,13 +20,17 @@ import {straightenWire} from "./wire-reshape";
 // ones that apply are shown: <body data-sel-actions="rotate value delete"> lists them, and the
 // stylesheet hides the rest.
 
-type Action = "wire" | "rotate" | "color" | "straighten" | "value" | "note" | "delete";
+type Action = "wire" | "solder" | "rotate" | "color" | "straighten" | "value" | "note" | "delete";
 
 function availableActions(): Action[] {
   const selection = SelectionState.current;
   if (!selection) return [];
-  if (selection.kind === "line") return selection.line.via?.length ? ["color", "straighten", "delete"] : ["color", "delete"];
-  if (selection.kind === "dot") return selection.dot.description ? ["wire", "note", "delete"] : ["wire", "note"];
+  if (selection.kind === "line") {
+    // A solder path has no colour.
+    const color: Action[] = selection.line.kind === "solder" ? [] : ["color"];
+    return selection.line.via?.length ? [...color, "straighten", "delete"] : [...color, "delete"];
+  }
+  if (selection.kind === "dot") return selection.dot.description ? ["wire", "solder", "note", "delete"] : ["wire", "solder", "note"];
   const {part} = selection;
   const actions: Action[] = [];
   if (isRotatable(part)) actions.push("rotate");
@@ -39,7 +43,7 @@ function availableActions(): Action[] {
 function selectionLabel(): string {
   const selection = SelectionState.current;
   if (!selection) return "";
-  if (selection.kind === "line") return "Wire";
+  if (selection.kind === "line") return selection.line.kind === "solder" ? "Solder path" : "Wire";
   if (selection.kind === "dot") {
     return `Pad ${holeName(toGridPos(selection.dot))}`;
   }
@@ -60,12 +64,12 @@ function runAction(action: string, e: MouseEvent) {
   }
   const fromMenu = !!(e.currentTarget as HTMLElement).closest("#contextMenu");
   hideContextMenu();
-  if (action === "wire") {
-    // The wire tool, with its first hole already picked.
+  if (action === "wire" || action === "solder") {
+    // The wire (or solder path) tool, with its first hole already picked.
     const hole = fromMenu ? contextMenuHole() : SelectionState.dot;
     if (!hole) return;
     SelectionState.clear();
-    setActiveTool({kind: "wire", start: hole});
+    setActiveTool({kind: action, start: hole});
   } else if (action === "rotate") {
     rotateSelectedIc();
   } else if (action === "color") {

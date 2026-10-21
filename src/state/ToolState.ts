@@ -1,5 +1,6 @@
 import {IDot} from "../interfaces/dot.interface";
 import type {Ic} from "../features/ic";
+import type {CustomPartSpec} from "../parts/custom-parts";
 
 export type Rotation = 0 | 90 | 180 | 270;
 
@@ -15,11 +16,21 @@ export type ActiveTool =
   // Wire runs chain: each wire's end pad becomes the next one's start. `via`: the holes the wire
   // being drawn bends at so far, after `start`.
   | {kind: "wire"; start?: IDot; via?: IDot[]}
+  // The same for solder paths on the copper side (ILine.kind "solder").
+  | {kind: "solder"; start?: IDot; via?: IDot[]}
   // A clone of the catalog entry, so rotating it before placing leaves the catalog alone.
   | {kind: "ic"; template: Ic}
   | {kind: "standard-component"; definitionId: string; start?: IDot}
-  // Only grid-sizable parts (header pins) take two clicks; the rest place on one.
-  | {kind: "advanced-component"; definitionId: string; rotation: Rotation; start?: IDot};
+  // Only grid-sizable parts (header pins) take two clicks; the rest place on one. `custom`: a
+  // user-made part's spec (src/parts/custom-parts.ts), whose definitionId is "custom".
+  | {kind: "advanced-component"; definitionId: string; rotation: Rotation; start?: IDot; custom?: CustomPartSpec};
+
+// The tools that draw a wire's route hole by hole: jumper wires and solder paths.
+export type RouteTool = Extract<ActiveTool, {kind: "wire" | "solder"}>;
+
+export function isRouteTool(tool: ActiveTool): tool is RouteTool {
+  return tool.kind === "wire" || tool.kind === "solder";
+}
 
 // The toolbar's mode buttons. Everything else is a placement tool.
 export type ToolMode = "select" | "eraser" | "note" | "cut";

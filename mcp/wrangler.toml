@@ -33,6 +33,10 @@ class_name = "ProjectHolder"
 name = "STORED_PROJECTS"
 class_name = "StoredProjectHolder"
 
+[[durable_objects.bindings]]
+name = "PROJECT_INDEX"
+class_name = "StoredProjectIndex"
+
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["ProjectHolder"]
@@ -40,6 +44,10 @@ new_sqlite_classes = ["ProjectHolder"]
 [[migrations]]
 tag = "v2"
 new_sqlite_classes = ["StoredProjectHolder"]
+
+[[migrations]]
+tag = "v3"
+new_sqlite_classes = ["StoredProjectIndex"]
 
 [vars]
 # Where share links open. Leave unset for the public editor, https://perfboarddesigner.com/app/.

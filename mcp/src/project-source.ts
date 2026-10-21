@@ -7,7 +7,7 @@ import {errorMessage} from "./text";
 // (`project`), plus the inputs that go with it.
 
 export const projectInput = z.union([z.record(z.string(), z.unknown()), z.string()]).optional()
-  .describe("The whole project file: a version 3 or 4 project object, or its JSON text (see the perfboard://docs/project-file resource). Give this or projectId.");
+  .describe("The whole project file (through version 8), or its JSON text (see perfboard://docs/project-file). Give this or projectId. Preserve instanceId and optional requirements fields.");
 
 export const projectIdInput = z.string().optional()
   .describe("The id of a project kept here (from new_project, validate_project, edit_project or read_share_link), instead of sending the whole project.");

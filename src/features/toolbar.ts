@@ -24,7 +24,8 @@ document.querySelectorAll('#wireGaugeSelector .gauge-btn').forEach((btn) => {
     const widthStr = target.getAttribute('data-width');
     if (widthStr) {
       ToolState.selectedWireWidth = parseInt(widthStr);
-      if (SelectionState.line) {
+      // A solder path has no thickness to set.
+      if (SelectionState.line && SelectionState.line.kind !== "solder") {
         SelectionState.line.width = ToolState.selectedWireWidth;
         redrawCanvas();
       }

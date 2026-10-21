@@ -2,23 +2,33 @@ import {HistoryState} from "../../state/HistoryState";
 import {LineState} from "../../state/LineState";
 import {SelectionState} from "../../state/SelectionState";
 import {BoardState} from "../../state/BoardState";
-import {ActiveTool, ToolState} from "../../state/ToolState";
+import {RouteTool, ToolState} from "../../state/ToolState";
 import {ILine} from "../../interfaces/line.interface";
 import {IDot} from "../../interfaces/dot.interface";
-import {type Painter, roundedWireLine, SELECTION_COLOR} from "../../board-render";
+import {type Painter, roundedWireLine, SELECTION_COLOR, SOLDER_COLOR, SOLDER_EDGE, SOLDER_PATH_WIDTH} from "../../board-render";
 import {connectsAt, cutAtWireEnds, mergeNewWire, splitWiresAt} from "../wire-merge";
 import {lineThrough} from "../line-path";
 import {drawStartMarker, ToolBehavior} from "./tool";
 
-type WireTool = Extract<ActiveTool, {kind: "wire"}>;
+// What a wire is besides its route: a solder path, or a jumper with its colour and thickness.
+export type WireStyle = Pick<ILine, "kind" | "color" | "width">;
 
-// Puts a wire in the active colour and thickness from `start` to `end`, bending at `via`, recorded
-// for undo as one step, and returns it (its last piece, if cut). See routeWire.
-export function placeWire(start: IDot, end: IDot, via: IDot[] = []): ILine {
-  const pieces = routeWire([start, ...via, end], {
-    color: ToolState.activeWireColor || "#3b82f6",
-    width: ToolState.selectedWireWidth || 4,
-  });
+// A new wire from a route tool: a solder path, or a jumper in the active colour and thickness.
+export function newWireStyle(tool: RouteTool["kind"]): WireStyle {
+  if (tool === "solder") return {kind: "solder"};
+  return {color: ToolState.activeWireColor || "#3b82f6", width: ToolState.selectedWireWidth || 4};
+}
+
+// The style a wire keeps when it's rerouted.
+export function styleOf(line: ILine): WireStyle {
+  return line.kind === "solder" ? {kind: "solder"} : {color: line.color, width: line.width};
+}
+
+// Puts a wire from `start` to `end`, bending at `via`, recorded for undo as one step, and returns
+// it (its last piece, if cut): a jumper in the active colour and thickness, or with `tool`
+// "solder" a solder path. See routeWire.
+export function placeWire(start: IDot, end: IDot, via: IDot[] = [], tool: RouteTool["kind"] = "wire"): ILine {
+  const pieces = routeWire([start, ...via, end], newWireStyle(tool));
   return pieces[pieces.length - 1];
 }
 
@@ -32,11 +42,12 @@ export interface NewEnds {
 // Puts a wire through `points` (its holes in order: start, bends, end) on the board, recorded for
 // undo as one step, and returns it: in pieces, from its start, if it was cut. A wire ending on
 // another joins it either way round: a wire running over a new end hole is split there, and the
-// new wire is cut wherever it runs over another wire's end. Started or ended at a wire's free end,
-// it carries that wire on instead (mergeNewWire). With `replacing` (a wire being reshaped), that
-// wire comes off the board in the same step and the new one takes its place in the drawing order.
-// A route that starts and ends in one hole places nothing: [] (and `replacing` stays as it was).
-export function routeWire(points: IDot[], style: Pick<ILine, "color" | "width">, replacing?: ILine, newEnds: NewEnds = {start: true, end: true}): ILine[] {
+// new wire is cut wherever it runs over another wire's end (a solder path joins every hole it
+// covers already, so it's never split or cut). Started or ended at a wire's free end, it carries
+// that wire on instead (mergeNewWire). With `replacing` (a wire being reshaped), that wire comes
+// off the board in the same step and the new one takes its place in the drawing order. A route
+// that starts and ends in one hole places nothing: [] (and `replacing` stays as it was).
+export function routeWire(points: IDot[], style: WireStyle, replacing?: ILine, newEnds: NewEnds = {start: true, end: true}): ILine[] {
   const route = points.filter((dot, i) => i === 0 || dot !== points[i - 1]);
   const [start, end] = [route[0], route[route.length - 1]];
   if (route.length < 2 || start === end) return [];
@@ -73,30 +84,44 @@ export function routeWire(points: IDot[], style: Pick<ILine, "color" | "width">,
   return pieces;
 }
 
-// The wire about to be placed through `points` (its holes in order), dashed, bends rounded as the
-// board will draw them. A ring on the last hole when ending there would connect the wire.
-export function drawWirePreview(painter: Painter, points: IDot[], ringEnd = false) {
-  painter.group({opacity: 0.55}, () => painter.line(roundedWireLine(points), {
-    paint: ToolState.activeWireColor || "#3b82f6", width: ToolState.selectedWireWidth || 4, cap: "round", join: "round", dash: [6, 4],
-  }));
+// The wire about to be placed through `points` (its holes in order), dashed, as the board will
+// draw it: a jumper's bends rounded, in the active colour and thickness, or with `tool` "solder" a
+// solder path. A ring on the last hole when ending there would connect the wire.
+export function drawWirePreview(painter: Painter, points: IDot[], ringEnd = false, tool: RouteTool["kind"] = "wire") {
+  painter.group({opacity: 0.55}, () => {
+    if (tool === "solder") {
+      painter.line(points, {paint: SOLDER_EDGE, width: SOLDER_PATH_WIDTH + 3, cap: "round", join: "round"});
+      painter.line(points, {paint: SOLDER_COLOR, width: SOLDER_PATH_WIDTH, cap: "round", join: "round", dash: [6, 4]});
+      return;
+    }
+    painter.line(roundedWireLine(points), {
+      paint: ToolState.activeWireColor || "#3b82f6", width: ToolState.selectedWireWidth || 4, cap: "round", join: "round", dash: [6, 4],
+    });
+  });
   const end = points[points.length - 1];
   if (ringEnd) painter.circle(end.x, end.y, 13, {stroke: {paint: SELECTION_COLOR, width: 2.5}});
 }
 
 // The run so far: its start and the holes it bends at.
-const route = (tool: WireTool): IDot[] => tool.start ? [tool.start, ...(tool.via ?? [])] : [];
+const route = (tool: RouteTool): IDot[] => tool.start ? [tool.start, ...(tool.via ?? [])] : [];
 
 // Places the wire drawn so far, ending at `end`, and selects it.
-function placeRun(tool: WireTool, end: IDot) {
+function placeRun(tool: RouteTool, end: IDot) {
   if (!tool.start) return;
-  SelectionState.current = {kind: "line", line: placeWire(tool.start, end, tool.via ?? [])};
+  SelectionState.current = {kind: "line", line: placeWire(tool.start, end, tool.via ?? [], tool.kind)};
 }
 
-// A run of wires, one click per hole. A click on a hole the wire would connect to there (a pin, a
-// wire, or a stripboard's strip) ends the wire there, and the next one starts from it; any other
-// hole is a bend. Clicking the last hole again (or Enter) ends the wire there instead and ends the
-// run; clicking the start again before any bend ends the run without a wire.
-export const wireTool: ToolBehavior<WireTool> = {
+// What the status badge calls the wire a route tool makes.
+const NAMES: Record<RouteTool["kind"], {tool: string; run: string; drawing: string}> = {
+  wire: {tool: "Wire Tool", run: "Wiring Run", drawing: "Wiring"},
+  solder: {tool: "Solder Path Tool", run: "Solder Path Run", drawing: "Solder path"},
+};
+
+// A run of wires (or solder paths), one click per hole. A click on a hole the wire would connect to
+// there (a pin, a wire, or a stripboard's strip) ends the wire there, and the next one starts from
+// it; any other hole is a bend. Clicking the last hole again (or Enter) ends the wire there instead
+// and ends the run; clicking the start again before any bend ends the run without a wire.
+const routeTool: ToolBehavior<RouteTool> = {
   onPointerDown(tool, {hoverDot}) {
     if (!hoverDot) return false;
     if (!tool.start) {
@@ -130,25 +155,26 @@ export const wireTool: ToolBehavior<WireTool> = {
   drawPreview(tool, hoverDot, painter) {
     const sofar = route(tool);
     if (!sofar.length) {
-      drawStartMarker(painter, hoverDot, "Start Wire");
+      drawStartMarker(painter, hoverDot, tool.kind === "solder" ? "Start Solder Path" : "Start Wire");
       return;
     }
     if (sofar.includes(hoverDot)) {
       // On the last hole: the wire as it would end there.
-      if (hoverDot === sofar[sofar.length - 1] && sofar.length > 1) drawWirePreview(painter, sofar, true);
+      if (hoverDot === sofar[sofar.length - 1] && sofar.length > 1) drawWirePreview(painter, sofar, true, tool.kind);
       return;
     }
-    drawWirePreview(painter, [...sofar, hoverDot], connectsAt(hoverDot));
+    drawWirePreview(painter, [...sofar, hoverDot], connectsAt(hoverDot), tool.kind);
   },
 
   statusText(tool) {
-    if (!tool.start) return `Wire Tool Armed [Click start pad, or drag pad to pad]`;
+    const names = NAMES[tool.kind];
+    if (!tool.start) return `${names.tool} Armed [Click start pad, or drag pad to pad]`;
     const bends = tool.via?.length ?? 0;
     // On a stripboard every hole but a cut one is on a strip, so a click there connects.
     const bendHint = BoardState.isStripboard ? "Drag pad to pad for an L" : "Click empty holes to bend";
     return bends
-      ? `Wiring, ${bends} bend${bends === 1 ? "" : "s"} [Click a pin or wire to connect • Last hole again or Enter to end there • Esc removes a bend]`
-      : `Wiring Run [Click a pin or wire to connect • ${bendHint} • Same pad or Esc to end run]`;
+      ? `${names.drawing}, ${bends} bend${bends === 1 ? "" : "s"} [Click a pin or wire to connect • Last hole again or Enter to end there • Esc removes a bend]`
+      : `${names.run} [Click a pin or wire to connect • ${bendHint} • Same pad or Esc to end run]`;
   },
 
   // Escape takes back the last bend, then ends the run (leaving the wire tool armed, so ending a
@@ -173,3 +199,6 @@ export const wireTool: ToolBehavior<WireTool> = {
     return true;
   },
 };
+
+export const wireTool: ToolBehavior<Extract<RouteTool, {kind: "wire"}>> = routeTool;
+export const solderTool: ToolBehavior<Extract<RouteTool, {kind: "solder"}>> = routeTool;

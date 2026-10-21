@@ -6,6 +6,7 @@ import {LEAD_TIP_Y, paintedTexture, SceneKit, textPlane} from "./scene-kit";
 import {ViewerStandardPart} from "./project-data";
 import {formatComponentValue, parseComponentValue} from "../parts/component-value";
 import {getCeramicCapacitorCode, getResistorBandColors} from "../parts/component-value-codes";
+import {ledPaint} from "../parts/component-definitions";
 
 // Every two-lead part is modelled in a local frame where the start hole is the origin and the
 // end hole lies on +x, then the frame is swung onto the real hole positions. So "-x side"
@@ -253,12 +254,6 @@ function buildElectrolyticCapacitor(kit: SceneKit, span: number, value?: string)
   return group;
 }
 
-const LED_COLORS: Record<string, string> = {
-  red: "#ef4444",
-  green: "#22c55e",
-  blue: "#3b82f6",
-  yellow: "#facc15",
-};
 
 // diameter: 5 for a standard T-1¾ LED, 3 for a T-1. The body scales with it.
 function buildLed(kit: SceneKit, span: number, color?: string, diameter = 5): Group {
@@ -294,7 +289,7 @@ function buildLed(kit: SceneKit, span: number, color?: string, diameter = 5): Gr
     });
     material = new MeshPhysicalMaterial({map: stripes, emissiveMap: stripes, emissive: "#ffffff", emissiveIntensity: 0.3, roughness: 0.12, clearcoat: 1, transparent: true, opacity: 0.85});
   } else if (color) {
-    const tint = LED_COLORS[color] ?? color;
+    const tint = ledPaint(color) ?? color;
     material = new MeshPhysicalMaterial({color: tint, emissive: tint, emissiveIntensity: 0.3, roughness: 0.12, clearcoat: 1, transparent: true, opacity: 0.8});
   } else {
     // No color picked: a water-clear 5mm LED.

@@ -104,6 +104,13 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+@media (min-width: 769px) and (max-width: 1000px) {
+  .brand-title {
+    display: none;
+  }
 }
 
 /* Header dropdown menus (File, View) */
@@ -113,6 +120,7 @@ body {
   gap: 0.25rem;
   margin-left: 1.5rem;
   margin-right: auto;
+  min-width: 0;
 }
 
 .menu {
@@ -421,13 +429,19 @@ button.menu-trigger[aria-expanded="true"] {
   display: none;
 }
 
-/* Wire arm button - arms wire placement, matching how components/ICs are armed */
+/* Wire and solder path arm buttons - arm wire placement, matching how components/ICs are armed */
+.wire-arm-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
 .wire-arm-btn {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   justify-content: center;
   gap: 0.5rem;
   font-weight: 600;
-  margin-bottom: 0.75rem;
 }
 
 .tool-mode-grid .tool-mode-btn {
@@ -1313,6 +1327,185 @@ body.fullscreen-active .right-sidebar {
 }
 
 /* Share Link dialog */
+.custom-part-card {
+  max-width: 720px;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #9ca3af;
+}
+
+.custom-part-colors,
+.custom-part-fill {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.custom-part-fill .btn {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.78rem;
+}
+
+button.custom-part-color {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+}
+
+button.custom-part-color[aria-checked="true"] {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px var(--accent-blue);
+}
+
+.custom-part-grid-scroll {
+  max-height: 45vh;
+  overflow: auto;
+  padding: 0.25rem;
+}
+
+/* The module's board as the grid of its holes, in its colour (set inline). */
+.custom-part-grid {
+  display: inline-grid;
+  gap: 4px;
+  padding: 8px;
+  border: 2px solid #94a3b8;
+  border-radius: 6px;
+}
+
+button.custom-part-hole {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 2px dashed rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  color: #0b1120;
+  font-family: monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+button.custom-part-hole:hover {
+  border-color: #ffffff;
+  transform: none;
+}
+
+button.custom-part-hole.is-pin {
+  border: 2px solid #8a6a22;
+  background: #e8d296;
+}
+
+button.custom-part-hole.is-first {
+  background: #38bdf8;
+  border-color: #0369a1;
+}
+
+.custom-part-pins {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.4rem;
+}
+
+.custom-part-pins:empty::before {
+  content: "No pins yet: click holes above.";
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.custom-part-pins label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.custom-part-pins .pin-num {
+  text-align: right;
+}
+
+.custom-part-pins input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.82rem;
+}
+
+.part-list-card {
+  max-width: 820px;
+}
+
+.part-list-scroll {
+  max-height: 60vh;
+  overflow: auto;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+}
+
+.part-list-table {
+  width: 100%;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.part-list-table th {
+  position: sticky;
+  top: 0;
+  padding: 0.5rem 0.65rem;
+  background: #1f2937;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.part-list-table td {
+  padding: 0.45rem 0.65rem;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+/* A narrow screen scrolls the table sideways rather than squeezing it. */
+.part-list-card .modal-footer button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.part-list-table .part-list-ref {
+  font-family: monospace;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.part-list-table .part-list-muted {
+  color: var(--text-muted);
+}
+
+.part-list-table .part-list-number {
+  text-align: right;
+}
+
+.part-list-table tbody tr.is-clickable {
+  cursor: pointer;
+}
+
+.part-list-table tbody tr.is-clickable:hover,
+.part-list-table tbody tr.is-clickable:focus-visible {
+  background: var(--bg-hover);
+  outline: none;
+}
+
 .share-card {
   max-width: 560px;
 }
@@ -2062,6 +2255,7 @@ body:not([data-sel-actions~="value"]) [data-action="value"],
 body:not([data-sel-actions~="note"]) [data-action="note"],
 body:not([data-sel-actions~="delete"]) [data-action="delete"],
 body:not([data-sel-actions~="wire"]) #selectionBar [data-action="wire"],
+body:not([data-sel-actions~="solder"]) #selectionBar [data-action="solder"],
 .context-menu button[hidden] {
   display: none;
 }

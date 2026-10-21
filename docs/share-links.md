@@ -148,9 +148,24 @@ https://perfboarddesigner.com/app/#name=LED%20blinker&p=led-blinker
 
 ## The project file
 
+Version 8 adds optional `requirements`: independent intended `nets` containing
+`{componentId, pin}` terminals, an explicit `unused` terminal list, component/pin snapshots
+(`components`) and an opt-in `validate` flag.
+All terminals refer to stable component identities, not editable reference names. Snapshots
+keep missing components/pins reportable; unspecified terminals are unchecked rather than unused.
+Invalid or overlapping requirement assignments reject the import instead of silently dropping
+constraints. Board edits must preserve intended nets; adding a component extends the shared
+inventory without assigning new connections.
+
+Version 7 adds a project-scoped `instanceId` to each placed part. Older readers skip it, so it
+doesn't need a newer version on its own. A top-level `schematic` field, written by older editors,
+is ignored.
+
 A share link carries the same project file as **File → Save Project to File**. Every version
-opens, but write the current one, version 4 (version 3 is the same without bent wires, and is
-fine for a board without them). It's documented field by field in
+opens, but write the oldest one that holds your board: version 8 with requirements,
+else version 6 with a custom module, else 5
+with a solder path, else 4 if a wire bends, else 3 (the same without any of them), which older
+editors open too. It's documented field by field in
 [`src/project-file/project-file.ts`](../src/project-file/project-file.ts). In short:
 
 - Positions are `[column, row]` grid holes counted from the **top-left hole**, both starting at 0.
@@ -161,14 +176,20 @@ fine for a board without them). It's documented field by field in
   a label: it doesn't connect anything.
 - `wires`: `{"from": [c, r], "to": [c, r]}`, with optional `color` (`"#rrggbb"`) and `width`. A
   wire joins only its two end holes. With `"via": [[c, r], ...]` (version 4) it bends at those
-  holes on its way, in order; a bend joins nothing.
+  holes on its way, in order; a bend joins nothing. With `"kind": "solder"` (version 5) it's a
+  solder path instead: a trail of solder on the copper side, with no `color` or `width`, that
+  joins every hole it runs over (ends, bends and the holes between) and any solder path it
+  touches.
 - `placedStandardComponents`: two-lead parts placed between two holes: `definitionId`, `from`,
   `to`, optional `value` (`"10k"`, `"100n"`) and `color` (LEDs). On polarized parts, `from` is
   an LED's cathode, a diode's anode and an electrolytic capacitor's − lead (`leadLabels` in the
   definitions).
 - `placedAdvancedComponents`: fixed-footprint parts: `definitionId`, the anchor pin `at`,
   `rotation` (0, 90, 180 or 270), `rows` and `cols` (1 except for sizable parts such as header
-  pins), optional `value`.
+  pins), optional `value`. A user-made module has `"definitionId": "custom"` and carries the
+  whole part in `custom` (version 6): `name`, optional `refPrefix`, its size in holes `cols` and
+  `rows`, its `pins` in order as `{"at": [c, r], "label": "VCC"}` (holes within the body from its
+  top-left hole; pin 1 is the anchor `at`) and an optional `color`.
 - `placedIcs`: DIP chips and dual-row modules: `name`, `at` (top-left pin), `widthPin` (columns
   including both pin rows, 4 for a 0.3" DIP), `heightPin` (pins per side), `rotation`, and
   `pinDescription` (`{"1": "GND", "2": "TRIG", ...}`, numbered counter-clockwise from pin 1).
@@ -177,7 +198,7 @@ fine for a board without them). It's documented field by field in
   automatically.
 
 The reader is forgiving: empty lists can be left out, a file without `version` that has a `board`
-is read as version 4, and entries it can't read are skipped (and counted) instead of failing the
+is read as version 8, and board entries it can't read are skipped (and counted) instead of failing the
 whole project.
 
 The `definitionId`s, with each part's pins, are in

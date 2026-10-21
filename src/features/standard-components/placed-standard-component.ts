@@ -18,6 +18,7 @@ const END_HIT_PAD = 6;
 
 export class PlacedStandardComponent implements PlacedPart {
   public ref = "";
+  public instanceId: string = crypto.randomUUID();
   public value?: string;
   public color?: string;
 
@@ -54,6 +55,7 @@ export class PlacedStandardComponent implements PlacedPart {
   serialize(): SavedStandardComponent {
     return {
       ref: this.ref,
+      instanceId: this.instanceId,
       definitionId: this.definitionId,
       from: toGridPos(this.startDot),
       to: toGridPos(this.endDot),

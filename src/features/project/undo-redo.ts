@@ -7,6 +7,7 @@ import {IChange} from "../../interfaces/change.interface";
 import {ILine} from "../../interfaces/line.interface";
 import {addToBoard, takeOffBoard} from "../placed-parts";
 import {setBoardSetup} from "../board-type";
+import {RequirementsState} from "../../state/RequirementsState";
 
 Utils.getSafeHtmlElement<HTMLButtonElement>('backBtn').addEventListener('click', function() {
 undo();
@@ -25,6 +26,15 @@ function indexOfLine(line: ILine): number {
 // was before it. A move isn't expressible as an add or a remove, hence the direction rather than
 // the change's own type driving this.
 function applyChange(change: IChange, direction: "apply" | "revert") {
+  if (change.kind === "batch") {
+    const changes = direction === "apply" ? change.changes : [...change.changes].reverse();
+    for (const item of changes) applyChange(item, direction);
+    return;
+  }
+  if (change.kind === "requirements") {
+    RequirementsState.current = direction === "apply" ? change.to : change.from;
+    return;
+  }
   if (change.kind === "board") {
     setBoardSetup(direction === "apply" ? change.to : change.from);
     return;

@@ -13,9 +13,11 @@ function findLineAt(x: number, y: number): ILine | undefined {
   let closest: ILine | undefined;
   let closestDistance = GridConfig.lineSelectTolerance;
   for (const line of LineState.lines) {
-    // How close, not just whether it's within tolerance, so the nearest wire wins.
+    // How close, not just whether it's within tolerance, so the nearest wire wins: a jumper on a
+    // tie, since it's drawn over the solder paths.
     const distance = distanceToLine(x, y, line);
-    if (distance < closestDistance) {
+    const jumperOverSolder = distance === closestDistance && closest?.kind === "solder" && line.kind !== "solder";
+    if (distance < closestDistance || jumperOverSolder) {
       closest = line;
       closestDistance = distance;
     }

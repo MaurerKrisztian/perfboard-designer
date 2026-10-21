@@ -22,13 +22,17 @@ function isPinDot(dot: IDot): boolean {
   return PartState.parts.some(part => part.getPinPositions().some(p => dotsEqual(p, dot)));
 }
 
-// Splits every wire running over `dot` (passing over it, or bending over it) into two that end
-// there, so a wire ending on another joins it (a wire only connects the holes at its ends). The
-// split wires are swapped for their halves in LineState.lines; the caller records the history.
+const isSolder = (line: ILine) => line.kind === "solder";
+
+// Splits every jumper running over `dot` (passing over it, or bending over it) into two that end
+// there, so a wire ending on another joins it (a jumper only connects the holes at its ends; a
+// solder path joins every hole it covers, so it's left whole). The split wires are swapped for
+// their halves in LineState.lines; the caller records the history.
 export function splitWiresAt(dot: IDot): {removed: ILine[]; added: ILine[]} {
   const removed: ILine[] = [];
   const added: ILine[] = [];
   for (const line of [...LineState.lines]) {
+    if (isSolder(line)) continue;
     const halves = splitLine(line, dot);
     if (!halves) continue;
     LineState.lines.splice(LineState.lines.indexOf(line), 1);
@@ -41,8 +45,10 @@ export function splitWiresAt(dot: IDot): {removed: ILine[]; added: ILine[]} {
 
 // `line` cut into pieces at every hole it passes over where another wire ends, so it joins those
 // wires as well (the other way round from splitWiresAt). In order from its start; just `line` when
-// it passes over no wire end. Nothing in LineState.lines changes.
+// it passes over no wire end, or is a solder path (which joins them already). Nothing in
+// LineState.lines changes.
 export function cutAtWireEnds(line: ILine): ILine[] {
+  if (isSolder(line)) return [line];
   const cuts = new Map<string, {dot: IDot; along: number}>();
   for (const other of LineState.lines) {
     for (const end of [other.start, other.end]) {
@@ -75,12 +81,12 @@ function isStripHole(dot: IDot): boolean {
 
 const widthOf = (line: ILine) => line.width || DEFAULT_WIRE_WIDTH;
 
-// Where `newLine` starts or ends (at an end `ends` says is new) at the free end of a wire of the same colour and width (one
-// ending in a hole with nothing else: no pin, no strip, no other wire), it carries that wire on
-// rather than making a joint there: the two become one wire, which bends where they met (or runs
-// straight through, if they line up). The absorbed wires are removed from LineState.lines; the
-// caller records one history entry for the whole placement and pushes the returned line in place
-// of `newLine`.
+// Where `newLine` starts or ends (at an end `ends` says is new) at the free end of a wire of the
+// same kind (a jumper of the same colour and width, or a solder path), one ending in a hole with
+// nothing else (no pin, no strip, no other wire), it carries that wire on rather than making a
+// joint there: the two become one wire, which bends where they met (or runs straight through, if
+// they line up). The absorbed wires are removed from LineState.lines; the caller records one
+// history entry for the whole placement and pushes the returned line in place of `newLine`.
 export function mergeNewWire(newLine: ILine, ends = {start: true, end: true}): {line: ILine; absorbed: ILine[]} {
   const absorbed: ILine[] = [];
   const continued = (dot: IDot, isNew: boolean): ILine | undefined => {
@@ -89,6 +95,8 @@ export function mergeNewWire(newLine: ILine, ends = {start: true, end: true}): {
     const ending = LineState.lines.filter(line => dotsEqual(line.start, dot) || dotsEqual(line.end, dot));
     const [line] = ending;
     if (ending.length !== 1 || absorbed.includes(line) || dotsEqual(line.start, line.end)) return undefined;
+    if (!isSolder(newLine) && LineState.lines.some(other => isSolder(other) && distanceAlong(other, dot) !== undefined)) return undefined;
+    if (isSolder(line) || isSolder(newLine)) return isSolder(line) && isSolder(newLine) ? line : undefined;
     return sameColor(line.color, newLine.color) && widthOf(line) === widthOf(newLine) ? line : undefined;
   };
   // `line`'s holes in order, running into `dot` (its last point).

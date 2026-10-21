@@ -12,6 +12,9 @@ export const HOLE_COLOR = "#0a170b";
 // Solder: in each hole that gets some, and the blobs of the solder side view.
 export const SOLDER_COLOR = "#d6dbe1";
 export const SOLDER_EDGE = "#1e293b";
+// A solder path's trail of solder from pad to pad: narrower than a pad, so the beads on the pads
+// show along it.
+export const SOLDER_PATH_WIDTH = 9;
 
 
 // What's selected, and the edge of a selected part.

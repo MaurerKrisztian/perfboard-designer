@@ -47,6 +47,8 @@ export const editOp = z.discriminatedUnion("op", [
       .describe("With from/to: the holes the wire bends at on its way, in order, to route it around things as one wire. A bend joins nothing, like a hole the wire passes over, so it's soldered only at its two ends."),
     path: z.array(wireEnd).min(2).optional()
       .describe("Instead of from/to: holes (or pins) to run through in order, made into one wire per leg. Each corner is a wire end, so it joins whatever is in that hole. For corners that only bend, use from/to with via."),
+    solder: z.boolean().optional()
+      .describe("true: a solder path instead of a jumper wire, a trail of solder on the copper side, made as one path (a `path`'s corners and any `via` are its bends). Bare solder joins every hole it runs over, ends, bends and all, and every solder path it touches: run it only over holes it should connect. No color or width."),
     color: z.string().optional(),
     width: z.number().positive().optional(),
   }),

@@ -1,7 +1,7 @@
 import {GridPos} from "./grid";
 import {ProjectFile} from "./project-file";
 import {getComponentDefinition} from "../parts/component-definitions";
-import {getAdvancedComponentDefinition} from "../parts/advanced-component-definitions";
+import {advancedDefinitionFor} from "../parts/custom-parts";
 import {advancedPartShape, BODY_PAD, boxAround, GridBox, GridPoint, icPins} from "../parts/part-geometry";
 import {PartKind} from "./part-refs";
 
@@ -22,7 +22,7 @@ export type Box = GridBox;
 export interface PartPins {
   ref: string;
   kind: PartKind;
-  // definitionId, or a chip's name.
+  // definitionId, or a chip's or a custom part's name.
   part: string;
   known: boolean;
   pins: PlacedPin[];
@@ -35,7 +35,7 @@ export interface PartPins {
 
 const hole = (p: GridPoint): GridPos => [Math.round(p.x), Math.round(p.y)];
 
-export function partPins(project: ProjectFile): PartPins[] {
+export function partPins(project: Pick<ProjectFile, "placedIcs" | "placedStandardComponents" | "placedAdvancedComponents">): PartPins[] {
   const parts: PartPins[] = [];
 
   for (const ic of project.placedIcs) {
@@ -63,14 +63,14 @@ export function partPins(project: ProjectFile): PartPins[] {
   }
 
   for (const part of project.placedAdvancedComponents) {
-    const def = getAdvancedComponentDefinition(part.definitionId);
+    const def = advancedDefinitionFor(part);
     if (!def) {
       parts.push({ref: part.ref, kind: "advanced-component", part: part.definitionId, known: false, pins: [{pin: 1, at: part.at}], coveredHoles: []});
       continue;
     }
     const shape = advancedPartShape(def, part);
     parts.push({
-      ref: part.ref, kind: "advanced-component", part: part.definitionId, known: true,
+      ref: part.ref, kind: "advanced-component", part: part.custom?.name ?? part.definitionId, known: true,
       pins: shape.pins.map((p, i) => ({pin: i + 1, ...(!def.gridSizable && def.pinLabels?.[i] ? {label: def.pinLabels[i]} : {}), at: hole(p)})),
       coveredHoles: shape.covered.map(hole),
       body: shape.body,

@@ -2,10 +2,13 @@ import {ILine} from "./line.interface";
 import {IDot} from "./dot.interface";
 import type {Part} from "./placed-part.interface";
 import type {BoardSetup} from "../state/BoardState";
+import type {CircuitRequirements} from "../project-file/requirements";
 
 // A drag records the part's anchor dots before and after (see PlacedPart.getAnchorDots), so one
 // from/to shape covers every kind of part.
 export type IChange =
+  | {type: "set"; kind: "requirements"; from?: CircuitRequirements; to?: CircuitRequirements}
+  | {type: "batch"; kind: "batch"; changes: IChange[]}
   | { type: "add" | "remove"; kind: "line"; line: ILine }
   // Placing a wire changed others too: it split the wires it ends on (so it joins them), or folded
   // same-color collinear wires into itself. Recorded as one entry so undo/redo treats the whole

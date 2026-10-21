@@ -5,16 +5,20 @@ import {toGridPos} from "../../project-file/grid";
 import {GridConfig} from "../../state/GridConfig";
 import {Point} from "../../interfaces/point.interface";
 import {AdvancedGeometry, advancedPartGeometry, Rect} from "../../board-render";
-import {AdvancedComponentDefinition, getAdvancedComponentDefinition} from "../../parts/advanced-component-definitions";
+import {AdvancedComponentDefinition} from "../../parts/advanced-component-definitions";
+import {advancedDefinitionFor, CustomPartSpec} from "../../parts/custom-parts";
 
 export class PlacedAdvancedComponent implements PlacedPart {
   public ref = "";
+  public instanceId: string = crypto.randomUUID();
   public value?: string;
   public rotationAngle: 0 | 90 | 180 | 270 = 0;
   // Only meaningful for gridSizable definitions; 1x1 keeps every fixed-geometry part - and
   // every project saved before header pins existed - behaving exactly as before.
   public rows = 1;
   public cols = 1;
+  // A user-made part's own definition (SavedAdvancedComponent.custom); its definitionId is "custom".
+  public custom?: CustomPartSpec;
 
   constructor(
     public definitionId: string,
@@ -36,7 +40,7 @@ export class PlacedAdvancedComponent implements PlacedPart {
   }
 
   getDefinition(): AdvancedComponentDefinition | undefined {
-    return getAdvancedComponentDefinition(this.definitionId);
+    return advancedDefinitionFor(this);
   }
 
   // Where its pins, covered holes and body are, worked out as the board renderer draws it.
@@ -47,6 +51,7 @@ export class PlacedAdvancedComponent implements PlacedPart {
       rotation: this.rotationAngle,
       rows: this.rows,
       cols: this.cols,
+      custom: this.custom,
     });
   }
 
@@ -87,12 +92,14 @@ export class PlacedAdvancedComponent implements PlacedPart {
   serialize(): SavedAdvancedComponent {
     return {
       ref: this.ref,
+      instanceId: this.instanceId,
       definitionId: this.definitionId,
       at: toGridPos(this.anchorDot),
       rotation: this.rotationAngle,
       rows: this.rows,
       cols: this.cols,
       ...(this.value ? {value: this.value} : {}),
+      ...(this.custom ? {custom: this.custom} : {}),
     };
   }
 

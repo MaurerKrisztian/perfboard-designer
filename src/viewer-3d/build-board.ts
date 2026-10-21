@@ -4,7 +4,7 @@ import {
 } from "three";
 import {BOARD_BOTTOM_Y, BOARD_THICKNESS, BoardFrame, PITCH, PX_PER_PITCH, SceneKit} from "./scene-kit";
 import {CUT_GAP_PITCH, STRIP_WIDTH_PITCH} from "../project-file/stripboard-geometry";
-import {ViewerBoard, ViewerDot, ViewerProject} from "./project-data";
+import {ViewerBoard, ViewerDot, ViewerProject, ViewerSolderPath} from "./project-data";
 import {archSamples, WirePath, WirePoint, wireRadius} from "./wire-paths";
 
 const PERFBOARD_COLOR = "#0e5a27";
@@ -128,6 +128,25 @@ export function buildBoard(kit: SceneKit, project: ViewerProject): Group {
   } else {
     group.add(buildSlab(frame, PERFBOARD_COLOR));
     group.add(buildPadsAndHoles(frame, dots, true));
+  }
+  return group;
+}
+
+// A solder path's trail between its holes: a rod this thick, squashed flat against the copper.
+const SOLDER_PATH_RADIUS = 0.5;
+const SOLDER_PATH_FLATTEN = 0.45;
+
+/** Solder paths on the bottom face: a flattened trail of solder from hole to hole, and a joint on
+ *  every hole it covers (registered with the kit, for buildSolderJoints). */
+export function buildSolderPaths(kit: SceneKit, paths: ViewerSolderPath[]): Group {
+  const group = new Group();
+  const material = kit.standard("solder", {color: "#d7dbe0", metalness: 1, roughness: 0.22});
+  for (const path of paths) {
+    const trail = kit.bentWire(path.points.map(p => kit.frame.point(p.x, p.y, 0)), SOLDER_PATH_RADIUS, material);
+    trail.scale.y = SOLDER_PATH_FLATTEN;
+    trail.position.y = BOARD_BOTTOM_Y - SURFACE_LIFT;
+    group.add(trail);
+    for (const hole of path.holes) kit.solder(hole.x, hole.y);
   }
   return group;
 }

@@ -10,6 +10,7 @@ import {SelectionState} from "../state/SelectionState";
 import {updateSelectionStatus} from "./selection-status";
 import {axisOf, cancelWireDrag, flipWireDrag, startWireDrag, wireDragStartDot} from "./wire-drag";
 import {IDot} from "../interfaces/dot.interface";
+import {ILine} from "../interfaces/line.interface";
 import {ViewState} from "../state/ViewState";
 import {applyZoomAnchored, clampZoom, getCurrentZoom} from "./view-controls";
 
@@ -25,7 +26,8 @@ import {applyZoomAnchored, clampZoom, getCurrentZoom} from "./view-controls";
 //   it's on a hole; dragged on from there without lifting, it draws a wire to the hole it's lifted
 //   on, an L bending the way it went first (wire-drag.ts), which a second finger's tap flips;
 // - on the selected wire's handles (wire-reshape.ts), one finger dragged bends the wire instead of
-//   panning, and a double tap on a bend takes it out.
+//   panning, held still first or not (holding opens the context menu, which dragging on closes),
+//   and a double tap on a bend takes it out.
 
 const TAP_SLOP = 10;
 const LONG_PRESS_MS = 500;
@@ -34,8 +36,9 @@ type Gesture =
   // One finger, not yet moved: a tap, drag or long press. `wireFrom` is the hole it's on, `grip`
   // the selected wire's handle it's on (a drag there bends the wire).
   | {kind: "press"; down: PointerEvent; wireFrom?: IDot; grip?: WireGrip}
-  // Held long enough to open the context menu, and still down: moving on draws a wire.
-  | {kind: "held"; down: PointerEvent; wireFrom?: IDot}
+  // Held long enough to open the context menu, and still down: moving on draws a wire, or on the
+  // selected wire's handle (`grip`, of wire `line`) bends it.
+  | {kind: "held"; down: PointerEvent; wireFrom?: IDot; grip?: WireGrip; line?: ILine}
   // Drawing a wire, by finger `pointerId` (another finger only flips its L).
   | {kind: "wire"; pointerId: number}
   | {kind: "pan"}
@@ -99,8 +102,11 @@ Canvas.c.addEventListener('pointerdown', (e) => {
     longPressTimer = window.setTimeout(() => {
       if (gesture?.kind !== "press") return;
       cancelDrag();
+      // The menu selects what's under the finger, which on a hole is the hole: keep the wire the
+      // handle belongs to, to bend it if the finger moves on.
+      const line = gesture.grip ? SelectionState.line : undefined;
       openContextMenuAt(gesture.down);
-      gesture = {kind: "held", down: gesture.down, wireFrom: gesture.wireFrom};
+      gesture = {kind: "held", down: gesture.down, wireFrom: gesture.wireFrom, grip: gesture.grip, line};
       swallowClick = true;
     }, LONG_PRESS_MS);
     return;
@@ -128,6 +134,14 @@ Canvas.c.addEventListener('pointerdown', (e) => {
   }
 });
 
+// Starts bending the selected wire by `grip`, from the hole under the finger at e.
+function beginReshape(e: PointerEvent, grip: WireGrip) {
+  hoverAt(e);
+  startReshape(grip, DotState.hoverDot);
+  gesture = {kind: "reshape"};
+  redrawCanvas();
+}
+
 Canvas.c.addEventListener('pointermove', (e) => {
   const finger = fingers.get(e.pointerId);
   if (!finger || !gesture) return;
@@ -136,12 +150,17 @@ Canvas.c.addEventListener('pointermove', (e) => {
   if (gesture.kind === "wire" && e.pointerId !== gesture.pointerId) return;
 
   if (gesture.kind === "held") {
-    const {down, wireFrom} = gesture;
-    if (!wireFrom || Math.hypot(e.clientX - down.clientX, e.clientY - down.clientY) < TAP_SLOP) return;
+    const {down, wireFrom, grip, line} = gesture;
+    if ((!wireFrom && !grip) || Math.hypot(e.clientX - down.clientX, e.clientY - down.clientY) < TAP_SLOP) return;
     hideContextMenu();
-    // The wire bends the way the finger went first.
-    startWireDrag(wireFrom, axisOf(e.clientX - down.clientX, e.clientY - down.clientY));
-    gesture = {kind: "wire", pointerId: e.pointerId};
+    if (grip && line) {
+      SelectionState.current = {kind: "line", line};
+      beginReshape(e, grip);
+    } else if (wireFrom) {
+      // The wire bends the way the finger went first.
+      startWireDrag(wireFrom, axisOf(e.clientX - down.clientX, e.clientY - down.clientY));
+      gesture = {kind: "wire", pointerId: e.pointerId};
+    }
   }
 
   if (gesture.kind === "press") {
@@ -149,10 +168,7 @@ Canvas.c.addEventListener('pointermove', (e) => {
     if (Math.hypot(e.clientX - down.clientX, e.clientY - down.clientY) < TAP_SLOP) return;
     clearLongPress();
     if (gesture.grip) {
-      hoverAt(e);
-      startReshape(gesture.grip, DotState.hoverDot);
-      gesture = {kind: "reshape"};
-      redrawCanvas();
+      beginReshape(e, gesture.grip);
     } else if (DragState.target) {
       gesture = {kind: "drag"};
     } else {

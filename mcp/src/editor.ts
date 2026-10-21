@@ -9,7 +9,7 @@ export {GRID_PITCH_PX, type GridPos} from "../../src/project-file/grid";
 export {
   fileVersionFor, PROJECT_FILE_VERSION, type ProjectFile, type Rotation, type SavedIc, type SavedWire,
 } from "../../src/project-file/project-file";
-export {wireLegs, wirePoints} from "../../src/project-file/wire-path";
+export {holesAlong, isSolderPath, solderPathHoles, wireLegs, wirePoints} from "../../src/project-file/wire-path";
 export {ProjectFileError, readProjectFile} from "../../src/project-file/read-project-file";
 export {BoardRefs, isValidRef, type PartKind} from "../../src/project-file/part-refs";
 export {isModuleCategory, isModulePart} from "../../src/parts/ic-package";
@@ -17,7 +17,7 @@ export {type Box, partPins, type PartPins, type PlacedPin} from "../../src/proje
 export {
   boardPins, comparePins, computeNets, isPowerNet, type Net, type Netlist, type NetPin, pinId, pinName,
 } from "../../src/project-file/nets";
-export {holesAlong, layoutProjectWires, type WireLayout} from "../../src/project-file/wire-crossings";
+export {layoutProjectWires, type WireLayout} from "../../src/project-file/wire-crossings";
 export {
   decodeEmbeddedProject, makeHostedShareFragment, makeShareFragment, makeStoredShareFragment, MAX_SHARED_PROJECT_BYTES,
   readShareFragment, STORED_ID, STORED_PROJECTS_URL,
@@ -32,4 +32,7 @@ export {
   ADVANCED_COMPONENT_DEFINITIONS, type AdvancedComponentDefinition, type PinOffset,
 } from "../../src/parts/advanced-component-definitions";
 export {IC_DEFINITIONS, type IcDefinition} from "../../src/parts/ic-definitions";
+export {CUSTOM_PART_ID} from "../../src/parts/custom-parts";
 export {CATALOG_CATEGORIES, type CategoryId, getCategoryPath} from "../../src/parts/catalog-categories";
+export {ensureComponentIds} from "../../src/project-file/component-ids";
+export {includeRequiredComponents, validateRequirements} from "../../src/project-file/requirements";

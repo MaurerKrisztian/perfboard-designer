@@ -4,6 +4,9 @@ import {
   SavedPerfboard, SavedStandardComponent, SavedWire
 } from "./project-file";
 import {BoardRefs, refPrefixFor} from "./part-refs";
+import {CUSTOM_PART_ID, CustomPartPin, CustomPartSpec, MAX_CUSTOM_PART_SIDE} from "../parts/custom-parts";
+import {ensureComponentIds} from "./component-ids";
+import {readRequirements} from "./requirements";
 
 // Reads any version of a project file into the current ProjectFile shape. Pure: no DOM and no
 // editor state, so the editor (file and localStorage loads) and the 3D viewer share it.
@@ -71,6 +74,38 @@ function readCustomIc(entry: Entry): SavedCustomIc | undefined {
     heightPin,
     pinDescription: pinLabels(entry.pinDescription),
     ...(typeof entry.category === "string" ? {category: entry.category} : {}),
+  };
+}
+
+const REF_PREFIX = /^[A-Za-z]{1,4}$/;
+const MAX_LABEL_LENGTH = 24;
+
+// A custom part's definition (SavedAdvancedComponent.custom), or undefined if it can't be one: a
+// body of 1 to MAX_CUSTOM_PART_SIDE holes a side and at least one pin, each in its own hole of it.
+export function readCustomPart(value: unknown): CustomPartSpec | undefined {
+  const entry = asEntry(value);
+  const cols = entry && wholeCount(entry.cols);
+  const rows = entry && wholeCount(entry.rows);
+  if (!entry || !cols || !rows || cols > MAX_CUSTOM_PART_SIDE || rows > MAX_CUSTOM_PART_SIDE || !Array.isArray(entry.pins)) return undefined;
+  const pins: CustomPartPin[] = [];
+  const taken = new Set<string>();
+  for (const item of entry.pins) {
+    const pin = asEntry(item);
+    const at = pin && Array.isArray(pin.at) && pin.at.length === 2 ? pin.at : undefined;
+    const [col, row] = at ?? [];
+    if (!Number.isInteger(col) || !Number.isInteger(row) || col < 0 || row < 0 || col >= cols || row >= rows) return undefined;
+    if (taken.has(`${col},${row}`)) return undefined;
+    taken.add(`${col},${row}`);
+    const label = text(pin?.label)?.trim().slice(0, MAX_LABEL_LENGTH);
+    pins.push({at: [col, row], ...(label ? {label} : {})});
+  }
+  if (!pins.length) return undefined;
+  const refPrefix = typeof entry.refPrefix === "string" && REF_PREFIX.test(entry.refPrefix) ? entry.refPrefix.toUpperCase() : undefined;
+  const color = text(entry.color)?.trim().slice(0, 32);
+  const id = text(entry.id)?.slice(0, 64);
+  return {
+    ...(id ? {id} : {}), name: text(entry.name)?.trim().slice(0, 60) || "Custom Module",
+    ...(refPrefix ? {refPrefix} : {}), cols, rows, pins, ...(color ? {color} : {}),
   };
 }
 
@@ -186,6 +221,7 @@ class Reader {
 
   result(board: SavedBoard, project: Omit<ProjectFile, "version" | "board">): ReadProjectResult {
     giveEveryPartARef(project);
+    ensureComponentIds(project, true);
     return {project: {version: fileVersionFor(project), board, ...project}, skipped: this.skipped};
   }
 }
@@ -197,7 +233,7 @@ function giveEveryPartARef(project: Pick<ProjectFile, "placedIcs" | "placedStand
   const parts = [
     ...project.placedIcs.map(entry => ({entry, kind: "ic" as const, definitionId: undefined})),
     ...project.placedStandardComponents.map(entry => ({entry, kind: "standard-component" as const, definitionId: entry.definitionId})),
-    ...project.placedAdvancedComponents.map(entry => ({entry, kind: "advanced-component" as const, definitionId: entry.definitionId})),
+    ...project.placedAdvancedComponents.map(entry => ({entry, kind: "advanced-component" as const, definitionId: entry.definitionId, custom: entry.custom})),
   ];
   const refs = new BoardRefs();
   const unnamed = parts.filter(({entry}) => !refs.claim(entry.ref));
@@ -208,10 +244,10 @@ function optional<K extends string, V>(key: K, value: V | undefined): {[P in K]?
   return (value === undefined ? {} : {[key]: value}) as {[P in K]?: V};
 }
 
-// Versions 2 to 4: grid positions. Version 3 added the board type (with a stripboard's cuts) and
-// part refs, version 4 bent wires. A version 2 board is always a perfboard, and its parts are given
-// refs on reading.
-function readGridFile(data: Entry, version: 2 | 3 | 4): ReadProjectResult {
+// Versions 2 to 8: grid positions. Version 3 added the board type (with a stripboard's cuts) and
+// part refs, version 4 bent wires, version 5 solder paths, version 6 custom parts. A version 2 board
+// is always a perfboard, and its parts are given refs on reading.
+function readGridFile(data: Entry, version: 2 | 3 | 4 | 5 | 6 | 7 | 8): ReadProjectResult {
   const boardEntry = asEntry(data.board);
   const cols = boardEntry && wholeCount(boardEntry.cols);
   const rows = boardEntry && wholeCount(boardEntry.rows);
@@ -230,6 +266,8 @@ function readGridFile(data: Entry, version: 2 | 3 | 4): ReadProjectResult {
     // The last corner can't be the end hole either.
     const last = via[via.length - 1];
     if (last && last[0] === to[0] && last[1] === to[1]) via.pop();
+    // A solder path is bare solder: no colour or thickness to keep.
+    if (version >= 5 && entry.kind === "solder") return {from, to, ...(via.length ? {via} : {}), kind: "solder"};
     return {
       from, to, ...(via.length ? {via} : {}),
       ...optional("color", text(entry.color)), ...optional("width", positiveNumber(entry.width)),
@@ -242,7 +280,7 @@ function readGridFile(data: Entry, version: 2 | 3 | 4): ReadProjectResult {
     const heightPin = wholeCount(entry.heightPin);
     if (!at || !widthPin || !heightPin) return undefined;
     return {
-      ref: text(entry.ref) ?? "", name: text(entry.name) ?? "Component", widthPin, heightPin,
+      instanceId: text(entry.instanceId), ref: text(entry.ref) ?? "", name: text(entry.name) ?? "Component", widthPin, heightPin,
       rotation: rotation(entry.rotation), pinDescription: pinLabels(entry.pinDescription), at,
       ...(typeof entry.category === "string" ? {category: entry.category} : {}),
     };
@@ -253,23 +291,33 @@ function readGridFile(data: Entry, version: 2 | 3 | 4): ReadProjectResult {
     const from = r.gridPos(entry.from);
     const to = r.gridPos(entry.to);
     if (!definitionId || !from || !to) return undefined;
-    return {ref: text(entry.ref) ?? "", definitionId, from, to, ...optional("value", text(entry.value)), ...optional("color", text(entry.color))};
+    return {instanceId: text(entry.instanceId), ref: text(entry.ref) ?? "", definitionId, from, to, ...optional("value", text(entry.value)), ...optional("color", text(entry.color))};
   });
 
   const placedAdvancedComponents = r.list<SavedAdvancedComponent>(data.placedAdvancedComponents, entry => {
     const definitionId = text(entry.definitionId);
     const at = r.gridPos(entry.at);
     if (!definitionId || !at) return undefined;
+    // A custom part can't be drawn or wired without its definition.
+    const isCustom = version >= 6 && (entry.custom !== undefined || definitionId === CUSTOM_PART_ID);
+    const custom = isCustom ? readCustomPart(entry.custom) : undefined;
+    if (isCustom && !custom) return undefined;
     return {
-      ref: text(entry.ref) ?? "", definitionId, at, rotation: rotation(entry.rotation),
+      instanceId: text(entry.instanceId), ref: text(entry.ref) ?? "", definitionId: custom ? CUSTOM_PART_ID : definitionId, at, rotation: rotation(entry.rotation),
       rows: wholeCount(entry.rows) ?? 1, cols: wholeCount(entry.cols) ?? 1,
-      ...optional("value", text(entry.value)),
+      ...optional("value", text(entry.value)), ...(custom ? {custom} : {}),
     };
   });
 
   const customIcs = r.list(data.customIcs, readCustomIc);
 
-  return r.result(board, {pads, wires, placedIcs, placedStandardComponents, placedAdvancedComponents, customIcs});
+  let requirements;
+  try {
+    requirements = readRequirements(data.requirements);
+  } catch (error) {
+    throw new ProjectFileError(error instanceof Error ? error.message : "Invalid requirements.");
+  }
+  return r.result(board, {pads, wires, placedIcs, placedStandardComponents, placedAdvancedComponents, customIcs, ...(requirements ? {requirements} : {})});
 }
 
 // Version 1: pixel coordinates, every hole listed, and the whole IC catalog (built-ins included).
@@ -347,7 +395,7 @@ export function readProjectFile(raw: unknown): ReadProjectResult {
   // Version 1 never had a `board`, so a file without a version that has one was written by hand
   // (or by a program) to the current format, and only left the version out.
   if (data.version === undefined) return asEntry(data.board) ? readGridFile(data, PROJECT_FILE_VERSION) : readV1(data);
-  if (data.version === 2 || data.version === 3 || data.version === 4) return readGridFile(data, data.version);
+  if (data.version === 2 || data.version === 3 || data.version === 4 || data.version === 5 || data.version === 6 || data.version === 7 || data.version === 8) return readGridFile(data, data.version);
   if (typeof data.version === "number" && data.version > PROJECT_FILE_VERSION) {
     throw new ProjectFileError(
       "This project was saved by a newer version of Perfboard Designer. Reload the page to get the latest version, then open it again."

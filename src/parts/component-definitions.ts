@@ -71,3 +71,29 @@ export function getComponentDefinition(id: string): ComponentDefinition | undefi
 export function isLed(definitionId: string): boolean {
   return getComponentDefinition(definitionId)?.led === true;
 }
+
+// The LED colours the editor offers: what a placed LED's `color` says, what people call it, and
+// the paint it's drawn in (an RGB LED is drawn in stripes instead). Any other `color` is a CSS
+// colour of its own.
+export const LED_COLORS = [
+  {id: "red", label: "Red", paint: "#ef4444"},
+  {id: "green", label: "Green", paint: "#22c55e"},
+  {id: "blue", label: "Blue", paint: "#3b82f6"},
+  {id: "yellow", label: "Yellow", paint: "#facc15"},
+  {id: "rgb", label: "RGB"},
+] as const;
+
+export type LedColor = typeof LED_COLORS[number]["id"];
+
+const ledColor = (color: string) => LED_COLORS.find(c => c.id === color || ("paint" in c && c.paint === color.toLowerCase()));
+
+// The paint a solid LED colour is drawn in; undefined for "rgb" and for any other colour.
+export function ledPaint(color: string): string | undefined {
+  const known = LED_COLORS.find(c => c.id === color);
+  return known && "paint" in known ? known.paint : undefined;
+}
+
+// An LED's colour as people say it: "red", or its paint "#ef4444", is "Red"; any other as given.
+export function ledColorLabel(color: string): string {
+  return ledColor(color)?.label ?? color;
+}

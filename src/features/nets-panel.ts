@@ -7,6 +7,8 @@ import {GridPos} from "../project-file/grid";
 import {ProjectFile, SavedWire} from "../project-file/project-file";
 import {NetHighlightState} from "../state/NetHighlightState";
 import {ProjectState} from "../state/ProjectState";
+import {requirementValidationCard} from "./requirements-validation";
+import {highlightRequirements} from "./requirement-highlight";
 
 // The right sidebar's Nets section: which pins the board connects, kept up to date as it changes.
 // Worked out from the project file, the same snapshot autosave writes, by nets.ts, so it matches
@@ -57,6 +59,11 @@ function toggleHighlight(net: Net) {
 // all gone), or for wires that connected no pins, most of its wires.
 function followHighlight() {
   const previous = NetHighlightState.current;
+  if (previous?.requirements && project) {
+    highlighted = undefined;
+    highlightRequirements(project, previous.requirements, nets);
+    return;
+  }
   const pins = new Set(previous?.pins ?? []);
   const wires = new Set(previous?.wires.map(wireKey) ?? []);
   const projectWires = project?.wires ?? [];
@@ -153,7 +160,19 @@ function render() {
   }
 
   countEl.textContent = connected.length ? String(connected.length) : "";
-  netsEl.replaceChildren(...folds, ...connected.map(renderNet));
+  const wasOpen = netsEl.querySelector<HTMLDetailsElement>(".requirements-validation")?.open ?? false;
+  const validation = project?.requirements ? requirementValidationCard(project, pins => {
+    if (!project) return;
+    highlightRequirements(project, pins, nets);
+    // A net lit from its row loses its mark; otherwise nothing in the list changes, so the
+    // report clicked keeps its focus.
+    const netWasLit = highlighted !== undefined;
+    highlighted = undefined;
+    if (netWasLit) render();
+    redrawCanvas();
+  }, nets) : undefined;
+  if (validation instanceof HTMLDetailsElement) validation.open = wasOpen;
+  netsEl.replaceChildren(...(validation ? [validation] : []), ...folds, ...connected.map(renderNet));
   if (!connected.length) netsEl.append(el("div", "nets-empty", "No pins are connected yet. Wire two pins together and their net shows up here."));
 }
 

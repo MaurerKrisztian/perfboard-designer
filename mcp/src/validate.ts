@@ -1,6 +1,6 @@
 import {
-  Box, comparePins, computeNets, GridPos, isModulePart, isPowerNet, isValidRef, layoutProjectWires, Net, Netlist,
-  NetPin, PartPins, partPins, pinName, PlacedPin, PROJECT_FILE_VERSION, ProjectFile, ProjectFileError, readProjectFile,
+  Box, comparePins, computeNets, CUSTOM_PART_ID, GridPos, isModulePart, isPowerNet, isSolderPath, isValidRef, layoutProjectWires, Net, Netlist,
+  NetPin, PartPins, partPins, pinName, PlacedPin, PROJECT_FILE_VERSION, ProjectFile, ProjectFileError, readProjectFile, solderPathHoles, validateRequirements,
 } from "./editor";
 import {partsLike} from "./parts";
 import {holeContents, WireIndex} from "./nets-report";
@@ -95,6 +95,11 @@ export function validateProject(raw: unknown, expectNets?: string[][]): Validati
     const bent = (Array.isArray(data.wires) ? data.wires : []).flatMap((wire, i) => asEntry(wire)?.via !== undefined ? [wireName(i)] : []);
     if (bent.length) report.warn(`${joinList(bent)} ${bent.length === 1 ? "has" : "have"} "via" corners, which version ${data.version} files don't have, so ${bent.length === 1 ? "it was" : "they were"} read as straight. Set "version": ${PROJECT_FILE_VERSION} to keep the bends.`);
   }
+  // Solder paths came in version 5: an older file's wires are all jumpers.
+  if (typeof data.version === "number" && data.version < 5) {
+    const solder = (Array.isArray(data.wires) ? data.wires : []).flatMap((wire, i) => asEntry(wire)?.kind === "solder" ? [wireName(i)] : []);
+    if (solder.length) report.warn(`${joinList(solder)} ${solder.length === 1 ? "is" : "are"} "kind": "solder", which version ${data.version} files don't have, so ${solder.length === 1 ? "it was" : "they were"} read as jumper wires. Set "version": ${PROJECT_FILE_VERSION} to keep solder paths.`);
+  }
   const entries = readEntriesAlone(data, project);
   report.problems.push(...entries.unreadable);
   const unnamed = skipped - entries.unreadable.length;
@@ -114,6 +119,12 @@ export function validateProject(raw: unknown, expectNets?: string[][]): Validati
   if (project.board.type === "stripboard") checkStrips(board);
   checkConnections(board);
   if (expectNets) checkExpectedNets(board.nets, expectNets, report.error);
+  if (project.requirements?.validate) {
+    const required = validateRequirements(project, board.nets.nets);
+    for (const issue of required.issues) report.error(`Requirements: ${issue.message}`);
+    if (required.unspecified.length || !required.total) report.warn(`Requirements incomplete: ${required.checked}/${required.total} pins specified; unspecified pins are unchecked.`);
+    else if (required.status === "match") report.note(`Requirements match: all ${required.total} board pins checked.`);
+  }
 
   return {
     ok: report.ok, project, leftOut: skipped, unreadable: entries.unreadable, wireIndex,
@@ -210,7 +221,9 @@ function checkParts({project, parts, report}: Board) {
   const {cols, rows} = project.board;
   const onBoard = ([c, r]: GridPos) => c >= 0 && c < cols && r >= 0 && r < rows;
   for (const part of parts) {
-    if (!part.known) {
+    if (!part.known && part.part === CUSTOM_PART_ID) {
+      report.error(`${part.ref}: definitionId "custom" is a custom part, which needs its "custom" spec in a version ${PROJECT_FILE_VERSION} file.`);
+    } else if (!part.known) {
       const like = partsLike(part.part);
       report.error(`${part.ref}: unknown definitionId "${part.part}"${like ? ` (did you mean ${like}?)` : ""}. Use list_parts for valid ids.`);
     }
@@ -241,11 +254,15 @@ function checkHoles({parts, holes, report}: Board) {
 }
 
 // Wires of no length, running between the same holes as another, ending under a part's body, or
-// (on a perfboard) ending in an empty hole.
+// (on a perfboard) ending in an empty hole. A solder path is on the copper side, under any body,
+// and joins all its holes, so only the first two apply to it (the nets show one joining nothing).
 function checkWireEnds({project, parts, holes, wireIndex, report, badEnds}: Board) {
   const pinHoles = new Set(parts.flatMap(part => part.pins.map(pin => holeKey(pin.at))));
-  const wireEnds = new Map<string, number>();
-  for (const wire of project.wires) for (const end of [wire.from, wire.to]) wireEnds.set(holeKey(end), (wireEnds.get(holeKey(end)) ?? 0) + 1);
+  const wireConnections = new Map<string, number>();
+  for (const wire of project.wires) {
+    const connectedHoles = isSolderPath(wire) ? solderPathHoles(wire) : [wire.from, wire.to];
+    for (const hole of connectedHoles) wireConnections.set(holeKey(hole), (wireConnections.get(holeKey(hole)) ?? 0) + 1);
+  }
   // The first wire between each pair of holes, either way round.
   const runs = new Map<string, number>();
   project.wires.forEach((wire, i) => {
@@ -258,12 +275,13 @@ function checkWireEnds({project, parts, holes, wireIndex, report, badEnds}: Boar
     const first = runs.get(run);
     if (first === undefined) runs.set(run, i);
     else if (holeKey(wire.from) !== holeKey(wire.to)) report.warn(`${name} runs between the same holes as ${wireName(wireIndex(first))}, ${showHole(wire.from)} and ${showHole(wire.to)}: remove one.`);
+    if (isSolderPath(wire)) return;
     for (const end of [wire.from, wire.to]) {
       const body = holes.get(holeKey(end))?.find(user => user.body);
       if (body) {
         report.error(`${name} ends at ${showHole(end)}, which is under ${body.what}.`);
         badEnds.add(i);
-      } else if (project.board.type === "perfboard" && !pinHoles.has(holeKey(end)) && (wireEnds.get(holeKey(end)) ?? 0) < 2) {
+      } else if (project.board.type === "perfboard" && !pinHoles.has(holeKey(end)) && (wireConnections.get(holeKey(end)) ?? 0) < 2) {
         report.warn(`${name} ends at ${showHole(end)}, which has no pin and no other wire: that end connects to nothing.`);
         badEnds.add(i);
       }
@@ -315,8 +333,8 @@ function checkStrips({project, parts, nets, wireIndex, report, badEnds, stripSho
 // An IC pin marked as not connected inside: "NC", "N.C.", "N/C".
 const NO_CONNECT = /^N\.?\/?C\.?$/i;
 
-// Wiring mistakes the nets show. Wires are insulated jumpers joined only at their ends, so wires
-// crossing are fine: only noted.
+// Wiring mistakes the nets show. Jumper wires are insulated and joined only at their ends, so
+// wires crossing are fine: only noted. (Solder paths join what they touch: the nets have that.)
 function checkConnections(board: Board) {
   checkWiresOverHoles(board);
   checkShortedParts(board);

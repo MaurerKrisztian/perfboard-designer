@@ -21,6 +21,9 @@ interface ExecutionContext {
 // server is checked against.
 declare module "cloudflare:workers" {
   interface DurableObjectStorage {
+    sql: {
+      exec<T>(query: string, ...bindings: (string | number | null)[]): {toArray(): T[]};
+    };
     get<T>(key: string): Promise<T | undefined>;
     put<T>(key: string, value: T): Promise<void>;
     deleteAll(): Promise<void>;
@@ -28,7 +31,7 @@ declare module "cloudflare:workers" {
     setAlarm(scheduledTime: number): Promise<void>;
   }
 
-  interface DurableObjectState {
+  export interface DurableObjectState {
     storage: DurableObjectStorage;
   }
 

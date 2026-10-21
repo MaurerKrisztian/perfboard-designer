@@ -31,6 +31,7 @@
     <defs>
       <symbol id="i-select" viewBox="0 0 24 24"><path d="M4 3l6.5 17 2.4-7.1 7.1-2.4z"/><path d="M13.5 13.5l6 6"/></symbol>
       <symbol id="i-wire" viewBox="0 0 24 24"><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="5" r="2.5"/><path d="M6.8 17.2 17.2 6.8"/></symbol>
+      <symbol id="i-solder-path" viewBox="0 0 24 24"><path d="M5 5v14h14" stroke-width="4" opacity=".5"/><circle cx="5" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/></symbol>
       <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
       <symbol id="i-eraser" viewBox="0 0 24 24"><path d="m7 21-4.3-4.3a2.4 2.4 0 0 1 0-3.4l9.6-9.6a2.4 2.4 0 0 1 3.4 0l5.6 5.6a2.4 2.4 0 0 1 0 3.4L13 21"/><path d="M22 21H7M5 11l9 9"/></symbol>
       <symbol id="i-note" viewBox="0 0 24 24"><path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5z"/><path d="M15 3v6h6M7 13h6M7 17h9"/></symbol>
@@ -90,6 +91,11 @@
           <div class="menu-divider"></div>
           <button id="downloadBtn" role="menuitem">Download Image</button>
           <button id="downloadSvgBtn" role="menuitem">Download SVG</button>
+          <div class="menu-divider"></div>
+          <button id="partListBtn" role="menuitem">Component List...</button>
+          <div class="menu-divider"></div>
+          <button id="exportPartsBtn" role="menuitem">Export Custom Parts...</button>
+          <button id="importPartsBtn" role="menuitem">Import Custom Parts...</button>
         </div>
       </div>
 
@@ -114,6 +120,7 @@
         </div>
       </div>
       <input type="file" id="loadProjectBtn" style="display:none">
+      <input type="file" id="importPartsInput" accept=".json,application/json" style="display:none">
       <!-- The open project's name, filled in by projects-modal.ts. -->
       <button id="currentProjectBtn" class="project-name-btn"></button>
     </nav>
@@ -221,9 +228,14 @@
           <span class="collapse-chevron">▾</span>
         </div>
         <div class="section-body" id="wireSection">
-          <button class="btn wire-arm-btn" id="wireArmBtn" title="Wire tool (W)">
-            <svg class="icon" aria-hidden="true"><use href="#i-wire"/></svg> Wire Tool
-          </button>
+          <div class="wire-arm-row">
+            <button class="btn wire-arm-btn" id="wireArmBtn" title="Wire tool (W): insulated jumper wires, joined only at their ends">
+              <svg class="icon" aria-hidden="true"><use href="#i-wire"/></svg> Wire Tool
+            </button>
+            <button class="btn wire-arm-btn" id="solderArmBtn" title="Solder path tool (S): a trail of solder on the copper side, joining every hole it runs over">
+              <svg class="icon" aria-hidden="true"><use href="#i-solder-path"/></svg> Solder Path
+            </button>
+          </div>
 
           <div class="gauge-selector" id="wireGaugeSelector">
             <button class="gauge-btn" data-width="2">
@@ -334,6 +346,7 @@
         <div id="selectionBar" class="selection-bar" role="toolbar" aria-label="Selected item" hidden>
           <span id="selectionBarLabel" class="selection-bar-label"></span>
           <button data-action="wire" title="Start a wire from this pad"><svg class="icon" aria-hidden="true"><use href="#i-wire"/></svg><span>Wire</span></button>
+          <button data-action="solder" title="Start a solder path from this pad"><svg class="icon" aria-hidden="true"><use href="#i-solder-path"/></svg><span>Solder</span></button>
           <button data-action="rotate" title="Rotate (R)"><svg class="icon" aria-hidden="true"><use href="#i-rotate"/></svg><span>Rotate</span></button>
           <button data-action="color" title="Change color"><svg class="icon" aria-hidden="true"><use href="#i-color"/></svg><span>Color</span></button>
           <button data-action="straighten" title="Take out the wire's bends"><svg class="icon" aria-hidden="true"><use href="#i-straighten"/></svg><span>Straighten</span></button>
@@ -371,6 +384,7 @@
   <nav id="mobileNav" class="mobile-nav" aria-label="Board tools">
     <button data-tool="select" class="active-mode"><svg class="nav-icon" aria-hidden="true"><use href="#i-select"/></svg><span>Select</span></button>
     <button data-tool="wire"><svg class="nav-icon" aria-hidden="true"><use href="#i-wire"/></svg><span>Wire</span></button>
+    <button data-tool="solder"><svg class="nav-icon" aria-hidden="true"><use href="#i-solder-path"/></svg><span>Solder</span></button>
     <button data-sheet="add" class="nav-add" aria-label="Add a part"><span class="nav-add-disc"><svg class="nav-icon" aria-hidden="true"><use href="#i-plus"/></svg></span><span>Add</span></button>
     <button data-sheet="nets"><svg class="nav-icon" aria-hidden="true"><use href="#i-nets"/></svg><span>Nets</span></button>
     <button data-sheet="more"><svg class="nav-icon" aria-hidden="true"><use href="#i-more"/></svg><span>More</span></button>
@@ -381,6 +395,7 @@
   <div id="contextMenu" class="context-menu" style="display:none;">
     <!-- Shown when the menu is opened on a hole (select.ts) -->
     <button id="ctxWireBtn" data-action="wire"><svg class="icon" aria-hidden="true"><use href="#i-wire"/></svg>Start Wire Here</button>
+    <button id="ctxSolderBtn" data-action="solder"><svg class="icon" aria-hidden="true"><use href="#i-solder-path"/></svg>Start Solder Path Here</button>
     <button id="ctxRotateBtn" data-action="rotate"><svg class="icon" aria-hidden="true"><use href="#i-rotate"/></svg>Rotate<kbd>R</kbd></button>
     <button id="ctxColorBtn" data-action="color"><svg class="icon" aria-hidden="true"><use href="#i-color"/></svg>Change Color</button>
     <button id="ctxStraightenBtn" data-action="straighten"><svg class="icon" aria-hidden="true"><use href="#i-straighten"/></svg>Straighten</button>
@@ -445,6 +460,67 @@
     </div>
   </div>
 
+  <!-- Custom Module Creator (custom-part-modal.ts): a part with pins anywhere on a grid of holes -->
+  <div id="customPartModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card custom-part-card" role="dialog" aria-modal="true" aria-labelledby="customPartTitle">
+      <div class="modal-header">
+        <span id="customPartTitle" class="modal-title">New Custom Module</span>
+        <button id="closeCustomPartBtn" class="close-btn" aria-label="Close">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="customPartName">Name</label>
+            <input type="text" id="customPartName" maxlength="60" placeholder="e.g. HC-SR04, OLED 0.96&quot;, Relay module">
+          </div>
+          <div class="form-group">
+            <label for="customPartRef">Ref letters (M makes M1, M2…)</label>
+            <input type="text" id="customPartRef" maxlength="4" value="M" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="customPartCols">Width (holes)</label>
+            <input type="number" id="customPartCols" min="1" max="40" value="6">
+          </div>
+          <div class="form-group">
+            <label for="customPartRows">Height (holes)</label>
+            <input type="number" id="customPartRows" min="1" max="40" value="3">
+          </div>
+        </div>
+        <div class="form-group">
+          <span class="form-label">Board colour</span>
+          <div class="custom-part-colors" id="customPartColors" role="radiogroup" aria-label="Board colour"></div>
+        </div>
+        <div class="form-group">
+          <span class="form-label">Pins <span id="customPartPinCount" class="projects-count"></span></span>
+          <p class="share-note">Click holes to add or remove pins, in order: pin 1 is the hole you place the module by.</p>
+          <div class="custom-part-fill">
+            <button type="button" class="btn" data-fill="top">Top row</button>
+            <button type="button" class="btn" data-fill="bottom">Bottom row</button>
+            <button type="button" class="btn" data-fill="left">Left column</button>
+            <button type="button" class="btn" data-fill="right">Right column</button>
+            <button type="button" class="btn" data-fill="clear">Clear</button>
+          </div>
+          <div class="custom-part-grid-scroll">
+            <div class="custom-part-grid" id="customPartGrid"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <span class="form-label">Pin names (optional)</span>
+          <div class="custom-part-pins" id="customPartPins"></div>
+        </div>
+        <p id="customPartError" class="ask-error" aria-live="polite"></p>
+      </div>
+
+      <div class="modal-footer">
+        <button id="cancelCustomPartBtn" class="btn">Cancel</button>
+        <button id="saveCustomPartBtn" class="btn-primary">Save Module</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Projects Modal -->
   <div id="projectsModal" class="modal-overlay" style="display:none;">
     <div class="modal-card projects-card" role="dialog" aria-modal="true" aria-labelledby="projectsModalTitle">
@@ -486,6 +562,32 @@
     </form>
   </div>
 
+  <!-- Component List Modal (part-list-modal.ts): every part on the board, and a CSV of it -->
+  <div id="partListModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card part-list-card" role="dialog" aria-modal="true" aria-labelledby="partListTitle">
+      <div class="modal-header">
+        <span id="partListTitle" class="modal-title projects-title">Component List <span id="partListCount" class="projects-count"></span></span>
+        <button id="closePartListBtn" class="close-btn" aria-label="Close">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="board-switch" id="partListViewSwitch">
+          <button data-part-view="each" class="active-mode">Each part</button>
+          <button data-part-view="grouped">Grouped by value</button>
+        </div>
+        <div class="part-list-scroll">
+          <table class="part-list-table" id="partListTable"></table>
+        </div>
+        <p id="partListEmpty" class="share-note" hidden>There are no parts on the board yet. Add some from Components and they show up here.</p>
+      </div>
+
+      <div class="modal-footer projects-footer">
+        <span id="partListHint" class="projects-footer-hint"></span>
+        <button id="downloadPartListBtn" class="btn-primary">Download CSV</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Share Link Modal (share-project.ts) -->
   <div id="shareModal" class="modal-overlay" style="display:none;">
     <div class="modal-card share-card" role="dialog" aria-modal="true" aria-labelledby="shareModalTitle">
@@ -524,4 +626,3 @@
 
 <script type="module" src="/src/index.ts"></script>
 </html>
-

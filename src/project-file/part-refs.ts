@@ -1,5 +1,5 @@
 import {getComponentDefinition} from "../parts/component-definitions";
-import {getAdvancedComponentDefinition} from "../parts/advanced-component-definitions";
+import {advancedDefinitionFor, CustomPartSpec} from "../parts/custom-parts";
 
 // Reference designators ("refs"): the R1 / C2 / U1 names parts go by on schematics and
 // silkscreens. Every placed part has one, unique on its board ignoring case, so a person or a
@@ -18,11 +18,11 @@ export function isValidRef(ref: string): boolean {
   return REF_PATTERN.test(ref);
 }
 
-export function refPrefixFor(part: {kind: PartKind; definitionId?: string}): string {
+export function refPrefixFor(part: {kind: PartKind; definitionId?: string; custom?: CustomPartSpec}): string {
   if (part.kind === "ic") return IC_REF_PREFIX;
   const definition = part.kind === "standard-component"
     ? getComponentDefinition(part.definitionId ?? "")
-    : getAdvancedComponentDefinition(part.definitionId ?? "");
+    : advancedDefinitionFor({definitionId: part.definitionId ?? "", custom: part.custom});
   return definition?.refPrefix ?? UNKNOWN_PART_REF_PREFIX;
 }
 

@@ -1,16 +1,20 @@
 import {GridPos, gridToPx} from "../../project-file/grid";
 import {SavedWire} from "../../project-file/project-file";
 import {WireHop} from "../../project-file/wire-crossings";
-import {wirePoints} from "../../project-file/wire-path";
+import {isSolderPath, solderPathHoles, wirePoints} from "../../project-file/wire-path";
 import {BoardView, isHovered, isSameItem} from "../board-view";
 import {Painter, Point} from "../painter/painter";
-import {DEFAULT_WIRE_COLOR, DEFAULT_WIRE_WIDTH, PAD_RADIUS, SELECTION_COLOR} from "../palette";
+import {
+  DEFAULT_WIRE_COLOR, DEFAULT_WIRE_WIDTH, PAD_RADIUS, SELECTION_COLOR, SOLDER_COLOR, SOLDER_EDGE, SOLDER_PATH_WIDTH,
+} from "../palette";
 
 // Wires, and how crossings show (see src/project-file/wire-crossings.ts). A wire runs straight from
 // hole to hole through its corners, each bend rounded off as a real bent wire's is. Where a wire
 // goes over something it doesn't join (another wire, or a hole holding a pin, a lead or a wire's
 // end): a dark edge either side of it there, cutting whatever is underneath, so it reads as
 // passing over. Where three or more things do join: a solder dot, like a schematic's junction dot.
+// Solder paths (on the copper side, joining every hole they cover) are drawn on their own, under
+// the jumpers: a trail of solder with a bead on each of its holes, its corners left square.
 
 const HOVER_COLOR = "#94a3b8";
 const OVER_EDGE_COLOR = "#0b1120";
@@ -18,6 +22,9 @@ const JUNCTION_FILL = "#d1d5db";
 const JUNCTION_EDGE = "#374151";
 const JUNCTION_RADIUS = 6;
 const BEND_HANDLE_FILL = "#ffffff";
+// A solder path's bead on each of its holes, covering the pad.
+const SOLDER_BEAD_RADIUS = PAD_RADIUS - 0.5;
+const SOLDER_SHINE = "#ffffff";
 // How strongly a wire shows through a part standing over it.
 const THROUGH_PART_OPACITY = 0.45;
 // How tightly a wire bends at a corner (its centreline's radius, drawing px), and in how many
@@ -26,10 +33,14 @@ const BEND_RADIUS = 14;
 const BEND_STEPS = 6;
 
 const widthOf = (wire: SavedWire) => wire.width || DEFAULT_WIRE_WIDTH;
+// How wide it's drawn: a solder path has no width of its own.
+export const drawnWidthOf = (wire: SavedWire) => isSolderPath(wire) ? SOLDER_PATH_WIDTH : widthOf(wire);
 
-// A wire's centreline in drawing px, from `from` to `to`, its corners rounded off.
+// A wire's centreline in drawing px, from `from` to `to`: a jumper's corners rounded off, a solder
+// path's left as they are.
 export function wireLine(wire: SavedWire): Point[] {
-  return roundedWireLine(wirePoints(wire).map(([col, row]) => ({x: gridToPx(col), y: gridToPx(row)})));
+  const points = wirePoints(wire).map(([col, row]) => ({x: gridToPx(col), y: gridToPx(row)}));
+  return isSolderPath(wire) ? points : roundedWireLine(points);
 }
 
 // A line through `points` (drawing px) with each corner replaced by a curve from a little before
@@ -59,12 +70,14 @@ export function roundedWireLine(points: Point[]): Point[] {
   return line;
 }
 
-// In list order, so a later wire is drawn over an earlier one, as wire-crossings.ts assumes.
+// The jumpers, in list order, so a later wire is drawn over an earlier one, as wire-crossings.ts
+// assumes. Solder paths are drawSolderPaths'.
 export function drawWires(painter: Painter, wires: SavedWire[], hops: WireHop[], view: BoardView) {
   const hopsByWire = new Map<number, WireHop[]>();
   for (const hop of hops) hopsByWire.set(hop.wire, [...(hopsByWire.get(hop.wire) ?? []), hop]);
 
   wires.forEach((wire, index) => {
+    if (isSolderPath(wire)) return;
     const line = wireLine(wire);
     const ends = [line[0], line[line.length - 1]];
     const width = widthOf(wire);
@@ -80,6 +93,41 @@ export function drawWires(painter: Painter, wires: SavedWire[], hops: WireHop[],
     painter.line(line, {paint: wire.color || DEFAULT_WIRE_COLOR, width, cap: "round", join: "round"});
     if (isSameItem(view.selected, item)) drawBendHandles(painter, wire);
   });
+}
+
+// Every solder path, with the selected or hovered one marked as a jumper is.
+export function drawSolderPaths(painter: Painter, wires: SavedWire[], view: BoardView) {
+  wires.forEach((wire, index) => {
+    if (!isSolderPath(wire)) return;
+    const line = wireLine(wire);
+    const item = {kind: "wire", index} as const;
+    const selected = isSameItem(view.selected, item);
+    if (selected) {
+      painter.line(line, {paint: SELECTION_COLOR, width: SOLDER_PATH_WIDTH + 8, cap: "round", join: "round"});
+    } else if (isHovered(view, item)) {
+      painter.line(line, {paint: HOVER_COLOR, width: SOLDER_PATH_WIDTH + 6, cap: "round", join: "round"});
+    }
+    drawSolderPath(painter, wire);
+    if (selected) {
+      // Handles the size of a default jumper's, like its bend handles (drawBendHandles): a solder
+      // path has no width of its own, and handles as wide as the trail would hide its beads.
+      for (const end of [line[0], line[line.length - 1]]) {
+        painter.circle(end.x, end.y, widthOf(wire) + 3, {fill: SELECTION_COLOR, stroke: {paint: BEND_HANDLE_FILL, width: 1.5}});
+      }
+      drawBendHandles(painter, wire);
+    }
+  });
+}
+
+// One solder path: an outlined trail along its route, a bead of solder on each hole it covers,
+// and the trail again over the beads' outlines so it reads as one piece of solder.
+export function drawSolderPath(painter: Painter, wire: SavedWire) {
+  const line = wireLine(wire);
+  const beads = solderPathHoles(wire).map(([col, row]) => ({x: gridToPx(col), y: gridToPx(row)}));
+  painter.line(line, {paint: SOLDER_EDGE, width: SOLDER_PATH_WIDTH + 3, cap: "round", join: "round"});
+  for (const bead of beads) painter.circle(bead.x, bead.y, SOLDER_BEAD_RADIUS, {fill: SOLDER_COLOR, stroke: {paint: SOLDER_EDGE, width: 1.5}});
+  painter.line(line, {paint: SOLDER_COLOR, width: SOLDER_PATH_WIDTH, cap: "round", join: "round"});
+  for (const bead of beads) painter.circle(bead.x - 2.5, bead.y - 2.5, 2.2, {fill: SOLDER_SHINE});
 }
 
 // On the selected wire, over it: a handle on each bend, to drag it, and a dot in the middle of
@@ -143,10 +191,14 @@ function sliceLine(line: Point[], from: number, to: number): Point[] {
 
 // Every wire's line again, faded: drawn over the parts that stand above the wires, so a wire
 // running under a part's body still shows through it. Elsewhere it lands on the wire itself and
-// changes nothing.
+// changes nothing. Solder paths first, as they're drawn under the jumpers.
 export function drawWiresThroughParts(painter: Painter, wires: SavedWire[]) {
   painter.group({opacity: THROUGH_PART_OPACITY}, () => {
     for (const wire of wires) {
+      if (isSolderPath(wire)) painter.line(wireLine(wire), {paint: SOLDER_COLOR, width: SOLDER_PATH_WIDTH, cap: "round", join: "round"});
+    }
+    for (const wire of wires) {
+      if (isSolderPath(wire)) continue;
       painter.line(wireLine(wire), {paint: wire.color || DEFAULT_WIRE_COLOR, width: widthOf(wire), cap: "round", join: "round"});
     }
   });

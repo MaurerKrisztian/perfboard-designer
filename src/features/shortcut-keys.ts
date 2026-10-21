@@ -10,6 +10,7 @@ window.addEventListener('keydown', (event) => {
   const keyLower = event.key.toLowerCase();
   for (const shortcut of ShortcutRegistry.shortcuts) {
     if (keyLower === shortcut.key.toLowerCase() && event.ctrlKey === !!shortcut.ctrl && event.shiftKey === !!shortcut.shift){
+      event.preventDefault();
       shortcut.event(event);
     }
   }

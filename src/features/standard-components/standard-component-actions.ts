@@ -1,5 +1,5 @@
 import {redrawCanvas} from "../draw-canvas";
-import {ComponentUnit, isLed} from "../../parts/component-definitions";
+import {ComponentUnit, isLed, LedColor, ledColorLabel} from "../../parts/component-definitions";
 import {formatComponentValue, parseComponentValue} from "../../parts/component-value";
 import {SelectionState} from "../../state/SelectionState";
 import {askText} from "../ask-dialog";
@@ -17,17 +17,12 @@ const COMMON_VALUES: Record<ComponentUnit, string[]> = {
   "H": ["10µH", "100µH", "1mH", "10mH"],
 };
 
-export const LED_COLORS = ["red", "green", "blue", "yellow", "rgb"] as const;
-export type LedColor = typeof LED_COLORS[number];
-const LED_COLOR_LABELS: Record<LedColor, string> = {
-  red: "Red", green: "Green", blue: "Blue", yellow: "Yellow", rgb: "RGB"
-};
 
 export function setSelectedLedColor(color: LedColor | undefined) {
   const component = SelectionState.part;
   if (component?.kind !== "standard-component" || !isLed(component.definitionId)) return;
   component.color = color;
-  component.value = color ? LED_COLOR_LABELS[color] : undefined;
+  component.value = color ? ledColorLabel(color) : undefined;
   redrawCanvas();
 }
 
