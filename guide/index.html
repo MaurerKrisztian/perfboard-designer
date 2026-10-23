@@ -283,10 +283,13 @@
         <section id="custom-ics">
           <h2>Custom ICs and modules</h2>
           <p>
-            If a chip or breakout board isn't in the library, make it. The top of the Components
-            list has two ways to.
+            If a chip, transistor or breakout board isn't in the library, make it: click
+            <strong>Custom part…</strong> at the top of the Components list and pick what kind of
+            part it is, an <strong>IC chip</strong>, a <strong>dev board</strong>, a
+            <strong>module</strong> with pins anywhere, or a <strong>transistor or other
+            package</strong>. Its editor opens; <strong>Back</strong> takes you to the choice again.
           </p>
-          <h3>Chips and dev boards: Custom IC or dev board…</h3>
+          <h3>IC chips and dev boards</h3>
           <p>For a part with two rows of pins, like a DIP chip or an ESP32 board, set:</p>
           <ul>
             <li><strong>Name</strong>, such as "ESP8266-01" or "LM2596 module".</li>
@@ -294,7 +297,7 @@
             <li><strong>Body width</strong> in holes, including both pin rows, and the number of <strong>pins per side</strong>.</li>
             <li>A <strong>label for every pin</strong>, numbered from pin 1 at the notch, like a datasheet.</li>
           </ul>
-          <h3>Anything else: Custom module (any pins)…</h3>
+          <h3>Modules, with pins anywhere</h3>
           <p>
             For a sensor breakout, a relay board, a display or a connector with an odd layout, draw
             the part itself:
@@ -313,6 +316,26 @@
           <p>
             <strong>Save Module</strong> lists it under Modules › Custom and picks it up, ready to
             click onto the board; rotate it with <kbd>R</kbd> like any part.
+          </p>
+          <h3>A transistor or other part in a known package</h3>
+          <p>
+            Many missing parts come in a package the library already has: a BC337 or a 2N3906 is a
+            TO-92 transistor, an IRLZ44N or an LM7812 a TO-220, they just have their own pinout. Pick:
+          </p>
+          <ul>
+            <li>The <strong>package</strong>: any fixed-pin part in the library, such as Transistor (TO-92) or MOSFET (TO-220).</li>
+            <li>Its <strong>name</strong>, such as "BC337", and the <strong>ref letters</strong> (Q for a transistor).</li>
+            <li>
+              A <strong>name for each pin</strong>, in pin order: pin 1 is the hole you place it by. For a
+              transistor, the buttons above the names fill in the usual pinouts (E B C, C B E, G D S…), so
+              check the part's datasheet and click the one it has.
+            </li>
+          </ul>
+          <p>
+            The board below the names shows the part as it will be placed. <strong>Save Part</strong>
+            lists it next to its package (a TO-92 under Semiconductors › Transistors) and picks it up,
+            ready to click onto the board. It's drawn, and shown in the 3D view, as its package, with
+            your pin names.
           </p>
           <p>
             Click <strong>✎</strong> beside a custom part in the list to change it, or
