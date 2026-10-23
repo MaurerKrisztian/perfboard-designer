@@ -256,9 +256,14 @@ means a new look there plus a `BoardType` in the project file.
   the user makes (`src/parts/custom-parts.ts`: a `CustomPartSpec`, its size in holes, its pins'
   holes in order with optional names, a colour): a placed one has `definitionId: "custom"` and
   carries its whole spec in `custom`, which `customPartDefinition()` turns into an
-  `AdvancedComponentDefinition` (`noIcon`: drawn as its colour with its name). So look a placed
+  `AdvancedComponentDefinition` (`noIcon`: drawn as its colour with its name). A custom part with a
+  `shape` (a built-in fixed-pin part's id, e.g. `"transistor"`) is that package renamed, with its
+  own pin names: drawn, listed and modelled in 3D as the package (`modelIdFor()`), made in
+  `src/ui/dialogs/CustomShapeDialog.tsx`; its `cols`/`rows`/pin holes are the package's, so readers
+  without shapes still get the same pins. So look a placed
   fixed-pin part's definition up with `advancedDefinitionFor(part)`, never by its id alone. The
-  creator is `src/ui/dialogs/CustomModuleDialog.tsx`, the catalog entries (Modules › Custom) the
+  creator is `src/ui/dialogs/CustomModuleDialog.tsx` (the parts list's one Custom part… entry opens
+  `CustomPartDialog.tsx`, which picks between it, the IC editor and the package one), the catalog entries (Modules › Custom) the
   `CustomParts` store in `src/features/custom-parts.ts` (localStorage `custom_parts`, merged in
   from loaded boards and parts library files; placed parts keep their own copy, so editing or
   deleting an entry never changes a board).
@@ -365,7 +370,9 @@ by group (`catalog-tools.ts`: list/get parts; `project-tools.ts`: new/edit/get p
 reply formatting in `reply.ts`, wording helpers (holes, plurals, lists) in `text.ts`.
 It can: list parts, start a project (`new_project`, blank or
 from an example), change it with small ops (`edit_project`, whose wire ends can be pins by name and
-whose wires bend at `via` holes; a `path`'s corners are wire ends instead; `solder: true` makes a solder path),
+whose wires bend at `via` holes; a `path`'s corners are wire ends instead; `solder: true` makes a solder path;
+`add_part` can also make a part of the agent's own, `custom` (a custom module, or with `shape` a part in a
+catalog package) or `chip` (into `customIcs`), checked by the editor's `readCustomPart()`),
 get pin positions, draw it as text (`render_board`, `mcp/src/render-board.ts`), list the board's
 nets (`get_nets`), validate it, make and read share links. `make_share_link` also returns `image`:
 the Worker's `GET /render.svg?<a share link's fragment>` (`mcp/src/image-requests.ts`, `z=`/`json=`

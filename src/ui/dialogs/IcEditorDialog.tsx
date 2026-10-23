@@ -25,10 +25,12 @@ interface IcEditorDialogProps {
   type: CustomIcType;
   // The catalog entry being edited; undefined when making a new one.
   editing?: Ic;
+  // Back to the custom part chooser, when it was opened from there.
+  onBack?: () => void;
   onClose: () => void;
 }
 
-export function IcEditorDialog({type: initialType, editing, onClose}: IcEditorDialogProps) {
+export function IcEditorDialog({type: initialType, editing, onBack, onClose}: IcEditorDialogProps) {
   const [name, setName] = useState(editing?.name ?? "Custom Chip");
   const [type, setType] = useState<CustomIcType>(initialType);
   const [width, setWidth] = useState(String(editing?.widthPin ?? 4));
@@ -91,6 +93,7 @@ export function IcEditorDialog({type: initialType, editing, onClose}: IcEditorDi
       </div>
 
       <div className="modal-footer">
+        {onBack && <button type="button" className="btn btn-quiet modal-back" onClick={onBack}>Back</button>}
         <button className="btn" onClick={onClose}>Cancel</button>
         <button className="btn-primary" onClick={save}>Save Component</button>
       </div>

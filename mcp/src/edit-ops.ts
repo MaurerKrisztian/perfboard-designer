@@ -10,10 +10,37 @@ const rotation = z.union([z.literal(0), z.literal(90), z.literal(180), z.literal
 const wireSelector = z.union([z.number().int().min(0), z.array(hole).length(2)])
   .describe("A wire by its index in wires, or by its two end holes [[c, r], [c, r]] (either way round).");
 
+// A part of the agent's own, for one the catalog doesn't have: pins anywhere on a body, or a catalog
+// part's package with its own name and pin names. Saved whole in the placed part's `custom`.
+const customPart = z.object({
+  name: z.string().describe('What it is, e.g. "HC-SR04", "BC337". Later add_part ops can place more of it by this name.'),
+  shape: z.string().optional().describe('The id of a fixed-pin part from list_parts whose package this part comes in, e.g. "transistor" (TO-92) for a BC337 or "mosfet" (TO-220) for an IRLZ44N: its pins, outline and look, with this part\'s name and pin names. Any fixed-pin part but header-pins. Leave out for a body of your own with pins anywhere.'),
+  pins: z.array(z.object({
+    at: hole.optional().describe("Without shape: the pin's hole [column, row] within the body, from its top-left hole. With shape: leave out, the package decides."),
+    label: z.string().optional().describe('Its name, e.g. "VCC", "TRIG", "B". Wire to it by name ("M1.VCC").'),
+  })).optional().describe("In pin order, pin 1 first; pin 1 is the hole add_part's `at` places it by. Without shape: every pin with its `at`. With shape: just their names, in the package's pin order (get_part gives it), as many as it has pins."),
+  cols: z.number().int().min(1).optional().describe("Without shape: the body's width in holes. Default: just wide enough for its pins."),
+  rows: z.number().int().min(1).optional().describe("Without shape: the body's height in holes. Default: just tall enough for its pins."),
+  refPrefix: z.string().optional().describe('Letters of its refs: "Q" makes Q1, Q2. Default: the package\'s, else "M".'),
+  color: z.string().optional().describe('Without shape: the body\'s colour, "#rrggbb", e.g. a blue module board "#1d4ed8".'),
+});
+
+// A dual-row chip or dev board of the agent's own, like the editor's custom ICs: saved in the
+// project's customIcs and placed as a chip.
+const customChip = z.object({
+  name: z.string().describe('What it is, e.g. "LM358", "ESP32 DevKit". Later add_part ops can place more of it by this name.'),
+  pinsPerSide: z.number().int().min(2).describe("Pins in each of its two rows."),
+  width: z.number().int().min(2).describe('Columns from one pin row to the other, both included: 4 for a narrow (0.3") DIP, 7 for a wide (0.6") one; a dev board\'s row spacing in holes plus one.'),
+  pins: z.array(z.string()).optional().describe('Pin names in DIP order: pin 1 at the top of the left row (at rotation 0), down the left row, then up the right row, so the last pin is at the top right. "" for a pin without a name.'),
+  board: z.boolean().optional().describe("true: a dev board or module (drawn as a board, listed under Modules); else a DIP chip."),
+});
+
 export const editOp = z.discriminatedUnion("op", [
   z.object({
     op: z.literal("add_part"),
-    part: z.string().describe('The part\'s id from list_parts ("resistor", "ne555", "header-pins"), or the name of one of the project\'s customIcs.'),
+    part: z.string().optional().describe('The part\'s id from list_parts ("resistor", "ne555", "header-pins"), or the name of a custom part or chip the project already has. Give this, `custom` or `chip`.'),
+    custom: customPart.optional().describe("Instead of `part`, a new part of your own for one the catalog doesn't have, placed by `at` and `rotation`."),
+    chip: customChip.optional().describe("Instead of `part`, a new dual-row chip or dev board of your own, placed by `at` (its top-left pin) and `rotation`."),
     ref: z.string().optional().describe("Its reference designator. The next free one (R1, R2...) when left out."),
     from: hole.optional().describe("Two-lead parts: the hole of lead 1. On a polarized part get_part's leadLabels say which that is: K for a diode or LED, - for an electrolytic."),
     to: hole.optional().describe("Two-lead parts: the hole of lead 2."),

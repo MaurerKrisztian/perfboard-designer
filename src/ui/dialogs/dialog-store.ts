@@ -11,10 +11,15 @@ export type OpenDialog =
   | {kind: "projects"; startNew: boolean}
   | {kind: "share"}
   | {kind: "part-list"}
-  // A new chip of `type`, or a custom one being edited.
-  | {kind: "ic-editor"; type: CustomIcType; editing?: Ic}
+  // The parts list's one way to make a part of your own: pick what kind, then its editor below.
+  | {kind: "custom-part"}
+  // A new chip of `type`, or a custom one being edited. `fromChooser`: opened from custom-part,
+  // so it offers a way back there.
+  | {kind: "ic-editor"; type: CustomIcType; editing?: Ic; fromChooser?: boolean}
   // A new custom module, or one being edited.
-  | {kind: "custom-module"; editing?: CustomPartSpec};
+  | {kind: "custom-module"; editing?: CustomPartSpec; fromChooser?: boolean}
+  // A new custom part in a built-in part's package (a transistor's, say), or one being edited.
+  | {kind: "custom-shape"; editing?: CustomPartSpec; fromChooser?: boolean};
 
 export const dialogStore = createStore<{open?: OpenDialog}>({});
 

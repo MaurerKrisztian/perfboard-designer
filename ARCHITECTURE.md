@@ -370,10 +370,26 @@ never replacing `Ic.IC_CONTAINER`.
 - A placed one has `definitionId: "custom"` and carries its whole spec in `custom`, so a board
   with one draws and connects the same anywhere. Look a placed fixed-pin part's definition up
   with `advancedDefinitionFor(part)`, never by its id alone.
-- `src/ui/dialogs/CustomModuleDialog.tsx` is the creator (click holes to add pins, name them);
-  `src/features/custom-parts.ts` is the catalog's store (Modules › Custom, localStorage
-  `custom_parts`). Loading a board merges its modules in; placed parts keep their own copy, so
+- A custom part can instead take a built-in fixed-pin part's package (`shape`, the built-in's id:
+  a BC337 is a `"transistor"` with its own name and pin names). `customPartDefinition()` then
+  gives the package's definition renamed (its artwork via `iconFile`, its category, so it's listed
+  beside it), and the 3D viewer models the package (`modelIdFor(part)`). The spec still holds the
+  package's `cols`, `rows` and pin holes (`shapedPartSpec()`; the reader rebuilds them from the
+  package), so a reader that doesn't know the shape draws a plain module with the same pins. Any
+  fixed-pin part but the sized ones (header pins) can be a shape (`CUSTOM_PART_SHAPES`).
+- The parts list has one entry for all of these, Custom part…, which opens
+  `src/ui/dialogs/CustomPartDialog.tsx`: pick the kind (IC chip, dev board, module, part in a
+  package) and its editor opens with `fromChooser`, which gives it a Back button to the choice.
+- `src/ui/dialogs/CustomModuleDialog.tsx` is the creator (click holes to add pins, name them), and
+  `src/ui/dialogs/CustomShapeDialog.tsx` the one for a part in a package (pick it, name the pins;
+  `src/features/custom-part-preview.ts` draws the part on a scrap of board as it's made);
+  `src/features/custom-parts.ts` is the catalog's store (Modules › Custom, or beside the package;
+  localStorage `custom_parts`). Loading a board merges its modules in; placed parts keep their own copy, so
   editing or deleting an entry never changes a board.
+- AI agents make them too, through the MCP server: `edit_project`'s `add_part` takes a `custom` spec
+  (a module, or a package via `shape`) or a `chip` (added to the file's `customIcs`), checked with
+  the editor's own `readCustomPart()`, and places more of one by its name. The editor picks them up
+  into its parts list when it opens the board, like any board's custom parts.
 - File → Export / Import Custom Parts (`src/features/project/custom-parts-library.ts`) moves custom
   ICs and modules between browsers as a parts library file (`src/project-file/parts-library.ts`).
   Importing adds what's new and changes nothing already there.

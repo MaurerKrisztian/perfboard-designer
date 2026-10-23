@@ -189,7 +189,10 @@ editors open too. It's documented field by field in
   pins), optional `value`. A user-made module has `"definitionId": "custom"` and carries the
   whole part in `custom` (version 6): `name`, optional `refPrefix`, its size in holes `cols` and
   `rows`, its `pins` in order as `{"at": [c, r], "label": "VCC"}` (holes within the body from its
-  top-left hole; pin 1 is the anchor `at`) and an optional `color`.
+  top-left hole; pin 1 is the anchor `at`) and an optional `color`. With `"shape"`, the id of a
+  built-in fixed-pin part (e.g. `"transistor"` for a TO-92), it's that package with its own `name`
+  and pin names (`pins` in the package's pin order, each `{"label": "B"}`): the package decides its
+  holes, and `cols`, `rows` and each `at` are written to match it.
 - `placedIcs`: DIP chips and dual-row modules: `name`, `at` (top-left pin), `widthPin` (columns
   including both pin rows, 4 for a 0.3" DIP), `heightPin` (pins per side), `rotation`, and
   `pinDescription` (`{"1": "GND", "2": "TRIG", ...}`, numbered counter-clockwise from pin 1).

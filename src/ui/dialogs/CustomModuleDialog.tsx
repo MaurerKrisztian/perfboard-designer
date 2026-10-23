@@ -40,7 +40,7 @@ function startingPins(spec: CustomPartSpec | undefined, cols: number, rows: numb
   return Array.from({length: Math.max(0, cols - 2)}, (_, i) => ({at: [i + 1, rows - 1]}));
 }
 
-export function CustomModuleDialog({editing, onClose}: {editing?: CustomPartSpec; onClose: () => void}) {
+export function CustomModuleDialog({editing, onBack, onClose}: {editing?: CustomPartSpec; onBack?: () => void; onClose: () => void}) {
   const [name, setName] = useState(editing?.name ?? "");
   const [refPrefix, setRefPrefix] = useState(editing?.refPrefix ?? CUSTOM_REF_PREFIX);
   const [cols, setCols] = useState(editing?.cols ?? 6);
@@ -181,6 +181,7 @@ export function CustomModuleDialog({editing, onClose}: {editing?: CustomPartSpec
       </div>
 
       <div className="modal-footer">
+        {onBack && <button type="button" className="btn btn-quiet modal-back" onClick={onBack}>Back</button>}
         <button className="btn" onClick={onClose}>Cancel</button>
         <button className="btn-primary" onClick={save}>Save Module</button>
       </div>

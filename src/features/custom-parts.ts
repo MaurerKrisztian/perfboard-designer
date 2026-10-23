@@ -4,9 +4,10 @@ import {ToolState} from "../state/ToolState";
 import {notifyCatalogChanged} from "./catalog/catalog-events";
 import {setActiveTool} from "./active-tool";
 
-// The user's own parts with pins anywhere (src/parts/custom-parts.ts), as listed under
-// Modules › Custom: made in the custom module creator (custom-part-modal.ts), kept in this
-// browser's localStorage, and merged in from boards that use them and from parts library files.
+// The user's own fixed-pin parts (src/parts/custom-parts.ts): modules with pins anywhere, listed
+// under Modules › Custom and made in CustomModuleDialog.tsx, and parts in a built-in part's package,
+// listed beside it and made in CustomShapeDialog.tsx. Kept in this browser's localStorage, and
+// merged in from boards that use them and from parts library files.
 // A placed part keeps the spec it was placed with, so editing or deleting an entry here never
 // changes a board.
 

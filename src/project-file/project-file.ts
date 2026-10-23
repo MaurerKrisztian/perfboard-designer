@@ -130,7 +130,10 @@ export interface SavedAdvancedComponent {
   // nothing else to draw it and know its pins (src/parts/custom-parts.ts): `name`, `cols` x `rows`
   // holes of body, its `pins` in order, each `at` a [column, row] within the body from its top-left
   // hole with an optional `label`, and optionally `refPrefix`, `color` (the body's) and `id` (its
-  // entry in the editor's catalog). `at` above is pin 1's hole.
+  // entry in the editor's catalog). `at` above is pin 1's hole. With `shape`, the id of a built-in
+  // fixed-pin part (e.g. "transistor", a TO-92), it's that part's package with its own name and pin
+  // names: the package decides its pins' holes (`cols`, `rows` and each `at` are written to match,
+  // so a reader without shapes still finds the same pins) and how it's drawn; `color` is unused.
   custom?: CustomPartSpec;
 }
 

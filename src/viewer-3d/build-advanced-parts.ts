@@ -1,7 +1,7 @@
 import {Group, Object3D} from "three";
 import {SceneKit} from "./scene-kit";
 import {ViewerAdvancedPart} from "./project-data";
-import {advancedDefinitionFor} from "../parts/custom-parts";
+import {advancedDefinitionFor, CUSTOM_PART_ID, modelIdFor} from "../parts/custom-parts";
 import {advancedPartShape, advancedPinOffsets} from "../parts/part-geometry";
 import {gridToPx, toGridPos} from "../project-file/grid";
 import {buildCatalogPart} from "./build-catalog-parts";
@@ -29,8 +29,10 @@ export function buildAdvancedPart(kit: SceneKit, part: ViewerAdvancedPart): Obje
     kit.solder(part.anchorX, part.anchorY);
   }
 
+  // A custom part with a built-in part's package is modelled as that package.
+  const modelId = modelIdFor(part);
   let group: Group;
-  switch (part.definitionId) {
+  switch (modelId) {
     case "transistor": group = buildTransistor(kit, part.value); break;
     case "mosfet": group = buildTo220(kit, part.value); break;
     case "regulator-7805": group = buildTo220(kit, part.value || "7805"); break;
@@ -38,7 +40,9 @@ export function buildAdvancedPart(kit: SceneKit, part: ViewerAdvancedPart): Obje
     case "ds18b20": group = buildTransistor(kit, part.value || "DS18B20"); break;
     case "potentiometer": group = buildPotentiometer(kit, part.value); break;
     case "header-pins": group = buildHeaderPins(kit, part.rows, part.cols); break;
-    default: group = part.custom && def ? buildCustomModule(kit, def) : buildCatalogPart(kit, part, def, offsets) ?? buildUnknown(kit, offsets);
+    default: group = modelId === CUSTOM_PART_ID && def
+      ? buildCustomModule(kit, def)
+      : buildCatalogPart(kit, {...part, definitionId: modelId}, def, offsets) ?? buildUnknown(kit, offsets);
   }
   group.position.copy(kit.frame.point(part.anchorX, part.anchorY));
   // A rotation turns (1, 0) into (0, 1) at 90° (see rotateOffset) - clockwise on the y-down

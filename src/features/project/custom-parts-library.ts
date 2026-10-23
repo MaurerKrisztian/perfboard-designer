@@ -14,7 +14,7 @@ export async function exportCustomParts() {
   const customIcs = Ic.customIcEntries();
   const customParts = CustomParts.parts;
   if (!customIcs.length && !customParts.length) {
-    await askConfirm("No custom parts yet", "Make one with Custom IC or dev board… or Custom module… at the top of the Components list, then export it here.", "OK");
+    await askConfirm("No custom parts yet", "Make one with Custom part… at the top of the Components list, then export it here.", "OK");
     return;
   }
   const json = JSON.stringify(partsLibrary(customIcs, customParts), null, 2);

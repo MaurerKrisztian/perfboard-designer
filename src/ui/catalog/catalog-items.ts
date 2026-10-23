@@ -7,7 +7,7 @@ import {ToolState} from "../../state/ToolState";
 import {setActiveTool} from "../../features/active-tool";
 import {CategoryId} from "../../parts/catalog-categories";
 import {advancedKey, customPartKey, icKey, standardKey} from "../../features/catalog/catalog-keys";
-import {CUSTOM_PART_ID} from "../../parts/custom-parts";
+import {CUSTOM_PART_ID, customPartShape} from "../../parts/custom-parts";
 import {CustomParts, customPartIconSvg, isArmed as isCustomPartArmed} from "../../features/custom-parts";
 import {openDialog} from "../dialogs/dialog-store";
 import {catalogVersion} from "../../features/catalog/catalog-events";
@@ -39,8 +39,11 @@ function isArmed(kind: "standard-component" | "advanced-component", definitionId
   return active.kind === kind && active.definitionId === definitionId;
 }
 
-const CUSTOM_ACTION_KEYWORDS = ["custom", "new", "create", "add"];
-const CUSTOM_MODULE_KEYWORDS = ["custom", "module", "breakout", "sensor", "board", "pins", "new", "create", "add"];
+// Every kind the custom part chooser makes, so a search for any of them finds it.
+const CUSTOM_PART_KEYWORDS = [
+  "custom", "new", "create", "add", "ic", "chip", "dip", "dev board", "module", "breakout", "sensor", "board", "pins",
+  "transistor", "package", "to-92", "to-220", "bjt", "mosfet", "regulator",
+];
 
 // The IC icons are drawn in code (generic DIP / dev board), not stored as files.
 function svgDataUri(svg: string): string {
@@ -52,14 +55,9 @@ function svgDataUri(svg: string): string {
 export function buildCatalog(): CatalogItem[] {
   const items: CatalogItem[] = [
     {
-      key: "action:custom", isAction: true, name: "Custom IC or dev board…",
-      keywords: CUSTOM_ACTION_KEYWORDS, emoji: "➕",
-      activate: () => openDialog({kind: "ic-editor", type: "ic"}), isArmed: () => false
-    },
-    {
-      key: "action:custom-module", isAction: true, name: "Custom module (any pins)…",
-      keywords: CUSTOM_MODULE_KEYWORDS, emoji: "➕",
-      activate: () => openDialog({kind: "custom-module"}), isArmed: () => false
+      key: "action:custom", isAction: true, name: "Custom part…",
+      keywords: CUSTOM_PART_KEYWORDS, emoji: "➕",
+      activate: () => openDialog({kind: "custom-part"}), isArmed: () => false
     },
   ];
 
@@ -101,16 +99,19 @@ export function buildCatalog(): CatalogItem[] {
     });
   }
 
-  // The user's own modules with pins anywhere, each placed with its own spec.
+  // The user's own parts, each placed with its own spec: modules with pins anywhere, and parts in a
+  // built-in part's package, listed beside it.
   for (const part of CustomParts.parts) {
+    const shape = customPartShape(part.shape);
     items.push({
-      key: customPartKey(part.id), isAction: false, name: part.name, categoryId: "modules.custom",
-      keywords: ["custom", "module"], iconPath: svgDataUri(customPartIconSvg(part)), emoji: "📟",
+      key: customPartKey(part.id), isAction: false, name: part.name, categoryId: shape?.category ?? "modules.custom",
+      keywords: shape ? ["custom", ...(shape.keywords ?? [])] : ["custom", "module"],
+      iconPath: shape ? getAdvancedIconPath(shape) : svgDataUri(customPartIconSvg(part)), emoji: shape ? "🧩" : "📟",
       activate: () => setActiveTool(isCustomPartArmed(part.id)
         ? {kind: "select"}
         : {kind: "advanced-component", definitionId: CUSTOM_PART_ID, rotation: 0, custom: part}),
       isArmed: () => isCustomPartArmed(part.id),
-      edit: () => openDialog({kind: "custom-module", editing: part}),
+      edit: () => openDialog(shape ? {kind: "custom-shape", editing: part} : {kind: "custom-module", editing: part}),
       remove: () => part.id && CustomParts.remove(part.id),
     });
   }

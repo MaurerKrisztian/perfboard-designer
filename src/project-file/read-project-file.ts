@@ -4,7 +4,7 @@ import {
   SavedPerfboard, SavedStandardComponent, SavedWire
 } from "./project-file";
 import {BoardRefs, refPrefixFor} from "./part-refs";
-import {CUSTOM_PART_ID, CustomPartPin, CustomPartSpec, MAX_CUSTOM_PART_SIDE} from "../parts/custom-parts";
+import {CUSTOM_PART_ID, CustomPartPin, CustomPartSpec, customPartShape, MAX_CUSTOM_PART_SIDE, shapedPartSpec} from "../parts/custom-parts";
 import {ensureComponentIds} from "./component-ids";
 import {readRequirements} from "./requirements";
 
@@ -81,12 +81,24 @@ const REF_PREFIX = /^[A-Za-z]{1,4}$/;
 const MAX_LABEL_LENGTH = 24;
 
 // A custom part's definition (SavedAdvancedComponent.custom), or undefined if it can't be one: a
-// body of 1 to MAX_CUSTOM_PART_SIDE holes a side and at least one pin, each in its own hole of it.
+// body of 1 to MAX_CUSTOM_PART_SIDE holes a side and at least one pin, each in its own hole of it,
+// or a known package (`shape`), whose holes it takes.
 export function readCustomPart(value: unknown): CustomPartSpec | undefined {
   const entry = asEntry(value);
-  const cols = entry && wholeCount(entry.cols);
-  const rows = entry && wholeCount(entry.rows);
-  if (!entry || !cols || !rows || cols > MAX_CUSTOM_PART_SIDE || rows > MAX_CUSTOM_PART_SIDE || !Array.isArray(entry.pins)) return undefined;
+  if (!entry) return undefined;
+  const refPrefix = typeof entry.refPrefix === "string" && REF_PREFIX.test(entry.refPrefix) ? entry.refPrefix.toUpperCase() : undefined;
+  const id = text(entry.id)?.slice(0, 64);
+  const name = text(entry.name)?.trim().slice(0, 60);
+  // A known package decides the size and the pins' holes; only the pins' names are read.
+  const shapeId = text(entry.shape)?.trim().slice(0, 64);
+  const shape = customPartShape(shapeId);
+  if (shape) {
+    const labels = Array.isArray(entry.pins) ? entry.pins.map(item => text(asEntry(item)?.label)?.trim().slice(0, MAX_LABEL_LENGTH) ?? "") : [];
+    return shapedPartSpec(shape, {...(id ? {id} : {}), name: name || shape.name, ...(refPrefix ? {refPrefix} : {}), labels});
+  }
+  const cols = wholeCount(entry.cols);
+  const rows = wholeCount(entry.rows);
+  if (!cols || !rows || cols > MAX_CUSTOM_PART_SIDE || rows > MAX_CUSTOM_PART_SIDE || !Array.isArray(entry.pins)) return undefined;
   const pins: CustomPartPin[] = [];
   const taken = new Set<string>();
   for (const item of entry.pins) {
@@ -100,12 +112,12 @@ export function readCustomPart(value: unknown): CustomPartSpec | undefined {
     pins.push({at: [col, row], ...(label ? {label} : {})});
   }
   if (!pins.length) return undefined;
-  const refPrefix = typeof entry.refPrefix === "string" && REF_PREFIX.test(entry.refPrefix) ? entry.refPrefix.toUpperCase() : undefined;
   const color = text(entry.color)?.trim().slice(0, 32);
-  const id = text(entry.id)?.slice(0, 64);
   return {
-    ...(id ? {id} : {}), name: text(entry.name)?.trim().slice(0, 60) || "Custom Module",
+    ...(id ? {id} : {}), name: name || "Custom Module",
     ...(refPrefix ? {refPrefix} : {}), cols, rows, pins, ...(color ? {color} : {}),
+    // A package this build doesn't have: drawn as a plain module, and kept for one that has it.
+    ...(shapeId ? {shape: shapeId} : {}),
   };
 }
 

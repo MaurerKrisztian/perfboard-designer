@@ -1,4 +1,8 @@
-import {BoardRefs, boardPins, fileVersionFor, GridPos, isSolderPath, isValidRef, partPins, pinName, ProjectFile, Rotation, SavedWire} from "./editor";
+import {
+  BoardRefs, boardPins, CUSTOM_PART_ID, customPartDefinition, customPartShape, type CustomPartSpec, fileVersionFor, GridPos,
+  isSolderPath, isValidRef, MAX_CUSTOM_PART_SIDE, partPins, pinName, ProjectFile, readCustomPart, SavedCustomIc, SavedWire,
+  shapedPartSpec,
+} from "./editor";
 import {findPart, icEntry, noSuchPart} from "./parts";
 import {findPin, pinsByRef} from "./expected-nets";
 import {EditOp, Op} from "./edit-ops";
@@ -75,11 +79,24 @@ export function pinsOf(project: ProjectFile, refs: string[]): Record<string, Rec
 // --- Parts ---
 
 function addPart(project: ProjectFile, op: Op<"add_part">, placed: Set<string>): string {
-  const part = findPart(op.part);
-  const custom = part ? undefined : project.customIcs.find(ic => ic.name.toLowerCase() === op.part.trim().toLowerCase());
-  if (!part && !custom) throw new OpError(`${noSuchPart(op.part)} Use list_parts to find one.`);
+  const given = [op.part, op.custom, op.chip].filter(field => field !== undefined).length;
+  if (given !== 1) {
+    throw new OpError("Give one of `part` (a catalog id, or the name of a custom part or chip the project has), `custom` (a new part of your own) or `chip` (a new chip or dev board of your own).");
+  }
+  if (op.custom) return placeCustomPart(project, op, makeCustomPart(project, op.custom), true, placed);
+  if (op.chip) return placeChip(project, op, makeChip(project, op.chip), true, placed);
 
-  if (part?.kind === "standard-component") {
+  const name = op.part!;
+  const part = findPart(name);
+  if (!part) {
+    const chip = findCustomChip(project, name);
+    if (chip) return placeChip(project, op, chip, false, placed);
+    const custom = findCustomPart(project, name);
+    if (custom) return placeCustomPart(project, op, structuredClone(custom), false, placed);
+    throw new OpError(`${noSuchPart(name)} Use list_parts to find one, or make it with \`custom\` or \`chip\`.`);
+  }
+
+  if (part.kind === "standard-component") {
     notFor(`a two-lead part (${part.id})`, op, ["at", "rotation", "rows", "cols"]);
     if (!op.from || !op.to) throw new OpError(`${part.id} is a two-lead part: give \`from\` and \`to\`, the holes of its two leads.`);
     checkOnBoard(project, op.from, "`from`");
@@ -93,18 +110,12 @@ function addPart(project: ProjectFile, op: Op<"add_part">, placed: Set<string>):
     return `Added ${ref} (${part.name}${op.value ? ` ${op.value}` : ""}) from ${showHole(op.from)} to ${showHole(op.to)}.`;
   }
 
-  notFor("a part placed by `at`", op, ["from", "to", "color"]);
-  if (!op.at) throw new OpError("Give `at`: the hole of pin 1 (a chip's or pin block's top-left pin).");
-  checkOnBoard(project, op.at, "`at`");
-  const at = toGridPos(op.at);
-  const rotation: Rotation = op.rotation ?? 0;
-  const turned = rotation ? `, turned ${rotation}°` : "";
-
-  if (part?.kind === "advanced-component") {
+  const {at, turned} = placedBy(project, op);
+  if (part.kind === "advanced-component") {
     if (!part.sizable) notFor(`${part.id} (not a pin block)`, op, ["rows", "cols"]);
     const ref = claimRef(project, op.ref, part.refPrefix);
     project.placedAdvancedComponents.push({
-      ref, definitionId: part.id, at, rotation, rows: op.rows ?? 1, cols: op.cols ?? 1,
+      ref, definitionId: part.id, at, rotation: op.rotation ?? 0, rows: op.rows ?? 1, cols: op.cols ?? 1,
       ...(op.value ? {value: op.value} : {}),
     });
     placed.add(ref);
@@ -113,19 +124,176 @@ function addPart(project: ProjectFile, op: Op<"add_part">, placed: Set<string>):
 
   notFor("a chip", op, ["rows", "cols", "value"]);
   const ref = claimRef(project, op.ref, "U");
-  if (part?.kind === "ic") {
-    project.placedIcs.push(icEntry(part, at, rotation, ref));
-  } else {
-    const ic = custom!;
-    const sideways = rotation === 90 || rotation === 270;
-    project.placedIcs.push({
-      ref, name: ic.name, at, rotation,
-      widthPin: sideways ? ic.heightPin : ic.widthPin, heightPin: sideways ? ic.widthPin : ic.heightPin,
-      pinDescription: {...ic.pinDescription}, ...(ic.category ? {category: ic.category} : {}),
-    });
-  }
+  project.placedIcs.push(icEntry(part, at, op.rotation ?? 0, ref));
   placed.add(ref);
-  return `Added ${ref} (${part?.name ?? custom!.name}) with its top-left pin at ${showHole(at)}${turned}.`;
+  return `Added ${ref} (${part.name}) with its top-left pin at ${showHole(at)}${turned}.`;
+}
+
+// A part placed by `at` (pin 1's hole) and `rotation`: where, and how the reply says it's turned.
+function placedBy(project: ProjectFile, op: Op<"add_part">): {at: GridPos; turned: string} {
+  notFor("a part placed by `at`", op, ["from", "to", "color"]);
+  if (!op.at) throw new OpError("Give `at`: the hole of pin 1 (a chip's or pin block's top-left pin).");
+  checkOnBoard(project, op.at, "`at`");
+  return {at: toGridPos(op.at), turned: op.rotation ? `, turned ${op.rotation}°` : ""};
+}
+
+// --- Parts of the agent's own ---
+
+const REF_LETTERS = /^[A-Z]{1,4}$/;
+const MAX_NAME = 60;
+const MAX_PIN_NAME = 24;
+
+// A custom part of this name on the board (any copy's spec: they're all the same part).
+function findCustomPart(project: ProjectFile, name: string): CustomPartSpec | undefined {
+  const wanted = name.trim().toLowerCase();
+  return project.placedAdvancedComponents.find(part => part.custom?.name.toLowerCase() === wanted)?.custom;
+}
+
+function findCustomChip(project: ProjectFile, name: string): SavedCustomIc | undefined {
+  const wanted = name.trim().toLowerCase();
+  return project.customIcs.find(ic => ic.name.toLowerCase() === wanted);
+}
+
+// A new part's name: not one a later `part` would find something else by.
+function newPartName(given: string, what: string): string {
+  const name = given.trim();
+  if (!name) throw new OpError(`\`${what}.name\` is empty: name the part, e.g. "BC337".`);
+  if (name.length > MAX_NAME) throw new OpError(`\`${what}.name\` is longer than ${MAX_NAME} characters.`);
+  const catalog = findPart(name);
+  if (catalog) throw new OpError(`"${name}" is already the catalog's ${catalog.name} (id ${catalog.id}): place that with \`part\`, or give yours another name.`);
+  return name;
+}
+
+function checkedPinName(label: string | undefined, i: number, what: string): string {
+  const name = label?.trim() ?? "";
+  if (name.length > MAX_PIN_NAME) throw new OpError(`${what} pin ${i + 1}'s name is longer than ${MAX_PIN_NAME} characters.`);
+  return name;
+}
+
+// The custom part `custom` describes, checked the way the editor reads one.
+function makeCustomPart(project: ProjectFile, custom: NonNullable<Op<"add_part">["custom"]>): CustomPartSpec {
+  const name = newPartName(custom.name, "custom");
+  if (findCustomChip(project, name)) throw new OpError(`The project already has a custom chip named "${name}": give this part another name.`);
+  const existing = findCustomPart(project, name);
+  const refPrefix = custom.refPrefix?.trim().toUpperCase();
+  if (refPrefix !== undefined && !REF_LETTERS.test(refPrefix)) throw new OpError("`custom.refPrefix` is 1 to 4 letters, such as M or Q.");
+  const pins = custom.pins ?? [];
+  const labels = pins.map((pin, i) => checkedPinName(pin.label, i, "`custom.pins`:"));
+
+  let spec: CustomPartSpec;
+  if (custom.shape !== undefined) {
+    const shape = customPartShape(custom.shape);
+    if (!shape) {
+      const part = findPart(custom.shape);
+      throw new OpError(part
+        ? `${part.id} can't be a custom part's \`shape\`: give a fixed-pin part from list_parts other than header-pins, such as "transistor" (TO-92) or "mosfet" (TO-220).`
+        : `${noSuchPart(custom.shape)} \`custom.shape\` is the id of a fixed-pin part from list_parts, such as "transistor" (TO-92) or "mosfet" (TO-220).`);
+    }
+    const holes = ["cols", "rows", "color"].filter(field => custom[field as "cols" | "rows" | "color"] !== undefined);
+    if (pins.some(pin => pin.at)) holes.push("pins[].at");
+    if (holes.length) throw new OpError(`With \`shape\` the package decides the part's holes and look: leave out ${holes.map(f => `\`custom.${f}\``).join(", ")}.`);
+    if (labels.length > shape.pinOffsets.length) {
+      throw new OpError(`${shape.name} has ${plural(shape.pinOffsets.length, "pin")}, but \`custom.pins\` names ${labels.length}.`);
+    }
+    spec = shapedPartSpec(shape, {name, ...(refPrefix ? {refPrefix} : {}), labels});
+  } else {
+    if (!pins.length) {
+      throw new OpError("`custom.pins` needs every pin's hole `at` within the body, pin 1 first. Or give `custom.shape` to take a catalog part's package.");
+    }
+    const holes = pins.map((pin, i) => {
+      if (!pin.at) throw new OpError(`\`custom.pins[${i}]\` has no \`at\`: without \`shape\`, give each pin's hole within the body.`);
+      if (pin.at[0] < 0 || pin.at[1] < 0) throw new OpError(`\`custom.pins[${i}].at\` ${showHole(pin.at)} is outside the body: holes count from its top-left one, [0, 0].`);
+      return toGridPos(pin.at);
+    });
+    const cols = custom.cols ?? Math.max(...holes.map(at => at[0])) + 1;
+    const rows = custom.rows ?? Math.max(...holes.map(at => at[1])) + 1;
+    if (cols > MAX_CUSTOM_PART_SIDE || rows > MAX_CUSTOM_PART_SIDE) {
+      throw new OpError(`The body is ${cols}×${rows} holes; a custom part is at most ${MAX_CUSTOM_PART_SIDE} holes a side.`);
+    }
+    holes.forEach((at, i) => {
+      if (at[0] >= cols || at[1] >= rows) throw new OpError(`\`custom.pins[${i}].at\` ${showHole(at)} is outside a body of ${cols}×${rows} holes.`);
+      const first = holes.findIndex(other => sameHole(other, at));
+      if (first < i) throw new OpError(`Pins ${first + 1} and ${i + 1} are both at ${showHole(at)}: each pin needs its own hole.`);
+    });
+    const color = custom.color?.trim();
+    spec = {
+      name, ...(refPrefix ? {refPrefix} : {}), cols, rows,
+      pins: holes.map((at, i) => ({at, ...(labels[i] ? {label: labels[i]} : {})})),
+      ...(color ? {color} : {}),
+    };
+  }
+  // The editor's reader is the judge of what a custom part may be.
+  const read = readCustomPart(spec);
+  if (!read) throw new OpError("That custom part can't be saved: check its pins and size.");
+  if (existing && JSON.stringify({...existing, id: undefined}) !== JSON.stringify({...read, id: undefined})) {
+    throw new OpError(`The board already has a different custom part named "${name}": place that one with \`part\`, or give this one another name.`);
+  }
+  return read;
+}
+
+function placeCustomPart(project: ProjectFile, op: Op<"add_part">, spec: CustomPartSpec, isNew: boolean, placed: Set<string>): string {
+  notFor("a custom part", op, ["rows", "cols"]);
+  const {at, turned} = placedBy(project, op);
+  const ref = claimRef(project, op.ref, customPartDefinition(spec).refPrefix);
+  project.placedAdvancedComponents.push({
+    ref, definitionId: CUSTOM_PART_ID, at, rotation: op.rotation ?? 0, rows: 1, cols: 1,
+    ...(op.value ? {value: op.value} : {}), custom: spec,
+  });
+  placed.add(ref);
+  const shape = customPartShape(spec.shape);
+  const what = shape ? `in the ${shape.name} package` : `${spec.cols}×${spec.rows} holes, ${plural(spec.pins.length, "pin")}`;
+  return `Added ${ref} (${spec.name}, ${isNew ? "a new custom part" : "custom"}, ${what}) with pin 1 at ${showHole(at)}${turned}.`;
+}
+
+// The custom chip `chip` describes, added to the project's customIcs (where the editor's catalog
+// picks it up), or the same one already there.
+function makeChip(project: ProjectFile, chip: NonNullable<Op<"add_part">["chip"]>): SavedCustomIc {
+  const name = newPartName(chip.name, "chip");
+  if (findCustomPart(project, name)) throw new OpError(`The board already has a custom part named "${name}": give this chip another name.`);
+  const total = chip.pinsPerSide * 2;
+  const names = chip.pins ?? [];
+  if (names.length > total) throw new OpError(`A chip with ${chip.pinsPerSide} pins a side has ${total} pins, but \`chip.pins\` names ${names.length}.`);
+  const pinDescription: Record<number, string> = {};
+  names.forEach((label, i) => {
+    const pin = checkedPinName(label, i, "`chip.pins`:");
+    if (pin) pinDescription[i + 1] = pin;
+  });
+  const entry: SavedCustomIc = {
+    name, widthPin: chip.width, heightPin: chip.pinsPerSide, pinDescription, category: chip.board ? "modules.custom" : "ics.custom",
+  };
+  const existing = findCustomChip(project, name);
+  if (existing) {
+    const same = existing.widthPin === entry.widthPin && existing.heightPin === entry.heightPin
+      && JSON.stringify(existing.pinDescription) === JSON.stringify(entry.pinDescription) && (existing.category ?? "ics.custom") === entry.category;
+    if (!same) throw new OpError(`The project already has a different custom chip named "${name}": place that one with \`part\`, or give this one another name.`);
+    return existing;
+  }
+  // An id, so the editor adds it to its catalog once however often the board is opened. Its own
+  // custom chips have ids below 100.
+  project.customIcs.push({id: 1000 + hashOf(JSON.stringify(entry)), ...entry});
+  return project.customIcs[project.customIcs.length - 1];
+}
+
+function placeChip(project: ProjectFile, op: Op<"add_part">, chip: SavedCustomIc, isNew: boolean, placed: Set<string>): string {
+  notFor("a chip", op, ["rows", "cols", "value"]);
+  const {at, turned} = placedBy(project, op);
+  const rotation = op.rotation ?? 0;
+  const ref = claimRef(project, op.ref, "U");
+  const sideways = rotation === 90 || rotation === 270;
+  project.placedIcs.push({
+    ref, name: chip.name, at, rotation,
+    widthPin: sideways ? chip.heightPin : chip.widthPin, heightPin: sideways ? chip.widthPin : chip.heightPin,
+    pinDescription: {...chip.pinDescription}, ...(chip.category ? {category: chip.category} : {}),
+  });
+  placed.add(ref);
+  return `Added ${ref} (${chip.name}${isNew ? ", a new custom chip" : ""}) with its top-left pin at ${showHole(at)}${turned}.`;
+}
+
+// A small whole number from text (FNV-1a), the same every time.
+function hashOf(text: string): number {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) hash = Math.imul(hash ^ text.charCodeAt(i), 0x01000193);
+  return (hash >>> 0) % 1_000_000_000;
 }
 
 function updatePart(project: ProjectFile, op: Op<"update_part">, placed: Set<string>): string {
