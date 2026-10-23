@@ -61,9 +61,11 @@ device.
 - 🔌 **Real component library**: resistors with color bands worked out from their value
   (type `4.7k`, get yellow-violet-red), ceramic and electrolytic capacitors, inductors, diodes,
   colored LEDs, transistors, MOSFETs, potentiometers and header pins.
-- 📦 **ICs and custom chips**: drop in an NE555 timer, DIP-14 and DIP-16 logic chips, an
-  ATmega328P or an Arduino Nano. You can also build your own chip with labeled pins in the custom
-  IC editor and edit it again later. Chips and fixed-pin parts rotate in 90° steps.
+- 📦 **ICs and custom parts**: drop in an NE555 timer, DIP-14 and DIP-16 logic chips, an
+  ATmega328P or an Arduino Nano. Missing a part? **Custom part…** makes your own: a chip or dev
+  board with labeled pins, a module with pins anywhere, or a part in a package the library has (a
+  BC337 is a TO-92 transistor with its own pinout), and you can edit it again later. Chips and
+  fixed-pin parts rotate in 90° steps.
 - 🔘 **Connectors, controls and power**: 2-pin and 3-pin screw terminals, female headers,
   jumper caps, push buttons, slide switches, 3296W trimmers, and 7805 / LM317 regulators.
 - 🔔 **More outputs and named chips**: buzzers, DPDT relays, four-lead RGB LEDs in common-anode
@@ -204,10 +206,12 @@ Yes. Switch the board to Stripboard and copper strips run along every row or col
 tool to cut a strip at any hole; the cuts are saved with your project and shown on the copper side
 of the 3D view.
 
-### Can I add a chip that isn't in the list?
+### Can I add a part that isn't in the list?
 
-Yes. The custom IC editor lets you set the size and label every pin, and you can edit a custom
-chip again after creating it.
+Yes. Click **Custom part…** at the top of the parts list and pick what it is: a chip or dev board
+(set its size and label every pin), a module with pins anywhere on its board, or a part in a
+package the library has, such as a BC337 transistor (a TO-92 with its own pinout). You can edit it
+again later, and it travels with every board and share link that uses it.
 
 ### Does it simulate or check my circuit?
 
@@ -274,6 +278,8 @@ What the assistant can do with it:
 
 - Look up every part in the library, with its pins and polarity.
 - Start a perfboard or stripboard, place parts, route wires and cut strips.
+- Make parts the library doesn't have: a transistor in a known package with its own pinout, a
+  sensor module, a custom chip. They open in the editor like the ones you make yourself.
 - Check the wiring: pins left unconnected, parts sharing a hole, shorted supply rails, strips
   shorting a chip. Given the netlist it meant, it reports every missing or extra connection.
 - Hand you a share link (and a short link if you ask) that opens the board in the editor.
