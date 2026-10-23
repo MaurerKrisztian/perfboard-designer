@@ -100,7 +100,7 @@ class Viewer3d {
     this.renderer.shadowMap.type = PCFSoftShadowMap;
     this.host.appendChild(this.renderer.domElement);
 
-    this.scene.background = new Color("#0b1220");
+    this.scene.background = new Color("#0b1411");
     const pmrem = new PMREMGenerator(this.renderer);
     this.scene.environment = pmrem.fromScene(new RoomEnvironment(this.renderer), 0.04).texture;
     pmrem.dispose();

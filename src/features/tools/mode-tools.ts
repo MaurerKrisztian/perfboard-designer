@@ -7,9 +7,7 @@ import {addDescriptionToDot} from "../dot-notes";
 import {findPartAt, removePart} from "../placed-parts";
 import {ToolBehavior} from "./tool";
 
-// The toolbar's three modes.
-
-const modeStatus = (tool: ActiveTool) => `Tool: ${tool.kind.toUpperCase()} Mode`;
+// The tool rail's three modes (and Cut, in cut-tool.ts).
 
 // A press on bare board is held back by select.ts to tell a click from a drag-to-pan, so this
 // only sees presses on a placed part (picking it up) - and the released click, via selectAt.
@@ -18,7 +16,7 @@ export const selectTool: ToolBehavior<Extract<ActiveTool, {kind: "select"}>> = {
     selectAt(x, y, true);
     return true;
   },
-  statusText: (tool) => `${modeStatus(tool)} [Drag from a pad to wire it]`,
+  statusText: () => "Select [Drag from a pad to draw a wire]",
 };
 
 // Removes the topmost part under the pointer, else the wire, else the hole's note.
@@ -41,7 +39,7 @@ export const eraserTool: ToolBehavior<Extract<ActiveTool, {kind: "eraser"}>> = {
     if (hoverDot?.description) hoverDot.description = undefined;
     return true;
   },
-  statusText: modeStatus,
+  statusText: () => "Erase [Click a part, wire or note to remove it]",
 };
 
 export const noteTool: ToolBehavior<Extract<ActiveTool, {kind: "note"}>> = {
@@ -49,5 +47,5 @@ export const noteTool: ToolBehavior<Extract<ActiveTool, {kind: "note"}>> = {
     if (hoverDot) void addDescriptionToDot(hoverDot);
     return true;
   },
-  statusText: modeStatus,
+  statusText: () => "Note [Click a pad to write on it]",
 };

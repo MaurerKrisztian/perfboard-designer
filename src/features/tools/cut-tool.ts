@@ -28,5 +28,5 @@ export const cutTool: ToolBehavior<CutTool> = {
     });
   },
 
-  statusText: () => "Tool: CUT Mode [Click hole to cut / mend]",
+  statusText: () => "Cut [Click a hole to cut the strip there, again to mend it]",
 };

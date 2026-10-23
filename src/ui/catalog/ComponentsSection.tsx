@@ -10,7 +10,7 @@ import {loadCollapsedCategories, saveCollapsedCategories} from "./collapsed-cate
 import {CatalogTree} from "./CatalogTree";
 import {CatalogResults} from "./CatalogResults";
 
-// The sidebar's Components section: a search box over a category tree. While the box has a query,
+// The left panel's Parts section: a search box over a category tree. While the box has a query,
 // the tree is swapped for a flat list of ranked results. It only decides where parts are listed;
 // each item knows how to arm its part (catalog-items.ts).
 
@@ -104,10 +104,13 @@ export function ComponentsSection() {
   });
 
   return (
-    <SidebarSection id="components" bodyId="componentsSection" icon="chip" title="Components" bodyClassName="catalog-section-body"
+    <SidebarSection id="components" bodyId="componentsSection" icon="chip" title="Parts" bodyClassName="catalog-section-body"
       collapsed={sectionCollapsed} onToggle={() => setSectionCollapsed(c => !c)}>
-      <input type="search" id="catalogSearch" className="catalog-search" placeholder="Search components…  ( / )" autoComplete="off" spellCheck={false}
-        ref={search} value={query} onChange={e => changeQuery(e.target.value)} onKeyDown={onSearchKey}/>
+      <div className="catalog-search-box">
+        <input type="search" id="catalogSearch" className="catalog-search" placeholder="Search parts" aria-label="Search parts" autoComplete="off"
+          spellCheck={false} ref={search} value={query} onChange={e => changeQuery(e.target.value)} onKeyDown={onSearchKey}/>
+        {!query && <kbd className="catalog-search-key" title="Press / to search">/</kbd>}
+      </div>
       {searching && <CatalogResults query={query} results={results} activeIndex={activeIndex} onHover={setActiveIndex} onPick={pick}/>}
       <div id="catalog-tree" className="catalog-tree" ref={tree} hidden={searching}>
         <CatalogTree items={items} collapsed={collapsed} onToggleCategory={toggleCategory}/>

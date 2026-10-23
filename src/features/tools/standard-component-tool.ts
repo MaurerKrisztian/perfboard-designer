@@ -40,6 +40,6 @@ export const standardComponentTool: ToolBehavior<StandardComponentTool> = {
 
   statusText(tool) {
     const name = getComponentDefinition(tool.definitionId)?.name ?? "Component";
-    return tool.start ? `Placing ${name} [Click end pad • Shift+click to place more]` : `${name} Armed [Click start pad]`;
+    return tool.start ? `Placing ${name} [Click the end pad • Shift+click to place more]` : `${name} [Click the start pad]`;
   },
 };

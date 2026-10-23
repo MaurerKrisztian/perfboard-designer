@@ -1,13 +1,15 @@
-/* Full-window 3D board viewer. Sits above everything, including the editor's fullscreen mode. */
+/* Full-window 3D board viewer. Sits above everything, including the editor's fullscreen mode. Its
+   colours are the editor's (src/style.css's :root), written out: the viewer reads nothing of the
+   editor's, its styles included. */
 .viewer3d-overlay {
   position: fixed;
   inset: 0;
   z-index: 100000;
   display: flex;
   flex-direction: column;
-  background: #0b1220;
-  color: #e5e7eb;
-  font-family: Inter, Arial, sans-serif;
+  background: #0b1411;
+  color: #edf2ec;
+  font-family: Barlow, system-ui, sans-serif;
 }
 
 .viewer3d-toolbar {
@@ -17,8 +19,8 @@
   gap: 0.75rem;
   padding: 0.5rem max(0.75rem, env(safe-area-inset-right, 0px)) 0.5rem max(1rem, env(safe-area-inset-left, 0px));
   padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
-  background: #111827;
-  border-bottom: 1px solid #1f2937;
+  background: #101b17;
+  border-bottom: 1px solid #16241f;
 }
 
 .viewer3d-title {
@@ -33,14 +35,14 @@
 .viewer3d-status {
   font-weight: 500;
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: #a5b4ab;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .viewer3d-status-error {
-  color: #f87171;
+  color: #ef6a54;
 }
 
 .viewer3d-actions {
@@ -58,16 +60,16 @@
   font: inherit;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #e5e7eb;
-  background: #1f2937;
-  border: 1px solid #374151;
+  color: #edf2ec;
+  background: #16241f;
+  border: 1px solid #2c4038;
   border-radius: 8px;
   cursor: pointer;
 }
 
 .viewer3d-btn:hover {
-  background: #273244;
-  border-color: #4b5563;
+  background: #1e3029;
+  border-color: #3b5249;
 }
 
 .viewer3d-btn-close {
@@ -105,9 +107,9 @@
   display: flex;
   gap: 2px;
   padding: 3px;
-  background: rgba(17, 24, 39, 0.9);
+  background: rgba(16, 27, 23, 0.92);
   backdrop-filter: blur(8px);
-  border: 1px solid #334155;
+  border: 1px solid #2c4038;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   pointer-events: auto;
@@ -120,7 +122,7 @@
   font: inherit;
   font-size: 0.82rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: #a5b4ab;
   background: transparent;
   border: none;
   border-radius: 9px;
@@ -128,13 +130,13 @@
 }
 
 .viewer3d-view:hover {
-  color: #e5e7eb;
-  background: #1f2937;
+  color: #edf2ec;
+  background: #16241f;
 }
 
 .viewer3d-view.is-active {
-  color: #ffffff;
-  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  color: #1f1206;
+  background: #d08c4c;
 }
 
 .viewer3d-file {
@@ -160,7 +162,7 @@
 
 .viewer3d-hint {
   font-size: 0.72rem;
-  color: #94a3b8;
+  color: #a5b4ab;
   text-align: center;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }

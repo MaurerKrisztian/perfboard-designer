@@ -92,34 +92,32 @@ export function SpectrumPicker() {
   };
 
   return (
-    <div id="customColorPanel" style={{display: "flex", marginTop: "0.6rem", padding: "0.75rem", background: "#111827", border: "1px solid #374151", borderRadius: 10, flexDirection: "column", gap: "0.6rem"}}>
-      <div style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
-        <span style={{fontSize: "0.75rem", fontWeight: 700, color: "var(--text-muted)"}}>VISUAL COLOR PICKER</span>
-        <div style={{display: "flex", alignItems: "center", gap: 6}}>
-          <span style={{fontSize: "0.75rem", color: "var(--text-muted)"}}>HEX:</span>
-          <input type="text" value={hex} onChange={e => setHex(e.target.value)} aria-label="Hex color"
-            style={{width: 75, padding: "0.2rem 0.4rem", fontSize: "0.75rem", fontFamily: "monospace"}}/>
-          <div style={{width: 24, height: 24, borderRadius: 6, background: hex, border: "2px solid #ffffff", boxShadow: "0 0 6px rgba(0,0,0,0.4)"}}/>
-        </div>
+    <div id="customColorPanel" className="spectrum-picker">
+      <div className="spectrum-head">
+        <span>Pick a colour</span>
+        <label className="spectrum-hex">
+          <span>Hex</span>
+          <input type="text" value={hex} onChange={e => setHex(e.target.value)} aria-label="Hex colour"/>
+          <span className="spectrum-preview" style={{background: hex}}/>
+        </label>
       </div>
 
-      <div style={{position: "relative", width: "100%", height: 130, borderRadius: 6, overflow: "hidden", cursor: "crosshair", border: "1px solid #374151"}}>
-        <canvas ref={canvas} width={SPECTRUM_WIDTH} height={SPECTRUM_HEIGHT} style={{display: "block", width: "100%", height: "100%"}}
+      <div className="spectrum-area">
+        <canvas ref={canvas} width={SPECTRUM_WIDTH} height={SPECTRUM_HEIGHT}
           onPointerDown={e => {
             setDragging(true);
             pickAt(e.clientX, e.clientY);
           }}/>
-        <div style={{position: "absolute", width: 12, height: 12, borderRadius: "50%", border: "2px solid #ffffff", boxShadow: "0 0 4px rgba(0,0,0,0.8)",
-          pointerEvents: "none", transform: "translate(-50%, -50%)", left: handle.x, top: handle.y}}/>
+        <div className="spectrum-handle" style={{left: handle.x, top: handle.y}}/>
       </div>
 
-      <div style={{display: "flex", alignItems: "center", gap: "0.5rem"}}>
-        <span style={{fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: "bold"}}>HUE:</span>
+      <label className="spectrum-hue">
+        <span>Hue</span>
         <input type="range" min="0" max="360" value={hue} onChange={e => changeHue(parseInt(e.target.value || "0"))}
-          style={{flex: 1, cursor: "pointer"}} className="rainbow-slider" aria-label="Hue"/>
-      </div>
+          className="rainbow-slider" aria-label="Hue"/>
+      </label>
 
-      <button className="btn-primary" style={{padding: "0.4rem", fontSize: "0.8rem", width: "100%"}} onClick={addToPalette}>🎨 Add Color to Palette</button>
+      <button className="btn-accent" onClick={addToPalette}>Add to palette</button>
     </div>
   );
 }

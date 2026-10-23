@@ -76,7 +76,7 @@ D1.A–R3.2. If one of these numbers changes, something changed how boards are r
 | `parts()` | Each part: `ref`, `part` (catalog id or chip name), `pins` with their holes. |
 | `nets()` | Each net: `name`, `pins` (`"U1.8"`, `"D1.K"`), `wires` (indexes into `project().wires`). One pin: an unconnected pin. |
 | `selection()` | `{kind: "pad", at}`, `{kind: "wire", from, to}`, `{kind: "part", ref}` or `null`. |
-| `hover()` | The hole under the pointer (`at`) and the readout under the board (`text`). |
+| `hover()` | The hole under the pointer (`at`) and the readout along the board's foot (`text`). |
 | `tool()` | `"select"`, `"wire"`, `"solder"`, `"eraser"`, `"note"`, `"cut"`, or the kind of part being placed. |
 | `view()` | `zoom`, `fit`, `solderSide`, `labels`. |
 | `dialog()` | The question or notice showing (`kind` `"text"`, `"confirm"` or `"notice"`, `title`, `message`), or `null`. |
@@ -110,8 +110,10 @@ on the canvas: the board listens to pointer events.
   `confirm()`. `__perfboard.dialog()` says which question or notice is showing; Escape or its
   buttons answer it.
 
-Page elements worth reading: `#activeSelectionStatus` (the tool line above the board),
-`#currentProjectBtn` (project name), `#netsCount`, `#dotDescription` (readout under the board),
+Page elements worth reading: `#activeSelectionStatus` (the status above the board: what's selected,
+or what the tool does), `.status-hints` (its hints, along the board's foot; on a phone they're in the
+status), `#currentProjectBtn` (project name), `#netsCount`, `#dotDescription` (the readout along the
+board's foot), `.rail-btn.is-active` (the tool rail's active tool),
 `#contextMenu`, `#selectionBar .selection-bar-label`, `#zoomLevelText`, `#mobileNav .active-mode`,
 `#open3dViewBtn`, and the 3D view's `.viewer3d-canvas-host canvas`.
 
@@ -129,6 +131,8 @@ https://projects.perfboarddesigner.com/mcp; a local one is `cd mcp && npm run bu
 ## Pitfalls
 
 - The editor is at `/app/`, not `/`.
+- An empty board shows a start card over its middle (`.empty-board-card`), which takes clicks there:
+  open a board by link first, or dismiss it with its ✕.
 - A git worktree whose `node_modules` links to this repo's shares Vite's dependency cache
   (`node_modules/.vite`): two dev servers on one cache break each other's dependencies (504
   "Outdated Optimize Dep"). Run one at a time, or give the worktree its own `npm install`.

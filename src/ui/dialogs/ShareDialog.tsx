@@ -77,7 +77,7 @@ export function ShareDialog({onClose}: {onClose: () => void}) {
   };
 
   return (
-    <Modal title="🔗 Share Link" className="share-card" onClose={onClose}>
+    <Modal title="Share Link" className="share-card" onClose={onClose}>
       <div className="modal-body">
         <p className="share-note">Anyone who opens this link gets their own copy of the board as it is now. Changes you make later aren't in it: share a new link for those.</p>
         <input ref={linkInput} type="text" className="share-link-input" readOnly aria-label="Share link" value={link}/>

@@ -21,8 +21,6 @@ const STRIP_DIRECTIONS: {value: StripDirection; label: string}[] = [
   {value: "vertical", label: "↕ Vertical strips"},
 ];
 
-const mutedLabel = {fontSize: "0.8rem", color: "var(--text-muted)"};
-
 export function BoardSection() {
   const setup = useEditor(() => BoardState.setup);
   const cols = useEditor(() => boardSize().cols);
@@ -44,19 +42,25 @@ export function BoardSection() {
   };
 
   return (
-    <SidebarSection bodyId="gridSection" icon="board" title="Board">
+    <SidebarSection id="board" bodyId="gridSection" icon="board" title="Board">
       <SegmentedControl id="boardTypeSelector" options={BOARD_TYPES} value={setup.type} onChange={type => switchBoard({type})}/>
       <SegmentedControl id="stripDirectionSelector" options={STRIP_DIRECTIONS} value={setup.strips}
         hidden={setup.type !== "stripboard"} onChange={strips => switchBoard({strips})}/>
-      <div className="grid-inputs">
-        <label style={mutedLabel}>W:</label>
-        <input type="number" id="dotMatrixWidth" min="1" value={width} onChange={e => setWidth(e.target.value)}/>
-        <span style={{color: "var(--text-muted)"}}>×</span>
-        <label style={mutedLabel}>H:</label>
-        <input type="number" id="dotMatrixHeight" min="1" value={height} onChange={e => setHeight(e.target.value)}/>
-        <button id="resizeGridBtn" className="btn-accent" style={{padding: "0.35rem 0.65rem"}}
-          onClick={() => void resize(parseInt(width), parseInt(height))}>Resize</button>
-      </div>
+      <form className="grid-inputs" onSubmit={e => {
+        e.preventDefault();
+        void resize(parseInt(width), parseInt(height));
+      }}>
+        <label className="grid-field">
+          <span>Width</span>
+          <input type="number" id="dotMatrixWidth" min="1" value={width} onChange={e => setWidth(e.target.value)}/>
+        </label>
+        <span className="grid-times" aria-hidden="true">×</span>
+        <label className="grid-field">
+          <span>Height</span>
+          <input type="number" id="dotMatrixHeight" min="1" value={height} onChange={e => setHeight(e.target.value)}/>
+        </label>
+        <button id="resizeGridBtn" type="submit">Resize</button>
+      </form>
       <div className="grid-presets" id="gridPresets">
         {GRID_PRESETS.map(preset => (
           <button key={preset.label} className="preset-btn" onClick={() => {

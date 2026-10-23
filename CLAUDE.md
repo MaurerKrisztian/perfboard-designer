@@ -81,9 +81,20 @@ Keep all in-site URLs relative — never `/...` — so it also works under the g
   whatever missing URL was requested, so it's fully self-contained (inline CSS/SVG) and is the one
   page that uses root-based links (`/app/`, `/`).
 
-**Board toolbar, selection bar, icons**: the toolbar above the board (`src/ui/board/BoardToolbar.tsx`)
-has the status badge (`status-text.ts`; plus cancel/rotate while placing), undo/redo, zoom, Fit,
-Labels, Focus. Actions on the selection live in `src/ui/board/selection-actions.ts`: the context
+**Look**: the editor is made of a circuit board's materials. The colours are the tokens at the top
+of `src/style.css` (`--ink-0..3` soldermask surfaces, `--line`, `--silk*` text, `--copper*` for
+whatever is active or primary, `--danger`, `--warn`); use them, not new hex values (the 3D
+viewer's stylesheet writes the same values out, as it reads nothing of the editor's). The typeface
+is Barlow (loaded in `app/index.html`); labels are sentence case. Areas are full-height panels
+separated by hairlines, not cards in cards.
+
+**Tool rail, board toolbar, selection bar, icons**: the tool rail on the left
+(`src/ui/sidebar/ToolRail.tsx`: Select, Erase, Note, Cut on a stripboard, Wire, Solder) picks what
+a click does. The toolbar above the board (`src/ui/board/BoardToolbar.tsx`) has the status
+(`StatusBadge.tsx`, its text from `status-text.ts`: what's selected or what the tool does, with
+cancel/rotate while placing), undo/redo, zoom, Fit, Labels, Focus; the status's hints run along the
+board's foot (`StatusHints`) beside the hover readout (`HoverReadout.tsx`). An empty board shows how
+to start (`EmptyBoardHint.tsx`, with the 555 blinker example to open). Actions on the selection live in `src/ui/board/selection-actions.ts`: the context
 menu (`BoardMenus.tsx`; the core's `board-menus.ts` says which menu is open, where) and the
 selection bar floating over the board (`SelectionBar.tsx`) show only the actions that apply
 (`availableActions()`). Icons are `<Icon name="…"/>` (`src/ui/components/Icon.tsx`, one SVG sprite
@@ -97,10 +108,11 @@ keeps the tool armed (`BoardClick.keepArmed`).
 **Phone layout**: on a small or touch screen (one media query, in both the end of `src/style.css`
 and `PHONE_QUERY` in `src/ui/hooks/use-media-query.ts`; keep them the same) the board fills the
 screen, a bottom toolbar (`src/ui/mobile/MobileNav.tsx`: Select, Wire, Solder, Add, Nets, More)
-opens slide-up sheets (Add/More are the tools sidebar `#controls` with a `data-view`, Nets is the
-right sidebar; which one is open is `layoutStore`'s `sheet`, `src/ui/layout/layout-store.ts`), and
-the board toolbar floats over the board. Nothing may resize the board's area mid-gesture (the
-readout under it keeps its line when empty), or the board jumps under the finger.
+opens slide-up sheets (Add and More are the left panel `#controls` with a `data-view`: Add the
+parts, More the tool modes, wire and board; Nets is the right panel; which one is open is
+`layoutStore`'s `sheet`, `src/ui/layout/layout-store.ts`), and the board toolbar, the status's hints
+with it, floats over the board. Nothing may resize the board's area mid-gesture (the readout along
+its foot keeps its line when empty), or the board jumps under the finger.
 
 **UI and core**: the editor is a React app (`app/index.html` mounts `src/ui/main.tsx`) over a
 framework-free core. The core (`src/features/`, `src/state/`) owns the editor's state and
@@ -200,7 +212,7 @@ one arrives; one-off drawings `await browserIcons.ready(iconsUsedBy(project))`),
 handed their text. **`src/board-render/` is pure** (it may import only `src/project-file/` and
 `src/parts/`), and outside code imports only its `index.ts`.
 
-**Components catalog** (`src/ui/catalog/`): the sidebar's single Components section — a
+**Components catalog** (`src/ui/catalog/`): the left panel's Parts section — a
 search box over a category tree. It only decides where parts are *listed*; placing them is still
 done by the three systems below. `src/parts/catalog-categories.ts` declares the tree (one line per
 category, `parentId` for nesting, array order = display order; `CategoryId` is derived from it so a
@@ -427,7 +439,7 @@ server) always agree. A jumper wire
 joins only its two end holes; a solder path joins every hole it covers (but a cut one) and any
 solder path it touches; things in one hole are joined; on a stripboard a strip joins its holes up
 to the next cut, and a cut hole joins nothing. Nets are derived — never saved in the file.
-The editor shows them live in the right sidebar above the shortcuts (`src/ui/nets/NetsPanel.tsx`),
+The editor shows them live in the right panel above the shortcuts (`src/ui/nets/NetsPanel.tsx`),
 kept by `src/features/board-nets.ts`, which works them out again from `getSaveJson()` shortly after
 a redraw that changed the board. Unconnected pins
 and wires connecting no pins are in folds above the nets (likely mistakes, kept in sight). Clicking a net, an unconnected pin or

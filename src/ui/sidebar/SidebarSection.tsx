@@ -2,8 +2,8 @@ import {ReactNode, useState} from "react";
 import {Icon, IconName} from "../components/Icon";
 import {cx} from "../lib/class-names";
 
-// A collapsible section of the tools sidebar: a title row that folds its body away. It keeps its
-// own state unless the parent controls it (`collapsed` and `onToggle`).
+// A collapsible section of the left panel: a title row that folds its body away. It keeps its own
+// state unless the parent controls it (`collapsed` and `onToggle`).
 interface SidebarSectionProps {
   id?: string;
   bodyId: string;
@@ -22,29 +22,16 @@ export function SidebarSection({id, bodyId, icon, title, extra, bodyClassName, c
   const isCollapsed = collapsed ?? ownCollapsed;
   const toggle = onToggle ?? (() => setOwnCollapsed(c => !c));
   return (
-    <div className="sidebar-section" id={id}>
-      <div className={cx("section-title", isCollapsed && "section-collapsed")} data-collapse={bodyId} onClick={toggle}>
+    <section className={cx("sidebar-section", isCollapsed && "is-collapsed")} id={id}>
+      <button type="button" className="section-title" aria-expanded={!isCollapsed} aria-controls={bodyId} onClick={toggle}>
         <Icon name={icon} className="section-icon"/>
         <span>{title}</span>
         {extra}
-        <span className="collapse-chevron">▾</span>
-      </div>
-      <div className={cx("section-body", bodyClassName, isCollapsed && "collapsed")} id={bodyId}>
+        <span className="collapse-chevron" aria-hidden="true">▾</span>
+      </button>
+      <div className={cx("section-body", bodyClassName)} id={bodyId} hidden={isCollapsed}>
         {children}
       </div>
-    </div>
-  );
-}
-
-// A group of sections under one label (Tools, Build).
-export function SidebarGroup({id, icon, title, children}: {id: string; icon: IconName; title: string; children: ReactNode}) {
-  return (
-    <div className="sidebar-group" id={id}>
-      <div className="sidebar-group-title">
-        <Icon name={icon} className="section-icon"/>
-        <span>{title}</span>
-      </div>
-      {children}
-    </div>
+    </section>
   );
 }

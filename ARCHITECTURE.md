@@ -185,11 +185,22 @@ focus mode, the phone's open sheet), lives in small stores (`createStore`/`useSt
 `src/ui/lib/store.ts`): `src/ui/dialogs/dialog-store.ts` and `src/ui/layout/layout-store.ts`.
 
 **The UI's layout.** Function components, one per file, grouped by where they sit: `header/`
-(menus, the project name), `sidebar/` (tool modes, Board, Wire), `catalog/`, `board/` (the
-board's toolbar, canvas, selection bar, menus, the status text), `nets/` (nets, requirements,
-shortcuts legend), `dialogs/`, `mobile/`. `components/` holds the shared pieces (`Modal`, `Icon`,
+(menus, the project name), `sidebar/` (the tool rail, and the left panel's Wire and Board
+sections; the tool modes as a row for the phone), `catalog/` (the left panel's Parts section),
+`board/` (the board's toolbar, canvas, selection bar, menus, the status and its text, the hover
+readout, the empty board's start card), `nets/` (nets, requirements, shortcuts legend), `dialogs/`,
+`mobile/`. `components/` holds the shared pieces (`Modal`, `Icon`,
 `SegmentedControl`, `NumberField`), `hooks/` the shared hooks, `lib/` small helpers. Components
 use the class names in `src/style.css`; there's no CSS-in-JS.
+
+**The look.** The editor is made of a circuit board's materials: soldermask green-black surfaces
+(`--ink-0` the page and the board's stage, `--ink-1` panels, `--ink-2`/`--ink-3` controls), hairlines
+(`--line`), silkscreen-white text (`--silk`, `--silk-dim`, `--silk-faint`), and copper for whatever
+is active or primary (`--copper`, `--copper-hi`, `--copper-wash`), all tokens at the top of
+`src/style.css`. The typeface is Barlow. The page is full-height panels separated by hairlines: the
+tool rail, the left panel (Parts, Wire, Board), the board's stage (toolbar, the board on a dotted
+bench, the foot with the status's hints and the hover readout) and the nets panel; each scrolls on
+its own, and below 960px wide the page scrolls instead, the nets under the board.
 
 > **Extend: add a feature.** Write what it does as functions in `src/features/` (state in
 > `src/state/` if it needs some), ending in `redrawCanvas()` when it changes what's on screen. Then
@@ -224,9 +235,13 @@ the tool registry redraw with `requestRedraw()` (`redraw-request.ts`) instead of
 **Placing a part** drops back to Select with the new part selected; Shift-click keeps the
 placement tool armed (`BoardClick.keepArmed`).
 
-**Board toolbar and selection bar.** Above the board, `src/ui/board/BoardToolbar.tsx` holds the
-status badge (its text from `status-text.ts`; with a cancel button, and a rotate one for chips and
-fixed-pin parts, while a placement tool is armed), undo/redo (greyed out when `canUndo()`/
+**Tool rail, board toolbar and selection bar.** The tool rail (`src/ui/sidebar/ToolRail.tsx`)
+picks what a click on the board does: Select, Erase, Note (Cut on a stripboard), then Wire and
+Solder. Above the board, `src/ui/board/BoardToolbar.tsx` holds the status (`StatusBadge.tsx`, its
+text from `status-text.ts`, "what [hint • hint]": the toolbar shows what's selected or what the
+tool does, in copper while something waits to be placed, and `StatusHints` the hints along the
+board's foot; with a cancel button, and a rotate one for chips and fixed-pin parts, while a
+placement tool is armed), undo/redo (greyed out when `canUndo()`/
 `canRedo()` say there's nothing to do), zoom, Fit, Labels and Focus. Icons are
 `<Icon name="…"/>` (`src/ui/components/Icon.tsx`: one SVG sprite, rendered by `App`). What can be
 done to the selection lives in `src/ui/board/selection-actions.ts`: the context menu
@@ -237,10 +252,11 @@ selection bar over the board's bottom edge (`SelectionBar.tsx`) show only the ac
 **Phone layout.** On a small or touch screen (one media query, shared by the end of `src/style.css`
 and `PHONE_QUERY` in `src/ui/hooks/use-media-query.ts`) the board fills the screen and a toolbar
 along the bottom (`src/ui/mobile/MobileNav.tsx`) holds Select, Wire, Solder, a round Add, Nets and
-More. Add and More are both the left sidebar as a sheet that slides up (`#controls[data-view]`:
-Add shows only the catalog, More the rest), Nets is the right sidebar; `layoutStore` says which is
-open. Nothing may resize the board's area while a finger is on it: the readout under the board
-keeps its line when empty, or the board would jump under the finger. Picking a tool or part in a sheet closes it. The board toolbar
+More. Add and More are both the left panel as a sheet that slides up (`#controls[data-view]`:
+Add shows only the parts, More the tool modes, wire and board), Nets is the right panel;
+`layoutStore` says which is open. Nothing may resize the board's area while a finger is on it: the
+readout along the board's foot keeps its line when empty, or the board would jump under the
+finger. Picking a tool or part in a sheet closes it. The board toolbar
 moves over the board (undo/redo top left, Fit and Labels top right, the hint under them only while
 a tool other than Select is active). The board is shown whole whenever one of a different size
 opens.
@@ -391,7 +407,7 @@ narrows on `part.kind` only for kind-specific behaviour.
   `src/features/placed-parts.ts`: `placePart`/`removePart` record undo history,
   `addToBoard`/`takeOffBoard` don't.
 
-**The catalog** (`src/ui/catalog/`) is the sidebar's Components section: a search box over a
+**The catalog** (`src/ui/catalog/`) is the left panel's Parts section: a search box over a
 category tree. It only decides where parts are *listed*.
 
 - `catalog-categories.ts` declares the tree: one line per category, `parentId` for nesting, array

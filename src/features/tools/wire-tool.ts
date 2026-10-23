@@ -112,9 +112,9 @@ function placeRun(tool: RouteTool, end: IDot) {
 }
 
 // What the status badge calls the wire a route tool makes.
-const NAMES: Record<RouteTool["kind"], {tool: string; run: string; drawing: string}> = {
-  wire: {tool: "Wire Tool", run: "Wiring Run", drawing: "Wiring"},
-  solder: {tool: "Solder Path Tool", run: "Solder Path Run", drawing: "Solder path"},
+const NAMES: Record<RouteTool["kind"], {tool: string; drawing: string}> = {
+  wire: {tool: "Wire", drawing: "Drawing a wire"},
+  solder: {tool: "Solder path", drawing: "Drawing a solder path"},
 };
 
 // A run of wires (or solder paths), one click per hole. A click on a hole the wire would connect to
@@ -168,13 +168,13 @@ const routeTool: ToolBehavior<RouteTool> = {
 
   statusText(tool) {
     const names = NAMES[tool.kind];
-    if (!tool.start) return `${names.tool} Armed [Click start pad, or drag pad to pad]`;
+    if (!tool.start) return `${names.tool} [Click a start pad, or drag pad to pad]`;
     const bends = tool.via?.length ?? 0;
     // On a stripboard every hole but a cut one is on a strip, so a click there connects.
     const bendHint = BoardState.isStripboard ? "Drag pad to pad for an L" : "Click empty holes to bend";
     return bends
-      ? `${names.drawing}, ${bends} bend${bends === 1 ? "" : "s"} [Click a pin or wire to connect • Last hole again or Enter to end there • Esc removes a bend]`
-      : `${names.run} [Click a pin or wire to connect • ${bendHint} • Same pad or Esc to end run]`;
+      ? `${names.drawing}, ${bends} bend${bends === 1 ? "" : "s"} [Click a pin or wire to connect • Click the last hole again or press Enter to end there • Esc takes back a bend]`
+      : `${names.drawing} [Click a pin or wire to connect • ${bendHint} • Click the same pad or press Esc to stop]`;
   },
 
   // Escape takes back the last bend, then ends the run (leaving the wire tool armed, so ending a

@@ -8,13 +8,15 @@ import {toggleSolderSide} from "../../features/solder-view";
 import {togglePartLabels} from "../../features/part-labels";
 import {Icon, IconName} from "../components/Icon";
 import {useEditor} from "../hooks/use-editor";
+import {usePhoneLayout} from "../hooks/use-media-query";
 import {useStore} from "../lib/store";
 import {cx} from "../lib/class-names";
 import {layoutStore, toggleFocusMode} from "../layout/layout-store";
 import {StatusBadge} from "./StatusBadge";
 
-// The board's toolbar: the status badge (with cancel, and rotate for parts that turn, while a part
-// or wire is being placed), then undo and redo, zoom, and the view switches.
+// The board's toolbar: the status (with cancel, and rotate for parts that turn, while a part or
+// wire is being placed), then undo and redo, zoom, and the view switches. A phone shows the
+// status's hints here too; wider screens show them along the stage's foot.
 export function BoardToolbar() {
   const tool = useEditor(() => ToolState.active.kind);
   const placing = useEditor(() => isPlacementTool(ToolState.active));
@@ -25,12 +27,13 @@ export function BoardToolbar() {
   const undoable = useEditor(canUndo);
   const redoable = useEditor(canRedo);
   const focusMode = useStore(layoutStore, layout => layout.focusMode);
+  const phone = usePhoneLayout();
 
   return (
     <div className="status-bar" id="boardBar">
       {/* Nothing to say beyond what the selection bar shows in Select mode: the phone layout hides it then. */}
       <div className={cx("status-lead", tool === "select" && !solderSide && "is-quiet")} id="statusLead">
-        <StatusBadge/>
+        <StatusBadge withHints={phone}/>
         <BarButton id="rotateToolBtn" icon="rotate" title="Rotate the part before placing it (R)" ariaLabel="Rotate"
           hidden={tool !== "ic" && tool !== "advanced-component"} onClick={rotateSelectedIc}/>
         <BarButton id="cancelToolBtn" icon="x" title="Cancel (Esc)" ariaLabel="Cancel" className="bar-btn-cancel"

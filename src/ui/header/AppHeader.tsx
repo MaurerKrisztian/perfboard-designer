@@ -27,18 +27,13 @@ export function AppHeader() {
   return (
     <header className="app-header">
       <a className="brand-logo" href="../" title="Back to the Perfboard Designer home page">
-        <div className="brand-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-            <circle cx="6" cy="6" r="2"/>
-            <circle cx="18" cy="6" r="2"/>
-            <circle cx="6" cy="18" r="2"/>
-            <circle cx="18" cy="18" r="2"/>
-            <path d="M8 6h8M6 8v8M18 8v8M8 18h8"/>
-          </svg>
-        </div>
-        <div>
-          <span className="brand-title">Perfboard Designer</span>
-        </div>
+        {/* A copper pad, the ring a lead is soldered to, with the shine of fresh solder. */}
+        <svg className="brand-mark" viewBox="0 0 28 28" aria-hidden="true">
+          <circle cx="14" cy="14" r="11" className="brand-mark-copper"/>
+          <path d="M6.5 10.5a8.5 8.5 0 0 1 6-5.6" className="brand-mark-shine"/>
+          <circle cx="14" cy="14" r="4.5" className="brand-mark-hole"/>
+        </svg>
+        <span className="brand-title">Perfboard Designer</span>
       </a>
 
       <MenuBar>
@@ -73,11 +68,11 @@ export function AppHeader() {
       </MenuBar>
 
       <div className="header-actions">
-        <button className="btn" title="Copy a link that opens a copy of this board" onClick={() => openDialog({kind: "share"})}>
+        <button className="btn btn-quiet" title="Copy a link that opens a copy of this board" onClick={() => openDialog({kind: "share"})}>
           <Icon name="link"/><span className="btn-label">Share</span>
         </button>
-        <button id="open3dViewBtn" className="btn-accent" title="3D View" onClick={() => void open3dView()}>
-          <Icon name="cube"/><span className="btn-label">3D View</span>
+        <button id="open3dViewBtn" className="btn-accent" title="See the board in 3D" onClick={() => void open3dView()}>
+          <Icon name="cube"/><span className="btn-label">3D view</span>
         </button>
       </div>
     </header>

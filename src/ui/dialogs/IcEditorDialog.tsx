@@ -56,7 +56,7 @@ export function IcEditorDialog({type: initialType, editing, onClose}: IcEditorDi
   };
 
   return (
-    <Modal title={editing ? "✎ Edit Custom IC / Component" : "⚙ Create Custom IC / Component"} onClose={onClose}>
+    <Modal title={editing ? "Edit Custom IC / Component" : "Create Custom IC / Component"} onClose={onClose}>
       <div className="modal-body">
         <div className="form-group">
           <label>Component Name:</label>
@@ -92,7 +92,7 @@ export function IcEditorDialog({type: initialType, editing, onClose}: IcEditorDi
 
       <div className="modal-footer">
         <button className="btn" onClick={onClose}>Cancel</button>
-        <button className="btn-primary" onClick={save}>💾 Save Component</button>
+        <button className="btn-primary" onClick={save}>Save Component</button>
       </div>
     </Modal>
   );

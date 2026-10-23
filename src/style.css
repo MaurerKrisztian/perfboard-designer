@@ -2,27 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+/* The editor is made of a circuit board's own materials: soldermask green-black for its surfaces,
+   copper for whatever is active or primary, silkscreen white for text. The board itself (drawn
+   on the canvas) is the brightest thing on screen; everything around it stays quiet. */
 :root {
-  --bg-dark: #090d16;
-  --bg-card: #111827;
-  --bg-hover: #1f2937;
-  --border-color: #1f2937;
-  --border-light: #374151;
-  --accent-cyan: #06b6d4;
-  --accent-blue: #3b82f6;
-  --accent-indigo: #6366f1;
-  --text-main: #f3f4f6;
-  --text-muted: #9ca3af;
+  --ink-0: #0b1411;       /* the bench: the page, and the board's stage */
+  --ink-1: #101b17;       /* panels */
+  --ink-2: #16241f;       /* controls */
+  --ink-3: #1e3029;       /* a control under the pointer */
+  --line: #1f3029;        /* hairlines between areas */
+  --line-strong: #2c4038; /* controls' outlines */
+  --silk: #edf2ec;
+  --silk-dim: #a5b4ab;
+  --silk-faint: #6f8279;
+  --copper: #d08c4c;
+  --copper-hi: #eaa96a;
+  --copper-ink: #1f1206;  /* text on copper */
+  --copper-wash: rgba(208, 140, 76, 0.14);
+  --copper-line: rgba(208, 140, 76, 0.5);
+  --danger: #ef6a54;
+  --danger-wash: rgba(239, 106, 84, 0.14);
+  --warn: #e8b84a;
   /* The net picked in the Nets panel, on the board too (NET_HIGHLIGHT_COLOR in draw-canvas.ts). */
   --net-highlight: #e879f9;
+  --radius-s: 6px;
+  --radius-m: 8px;
+  --radius-l: 12px;
+  --font-ui: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --header-height: 3.25rem;
+  --rail-width: 4.25rem;
+  --panel-width: 18.5rem;
+  --nets-width: 17.5rem;
 }
 
-/* Dark, slim scrollbars across the editor, matching the sidebar's. Firefox and current Chromium
-   use the two standard properties; Safari and older Chromium fall back to ::-webkit-scrollbar. */
+/* Slim scrollbars in the panels' colours. Firefox and current Chromium use the two standard
+   properties; Safari and older Chromium fall back to ::-webkit-scrollbar. */
 * {
   box-sizing: border-box;
   scrollbar-width: thin;
-  scrollbar-color: #334155 transparent;
+  scrollbar-color: var(--line-strong) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -36,25 +54,33 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #334155;
+  background-color: var(--line-strong);
   border: 2px solid transparent; /* insets the thumb so it floats inside its track */
   background-clip: padding-box;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #475569;
+  background-color: #3b5249;
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: var(--bg-dark);
-  color: var(--text-main);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.4;
+  background-color: var(--ink-0);
+  color: var(--silk);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--copper-hi);
+  outline-offset: 2px;
 }
 
 /* React's mount point (app/index.html): the page's parts lay out as the body's own children. */
@@ -62,53 +88,63 @@ body {
   display: contents;
 }
 
-/* App Header */
+/* The header: the mark and name, the menus and the open project, then Share and 3D view. */
 .app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 3.75rem;
-  padding: 0 1.5rem;
-  background-color: rgba(17, 24, 39, 0.95);
-  border-bottom: 1px solid var(--border-color);
-  backdrop-filter: blur(8px);
   position: sticky;
   top: 0;
   z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  height: var(--header-height);
+  padding: 0 0.75rem 0 1rem;
+  background-color: var(--ink-1);
+  border-bottom: 1px solid var(--line);
 }
 
 .brand-logo {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  color: inherit;
+  gap: 0.6rem;
+  color: var(--silk);
   text-decoration: none;
 }
 
-.brand-icon {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 12px rgba(6, 182, 212, 0.4);
+.brand-mark {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.brand-mark-copper {
+  fill: var(--copper);
+}
+
+.brand-mark-shine {
+  fill: none;
+  stroke: #f6d2a8;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0.8;
+}
+
+.brand-mark-hole {
+  fill: var(--ink-1);
 }
 
 .brand-title {
-  font-weight: 700;
-  font-size: 1.15rem;
-  letter-spacing: -0.02em;
-  background: linear-gradient(to right, #ffffff, #93c5fd);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-left: auto;
   flex-shrink: 0;
 }
 
@@ -118,14 +154,13 @@ body {
   }
 }
 
-/* Header dropdown menus (File, View) */
+/* Header dropdown menus (File, View, Help) */
 .menu-bar {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  margin-left: 1.5rem;
-  margin-right: auto;
+  gap: 0.15rem;
   min-width: 0;
+  margin-left: 0.75rem;
 }
 
 .menu {
@@ -133,34 +168,36 @@ body {
 }
 
 button.menu-trigger {
+  padding: 0.4rem 0.7rem;
   background: none;
   border: none;
-  border-radius: 6px;
-  color: var(--text-main);
+  border-radius: var(--radius-s);
+  color: var(--silk-dim);
   font: inherit;
-  font-size: 0.9rem;
-  padding: 0.4rem 0.75rem;
-  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 500;
 }
 
 button.menu-trigger:hover,
 button.menu-trigger[aria-expanded="true"] {
-  background-color: var(--bg-hover);
+  background-color: var(--ink-2);
+  color: var(--silk);
 }
 
 .menu-panel {
   position: absolute;
   top: calc(100% + 0.35rem);
   left: 0;
-  width: max-content;
-  padding: 0.35rem;
+  z-index: 60;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  z-index: 60;
+  width: max-content;
+  min-width: 13rem;
+  padding: 0.3rem;
+  background-color: var(--ink-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-m);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
 }
 
 .menu-panel[hidden] {
@@ -169,24 +206,25 @@ button.menu-trigger[aria-expanded="true"] {
 
 .menu-panel button,
 .menu-panel a {
+  justify-content: flex-start;
+  padding: 0.5rem 0.65rem;
   background: none;
   border: none;
-  border-radius: 6px;
-  color: var(--text-main);
+  border-radius: var(--radius-s);
+  color: var(--silk);
   font: inherit;
-  font-size: 0.85rem;
-  justify-content: flex-start;
+  font-size: 0.88rem;
   text-align: left;
-  padding: 0.5rem 0.65rem;
-  cursor: pointer;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .menu-panel button:hover,
 .menu-panel button:focus-visible,
 .menu-panel a:hover,
 .menu-panel a:focus-visible {
-  background-color: var(--bg-hover);
+  background-color: var(--ink-3);
+  outline: none;
 }
 
 /* Reserves its width even when empty, so the label doesn't shift when the check is off. */
@@ -197,302 +235,415 @@ button.menu-trigger[aria-expanded="true"] {
   padding-left: 1.5rem;
   box-sizing: content-box;
   text-align: right;
+  color: var(--copper-hi);
 }
 
 .menu-divider {
   height: 1px;
-  margin: 0.3rem 0;
-  background-color: var(--border-color);
+  margin: 0.3rem 0.2rem;
+  background-color: var(--line-strong);
 }
 
-/* Main Layout */
+/* The open project's name, beside the menus; opens the Projects dialog. */
+button.project-name-btn {
+  display: inline-block;
+  max-width: 16rem;
+  margin-left: 0.6rem;
+  padding: 0.3rem 0.75rem;
+  overflow: hidden;
+  background: none;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--silk);
+  font-size: 0.85rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+button.project-name-btn:hover {
+  background-color: var(--ink-2);
+  border-color: var(--copper-line);
+}
+
+/* The editor's body: the tool rail, the left panel, the board and the nets panel, side by side at
+   the window's height, each scrolling on its own. */
 .app-layout {
+  flex: 1;
+  min-height: 0;
   display: flex;
-  flex-direction: row;
-  gap: 1.25rem;
-  padding: 1.25rem;
-  flex: 1;
-  max-width: 1800px;
   width: 100%;
-  margin: 0 auto;
-  align-items: stretch;
 }
 
-#controls {
-  width: 320px;
-  min-width: 320px;
-  flex-shrink: 0;
+@media (min-width: 961px) {
+  body {
+    height: 100vh;
+    overflow: hidden;
+  }
 }
 
-.canvas-viewport {
-  flex: 1;
-  min-width: 0;
-}
-
-.right-sidebar {
-  width: 300px;
-  min-width: 300px;
-  flex-shrink: 0;
-}
-
-@media (max-width: 1200px) {
+/* Narrower windows: the page scrolls, and the nets go under the board. */
+@media (max-width: 960px) {
   .app-layout {
     flex-wrap: wrap;
   }
+
+  .canvas-viewport {
+    min-height: 75vh;
+  }
+
   .right-sidebar {
-    width: 100%;
-    min-width: 100%;
+    width: 100% !important;
+    border-left: none !important;
+    border-top: 1px solid var(--line);
   }
 }
 
-@media (max-width: 850px) {
-  .app-layout {
-    flex-direction: column;
-  }
-  #controls {
-    width: 100%;
-    min-width: 100%;
-  }
+.sidebar-collapsed {
+  display: none !important;
 }
 
-/* Tool Sections & Cards */
-.tool-panel {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1rem;
+/* The tool rail: what a click on the board does. */
+.tool-rail {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  gap: 2px;
+  flex-shrink: 0;
+  width: var(--rail-width);
+  padding: 0.5rem 0.4rem;
+  background-color: var(--ink-1);
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+}
+
+.rail-divider {
+  height: 1px;
+  margin: 0.45rem 0.4rem;
+  background-color: var(--line-strong);
+}
+
+button.rail-btn {
+  position: relative;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0.55rem 0.2rem 0.45rem;
+  background: none;
+  border: none;
+  border-radius: var(--radius-m);
+  color: var(--silk-dim);
+  font-size: 0.74rem;
+  font-weight: 500;
+}
+
+button.rail-btn:hover {
+  background-color: var(--ink-2);
+  color: var(--silk);
+}
+
+button.rail-btn.is-active {
+  background-color: var(--copper-wash);
+  color: var(--copper-hi);
+}
+
+/* The active tool's copper edge against the rail's side. */
+button.rail-btn.is-active::before {
+  content: "";
+  position: absolute;
+  top: 22%;
+  bottom: 22%;
+  left: -0.4rem;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background-color: var(--copper);
+}
+
+button.rail-btn[hidden] {
+  display: none;
+}
+
+button.rail-btn svg.icon {
+  width: 21px;
+  height: 21px;
+}
+
+.rail-key {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  color: var(--silk-faint);
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+
+/* The left panel and the nets panel */
+.tool-panel {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-height: 0;
+  overflow-y: auto;
+  background-color: var(--ink-1);
+}
+
+#controls {
+  width: var(--panel-width);
+  border-right: 1px solid var(--line);
+}
+
+.right-sidebar {
+  width: var(--nets-width);
+  border-left: 1px solid var(--line);
+}
+
+/* A panel's section: a title row that folds its body away, set off from the next by a hairline. */
+.sidebar-section {
+  border-bottom: 1px solid var(--line);
+}
+
+/* The parts list takes the panel's height, and scrolls on its own. */
+#controls > #components {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 14rem;
+  min-height: 0;
+}
+
+#controls > #components.is-collapsed {
+  flex: none;
+}
+
+#components > .section-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .section-title {
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-}
-
-.btn-group {
-  display: flex;
-  flex-wrap: wrap;
   gap: 0.5rem;
+  width: 100%;
+  padding: 0.85rem 1rem 0.6rem;
+  color: var(--silk);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: left;
 }
 
-/* Styled Controls Box */
-#controls {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  background: transparent;
-  padding: 1rem 0 0;
-}
-
-/* Sidebar scrollable container */
-.sidebar-scroll {
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: calc(100vh - 80px);
-  scrollbar-width: thin;
-  scrollbar-color: #334155 transparent;
-}
-
-.sidebar-scroll::-webkit-scrollbar {
-  width: 5px;
-}
-
-.sidebar-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.sidebar-scroll::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 10px;
-}
-
-.sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: #475569;
-}
-
-/* Sidebar Sections */
-.sidebar-section {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-}
-
-.sidebar-section .section-title {
-  cursor: pointer;
-  padding: 0.65rem 0.75rem;
-  margin-bottom: 0;
+button.section-title {
+  justify-content: flex-start;
+  background: none;
+  border: none;
+  border-radius: 0;
   user-select: none;
-  transition: background 0.15s ease;
-  border-radius: 10px;
 }
 
-.sidebar-section .section-title:hover {
-  background: rgba(255, 255, 255, 0.03);
+button.section-title:hover {
+  background: none;
 }
 
-.section-body {
-  padding: 0 0.75rem 0.75rem;
-  transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
-  max-height: 1200px;
-  opacity: 1;
-  overflow: visible;
-}
-
-.section-body.collapsed {
-  max-height: 0;
-  opacity: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  overflow: hidden;
+button.section-title:hover .collapse-chevron {
+  color: var(--silk);
 }
 
 .section-icon {
-  font-size: 0.85rem;
-  line-height: 1;
+  color: var(--silk-faint);
+}
+
+svg.section-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .collapse-chevron {
   margin-left: auto;
+  color: var(--silk-faint);
   font-size: 0.7rem;
-  color: var(--text-muted);
-  transition: transform 0.2s ease;
   line-height: 1;
+  transition: transform 0.15s ease;
 }
 
-.section-body.collapsed ~ .collapse-chevron,
-.section-title.section-collapsed .collapse-chevron {
+.is-collapsed .collapse-chevron {
   transform: rotate(-90deg);
 }
 
-.sidebar-divider {
-  height: 8px;
-  flex-shrink: 0;
-}
-
-/* Extra breathing room + a visible line between top-level sidebar groups (vs. dividers within a group) */
-.sidebar-group-divider {
-  height: 1.25rem;
-  display: flex;
-  align-items: center;
-}
-
-.sidebar-group-divider::after {
-  content: "";
-  width: 100%;
-  height: 1px;
-  background: var(--border-light);
-}
-
-/* Sidebar Groups (visually bundles several sidebar-sections under one label) */
-.sidebar-group {
+.section-body {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 0.7rem;
+  padding: 0 1rem 1rem;
 }
 
-.sidebar-group-title {
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0 0.25rem;
-  margin-bottom: 0.75rem;
-}
-
-/* Tool Mode: plain (non-collapsible) content living directly in the Tools group */
-.tool-mode-block {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0 0.25rem;
-}
-
-/* One row of equal buttons, however many are shown (Cut only appears on a stripboard) */
-.tool-mode-grid {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
-  gap: 0.5rem;
-}
-
-/* Outranks the display: flex below */
-.tool-mode-grid .tool-mode-btn[hidden] {
+.section-body[hidden] {
   display: none;
 }
 
-/* Wire and solder path arm buttons - arm wire placement, matching how components/ICs are armed */
-.wire-arm-row {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+/* The wire colour in the Wire section's title */
+.active-color-dot {
+  width: 12px;
+  height: 12px;
+  margin-left: 0.15rem;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--ink-1), 0 0 0 3px var(--line-strong);
+  flex-shrink: 0;
 }
 
-.wire-arm-btn {
-  flex: 1;
-  min-width: 0;
-  justify-content: center;
-  gap: 0.5rem;
-  font-weight: 600;
-}
-
-.tool-mode-grid .tool-mode-btn {
-  display: flex;
-  flex-direction: column;
+/* Buttons */
+button,
+.btn {
+  display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 0.5rem 0.4rem;
-  font-size: 0.78rem;
-  border-radius: 8px;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.85rem;
+  background-color: var(--ink-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-m);
+  color: var(--silk);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
 }
 
-.tool-icon {
-  font-size: 1.1rem;
-  line-height: 1;
+button:hover,
+.btn:hover {
+  background-color: var(--ink-3);
+  border-color: #3b5249;
 }
 
-.tool-label {
-  font-size: 0.72rem;
+button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+button.btn-quiet {
+  background: none;
+  border-color: transparent;
+  color: var(--silk-dim);
+}
+
+button.btn-quiet:hover {
+  background-color: var(--ink-2);
+  border-color: transparent;
+  color: var(--silk);
+}
+
+button.btn-accent,
+button.btn-primary,
+button.btn-success {
+  background-color: var(--copper);
+  border-color: var(--copper);
+  color: var(--copper-ink);
   font-weight: 600;
-  letter-spacing: 0.02em;
 }
 
-/* Gauge visual line indicators */
+button.btn-accent:hover,
+button.btn-primary:hover,
+button.btn-success:hover {
+  background-color: var(--copper-hi);
+  border-color: var(--copper-hi);
+}
+
+button.btn-danger {
+  background-color: var(--danger-wash);
+  border-color: rgba(239, 106, 84, 0.4);
+  color: var(--danger);
+}
+
+button.btn-danger:hover {
+  background-color: rgba(239, 106, 84, 0.24);
+  border-color: var(--danger);
+  color: #ffdcd5;
+}
+
+/* What's picked, wherever it's picked: copper. */
+.active-mode,
+button.active-mode,
+button.active-mode:hover {
+  background-color: var(--copper-wash);
+  border-color: var(--copper-line);
+  color: var(--copper-hi);
+}
+
+/* Tool modes, for the phone's More sheet (wider screens have the tool rail) */
+.tool-modes {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 0.4rem;
+  padding: 0.25rem 0.25rem 0.75rem;
+}
+
+.tool-modes .tool-mode-btn {
+  flex-direction: column;
+  gap: 4px;
+  padding: 0.55rem 0.3rem;
+  font-size: 0.8rem;
+}
+
+.tool-modes .tool-mode-btn[hidden] {
+  display: none;
+}
+
+svg.tool-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Segmented choices: board type, strip direction, wire thickness */
+.board-switch,
 .gauge-selector {
   display: flex;
-  gap: 6px;
+  gap: 2px;
+  padding: 2px;
+  background-color: var(--ink-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+}
+
+.board-switch[hidden] {
+  display: none;
+}
+
+.board-switch button,
+.gauge-selector .gauge-btn {
+  flex: 1;
+  min-width: 0;
+  padding: 0.42rem 0.4rem;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-s);
+  color: var(--silk-dim);
+  font-size: 0.84rem;
+}
+
+.board-switch button:hover,
+.gauge-selector .gauge-btn:hover {
+  background-color: var(--ink-2);
+  border-color: transparent;
+  color: var(--silk);
+}
+
+.board-switch button.active-mode,
+.gauge-selector .gauge-btn.active-mode {
+  background-color: var(--copper-wash);
+  border-color: var(--copper-line);
+  color: var(--copper-hi);
 }
 
 .gauge-selector .gauge-btn {
-  flex: 1;
-  display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 0.45rem 0.4rem;
-  font-size: 0.75rem;
-  border-radius: 8px;
+  gap: 5px;
+  padding-top: 0.55rem;
 }
 
 .gauge-line {
   display: block;
-  width: 100%;
+  width: 70%;
   border-radius: 2px;
-  background: var(--text-muted);
-  transition: background 0.15s ease;
+  background-color: var(--silk-faint);
 }
 
 .gauge-thin { height: 1px; }
@@ -500,276 +651,512 @@ button.menu-trigger[aria-expanded="true"] {
 .gauge-thick { height: 5px; }
 
 .gauge-btn.active-mode .gauge-line {
-  background: #38bdf8;
+  background-color: var(--copper);
 }
 
-
-/* Active color dot in section header */
-.active-color-dot {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #3b82f6;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
-  flex-shrink: 0;
-}
-
-/* Grid presets row */
-/* Board type and strip direction switches */
-.board-switch {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 0.5rem;
-}
-
-.board-switch[hidden] {
-  display: none;
-}
-
-.board-switch button {
-  flex: 1;
-  padding: 0.4rem;
-  font-size: 0.75rem;
-}
-
-.grid-presets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 0.5rem;
-}
-
-/* Button Styling */
-button, .btn {
-  font-family: inherit;
-  font-size: 0.85rem;
-  font-weight: 500;
-  padding: 0.55rem 0.9rem;
-  border-radius: 8px;
-  border: 1px solid var(--border-light);
-  background-color: #1f2937;
-  color: var(--text-main);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  transition: all 0.15s ease-in-out;
-}
-
-button:hover, .btn:hover {
-  background-color: #374151;
-  border-color: #4b5563;
-  transform: translateY(-1px);
-}
-
-button:active, .btn:active {
-  transform: translateY(0);
-}
-
-button.btn-primary {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  border-color: #3b82f6;
-  color: white;
-}
-button.btn-primary:hover {
-  background: linear-gradient(135deg, #1d4ed8, #1e40af);
-}
-
-button.btn-accent {
-  background: linear-gradient(135deg, #0891b2, #0e7490);
-  border-color: #06b6d4;
-  color: white;
-}
-button.btn-accent:hover {
-  background: linear-gradient(135deg, #0e7490, #155e75);
-}
-
-button.btn-danger {
-  background: rgba(220, 38, 38, 0.15);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #f87171;
-}
-button.btn-danger:hover {
-  background: rgba(220, 38, 38, 0.3);
-  border-color: #ef4444;
-  color: #fee2e2;
-}
-
-button.btn-success {
-  background: linear-gradient(135deg, #059669, #047857);
-  border-color: #10b981;
-  color: white;
-}
-button.btn-success:hover {
-  background: linear-gradient(135deg, #047857, #065f46);
-}
-
-/* Quick Color Swatches */
+/* The wire colours */
 .swatch-grid {
   display: flex;
-  align-items: center;
-  gap: 0.4rem;
   flex-wrap: wrap;
-  margin-top: 0.4rem;
+  align-items: center;
+  gap: 0.45rem;
 }
 
-.color-swatch {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease;
+button.color-swatch {
+  width: 24px;
+  height: 24px;
   padding: 0;
+  border: none;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
-.color-swatch:hover {
-  transform: scale(1.15);
-  border-color: #ffffff;
+button.color-swatch:hover {
+  transform: scale(1.12);
 }
 
-.color-swatch-add {
-  background: #1a2332;
-  border-style: dashed;
-  border-color: var(--border-light);
-  color: #38bdf8;
-  font-size: 14px;
+button.color-swatch.is-active {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18), 0 0 0 2px var(--ink-1), 0 0 0 4px var(--copper);
 }
 
-.color-swatch-add:hover {
-  background: rgba(56, 189, 248, 0.15);
-  border-color: #38bdf8;
+button.color-swatch-add {
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  color: var(--silk-dim);
+  font-size: 1rem;
+  line-height: 1;
 }
 
-/* Inputs */
-input[type="number"], input[type="text"], input[type="search"], select {
-  background-color: #1f2937;
-  border: 1px solid var(--border-light);
-  color: var(--text-main);
-  border-radius: 6px;
-  padding: 0.45rem 0.75rem;
-  font-size: 0.85rem;
-  outline: none;
-  transition: border-color 0.15s ease;
+button.color-swatch-add:hover {
+  box-shadow: inset 0 0 0 1px var(--copper);
+  color: var(--copper-hi);
 }
 
-input[type="number"]:focus, input[type="text"]:focus, input[type="search"]:focus, select:focus {
-  border-color: var(--accent-blue);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+/* Another colour, picked from a spectrum */
+.spectrum-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background-color: var(--ink-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
 }
 
-.grid-inputs {
+.spectrum-head,
+.spectrum-hex,
+.spectrum-hue {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.grid-inputs input[type="number"] {
-  width: 70px;
+.spectrum-head {
+  justify-content: space-between;
+  color: var(--silk-dim);
+  font-size: 0.82rem;
+  font-weight: 500;
 }
 
-.preset-btn {
-  padding: 0.35rem 0.6rem;
-  font-size: 0.75rem;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.1);
+.spectrum-hex input[type="text"] {
+  width: 5.5rem;
+  padding: 0.25rem 0.4rem;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Canvas Viewport */
-.canvas-viewport {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1.25rem;
+.spectrum-preview {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-s);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+.spectrum-area {
+  position: relative;
+  height: 130px;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-s);
+  cursor: crosshair;
+}
+
+.spectrum-area canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.spectrum-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.spectrum-hue {
+  color: var(--silk-dim);
+  font-size: 0.82rem;
+}
+
+.spectrum-hue input {
+  flex: 1;
+  cursor: pointer;
+}
+
+/* Inputs */
+input[type="number"],
+input[type="text"],
+input[type="search"],
+select {
+  padding: 0.45rem 0.65rem;
+  background-color: var(--ink-0);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-s);
+  color: var(--silk);
+  font-family: inherit;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+input[type="number"]:focus,
+input[type="text"]:focus,
+input[type="search"]:focus,
+select:focus {
+  border-color: var(--copper);
+  box-shadow: 0 0 0 3px var(--copper-wash);
+}
+
+input::placeholder {
+  color: var(--silk-faint);
+}
+
+/* The board's size */
+.grid-inputs {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.grid-field {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  position: relative;
-  min-height: 540px;
-  max-height: calc(100vh - 80px);
-  overflow: hidden;
-}
-
-.status-bar {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0.85rem;
-  background-color: #111827;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  font-size: 0.8rem;
-}
-
-.status-badge {
-  display: inline-block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding: 0.25rem 0.7rem;
-  border-radius: 9999px;
-  background: rgba(6, 182, 212, 0.15);
-  color: #38bdf8;
-  border: 1px solid rgba(6, 182, 212, 0.3);
+  gap: 0.25rem;
+  color: var(--silk-faint);
+  font-size: 0.75rem;
   font-weight: 500;
+}
+
+.grid-field input[type="number"] {
+  width: 4.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.grid-times {
+  padding-bottom: 0.5rem;
+  color: var(--silk-faint);
+}
+
+.grid-inputs button {
+  margin-left: auto;
+  padding: 0.45rem 0.75rem;
+}
+
+.grid-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+button.preset-btn {
+  padding: 0.3rem 0.55rem;
+  background: none;
+  border-color: var(--line-strong);
+  color: var(--silk-dim);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+button.preset-btn:hover {
+  color: var(--silk);
+}
+
+/* The board's stage: the toolbar along its top, the board on the bench, and the status's hints and
+   the readout along its foot. */
+.canvas-viewport {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  background-color: var(--ink-0);
+}
+
+.board-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+/* The bench under the board: a faint grid of points, like a cutting mat's. */
+#canvas-container {
+  display: flex;
+  flex: 1;
+  justify-content: safe center;
+  align-items: safe center;
+  min-height: 0;
+  max-width: 100%;
+  padding: 2rem;
+  overflow: auto;
+  background-color: var(--ink-0);
+  background-image: radial-gradient(circle, rgba(237, 242, 236, 0.07) 1px, transparent 1.5px);
+  background-size: 24px 24px;
 }
 
 /* The board's scrollbars light up a little while the pointer is over it. */
 #canvas-container:hover {
-  scrollbar-color: #4b5d78 transparent;
+  scrollbar-color: #3b5249 transparent;
 }
 
-#canvas-container {
-  display: flex;
-  justify-content: safe center;
-  align-items: safe center;
-  background-color: #0b0f19;
-  border: 2px solid #1f2937;
-  border-radius: 10px;
-  overflow: auto;
-  padding: 16px;
-  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
-  max-width: 100%;
+#canvasZoomWrapper {
+  display: inline-block;
 }
 
 #myCanvas {
   display: block;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-  border-radius: 4px;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45), 0 18px 48px rgba(0, 0, 0, 0.55);
   transition: width 0.15s ease-out, height 0.15s ease-out;
 }
 
-/* Description Readout */
-#dotDescription {
-  margin-top: 0.75rem;
-  padding: 0.6rem 1rem;
-  background-color: rgba(59, 130, 246, 0.1);
-  border-left: 3px solid var(--accent-blue);
-  border-radius: 0 6px 6px 0;
-  font-size: 0.85rem;
-  color: #93c5fd;
-  min-height: 38px;
+/* The board's toolbar: the status line (and a placement tool's rotate and cancel), then groups of
+   icon buttons. */
+.status-bar {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  width: 100%;
+  min-height: 2.9rem;
+  padding: 0.35rem 0.6rem 0.35rem 1rem;
+  background-color: var(--ink-1);
+  border-bottom: 1px solid var(--line);
 }
 
-/* Nets (nets-panel.ts) */
+.status-lead {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.status-badge {
+  display: flex;
+  align-items: baseline;
+  gap: 0.15rem 0.65rem;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.status-main {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--silk);
+  font-weight: 600;
+  text-overflow: ellipsis;
+}
+
+.status-badge.is-armed .status-main {
+  color: var(--copper-hi);
+}
+
+.status-hint {
+  color: var(--silk-dim);
+}
+
+.status-swatch {
+  width: 10px;
+  height: 10px;
+  align-self: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35);
+}
+
+.bar-groups {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.bar-group {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.bar-group + .bar-group {
+  margin-left: 0.2rem;
+  padding-left: 0.45rem;
+  border-left: 1px solid var(--line);
+}
+
+button.bar-btn {
+  gap: 0.35rem;
+  min-width: 2.1rem;
+  min-height: 2.1rem;
+  padding: 0.3rem 0.55rem;
+  background: none;
+  border: none;
+  border-radius: var(--radius-s);
+  color: var(--silk-dim);
+  font-size: 0.85rem;
+}
+
+button.bar-btn:hover {
+  background-color: var(--ink-2);
+  color: var(--silk);
+}
+
+button.bar-btn.is-on {
+  background-color: var(--copper-wash);
+  color: var(--copper-hi);
+}
+
+button.bar-btn:disabled {
+  background: none;
+  opacity: 0.32;
+}
+
+button.bar-btn[hidden] {
+  display: none;
+}
+
+.status-lead button.bar-btn {
+  border: 1px solid var(--line-strong);
+}
+
+.status-lead button.bar-btn-cancel {
+  border-color: rgba(239, 106, 84, 0.4);
+  color: var(--danger);
+}
+
+.status-lead button.bar-btn-cancel:hover {
+  background-color: var(--danger-wash);
+}
+
+.zoom-level {
+  min-width: 2.9rem;
+  color: var(--silk-dim);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+/* The stage's foot: what the tool does next on the left, what's under the pointer on the right. */
+.stage-foot {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+  min-height: 2.1rem;
+  padding: 0.3rem 1rem;
+  background-color: var(--ink-1);
+  border-top: 1px solid var(--line);
+  font-size: 0.85rem;
+}
+
+.status-hints {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A hairline between hints */
+.status-hints > span + span .status-hint::before {
+  content: "";
+  display: inline-block;
+  width: 1px;
+  height: 0.85em;
+  margin: 0 0.65rem;
+  background-color: var(--line-strong);
+  vertical-align: -0.1em;
+}
+
+#dotDescription {
+  max-width: 55%;
+  margin-left: auto;
+  overflow: hidden;
+  color: var(--silk);
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* An empty board's invitation, over the board's middle until the first part, wire or note. */
+.empty-board {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  pointer-events: none;
+}
+
+.empty-board-card {
+  position: relative;
+  max-width: 23rem;
+  padding: 1.35rem 1.5rem 1.4rem;
+  background-color: rgba(16, 27, 23, 0.95);
+  border: 1px solid var(--line-strong);
+  border-top: 3px solid var(--copper);
+  border-radius: var(--radius-l);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  pointer-events: auto;
+  animation: empty-board-in 0.35s ease-out;
+}
+
+@keyframes empty-board-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .empty-board-card {
+    animation: none;
+  }
+}
+
+.empty-board-card h2 {
+  margin: 0 0 0.4rem;
+  color: var(--silk);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.empty-board-card p {
+  margin: 0 0 1.1rem;
+  color: var(--silk-dim);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.empty-board-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+button.empty-board-close {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  padding: 0.25rem 0.45rem;
+  background: none;
+  border: none;
+  color: var(--silk-faint);
+  font-size: 0.85rem;
+}
+
+button.empty-board-close:hover {
+  background-color: var(--ink-2);
+  color: var(--silk);
+}
+
+/* The nets panel */
+.nets-panel {
+  flex-shrink: 0;
+}
+
 .nets-count {
   margin-left: auto;
-  padding: 0 0.45rem;
-  border-radius: 999px;
-  background: var(--bg-hover);
-  color: var(--text-main);
-  font-size: 0.7rem;
-  letter-spacing: 0;
+  color: var(--silk-dim);
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 .nets-count:empty {
@@ -779,37 +1166,31 @@ input[type="number"]:focus, input[type="text"]:focus, input[type="search"]:focus
 #nets {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  max-height: 50vh;
-  overflow-y: auto;
-  font-size: 0.8rem;
+  gap: 1px;
+  padding: 0 0.5rem 0.75rem;
+  font-size: 0.84rem;
 }
 
 .net {
-  padding: 0.4rem 0.5rem;
-  border: 1px solid var(--border-color);
-  border-left: 3px solid var(--border-light);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.net.power {
-  border-left-color: var(--accent-cyan);
-}
-
-.net {
+  padding: 0.5rem 0.5rem 0.55rem 0.65rem;
+  border-left: 2px solid transparent;
+  border-radius: var(--radius-s);
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: background-color 0.12s ease;
 }
 
 .net:hover {
-  border-color: var(--border-light);
-  background: rgba(255, 255, 255, 0.04);
+  background-color: var(--ink-2);
+}
+
+/* A supply rail's net: copper along its edge */
+.net.power {
+  border-left-color: var(--copper);
 }
 
 .net.selected {
-  border-color: var(--net-highlight);
-  background: rgba(232, 121, 249, 0.08);
+  background-color: rgba(232, 121, 249, 0.1);
+  border-left-color: var(--net-highlight);
 }
 
 .net:focus-visible,
@@ -827,19 +1208,20 @@ input[type="number"]:focus, input[type="text"]:focus, input[type="search"]:focus
 }
 
 .net-name {
-  font-family: monospace;
-  font-weight: 700;
-  color: var(--text-main);
+  color: var(--silk);
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .net-name.unnamed {
-  font-weight: 600;
-  color: var(--text-muted);
+  color: var(--silk-dim);
+  font-weight: 500;
 }
 
 .net-size {
-  font-size: 0.7rem;
-  color: var(--text-muted);
+  color: var(--silk-faint);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
@@ -850,39 +1232,46 @@ input[type="number"]:focus, input[type="text"]:focus, input[type="search"]:focus
 }
 
 .net-pin {
-  padding: 1px 5px;
-  border: 1px solid var(--border-light);
+  padding: 1px 6px;
+  background-color: var(--ink-2);
+  border: 1px solid var(--line);
   border-radius: 4px;
-  background: var(--bg-hover);
-  color: var(--text-main);
-  font-family: monospace;
-  font-size: 0.72rem;
+  color: var(--silk-dim);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .net-pin-label {
   margin-left: 0.3rem;
-  color: #93c5fd;
+  color: var(--silk);
+  font-weight: 500;
 }
 
 .nets-empty {
-  color: var(--text-muted);
+  padding: 0.25rem 0.5rem;
+  color: var(--silk-dim);
   line-height: 1.5;
 }
 
 /* Amber, like the Share dialog's warning: unconnected pins and stray wires are likely mistakes. */
+.nets-fold {
+  padding: 0.35rem 0.5rem 0.5rem;
+}
+
 .nets-fold summary {
+  color: var(--warn);
+  font-weight: 500;
   cursor: pointer;
-  color: #fbbf24;
   user-select: none;
 }
 
 .nets-fold .net-pins {
-  margin-top: 0.4rem;
+  margin-top: 0.45rem;
 }
 
 .nets-fold .net-pin {
   cursor: pointer;
-  opacity: 0.75;
+  opacity: 0.8;
 }
 
 .nets-fold .net-pin:hover,
@@ -894,52 +1283,89 @@ input[type="number"]:focus, input[type="text"]:focus, input[type="search"]:focus
   border-color: var(--net-highlight);
 }
 
-/* Shortcuts Panel */
+/* The keyboard shortcuts, folded away at the panel's foot */
+.shortcuts-section {
+  margin-top: auto;
+  border-top: 1px solid var(--line);
+}
+
+.shortcuts-section > summary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.shortcuts-section > summary::-webkit-details-marker {
+  display: none;
+}
+
+.shortcuts-section > summary::after {
+  content: "▾";
+  margin-left: auto;
+  color: var(--silk-faint);
+  font-size: 0.7rem;
+  transform: rotate(-90deg);
+  transition: transform 0.15s ease;
+}
+
+.shortcuts-section[open] > summary::after {
+  transform: none;
+}
+
 #shortcuts {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  line-height: 1.6;
+  padding: 0 1rem 1rem;
+  color: var(--silk-dim);
+  font-size: 0.82rem;
+  line-height: 1.5;
 }
 
 .shortcut-row {
   display: flex;
-  gap: 0.6rem;
   align-items: baseline;
-  padding: 0.1rem 0;
+  gap: 0.6rem;
+  padding: 0.15rem 0;
 }
 
 .shortcut-keys {
   flex-shrink: 0;
-  min-width: 4.75rem;
+  min-width: 5rem;
   white-space: nowrap;
 }
 
 kbd {
-  background-color: #1f2937;
-  border: 1px solid #374151;
-  border-radius: 4px;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-  color: #f3f4f6;
   display: inline-block;
-  font-family: monospace;
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1;
+  min-width: 1.35rem;
   padding: 2px 5px;
+  background-color: var(--ink-2);
+  border: 1px solid var(--line-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  color: var(--silk);
+  font: 600 0.74rem/1 var(--font-ui);
+  text-align: center;
   white-space: nowrap;
 }
 
-/* Components catalog (features/catalog/components-panel.ts): search box + category tree */
-/* The expanded tree can outgrow the generic .section-body height cap */
-.catalog-section-body:not(.collapsed) {
-  max-height: none;
+/* The parts list's search box, with the key that reaches it */
+.catalog-search-box {
+  position: relative;
 }
 
-.catalog-search {
+input.catalog-search {
   width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 0.5rem;
+  padding-right: 2rem;
 }
+
+kbd.catalog-search-key {
+  position: absolute;
+  top: 50%;
+  right: 0.55rem;
+  transform: translateY(-50%);
+  color: var(--silk-faint);
+  pointer-events: none;
+}
+
+/* The parts list (src/ui/catalog/): a search box over a category tree */
 
 .catalog-tree[hidden], .catalog-results[hidden] {
   display: none;
@@ -963,25 +1389,25 @@ button.catalog-row {
   background: transparent;
   border: 1px solid transparent;
   border-radius: 6px;
-  color: var(--text-main);
+  color: var(--silk);
 }
 
 button.catalog-row:hover {
-  background: var(--bg-hover);
+  background: var(--ink-2);
   border-color: transparent;
   transform: none;
 }
 
 button.catalog-row.active-mode {
-  background: linear-gradient(135deg, #0284c7, #0369a1);
-  border-color: #38bdf8;
-  color: #ffffff;
+  background: var(--copper-wash);
+  border-color: var(--copper-line);
+  color: var(--copper-hi);
   font-weight: 600;
 }
 
 button.catalog-category-row {
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--silk-dim);
 }
 
 .catalog-chevron {
@@ -1025,18 +1451,18 @@ button.catalog-category-row {
 .catalog-count {
   font-size: 0.7rem;
   font-weight: 500;
-  color: var(--text-muted);
+  color: var(--silk-dim);
   background: rgba(255, 255, 255, 0.06);
   border-radius: 999px;
   padding: 0 0.4rem;
 }
 
 button.catalog-action {
-  color: var(--accent-cyan);
+  color: var(--copper);
 }
 
 @keyframes catalog-flash {
-  from { background: rgba(56, 189, 248, 0.35); }
+  from { background: rgba(208, 140, 76, 0.35); }
   to { background: transparent; }
 }
 
@@ -1061,11 +1487,11 @@ button.catalog-edit-btn {
   font-weight: bold;
   background: transparent;
   border-color: transparent;
-  color: #38bdf8;
+  color: var(--copper-hi);
 }
 
 button.catalog-edit-btn:hover {
-  background: rgba(56, 189, 248, 0.2);
+  background: var(--copper-wash);
   border-color: transparent;
   transform: none;
 }
@@ -1076,11 +1502,11 @@ button.catalog-delete-btn {
   font-weight: bold;
   background: transparent;
   border-color: transparent;
-  color: #f87171;
+  color: var(--danger);
 }
 
 button.catalog-delete-btn:hover {
-  background: rgba(220, 38, 38, 0.2);
+  background: var(--danger-wash);
   border-color: transparent;
   transform: none;
 }
@@ -1095,39 +1521,29 @@ button.catalog-delete-btn:hover {
 .catalog-breadcrumb {
   font-size: 0.7rem;
   font-weight: 400;
-  color: var(--text-muted);
+  color: var(--silk-dim);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 button.catalog-row.catalog-result-active:not(.active-mode) {
-  background: var(--bg-hover);
-  border-color: var(--border-light);
+  background: var(--ink-2);
+  border-color: var(--line-strong);
 }
 
 .catalog-empty {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--silk-dim);
   padding: 0.35rem 0.5rem;
-}
-
-/* Tool Mode & Gauge Selector Active States */
-.tool-mode-btn.active-mode, .gauge-btn.active-mode, .wire-arm-btn.active-mode, .btn-accent.active-mode,
-.board-switch button.active-mode {
-  background: linear-gradient(135deg, #0284c7, #0369a1);
-  border-color: #38bdf8;
-  color: #ffffff;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
-  font-weight: 600;
 }
 
 /* Context Menu Floating Popup */
 .context-menu {
   position: fixed;
   z-index: 100;
-  background-color: #1e293b;
-  border: 1px solid #334155;
+  background-color: var(--ink-2);
+  border: 1px solid var(--line-strong);
   border-radius: 8px;
   padding: 0.35rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
@@ -1140,7 +1556,7 @@ button.catalog-row.catalog-result-active:not(.active-mode) {
 .context-menu kbd {
   margin-left: auto;
   font-size: 0.65rem;
-  color: var(--text-muted);
+  color: var(--silk-dim);
 }
 
 .context-menu button {
@@ -1155,15 +1571,15 @@ button.catalog-row.catalog-result-active:not(.active-mode) {
 }
 
 .context-menu button:hover {
-  background-color: #334155;
+  background-color: var(--ink-3);
 }
 
 .context-menu button.ctx-danger {
-  color: #f87171;
+  color: var(--danger);
 }
 
 .context-menu button.ctx-danger:hover {
-  background-color: rgba(239, 68, 68, 0.2);
+  background-color: var(--danger-wash);
 }
 
 .context-menu button.led-color-rgb-btn {
@@ -1181,7 +1597,7 @@ input[type=range].rainbow-slider {
   border-radius: 5px;
   background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
   outline: none;
-  border: 1px solid #374151;
+  border: 1px solid var(--line-strong);
 }
 
 input[type=range].rainbow-slider::-webkit-slider-thumb {
@@ -1190,158 +1606,93 @@ input[type=range].rainbow-slider::-webkit-slider-thumb {
   height: 16px;
   border-radius: 50%;
   background: #ffffff;
-  border: 2px solid #111827;
+  border: 2px solid var(--ink-1);
   cursor: pointer;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
 }
 
-/* Fullscreen Focus Mode Layout */
-body.fullscreen-active {
-  overflow: hidden !important;
-}
-
+/* Focus mode: the board, its toolbar and the tools, without the header and the nets. */
 body.fullscreen-active .app-header,
 body.fullscreen-active .right-sidebar {
   display: none !important;
 }
 
 .app-layout.fullscreen-mode {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  max-width: 100vw !important;
-  height: 100vh !important;
-  z-index: 99999 !important;
-  margin: 0 !important;
-  padding: 0.5rem !important;
-  background-color: var(--bg-dark);
-  display: flex !important;
-  flex-direction: row !important;
-  gap: 0.5rem !important;
-  box-sizing: border-box !important;
-}
-
-.app-layout.fullscreen-mode #controls {
-  height: calc(100vh - 1rem) !important;
-  max-height: calc(100vh - 1rem) !important;
-  overflow-y: auto !important;
-}
-
-.app-layout.fullscreen-mode .canvas-viewport {
-  flex: 1 !important;
-  height: calc(100vh - 1rem) !important;
-  max-height: calc(100vh - 1rem) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  padding: 0.75rem !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
-}
-
-.app-layout.fullscreen-mode #canvas-container {
-  overflow: auto !important;
-  flex: 1 !important;
-  display: flex !important;
-  align-items: safe center !important;
-  justify-content: safe center !important;
-  padding: 0 !important;
-}
-
-.sidebar-collapsed {
-  display: none !important;
-}
-
-/* Floating Glassmorphism Toolbar for Fullscreen */
-.floating-toolbar {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.8rem;
-  background: rgba(17, 24, 39, 0.92);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  inset: 0;
+  z-index: 90;
+  background-color: var(--ink-0);
 }
 
-/* Modal Overlay & Dialog */
+/* Dialogs */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  inset: 0;
   z-index: 200;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  background-color: rgba(4, 9, 7, 0.72);
+  backdrop-filter: blur(3px);
 }
 
 .modal-card {
-  background-color: #111827;
-  border: 1px solid #374151;
-  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   max-width: 640px;
   max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
   overflow: hidden;
+  background-color: var(--ink-1);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-l);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.6);
 }
 
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
-  background-color: #1f2937;
-  border-bottom: 1px solid #374151;
+  gap: 1rem;
+  padding: 1rem 1.25rem 0.85rem;
+  border-bottom: 1px solid var(--line);
 }
 
 .modal-title {
-  font-weight: 700;
-  font-size: 1rem;
-  color: #f3f4f6;
+  color: var(--silk);
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
-.close-btn {
-  background: transparent;
+button.close-btn {
+  padding: 0.1rem 0.35rem;
+  background: none;
   border: none;
-  color: #9ca3af;
-  font-size: 1.5rem;
+  color: var(--silk-faint);
+  font-size: 1.4rem;
   line-height: 1;
-  cursor: pointer;
-  padding: 0;
 }
 
-.close-btn:hover {
-  color: #ffffff;
+button.close-btn:hover {
+  background-color: var(--ink-2);
+  color: var(--silk);
 }
 
 .modal-body {
-  padding: 1.25rem;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding: 1.25rem;
+  overflow-y: auto;
 }
 
 .modal-footer {
-  padding: 1rem 1.25rem;
-  background-color: #1f2937;
-  border-top: 1px solid #374151;
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid var(--line);
 }
 
 /* Share Link dialog */
@@ -1355,7 +1706,7 @@ body.fullscreen-active .right-sidebar {
   gap: 0.4rem;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--silk-dim);
 }
 
 .custom-part-colors,
@@ -1380,7 +1731,7 @@ button.custom-part-color {
 
 button.custom-part-color[aria-checked="true"] {
   border-color: #ffffff;
-  box-shadow: 0 0 0 2px var(--accent-blue);
+  box-shadow: 0 0 0 2px var(--copper);
 }
 
 .custom-part-grid-scroll {
@@ -1394,7 +1745,7 @@ button.custom-part-color[aria-checked="true"] {
   display: inline-grid;
   gap: 4px;
   padding: 8px;
-  border: 2px solid #94a3b8;
+  border: 2px solid var(--silk-faint);
   border-radius: 6px;
 }
 
@@ -1405,8 +1756,8 @@ button.custom-part-hole {
   border: 2px dashed rgba(255, 255, 255, 0.35);
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.35);
-  color: #0b1120;
-  font-family: monospace;
+  color: var(--ink-0);
+  font-variant-numeric: tabular-nums;
   font-size: 0.72rem;
   font-weight: 700;
 }
@@ -1422,8 +1773,8 @@ button.custom-part-hole.is-pin {
 }
 
 button.custom-part-hole.is-first {
-  background: #38bdf8;
-  border-color: #0369a1;
+  background: var(--copper-hi);
+  border-color: #8a4f1c;
 }
 
 .custom-part-pins {
@@ -1434,7 +1785,7 @@ button.custom-part-hole.is-first {
 
 .custom-part-pins:empty::before {
   content: "No pins yet: click holes above.";
-  color: var(--text-muted);
+  color: var(--silk-dim);
   font-size: 0.8rem;
 }
 
@@ -1463,7 +1814,7 @@ button.custom-part-hole.is-first {
 .part-list-scroll {
   max-height: 60vh;
   overflow: auto;
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--line-strong);
   border-radius: 8px;
 }
 
@@ -1477,8 +1828,8 @@ button.custom-part-hole.is-first {
   position: sticky;
   top: 0;
   padding: 0.5rem 0.65rem;
-  background: #1f2937;
-  color: var(--text-muted);
+  background: var(--ink-2);
+  color: var(--silk-dim);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -1489,8 +1840,8 @@ button.custom-part-hole.is-first {
 
 .part-list-table td {
   padding: 0.45rem 0.65rem;
-  border-top: 1px solid var(--border-color);
-  color: var(--text-main);
+  border-top: 1px solid var(--line);
+  color: var(--silk);
   white-space: nowrap;
 }
 
@@ -1501,13 +1852,13 @@ button.custom-part-hole.is-first {
 }
 
 .part-list-table .part-list-ref {
-  font-family: monospace;
+  font-variant-numeric: tabular-nums;
   font-weight: 700;
   white-space: nowrap;
 }
 
 .part-list-table .part-list-muted {
-  color: var(--text-muted);
+  color: var(--silk-dim);
 }
 
 .part-list-table .part-list-number {
@@ -1520,7 +1871,7 @@ button.custom-part-hole.is-first {
 
 .part-list-table tbody tr.is-clickable:hover,
 .part-list-table tbody tr.is-clickable:focus-visible {
-  background: var(--bg-hover);
+  background: var(--ink-2);
   outline: none;
 }
 
@@ -1532,11 +1883,11 @@ button.custom-part-hole.is-first {
   margin: 0;
   font-size: 0.85rem;
   line-height: 1.45;
-  color: #9ca3af;
+  color: var(--silk-dim);
 }
 
 .share-note.is-warning {
-  color: #fbbf24;
+  color: var(--warn);
 }
 
 input.share-link-input {
@@ -1552,7 +1903,7 @@ input.share-link-input {
   flex-direction: column;
   gap: 0.6rem;
   padding-top: 1rem;
-  border-top: 1px solid #374151;
+  border-top: 1px solid var(--line);
 }
 
 .share-row {
@@ -1574,25 +1925,6 @@ input.share-link-input {
   flex-shrink: 0;
 }
 
-/* The open project's name in the header; opens the Projects dialog */
-button.project-name-btn {
-  display: inline-block;
-  max-width: 16rem;
-  margin-left: 0.75rem;
-  padding: 0.3rem 0.7rem;
-  background: none;
-  border-color: var(--border-color);
-  color: var(--text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-button.project-name-btn:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-main);
-}
-
 /* Projects dialog: a grid of cards, one per project, each with a thumbnail of its board */
 .projects-card {
   max-width: 820px;
@@ -1607,8 +1939,8 @@ button.project-name-btn:hover {
 .projects-count:not(:empty) {
   padding: 0.1rem 0.5rem;
   border-radius: 999px;
-  background-color: #374151;
-  color: var(--text-muted);
+  background-color: var(--ink-3);
+  color: var(--silk-dim);
   font-size: 0.72rem;
   font-weight: 600;
 }
@@ -1617,18 +1949,18 @@ input.projects-search {
   width: 100%;
   box-sizing: border-box;
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--line-strong);
   border-radius: 8px;
-  background-color: #1f2937;
-  color: var(--text-main);
+  background-color: var(--ink-0);
+  color: var(--silk);
   font: inherit;
   font-size: 0.85rem;
   outline: none;
 }
 
 input.projects-search:focus {
-  border-color: var(--accent-blue);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+  border-color: var(--copper);
+  box-shadow: 0 0 0 3px var(--copper-wash);
 }
 
 input.projects-search[hidden] {
@@ -1648,21 +1980,21 @@ input.projects-search[hidden] {
   position: relative;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--line-strong);
   border-radius: 12px;
-  background-color: #161f2e;
+  background-color: var(--ink-2);
   transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .project-card:hover {
-  border-color: #4b5563;
+  border-color: #3b5249;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
   transform: translateY(-2px);
 }
 
 .project-card.is-open {
-  border-color: var(--accent-blue);
-  box-shadow: 0 0 0 1px var(--accent-blue), 0 0 22px rgba(59, 130, 246, 0.25);
+  border-color: var(--copper);
+  box-shadow: 0 0 0 1px var(--copper), 0 0 22px rgba(208, 140, 76, 0.28);
 }
 
 /* The whole card is one button that opens the project. */
@@ -1683,7 +2015,7 @@ button.project-open:hover {
 }
 
 button.project-open:focus-visible {
-  outline: 2px solid var(--accent-blue);
+  outline: 2px solid var(--copper);
   outline-offset: 2px;
 }
 
@@ -1694,11 +2026,11 @@ button.project-open:focus-visible {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--line);
   border-radius: 11px 11px 0 0;
   background:
-    radial-gradient(circle at 50% 35%, rgba(56, 189, 248, 0.08), transparent 60%),
-    linear-gradient(160deg, #1e293b, #0b1120);
+    radial-gradient(circle at 50% 35%, rgba(208, 140, 76, 0.07), transparent 60%),
+    linear-gradient(160deg, #182821, #0b1411);
 }
 
 .project-thumb canvas {
@@ -1709,7 +2041,7 @@ button.project-open:focus-visible {
 
 .project-thumb-missing {
   font-size: 2rem;
-  color: #4b5563;
+  color: var(--silk-faint);
 }
 
 .project-badge {
@@ -1718,12 +2050,12 @@ button.project-open:focus-visible {
   left: 0.55rem;
   padding: 0.12rem 0.5rem;
   border-radius: 999px;
-  background-color: var(--accent-blue);
-  color: #ffffff;
+  background-color: var(--copper);
+  color: var(--copper-ink);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 2px 8px rgba(208, 140, 76, 0.45);
 }
 
 .project-card-body {
@@ -1736,7 +2068,7 @@ button.project-open:focus-visible {
 
 .project-name {
   overflow: hidden;
-  color: var(--text-main);
+  color: var(--silk);
   font-size: 0.9rem;
   font-weight: 600;
   text-overflow: ellipsis;
@@ -1744,12 +2076,12 @@ button.project-open:focus-visible {
 }
 
 .project-meta {
-  color: var(--text-muted);
+  color: var(--silk-dim);
   font-size: 0.72rem;
 }
 
 .project-edited {
-  color: #6b7280;
+  color: var(--silk-faint);
   font-size: 0.7rem;
 }
 
@@ -1769,11 +2101,11 @@ button.project-menu-btn {
   width: 2rem;
   height: 2rem;
   padding: 0;
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  border: 1px solid var(--line-strong);
   border-radius: 8px;
-  background-color: rgba(15, 23, 42, 0.8);
+  background-color: rgba(11, 20, 17, 0.85);
   backdrop-filter: blur(4px);
-  color: #e5e7eb;
+  color: var(--silk);
   font-size: 1rem;
   line-height: 1;
   opacity: 0;
@@ -1800,9 +2132,9 @@ button.project-menu-btn[aria-expanded="true"] {
   padding: 0.3rem;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--line-strong);
   border-radius: 8px;
-  background-color: var(--bg-card);
+  background-color: var(--ink-1);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
 }
 
@@ -1821,16 +2153,16 @@ button.project-menu-btn[aria-expanded="true"] {
 }
 
 .project-menu button:hover {
-  background-color: var(--bg-hover);
+  background-color: var(--ink-2);
   transform: none;
 }
 
 .project-menu button.is-danger {
-  color: #f87171;
+  color: var(--danger);
 }
 
 .project-menu button.is-danger:hover {
-  background-color: rgba(220, 38, 38, 0.15);
+  background-color: var(--danger-wash);
 }
 
 .project-menu-icon {
@@ -1850,7 +2182,7 @@ button.project-menu-btn[aria-expanded="true"] {
   gap: 0.4rem;
   padding: 1rem;
   border-radius: 12px;
-  background-color: rgba(17, 24, 39, 0.95);
+  background-color: rgba(16, 27, 23, 0.96);
   text-align: center;
   font-size: 0.88rem;
 }
@@ -1861,7 +2193,7 @@ button.project-menu-btn[aria-expanded="true"] {
 }
 
 .project-confirm-note {
-  color: var(--text-muted);
+  color: var(--silk-dim);
   font-size: 0.75rem;
 }
 
@@ -1892,17 +2224,17 @@ button.project-new-btn {
   width: 100%;
   height: 100%;
   min-height: 12rem;
-  border: 1.5px dashed #4b5563;
+  border: 1.5px dashed var(--line-strong);
   border-radius: 12px;
-  background-color: rgba(31, 41, 55, 0.35);
-  color: var(--text-muted);
+  background-color: rgba(22, 36, 31, 0.35);
+  color: var(--silk-dim);
   font-weight: 600;
 }
 
 button.project-new-btn:hover {
-  border-color: var(--accent-blue);
-  background-color: rgba(59, 130, 246, 0.08);
-  color: var(--text-main);
+  border-color: var(--copper);
+  background-color: var(--copper-wash);
+  color: var(--silk);
 }
 
 .project-new-icon {
@@ -1912,8 +2244,8 @@ button.project-new-btn:hover {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background-color: rgba(59, 130, 246, 0.15);
-  color: #93c5fd;
+  background-color: var(--copper-wash);
+  color: var(--copper-hi);
   font-size: 1.4rem;
   transition: transform 0.15s ease;
 }
@@ -1931,13 +2263,13 @@ button.project-new-btn:hover .project-new-icon {
   min-height: 12rem;
   box-sizing: border-box;
   padding: 1rem;
-  border: 1.5px solid var(--accent-blue);
+  border: 1.5px solid var(--copper);
   border-radius: 12px;
-  background-color: rgba(59, 130, 246, 0.07);
+  background-color: rgba(208, 140, 76, 0.07);
 }
 
 .project-new-label {
-  color: var(--text-muted);
+  color: var(--silk-dim);
   font-size: 0.78rem;
   font-weight: 600;
 }
@@ -1945,7 +2277,7 @@ button.project-new-btn:hover .project-new-icon {
 .projects-empty {
   grid-column: 1 / -1;
   padding: 1.5rem 0;
-  color: var(--text-muted);
+  color: var(--silk-dim);
   font-size: 0.85rem;
   text-align: center;
 }
@@ -1956,7 +2288,7 @@ button.project-new-btn:hover .project-new-icon {
 }
 
 .projects-footer-hint {
-  color: var(--text-muted);
+  color: var(--silk-dim);
   font-size: 0.78rem;
 }
 
@@ -1969,7 +2301,7 @@ button.project-new-btn:hover .project-new-icon {
 .form-group label {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--silk-dim);
 }
 
 .form-row {
@@ -1997,8 +2329,8 @@ button.project-new-btn:hover .project-new-icon {
 .pin-grid-body {
   grid-column: 2;
   position: relative;
-  background-color: #0b0f19;
-  border: 1px solid #4b5563;
+  background-color: var(--ink-0);
+  border: 1px solid var(--line-strong);
   border-radius: 4px;
 }
 
@@ -2011,8 +2343,8 @@ button.project-new-btn:hover .project-new-icon {
   width: 18px;
   height: 9px;
   transform: translateX(-50%);
-  background-color: #111827;
-  border: 1px solid #4b5563;
+  background-color: var(--ink-1);
+  border: 1px solid var(--line-strong);
   border-top: none;
   border-radius: 0 0 9px 9px;
 }
@@ -2038,7 +2370,7 @@ button.project-new-btn:hover .project-new-icon {
   min-width: 1.75rem;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #60a5fa;
+  color: var(--copper-hi);
   font-variant-numeric: tabular-nums;
 }
 
@@ -2058,7 +2390,6 @@ button.project-new-btn:hover .project-new-icon {
     grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr);
   }
 }
-
 
 /* Icons (the <symbol>s at the top of app/index.html): line drawings in the text colour */
 .icon,
@@ -2092,102 +2423,7 @@ svg.tool-icon {
   gap: 0.45rem;
 }
 
-/* The board's toolbar: the status badge (and a placement tool's rotate and cancel), then groups
-   of icon buttons */
-.status-bar {
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.status-lead {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  flex: 1 1 12rem;
-  min-width: 0;
-}
-
-.bar-groups {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.bar-group {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 2px;
-  background: #0b1220;
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-}
-
-button.bar-btn {
-  min-width: 32px;
-  min-height: 30px;
-  padding: 0.3rem 0.5rem;
-  gap: 0.35rem;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-}
-
-button.bar-btn:hover {
-  color: var(--text-main);
-  background: var(--bg-hover);
-  transform: none;
-}
-
-button.bar-btn.is-on {
-  color: #38bdf8;
-  background: rgba(6, 182, 212, 0.15);
-}
-
-button.bar-btn:disabled {
-  opacity: 0.3;
-  cursor: default;
-  background: transparent;
-}
-
-button.bar-btn[hidden] {
-  display: none;
-}
-
-.status-lead button.bar-btn {
-  border: 1px solid var(--border-light);
-}
-
-.status-lead button.bar-btn-cancel {
-  color: #f87171;
-  border-color: rgba(248, 113, 113, 0.4);
-}
-
-.status-lead button.bar-btn-cancel:hover {
-  background: rgba(239, 68, 68, 0.15);
-}
-
-.zoom-level {
-  min-width: 42px;
-  font-family: monospace;
-  font-size: 0.75rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-muted);
-  text-align: center;
-}
-
-/* The board, with the selection bar floating over its bottom edge */
-.board-stage {
-  position: relative;
-  flex: 1;
-  width: 100%;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
+/* The selection bar, floating over the board's bottom edge */
 
 .selection-bar {
   position: absolute;
@@ -2199,9 +2435,9 @@ button.bar-btn[hidden] {
   gap: 2px;
   max-width: calc(100% - 24px);
   padding: 4px;
-  background: rgba(17, 24, 39, 0.92);
+  background: rgba(16, 27, 23, 0.94);
   backdrop-filter: blur(10px);
-  border: 1px solid #334155;
+  border: 1px solid var(--line-strong);
   border-radius: 14px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
   transform: translateX(-50%);
@@ -2234,35 +2470,35 @@ button.bar-btn[hidden] {
   white-space: nowrap;
   font-size: 0.78rem;
   font-weight: 600;
-  color: #e2e8f0;
-  border-right: 1px solid #334155;
+  color: var(--silk);
+  border-right: 1px solid var(--line-strong);
 }
 
 .selection-bar button {
   gap: 0.35rem;
   padding: 0.4rem 0.6rem;
   font-size: 0.78rem;
-  color: var(--text-main);
+  color: var(--silk);
   background: transparent;
   border: none;
   border-radius: 10px;
 }
 
 .selection-bar button:hover {
-  background: var(--bg-hover);
+  background: var(--ink-2);
   transform: none;
 }
 
 .selection-bar button.is-danger {
-  color: #f87171;
+  color: var(--danger);
 }
 
 .selection-bar button.is-danger:hover {
-  background: rgba(239, 68, 68, 0.15);
+  background: var(--danger-wash);
 }
 
 .selection-bar button.selection-bar-close {
-  color: var(--text-muted);
+  color: var(--silk-dim);
 }
 
 .context-menu button[hidden] {
@@ -2282,7 +2518,7 @@ button.bar-btn[hidden] {
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.5;
-  color: var(--text-main);
+  color: var(--silk);
 }
 
 .ask-message[hidden],
@@ -2307,19 +2543,19 @@ button.ask-chip {
   padding: 0.35rem 0.7rem;
   font-size: 0.8rem;
   font-variant-numeric: tabular-nums;
-  background: #0b1220;
+  background: var(--ink-0);
   border-radius: 999px;
 }
 
 button.ask-chip:hover {
-  border-color: var(--accent-cyan);
+  border-color: var(--copper);
   transform: none;
 }
 
 .ask-error {
   margin: 0;
   font-size: 0.8rem;
-  color: #f87171;
+  color: var(--danger);
 }
 
 .ask-error:empty {
@@ -2342,8 +2578,7 @@ button.ask-chip:hover {
 
 /* Fingers pan and pinch the board themselves (board-touch.ts), so the browser mustn't scroll or
    zoom the page under them, nor offer to save the canvas as an image on a long press. */
-#myCanvas,
-#colorSpectrumCanvas {
+#myCanvas {
   touch-action: none;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -2357,9 +2592,9 @@ button.ask-chip:hover {
   }
 }
 
-/* Phone layout (mobile-layout.ts, under the same media query: small screens, and touch screens up
-   to a tablet's, or held sideways): the board fills the screen between the header and a toolbar
-   along the bottom, and the two sidebars become sheets that slide up over it. */
+/* Phone layout (the media query usePhoneLayout matches: small screens, and touch screens up to a
+   tablet's, or held sideways): the board fills the screen between the header and a toolbar along
+   the bottom, and the two panels become sheets that slide up over it. */
 .sheet-header,
 .mobile-nav,
 .sheet-backdrop {
@@ -2368,7 +2603,7 @@ button.ask-chip:hover {
 
 @media (max-width: 768px), (pointer: coarse) and (max-width: 1024px), (pointer: coarse) and (max-height: 500px) {
   :root {
-    --mobile-nav-height: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+    --mobile-nav-height: calc(3.6rem + env(safe-area-inset-bottom, 0px));
   }
 
   body {
@@ -2380,7 +2615,6 @@ button.ask-chip:hover {
 
   .app-header {
     height: 3rem;
-    flex-shrink: 0;
     gap: 0.35rem;
     padding: 0 max(0.5rem, env(safe-area-inset-right, 0px)) 0 max(0.5rem, env(safe-area-inset-left, 0px));
   }
@@ -2390,40 +2624,41 @@ button.ask-chip:hover {
     display: none;
   }
 
-  .brand-icon {
-    width: 28px;
-    height: 28px;
+  .brand-mark {
+    width: 24px;
+    height: 24px;
   }
 
   .menu-bar {
     flex: 1;
     min-width: 0;
     gap: 0;
-    margin-left: 0.15rem;
+    margin-left: 0.1rem;
   }
 
   button.menu-trigger {
     padding: 0.4rem 0.45rem;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
   }
 
   button.project-name-btn {
     min-width: 0;
-    margin-left: 0.25rem;
-    padding: 0.3rem 0.5rem;
-    font-size: 0.8rem;
+    margin-left: 0.2rem;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.82rem;
   }
 
   .header-actions {
-    flex-shrink: 0;
     gap: 0.35rem;
   }
 
   .header-actions button {
-    padding: 0.4rem 0.6rem;
+    padding: 0.45rem 0.6rem;
   }
 
-  /* Showing or hiding the sidebars and the focus mode mean nothing here, and fingers zoom. */
+  /* The tool rail is the bottom toolbar here; showing or hiding the panels and focus mode mean
+     nothing; and fingers zoom. */
+  .tool-rail,
   #toggleFullscreenBtn,
   #toggleSidebarBtn,
   #toggleShortcutsBtn,
@@ -2436,36 +2671,28 @@ button.ask-chip:hover {
   }
 
   .app-layout {
-    flex: 1;
-    min-height: 0;
     flex-direction: column;
     flex-wrap: nowrap;
-    gap: 0;
-    padding: 0;
   }
 
   .canvas-viewport {
     flex: 1;
     min-height: 0;
-    max-height: none;
-    padding: 0.5rem max(0.5rem, env(safe-area-inset-right, 0px)) 0.5rem max(0.5rem, env(safe-area-inset-left, 0px));
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
   }
 
-  /* The board's toolbar floats over the board (mobile-layout.ts moves it into .board-stage): undo
-     and redo top left, Fit and Labels top right, and under them the hint for the armed tool. */
+  /* The board's toolbar floats over the board (BoardWorkspace puts it in .board-stage): undo and
+     redo top left, Fit and the view switches top right, and under them the status line. */
   .board-stage > .status-bar {
     position: absolute;
     top: 8px;
     left: 8px;
     right: 8px;
-    width: auto;
     z-index: 15;
     flex-wrap: wrap;
     justify-content: center;
     gap: 6px;
+    width: auto;
+    min-height: 0;
     margin: 0;
     padding: 0;
     background: none;
@@ -2479,18 +2706,23 @@ button.ask-chip:hover {
 
   .bar-groups {
     order: 1;
-    width: 100%;
     flex-wrap: nowrap;
     gap: 6px;
+    width: 100%;
+    margin-left: 0;
     pointer-events: none;
   }
 
-  .bar-group {
-    pointer-events: auto;
-    background: rgba(11, 18, 32, 0.9);
+  .bar-group,
+  .bar-group + .bar-group {
+    margin-left: 0;
+    padding: 2px;
+    background-color: rgba(16, 27, 23, 0.92);
     backdrop-filter: blur(8px);
-    border-color: #334155;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    pointer-events: auto;
   }
 
   .bar-group:first-child {
@@ -2505,8 +2737,8 @@ button.ask-chip:hover {
   .status-lead {
     order: 2;
     flex: 0 1 auto;
-    max-width: 100%;
     justify-content: center;
+    max-width: 100%;
   }
 
   .status-lead.is-quiet {
@@ -2514,18 +2746,30 @@ button.ask-chip:hover {
   }
 
   .status-badge {
+    flex-wrap: wrap;
+    justify-content: center;
     min-width: 0;
-    padding: 0.45rem 0.85rem;
-    font-size: 0.8rem;
-    white-space: normal;
-    text-align: center;
-    background: rgba(8, 47, 73, 0.92);
+    padding: 0.45rem 0.9rem;
+    background-color: rgba(16, 27, 23, 0.94);
     backdrop-filter: blur(8px);
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    font-size: 0.85rem;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .status-badge.is-armed {
+    border-color: var(--copper-line);
+  }
+
+  .status-hint::before {
+    display: none;
   }
 
   .status-lead button.bar-btn {
-    background: rgba(11, 18, 32, 0.9);
+    background-color: rgba(16, 27, 23, 0.92);
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
   }
 
@@ -2544,7 +2788,7 @@ button.ask-chip:hover {
     gap: 3px;
     min-width: 54px;
     padding: 0.4rem 0.5rem;
-    font-size: 0.68rem;
+    font-size: 0.72rem;
   }
 
   .selection-bar svg.icon {
@@ -2552,53 +2796,21 @@ button.ask-chip:hover {
     height: 20px;
   }
 
-  /* Add shows only the parts catalog; More everything else. */
-  #controls[data-view="add"] #toolsGroup,
-  #controls[data-view="add"] .sidebar-group-divider,
-  #controls[data-view="add"] #buildGroup > .sidebar-group-title,
-  #controls[data-view="add"] #wire,
-  #controls[data-view="add"] #wire + .sidebar-divider,
-  #controls[data-view="add"] #components > .section-title,
-  #controls[data-view="more"] #wire + .sidebar-divider,
-  #controls[data-view="more"] #components {
-    display: none;
-  }
-
-  #controls[data-view="add"] #components {
-    background: none;
-    border: none;
-  }
-
-  #controls[data-view="add"] #componentsSection {
-    padding: 0;
-  }
-
-  #controls[data-view="more"] .sidebar-group-title {
-    margin-top: 0.5rem;
-  }
-
-  button.catalog-row {
-    padding-top: 0.6rem;
-    padding-bottom: 0.6rem;
-    font-size: 0.88rem;
-  }
-
-  .catalog-search {
-    font-size: 1rem;
-  }
-
   /* Room at the top for the buttons over the board, so a fitted board isn't under them */
   #canvas-container {
-    flex: 1;
-    min-height: 0 !important;
-    padding: 52px 0 0 !important;
+    padding: 52px 0 0;
+    background-size: 20px 20px;
+  }
+
+  .stage-foot {
+    min-height: 1.9rem;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.82rem;
   }
 
   #dotDescription {
-    margin-top: 0.5rem;
-    min-height: 0;
-    padding: 0.4rem 0.75rem;
-    font-size: 0.8rem;
+    max-width: none;
+    margin-left: 0;
   }
 
   /* Empty, it keeps its line, unseen: showing and hiding it would resize the board's area, and the
@@ -2611,7 +2823,17 @@ button.ask-chip:hover {
     content: "\00a0";
   }
 
-  /* The sidebars as sheets. Shown even if hidden from the View menu on a wider screen. */
+  /* An empty board's card sits low, above the bottom toolbar. */
+  .empty-board {
+    align-items: flex-end;
+  }
+
+  .empty-board-card {
+    width: 100%;
+    max-width: none;
+  }
+
+  /* The panels as sheets. Shown even if hidden from the View menu on a wider screen. */
   #controls,
   #controls.sidebar-collapsed,
   #shortcutsPanel,
@@ -2628,11 +2850,11 @@ button.ask-chip:hover {
     max-height: 70dvh;
     overflow-y: auto;
     padding: 0 max(0.75rem, env(safe-area-inset-right, 0px)) 0.75rem max(0.75rem, env(safe-area-inset-left, 0px));
-    background: var(--bg-card);
-    border: 1px solid var(--border-light);
+    background-color: var(--ink-1);
+    border: 1px solid var(--line-strong);
     border-bottom: none;
     border-radius: 16px 16px 0 0;
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 -12px 34px rgba(0, 0, 0, 0.5);
     transform: translateY(calc(100% + var(--mobile-nav-height)));
     visibility: hidden;
     transition: transform 0.2s ease, visibility 0.2s;
@@ -2644,6 +2866,53 @@ button.ask-chip:hover {
     visibility: visible;
   }
 
+  /* In a sheet the whole sheet scrolls, the parts list with it. */
+  #controls > #components {
+    flex: none;
+  }
+
+  #components > .section-body {
+    overflow: visible;
+  }
+
+  .sidebar-section:last-child {
+    border-bottom: none;
+  }
+
+  .section-title,
+  .section-body {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+
+  /* Add shows only the parts; More everything else. */
+  #controls[data-view="add"] #toolModeSelector,
+  #controls[data-view="add"] #wire,
+  #controls[data-view="add"] #board,
+  #controls[data-view="add"] #components > .section-title,
+  #controls[data-view="more"] #components {
+    display: none;
+  }
+
+  #controls[data-view="add"] #components {
+    border-bottom: none;
+  }
+
+  button.catalog-row {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    font-size: 0.92rem;
+  }
+
+  /* 16px or more, so the phone doesn't zoom in on the box */
+  input.catalog-search {
+    font-size: 1rem;
+  }
+
+  kbd.catalog-search-key {
+    display: none;
+  }
+
   #shortcutsPanel {
     gap: 0.5rem;
   }
@@ -2653,19 +2922,17 @@ button.ask-chip:hover {
   }
 
   .sheet-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     position: sticky;
     top: 0;
     z-index: 1;
-    padding: 0.85rem 0.25rem 0.35rem;
-    background: var(--bg-card);
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.95rem 0.25rem 0.4rem;
+    background-color: var(--ink-1);
+    color: var(--silk);
+    font-size: 1rem;
+    font-weight: 600;
   }
 
   /* The sheet's grab handle */
@@ -2677,7 +2944,7 @@ button.ask-chip:hover {
     width: 36px;
     height: 4px;
     border-radius: 2px;
-    background: var(--border-light);
+    background-color: var(--line-strong);
     transform: translateX(-50%);
   }
 
@@ -2685,7 +2952,7 @@ button.ask-chip:hover {
     padding: 0.3rem 0.6rem;
     background: none;
     border: none;
-    color: var(--text-muted);
+    color: var(--silk-dim);
     font-size: 1rem;
   }
 
@@ -2694,7 +2961,7 @@ button.ask-chip:hover {
     position: fixed;
     inset: 0 0 var(--mobile-nav-height);
     z-index: 65;
-    background: rgba(0, 0, 0, 0.45);
+    background-color: rgba(0, 0, 0, 0.5);
   }
 
   .sheet-backdrop[hidden] {
@@ -2702,37 +2969,34 @@ button.ask-chip:hover {
   }
 
   .mobile-nav {
-    display: flex;
-    flex-shrink: 0;
     position: relative;
     z-index: 80;
+    display: flex;
+    flex-shrink: 0;
     height: var(--mobile-nav-height);
     padding: 0 env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
-    background: rgba(17, 24, 39, 0.97);
-    border-top: 1px solid var(--border-color);
+    background-color: var(--ink-1);
+    border-top: 1px solid var(--line);
   }
 
-  .mobile-nav button {
+  .mobile-nav button,
+  .mobile-nav button:hover,
+  .mobile-nav button.active-mode {
     flex: 1;
-    min-width: 0;
     flex-direction: column;
     gap: 3px;
+    min-width: 0;
     padding: 0.3rem 0;
     background: none;
     border: none;
     border-radius: 0;
-    color: var(--text-muted);
-    font-size: 0.68rem;
+    color: var(--silk-dim);
+    font-size: 0.74rem;
     font-weight: 600;
   }
 
-  .mobile-nav button:hover {
-    background: none;
-    transform: none;
-  }
-
   .mobile-nav button.active-mode {
-    color: #38bdf8;
+    color: var(--copper-hi);
   }
 
   /* The active tool's pill behind its icon */
@@ -2741,14 +3005,14 @@ button.ask-chip:hover {
     height: 26px;
     padding: 3px 12px;
     border-radius: 13px;
-    transition: background 0.15s ease;
+    transition: background-color 0.15s ease;
   }
 
   .mobile-nav button.active-mode > .nav-icon {
-    background: rgba(6, 182, 212, 0.18);
+    background-color: var(--copper-wash);
   }
 
-  /* Add: a raised round button in the middle */
+  /* Add: a raised copper button in the middle */
   .nav-add-disc {
     display: flex;
     align-items: center;
@@ -2757,9 +3021,9 @@ button.ask-chip:hover {
     height: 46px;
     margin-top: -20px;
     border-radius: 50%;
-    color: #ffffff;
-    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-    box-shadow: 0 6px 18px rgba(6, 182, 212, 0.4), 0 0 0 4px var(--bg-dark);
+    background-color: var(--copper);
+    color: var(--copper-ink);
+    box-shadow: 0 6px 18px rgba(208, 140, 76, 0.35), 0 0 0 4px var(--ink-0);
     transition: transform 0.15s ease;
   }
 

@@ -40,31 +40,31 @@ export function NetsPanel() {
   );
 
   return (
-    <div>
+    <div className="nets-panel">
       <div className="section-title">Nets <span id="netsCount" className="nets-count">{connected.length || ""}</span></div>
       <div id="nets">
         {current?.project.requirements && <RequirementsCard project={current.project} nets={nets} onInspect={highlightRequiredPins}/>}
-        {unconnected.length > 0 && fold("unconnected", `Not connected · ${plural(unconnected.length, "pin")}`,
+        {unconnected.length > 0 && fold("unconnected", `${plural(unconnected.length, "pin")} not connected`,
           unconnected.map(net => (
-            <Pickable key={pinId(net.pins[0])} net={net} picked={picked} className="net-pin" title={`${pinTitle(net.pins[0])} · click to show it on the board`}>
+            <Pickable key={pinId(net.pins[0])} net={net} picked={picked} className="net-pin" title={`${pinTitle(net.pins[0])}: click to show it on the board`}>
               <PinChipContent pin={net.pins[0]}/>
             </Pickable>
           )), unconnected.includes(picked as Net))}
-        {stray.length > 0 && fold("stray", `Connecting no pins · ${plural(strayWires, "wire")}`,
+        {stray.length > 0 && fold("stray", `${plural(strayWires, "wire")} connecting no pins`,
           stray.map(net => {
             const {from, to} = wires[net.wires[0]];
             const more = net.wires.length - 1;
             const title = `A wire from column ${from[0]}, row ${from[1]} to column ${to[0]}, row ${to[1]} (counted from 0 at the top-left hole)`
               + (more ? `, joined to ${plural(more, "more wire")} but to no pin` : ", connected to no pin");
             return (
-              <Pickable key={net.wires.join()} net={net} picked={picked} className="net-pin" title={`${title} · click to show it on the board`}>
+              <Pickable key={net.wires.join()} net={net} picked={picked} className="net-pin" title={`${title}: click to show it on the board`}>
                 {`${hole(from)}–${hole(to)}`}
                 {more > 0 && <span className="net-pin-label">+{more}</span>}
               </Pickable>
             );
           }), stray.includes(picked as Net))}
         {connected.map(net => <NetRow key={net.pins.map(pinId).join()} net={net} picked={picked}/>)}
-        {connected.length === 0 && <div className="nets-empty">No pins are connected yet. Wire two pins together and their net shows up here.</div>}
+        {connected.length === 0 && <div className="nets-empty">Nothing is connected yet. Wire two pins together and their net shows up here.</div>}
       </div>
     </div>
   );

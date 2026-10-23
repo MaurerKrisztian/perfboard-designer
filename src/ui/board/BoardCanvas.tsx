@@ -14,8 +14,8 @@ export function BoardCanvas() {
   }, []);
 
   return (
-    <div id="canvas-container" ref={viewport} style={{flex: 1, width: "100%", height: "100%", minHeight: 400, padding: "1rem"}}>
-      <div id="canvasZoomWrapper" style={{display: "inline-block"}}>
+    <div id="canvas-container" ref={viewport}>
+      <div id="canvasZoomWrapper">
         <canvas id="myCanvas" ref={canvas}/>
       </div>
     </div>

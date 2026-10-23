@@ -38,6 +38,6 @@ export const icTool: ToolBehavior<IcTool> = {
   },
 
   statusText(tool) {
-    return `IC Ready: ${tool.template.name} [Click Pad to Place • Shift+click to place more]`;
+    return `${tool.template.name} [Click a pad to place it • R to rotate • Shift+click to place more]`;
   },
 };

@@ -7,9 +7,12 @@ import {BoardToolbar} from "./BoardToolbar";
 import {BoardCanvas} from "./BoardCanvas";
 import {SelectionBar} from "./SelectionBar";
 import {HoverReadout} from "./HoverReadout";
+import {StatusHints} from "./StatusBadge";
+import {EmptyBoardHint} from "./EmptyBoardHint";
 
 // The middle of the page: the board's toolbar, the board with the selection bar over its bottom
-// edge, and what's under the pointer. On a phone the toolbar floats over the board instead.
+// edge (and, while it's empty, how to start), and along the foot the status's hints and what's
+// under the pointer. On a phone the toolbar, hints and all, floats over the board instead.
 export function BoardWorkspace() {
   const phone = usePhoneLayout();
   useFitWholeBoardOnPhone(phone);
@@ -20,8 +23,12 @@ export function BoardWorkspace() {
         {phone && <BoardToolbar/>}
         <BoardCanvas/>
         <SelectionBar/>
+        <EmptyBoardHint/>
       </div>
-      <HoverReadout/>
+      <footer className="stage-foot">
+        {!phone && <StatusHints/>}
+        <HoverReadout/>
+      </footer>
     </section>
   );
 }

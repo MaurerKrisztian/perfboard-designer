@@ -61,7 +61,7 @@ export function ProjectsDialog({startNew, onClose}: {startNew: boolean; onClose:
   };
 
   return (
-    <Modal title={<>📁 Projects <span className="projects-count">{projects.length || ""}</span></>} titleClassName="projects-title"
+    <Modal title={<>Projects <span className="projects-count">{projects.length || ""}</span></>} titleClassName="projects-title"
       className="projects-card" onClose={onClose} onEscape={onEscape}>
       <div className="modal-body">
         {searchable && (
@@ -83,7 +83,7 @@ export function ProjectsDialog({startNew, onClose}: {startNew: boolean; onClose:
         </ul>
       </div>
       <div className="modal-footer projects-footer">
-        <span className="projects-footer-hint">💾 Saved in this browser as you edit</span>
+        <span className="projects-footer-hint">Saved in this browser as you edit</span>
         <button className="btn" onClick={() => {
           onClose();
           void importProjectFromFile();

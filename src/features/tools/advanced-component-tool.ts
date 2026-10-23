@@ -75,8 +75,8 @@ export const advancedComponentTool: ToolBehavior<AdvancedComponentTool> = {
     const def = advancedDefinitionFor(tool);
     const name = def?.name ?? "Component";
     if (def?.gridSizable) {
-      return tool.start ? `Placing ${name} [Click opposite corner • Shift+click to place more]` : `${name} Armed [Click first corner]`;
+      return tool.start ? `Placing ${name} [Click the opposite corner • Shift+click to place more]` : `${name} [Click the first corner]`;
     }
-    return `${name} Armed [Click pad to place • R to rotate • Shift+click to place more]`;
+    return `${name} [Click a pad to place it • R to rotate • Shift+click to place more]`;
   },
 };

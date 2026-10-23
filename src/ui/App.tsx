@@ -3,6 +3,7 @@ import {startEditor} from "../features/editor";
 import {ToolState} from "../state/ToolState";
 import {IconSprite} from "./components/Icon";
 import {AppHeader} from "./header/AppHeader";
+import {ToolRail} from "./sidebar/ToolRail";
 import {ToolsSidebar} from "./sidebar/ToolsSidebar";
 import {BoardWorkspace} from "./board/BoardWorkspace";
 import {BoardMenus} from "./board/BoardMenus";
@@ -17,8 +18,8 @@ import {useShortcut} from "./hooks/use-shortcut";
 import {cx} from "./lib/class-names";
 import {fitToScreen} from "../features/zoom";
 
-// The editor's page: the header, the tools sidebar, the board, the nets sidebar, and on a phone the
-// bottom toolbar; the board's menus and the dialogs float over them. The editor core starts once
+// The editor's page: the header, the tool rail, the left panel (parts, wire, board), the board, the
+// nets panel, and on a phone the bottom toolbar; the board's menus and the dialogs float over them. The editor core starts once
 // the board's canvas is on the page (BoardCanvas attaches it first: children's effects run first).
 export function App() {
   useEffect(startEditor, []);
@@ -31,6 +32,7 @@ export function App() {
       <IconSprite/>
       <AppHeader/>
       <main className={cx("app-layout", focusMode && "fullscreen-mode")} id="mainAppLayout">
+        <ToolRail/>
         <ToolsSidebar/>
         <BoardWorkspace/>
         <NetsSidebar/>
