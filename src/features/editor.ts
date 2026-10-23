@@ -34,6 +34,8 @@ let started = false;
 
 // Starts the editor, once per page: its keyboard shortcuts, the board's first grid, then the
 // project open last time (and a shared one the page was opened with), kept saved from then on.
+// Then the page says so (data-editor-ready on <html>), for anything driving it in a browser to
+// wait for; on the dev server, window.__perfboard shows what the editor holds (test-handle.ts).
 export function startEditor() {
   if (started) return;
   started = true;
@@ -48,4 +50,6 @@ export function startEditor() {
   startProjects();
   startOpeningSharedLinks();
   redrawCanvas();
+  document.documentElement.dataset.editorReady = "true";
+  if (__DEV_SERVER__) void import("./test-handle").then(handle => handle.installTestHandle());
 }

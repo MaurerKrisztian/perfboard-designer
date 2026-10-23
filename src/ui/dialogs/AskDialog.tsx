@@ -4,14 +4,15 @@ import {useEditor} from "../hooks/use-editor";
 import {Modal} from "../components/Modal";
 
 // The editor's questions (src/features/ask-dialog.ts): a text to type, with one-tap suggestions and
-// a check that keeps the dialog open until the answer reads, or a yes or no.
+// a check that keeps the dialog open until the answer reads, a yes or no, or a notice to dismiss.
 export function AskDialog() {
   const question = useEditor(openQuestion);
   return question ? <QuestionCard key={question.id} question={question}/> : null;
 }
 
 function QuestionCard({question}: {question: Question}) {
-  const {title, message, textInput, placeholder, suggestions, check, okLabel, danger} = question;
+  const {title, message, kind, placeholder, suggestions, check, okLabel, danger} = question;
+  const textInput = kind === "text";
   const [text, setText] = useState(question.value ?? "");
   const [error, setError] = useState("");
   const input = useRef<HTMLInputElement>(null);
@@ -58,7 +59,7 @@ function QuestionCard({question}: {question: Question}) {
         <p className="ask-error" aria-live="polite">{error}</p>
       </div>
       <div className="modal-footer">
-        <button type="button" className="btn" onClick={cancel}>Cancel</button>
+        {kind !== "notice" && <button type="button" className="btn" onClick={cancel}>Cancel</button>}
         <button type="submit" ref={ok} className={danger ? "btn-danger" : "btn-primary"}>{okLabel ?? "OK"}</button>
       </div>
     </Modal>

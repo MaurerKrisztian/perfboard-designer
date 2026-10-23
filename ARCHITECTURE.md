@@ -95,6 +95,7 @@ src/
   interfaces/          shared editor types: dots, lines, placed parts, undo changes
   features/            the editor core: one concern per module, as plain functions
     editor.ts          the core's entry points: attachBoard(), startEditor()
+    test-handle.ts     window.__perfboard on the dev server: the board's state, for testing in a browser
     tools/             what a click on the board does, one behaviour per tool
     standard-components/, advanced-components/   the placed-part classes of the two part systems
     catalog/           recently used parts, catalog keys, "the catalog changed"
@@ -156,9 +157,11 @@ state and behaviour, draws the board on its canvas and takes the board's input, 
 **Startup.** `app/index.html` is just a `#root` element; `src/ui/main.tsx` renders `<App/>` into
 it. `BoardCanvas` hands the core its canvas and scrolling viewport with `attachBoard()`, then
 `App` calls `startEditor()` (both in `src/features/editor.ts`) once: the keyboard shortcuts, the
-first grid, reopening the last project, opening a share link the page came with. Nothing in the
-core attaches a listener at import: a module that listens does it in an `attach…`, `start…`,
-`listenFor…` or `track…` function that `editor.ts` calls.
+first grid, reopening the last project, opening a share link the page came with. Then it marks the
+page `data-editor-ready`, and on the dev server installs `window.__perfboard`
+(`test-handle.ts`, left out of builds by the `__DEV_SERVER__` constant; see
+docs/testing-with-agents.md). Nothing in the core attaches a listener at import: a module that
+listens does it in an `attach…`, `start…`, `listenFor…` or `track…` function that `editor.ts` calls.
 
 **How the UI follows the core.** The core calls `notifyEditorChanged()`
 (`src/features/editor-events.ts`) after any change the UI may show; every `redrawCanvas()` does,
@@ -211,10 +214,11 @@ store, and no instances are made.
 
 The two unions make "only one at a time" true by construction: one selection, one tool.
 
-**Questions.** The editor asks for text (a value, a note) and yes/no (a resize that drops parts)
-with its own dialog, `askText`/`askConfirm` in `src/features/ask-dialog.ts` (which holds the open
-question; `src/ui/dialogs/AskDialog.tsx` shows it and answers it), never the browser's
-`prompt()`/`confirm()`, which some embedding pages block. Modules that draw-canvas reaches through
+**Questions.** The editor asks for text (a value, a note) and yes/no (a resize that drops parts),
+and tells the user things (a link that wouldn't open), with its own dialog: `askText`/`askConfirm`/
+`tell` in `src/features/ask-dialog.ts` (which holds the open question; `src/ui/dialogs/AskDialog.tsx`
+shows it and answers it), never the browser's `prompt()`/`confirm()`/`alert()`, which some embedding
+pages block and which freeze the page until answered. Modules that draw-canvas reaches through
 the tool registry redraw with `requestRedraw()` (`redraw-request.ts`) instead of importing it.
 
 **Placing a part** drops back to Select with the new part selected; Shift-click keeps the

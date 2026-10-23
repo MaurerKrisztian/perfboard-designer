@@ -1,4 +1,5 @@
 import {getSaveJson} from "./project/save-project";
+import {tell} from "./ask-dialog";
 
 // The 3D viewer only ever gets a snapshot of the project file (the same JSON "Save Project"
 // writes), never live editor state, and is loaded on demand so three.js isn't part of the
@@ -10,7 +11,7 @@ export async function open3dView() {
     return undefined;
   });
   if (!viewer) {
-    alert("Couldn't load the 3D view. Check your connection and try again.");
+    void tell("Couldn't load the 3D view", "Check your connection and try again.");
     return;
   }
   try {
@@ -18,6 +19,6 @@ export async function open3dView() {
   } catch (err) {
     // Almost always WebGL: turned off, blocked, or not supported by this browser or device.
     console.error(err);
-    alert("Couldn't start the 3D view. It needs WebGL, which this browser has turned off or doesn't support: try turning on hardware acceleration in its settings, or another browser.");
+    void tell("Couldn't start the 3D view", "It needs WebGL, which this browser has turned off or doesn't support: try turning on hardware acceleration in its settings, or another browser.");
   }
 }

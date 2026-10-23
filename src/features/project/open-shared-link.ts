@@ -1,4 +1,4 @@
-import {askConfirm} from "../ask-dialog";
+import {askConfirm, tell} from "../ask-dialog";
 import {ProjectFileError} from "../../project-file/read-project-file";
 import {decodeEmbeddedProject, MAX_SHARED_PROJECT_BYTES, readShareFragment, ShareLink} from "../../project-file/share-link";
 import {importSharedProject} from "./current-project";
@@ -74,7 +74,7 @@ async function openLinkedProject() {
     raw = await linkedProject(link);
   } catch (err) {
     console.error(err);
-    alert(`Couldn't open the shared project. ${err instanceof ProjectFileError ? err.message : "The link is damaged."}`);
+    void tell("Couldn't open the shared project", err instanceof ProjectFileError ? err.message : "The link is damaged.");
     return;
   }
   if (raw === undefined) return;

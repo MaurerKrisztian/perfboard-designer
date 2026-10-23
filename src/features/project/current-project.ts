@@ -1,5 +1,6 @@
 import {onRedraw} from "../draw-canvas";
 import {notifyEditorChanged} from "../editor-events";
+import {tell} from "../ask-dialog";
 import {getSaveJson} from "./save-project";
 import {loadProject} from "./load-project";
 import {ProjectState} from "../../state/ProjectState";
@@ -64,7 +65,7 @@ function whyUnreadable(err: unknown): string {
 
 function reportSkipped(what: string, skipped: number) {
   if (skipped > 0) {
-    alert(`Opened "${what}", but ${skipped} item${skipped === 1 ? "" : "s"} couldn't be read and ${skipped === 1 ? "was" : "were"} left out.`);
+    void tell("Some of it was left out", `Opened "${what}", but ${skipped} item${skipped === 1 ? "" : "s"} couldn't be read and ${skipped === 1 ? "was" : "were"} left out.`);
   }
 }
 
@@ -78,7 +79,7 @@ export function openProject(id: string): boolean {
     ({skipped} = loadProject(JSON.parse(readStoredProjectFile(id) ?? "null")));
   } catch (err) {
     console.error(err);
-    alert(`Couldn't open "${name}". ${whyUnreadable(err)}`);
+    void tell(`Couldn't open "${name}"`, whyUnreadable(err));
     return false;
   }
   lastSaved = JSON.stringify(getSaveJson());
@@ -96,7 +97,7 @@ function createAndOpen(name: string, project: ProjectFile): boolean {
     id = createStoredProject(name, JSON.stringify(project)).id;
   } catch (e) {
     console.error(e);
-    alert(`"${name}" can't be saved in this browser (its storage may be full or turned off), so changes to it won't be kept. Use Save Project to File to keep a copy.`);
+    void tell(`"${name}" isn't being saved`, "This browser won't store it (its storage may be full or turned off), so changes to it won't be kept. Use Save Project to File to keep a copy.");
     saveNow();
     loadProject(project);
     setCurrent(undefined);
@@ -122,7 +123,7 @@ function importProject(parse: () => unknown, name: string, what: string) {
     read = readProjectFile(parse());
   } catch (err) {
     console.error(err);
-    alert(`Couldn't open "${what}". ${whyUnreadable(err)}`);
+    void tell(`Couldn't open "${what}"`, whyUnreadable(err));
     return;
   }
   createAndOpen(unusedProjectName(name), read.project);
@@ -151,7 +152,7 @@ export function duplicateProject(id: string) {
     createStoredProject(unusedProjectName(`${original.name} copy`), json);
   } catch (e) {
     console.error(e);
-    alert(`Couldn't copy "${original.name}": this browser's storage may be full.`);
+    void tell(`Couldn't copy "${original.name}"`, "This browser's storage may be full.");
   }
 }
 

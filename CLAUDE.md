@@ -22,7 +22,10 @@ npm run deploy         # build + publish dist/ to GitHub Pages (gh-pages)
 
 There is no test suite/framework in this repo (no test script, no test runner in
 devDependencies). **Do not introduce Playwright or any other automated test tooling** — the user
-tests changes manually in the browser.
+tests changes manually in the browser. To check a change yourself in a browser, follow
+**docs/testing-with-agents.md**: boards opened by link, `data-editor-ready`, and on the dev server
+`window.__perfboard` (`src/features/test-handle.ts`) to read the board, selection, nets and hole
+positions, with `settled()` to wait for a change.
 
 ## Architecture
 
@@ -86,9 +89,9 @@ selection bar floating over the board (`SelectionBar.tsx`) show only the actions
 (`availableActions()`). Icons are `<Icon name="…"/>` (`src/ui/components/Icon.tsx`, one SVG sprite
 that `App` renders); use them, not emoji.
 
-**Questions**: ask with `askText`/`askConfirm` (`src/features/ask-dialog.ts`, which holds the open
-question; `src/ui/dialogs/AskDialog.tsx` shows it), never `prompt()`/`confirm()` (embedding pages
-may block them). Placing a part returns to Select with it selected; Shift-click
+**Questions**: ask with `askText`/`askConfirm`, and tell with `tell` (`src/features/ask-dialog.ts`,
+which holds the open question; `src/ui/dialogs/AskDialog.tsx` shows it), never
+`prompt()`/`confirm()`/`alert()` (embedding pages may block them, and they freeze the page). Placing a part returns to Select with it selected; Shift-click
 keeps the tool armed (`BoardClick.keepArmed`).
 
 **Phone layout**: on a small or touch screen (one media query, in both the end of `src/style.css`
