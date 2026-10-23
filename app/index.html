@@ -21,15 +21,69 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
-  <script type="module" crossorigin src="../assets/app.e650d221.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap" />
+    <style>
+      /* What the page shows until the editor replaces it. Styled here, not in style.css, so it
+         looks right before the editor's styles arrive, or if they never do (its colours are
+         style.css's --ink-0, --silk-dim, --silk and --copper). */
+      .app-loading {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: #0b1411;
+        color: #a5b4ab;
+        font: 500 15px/1.5 Barlow, system-ui, -apple-system, sans-serif;
+        text-align: center;
+      }
+      .app-loading strong {
+        color: #edf2ec;
+        font-weight: 600;
+      }
+      .app-loading button {
+        padding: 0.5rem 1.25rem;
+        border: 0;
+        border-radius: 0.5rem;
+        background: #d08c4c;
+        color: #1f1206;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+    </style>
+    <script>
+      // If the editor's script doesn't arrive (offline, a dropped connection, or a page cached from
+      // before a deploy, pointing at scripts that are gone), or fails before it shows anything, say
+      // so where "Loading the editor…" is. Once the editor has replaced that, this does nothing.
+      // A script's load error doesn't bubble, so it's caught on its way down.
+      addEventListener("error", function (event) {
+        var loading = document.getElementById("appLoading");
+        if (!loading) return;
+        var notLoaded = event.target instanceof HTMLScriptElement;
+        loading.innerHTML = notLoaded
+          ? "<strong>Couldn’t load the editor.</strong><span>Check your connection, then reload the page.</span>"
+          : "<strong>The editor couldn’t start.</strong><span>Reload the page. If it keeps happening, try another browser.</span>";
+        var reload = document.createElement("button");
+        reload.type = "button";
+        reload.textContent = "Reload";
+        reload.onclick = function () { location.reload(); };
+        loading.appendChild(reload);
+      }, true);
+    </script>
+  <script type="module" crossorigin src="../assets/app.29c42f60.js"></script>
   <link rel="modulepreload" crossorigin href="../assets/modulepreload-polyfill.c7c6310f.js">
-  <link rel="stylesheet" href="../assets/index.9f705839.css">
+  <link rel="stylesheet" href="../assets/index.f099cc47.css">
 </head>
 
 <body>
-  <!-- The editor is a React app (src/ui/): it fills this. -->
-  <div id="root"></div>
+  <!-- The editor is a React app (src/ui/): it replaces what's in here when it starts. -->
+  <div id="root">
+    <div id="appLoading" class="app-loading" role="status">Loading the editor…</div>
+  </div>
   <noscript>Perfboard Designer needs JavaScript to run. See the <a href="../guide/">user guide</a> for what it does.</noscript>
   
 </body>
