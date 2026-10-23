@@ -898,7 +898,6 @@ button.preset-btn:hover {
   display: block;
   border-radius: 3px;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45), 0 18px 48px rgba(0, 0, 0, 0.55);
-  transition: width 0.15s ease-out, height 0.15s ease-out;
 }
 
 /* The board's toolbar: the status line (and a placement tool's rotate and cancel), then groups of
@@ -2583,13 +2582,6 @@ button.ask-chip:hover {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
-}
-
-/* A zoom that animates would drift out from between the pinching fingers. */
-@media (pointer: coarse) {
-  #myCanvas {
-    transition: none;
-  }
 }
 
 /* Phone layout (the media query usePhoneLayout matches: small screens, and touch screens up to a
