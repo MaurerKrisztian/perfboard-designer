@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-PCB Perfboard Designer — a browser-based CAD tool (HTML5 Canvas + TypeScript, no framework) for
+PCB Perfboard Designer — a browser-based CAD tool (a React + TypeScript UI over an HTML5 Canvas board) for
 laying out components and wires on a virtual perfboard grid. Built with Vite.
 
 ## Commands
@@ -34,7 +34,7 @@ pure comparison. Stable component IDs plus numeric pins bind requirements; snaps
 parts/pins reportable. Unspecified pins are unchecked, not implicitly unused; only full coverage
 without mismatches may report a match; turning checking off is a saved choice the reader and
 writer must preserve. The editor holds them in `RequirementsState` and has no UI to edit them;
-`requirements-validation.ts` renders diagnostics in the Nets panel. Preserve multi-net
+`src/ui/nets/RequirementsCard.tsx` renders diagnostics in the Nets panel. Preserve multi-net
 requirement highlights instead of following only one actual net. `placePart()` records a new
 part's required inventory entry and the physical part in one history batch. Deleted parts remain
 required until explicitly forgotten. New projects clear requirements; resizing/copying and MCP
@@ -53,7 +53,9 @@ either wrong fixes both.
 and `mcp/` on top. Those three bottom layers are pure (no DOM, no editor state; browser globals
 like `document`/`Path2D` fail lint there), outside code imports the renderer only through
 `src/board-render/index.ts`, the 3D viewer never imports the editor, and the editor never imports
-`mcp/`. When lint stops an import, move the code to the right layer rather than silencing it.
+`mcp/`. The editor is itself two layers: its core (`src/features/`, `src/state/`,
+`src/interfaces/`, `src/utils/`) and the React UI on top (`src/ui/`); the core never imports
+`src/ui/`. When lint stops an import, move the code to the right layer rather than silencing it.
 
 **Pages** (Vite multi-page build, inputs listed in `vite.config.ts`). Served at
 https://perfboarddesigner.com (GitHub Pages custom domain, kept across deploys by `assets/CNAME`).
@@ -76,45 +78,68 @@ Keep all in-site URLs relative — never `/...` — so it also works under the g
   whatever missing URL was requested, so it's fully self-contained (inline CSS/SVG) and is the one
   page that uses root-based links (`/app/`, `/`).
 
-**Board toolbar, selection bar, icons**: the toolbar above the board (`#boardBar`) has the status
-badge (plus cancel/rotate while placing), undo/redo, zoom, Fit, Labels, Focus. Actions on the
-selection live in `selection-actions.ts`: the context menu and the floating `#selectionBar` are
-`data-action` buttons, and only those that apply show (`<body data-sel-actions>` + CSS). Icons
-are `<symbol>`s at the top of `app/index.html` (`<use href="#i-…">`); use them, not emoji.
+**Board toolbar, selection bar, icons**: the toolbar above the board (`src/ui/board/BoardToolbar.tsx`)
+has the status badge (`status-text.ts`; plus cancel/rotate while placing), undo/redo, zoom, Fit,
+Labels, Focus. Actions on the selection live in `src/ui/board/selection-actions.ts`: the context
+menu (`BoardMenus.tsx`; the core's `board-menus.ts` says which menu is open, where) and the
+selection bar floating over the board (`SelectionBar.tsx`) show only the actions that apply
+(`availableActions()`). Icons are `<Icon name="…"/>` (`src/ui/components/Icon.tsx`, one SVG sprite
+that `App` renders); use them, not emoji.
 
-**Questions**: ask with `askText`/`askConfirm` (`ask-dialog.ts`), never `prompt()`/`confirm()`
-(embedding pages may block them). Placing a part returns to Select with it selected; Shift-click
+**Questions**: ask with `askText`/`askConfirm` (`src/features/ask-dialog.ts`, which holds the open
+question; `src/ui/dialogs/AskDialog.tsx` shows it), never `prompt()`/`confirm()` (embedding pages
+may block them). Placing a part returns to Select with it selected; Shift-click
 keeps the tool armed (`BoardClick.keepArmed`).
 
 **Phone layout**: on a small or touch screen (one media query, in both the end of `src/style.css`
-and `src/features/mobile-layout.ts`; keep them the same) the board fills the screen, a bottom
-toolbar (`#mobileNav`: Select, Wire, Solder, Add, Nets, More) opens slide-up sheets (Add/More are
-`#controls` with a `data-view`, Nets is the right sidebar), and the board toolbar floats over the
-board.
+and `PHONE_QUERY` in `src/ui/hooks/use-media-query.ts`; keep them the same) the board fills the
+screen, a bottom toolbar (`src/ui/mobile/MobileNav.tsx`: Select, Wire, Solder, Add, Nets, More)
+opens slide-up sheets (Add/More are the tools sidebar `#controls` with a `data-view`, Nets is the
+right sidebar; which one is open is `layoutStore`'s `sheet`, `src/ui/layout/layout-store.ts`), and
+the board toolbar floats over the board. Nothing may resize the board's area mid-gesture (the
+readout under it keeps its line when empty), or the board jumps under the finger.
 
-Vanilla TS, no framework, no state-management library. `src/index.ts` is the editor's entrypoint: it imports
-every feature module for side effects (each attaches its own DOM event listeners), then calls
-`createDotGrid` and `redrawCanvas` once at startup. Adding a new feature means
-creating a module under `src/features/` and importing it in `index.ts`.
+**UI and core**: the editor is a React app (`app/index.html` mounts `src/ui/main.tsx`) over a
+framework-free core. The core (`src/features/`, `src/state/`) owns the editor's state and
+behaviour, draws the board on its canvas and takes the board's input; the UI (`src/ui/`) renders
+everything else from that state and calls core functions to act. No state-management library.
+They meet in two places:
+- `src/features/editor.ts`: `BoardCanvas` hands the core its canvas with `attachBoard(canvas,
+  viewport)`, then `App` calls `startEditor()` once (shortcuts, the first grid, reopening the last
+  project, opening a share link). The core attaches no listeners at import: a module that listens
+  does it in an `attach…`/`start…`/`listenFor…`/`track…` function that `editor.ts` calls.
+- `src/features/editor-events.ts`: the core calls `notifyEditorChanged()` after any change the UI
+  may show (every `redrawCanvas()` does), and a component reads core state with
+  `useEditor(select)` (`src/ui/hooks/use-editor.ts`), re-rendering only when what `select`
+  returns changes. The core mutates its objects in place, so return primitives or an object the
+  core replaces, or pass `shallowEqual` for a fresh array.
+UI-only state (the open dialog, sidebars shown, focus mode, the phone's sheet) lives in small
+stores (`src/ui/lib/store.ts`): `src/ui/dialogs/dialog-store.ts`, `src/ui/layout/layout-store.ts`.
+Components are function components, one per file, grouped by area (`header/`, `sidebar/`,
+`catalog/`, `board/`, `nets/`, `dialogs/`, `mobile/`); `components/` holds the shared ones
+(`Modal`, `Icon`, `SegmentedControl`, `NumberField`), `hooks/` and `lib/` the shared hooks and
+helpers. They use the class names in `src/style.css` (no CSS-in-JS). A new feature is functions
+in `src/features/` plus a component in `src/ui/` that calls them.
 
 **State** (`src/state/`): plain classes used as static/global singletons (no instances are ever
-created — `ClassName.staticField` is the "store"). E.g. `Canvas` (canvas element + 2D context +
-coordinate mapping), `GridConfig` (grid constants like dot spacing/radius), `DotState` /
-`LineState` (the grid and wires, plus hover), `PartState` (every placed part, see below),
+created — `ClassName.staticField` is the "store"). E.g. `Canvas` (the board's canvas and scrolling viewport, handed over by
+`attachBoard`, + 2D context + coordinate mapping), `GridConfig` (grid constants like dot spacing/radius), `DotState` /
+`LineState` (the grid and wires, plus hover), `ViewState` (zoom, labels, solder side, the hover
+text), `PartState` (every placed part, see below),
 `BoardState` (perfboard or stripboard, see below), `HistoryState` (undo/redo stack). Two
 discriminated unions keep "only one at a time" true by
 construction: `SelectionState.current` (one selected pad, wire *or* part) and `ToolState.active`
 (what a click on the board does: a toolbar mode — select/eraser/note/cut — or a placement tool —
 wire, solder path, IC, standard or advanced component — with its pending first click). Switch tools through
 `setActiveTool()` (`src/features/active-tool.ts`); `resetInteraction()` clears the selection and
-drops a placement tool back to Select. Toolbar/catalog highlights are derived from this state in
-`updateSelectionStatus()`.
+drops a placement tool back to Select. The UI's tool and catalog highlights are read from this
+state as it renders.
 
 **Tools** (`src/features/tools/`): each `ActiveTool` kind has a `ToolBehavior` —
 `onPointerDown`, `drawPreview` (given the board's Painter), `statusText`, optional `stepBack` (Escape) — registered in
 `tools/index.ts` and looked up with `behaviorOf(tool)`. Tools only change state; the caller
 (`select.ts`, the board's input router, which also owns panning, the context menu and Escape)
-redraws and refreshes the status badge. `select.ts` takes mouse and pen pointer events; fingers go
+redraws, and the UI follows. `select.ts` takes mouse and pen pointer events; fingers go
 through `board-touch.ts`, which reuses its exports (tap = click when the finger lifts, one-finger
 drag pans or moves a part, two-finger pinch zooms and pans, long press = context menu). A mouse
 drag that starts on a hole in Select mode or with the wire tool draws a wire to the hole it ends on,
@@ -133,11 +158,11 @@ covers (Nets below); everything else treats it as a wire. A selected wire's hand
 (double-tap) a bend to take it out, the selection bar's Straighten for all of them; the wire changes
 live and its new route goes through the wire tool's `routeWire` (as placing does) as one undoable
 `replace`, Escape puts it back. Keep tool modules free of imports that lead back to
-`draw-canvas.ts` (it imports the registry to draw previews), which is why the note prompt lives in
-`dot-notes.ts` rather than `description.ts`.
+`draw-canvas.ts` (it imports the registry to draw previews), which is why a hole's note operations live in
+`dot-notes.ts` and redraw with `requestRedraw()`.
 
-**Features** (`src/features/`): self-registering modules, each owning one concern (hover,
-selection, color picker, context menu, shortcuts, project save/load, etc.). They read/
+**Features** (`src/features/`): modules of plain functions, each owning one concern (hover,
+selection, wires, zoom, nets, shortcuts, project save/load, etc.). They read/
 mutate the state classes and call `redrawCanvas()` (`src/features/draw-canvas.ts`) after any
 change that affects what's on screen. `redrawCanvas` redraws everything from scratch each call
 (immediate-mode style): it hands the board renderer a snapshot of the board (`getSaveJson()`) and
@@ -172,28 +197,28 @@ one arrives; one-off drawings `await browserIcons.ready(iconsUsedBy(project))`),
 handed their text. **`src/board-render/` is pure** (it may import only `src/project-file/` and
 `src/parts/`), and outside code imports only its `index.ts`.
 
-**Components catalog** (`src/features/catalog/`): the sidebar's single Components section — a
+**Components catalog** (`src/ui/catalog/`): the sidebar's single Components section — a
 search box over a category tree. It only decides where parts are *listed*; placing them is still
 done by the three systems below. `src/parts/catalog-categories.ts` declares the tree (one line per
 category, `parentId` for nesting, array order = display order; `CategoryId` is derived from it so a
 bad id fails to compile). Every part definition names one `category: CategoryId` plus optional
-search `keywords`. `catalog.ts` merges all three systems into `CatalogItem`s whose
+search `keywords`. `catalog-items.ts` merges all three systems into `CatalogItem`s whose
 `activate`/`isArmed`/`remove` closures hide which system backs them (they set/read
 `ToolState.active`); `catalog-search.ts` ranks by
 match quality (exact > prefix > word prefix > substring > fuzzy) with kind (component >
-subcategory > category) only as a tiebreak; `components-panel.ts` renders it. **Only `index.ts`
-may import `components-panel.ts`** — it imports every part source, so a module importing it back
-forms a cycle that runs the panel before `Ic` exists and crashes startup. Everything else talks to
-it through the import-free `catalog-events.ts`: `notifyArmedPartChanged()` after changing what's
-armed (`updateSelectionStatus()` already does, so `setActiveTool()` covers it), `notifyCatalogChanged()`
-after custom ICs change. To add a part:
+subcategory > category) only as a tiebreak; `ComponentsSection.tsx` renders it (`CatalogTree`,
+`CatalogResults`). The core tells it what's listed changed with `notifyCatalogChanged()`
+(`src/features/catalog/catalog-events.ts`: custom parts added, edited, deleted or merged in, a part
+placed for "Recently used…"); `catalogItems()` builds the items again only then. The armed
+part's highlight follows `ToolState.active`. To add a part:
 add a definition to the relevant system's definitions file with a `category` — nothing else. To
 add a category: one line in `catalog-categories.ts` (empty categories are hidden).
 
 **Board types**: a board is a perfboard (a separate pad per hole) or a stripboard (copper strips
 along every row or column, which the user can cut at a hole). `BoardState.setup` holds the type
-and strip direction; change it through `setBoardSetup()` (`src/features/board-type.ts`, which
-also owns the sidebar switch and shows the Cut tool only on a stripboard). Strip cuts live on the
+and strip direction; change it through `setBoardSetup()` (`src/features/board-type.ts`; the Board section's
+switches, `src/ui/sidebar/BoardSection.tsx`, call its `switchBoard()`, and the Cut tool shows only
+on a stripboard). Strip cuts live on the
 dots (`IDot.cut`), so they survive a resize and are kept, hidden, while the board is a
 perfboard. How each type is drawn is its *look*, one file each in `src/board-render/board-looks/`
 (`perfboard-look.ts`, `stripboard-look.ts`) behind the `BoardLook` interface (`paintBoard` for
@@ -218,15 +243,15 @@ means a new look there plus a `BoardType` in the project file.
   carries its whole spec in `custom`, which `customPartDefinition()` turns into an
   `AdvancedComponentDefinition` (`noIcon`: drawn as its colour with its name). So look a placed
   fixed-pin part's definition up with `advancedDefinitionFor(part)`, never by its id alone. The
-  creator is `src/features/custom-part-modal.ts`, the catalog entries (Modules › Custom) the
+  creator is `src/ui/dialogs/CustomModuleDialog.tsx`, the catalog entries (Modules › Custom) the
   `CustomParts` store in `src/features/custom-parts.ts` (localStorage `custom_parts`, merged in
   from loaded boards and parts library files; placed parts keep their own copy, so editing or
   deleting an entry never changes a board).
-- IC chips (`src/features/ic.ts`, `ic-editor-modal.ts`) are a third, older placement concept
+- IC chips (`src/features/ic.ts`, `src/ui/dialogs/IcEditorDialog.tsx`) are a third, older placement concept
   (dual-row multi-pin part with labelled pins), separate from both of the above. It backs both
   DIP ICs and dual-row dev boards (Modules › Dev Boards); built-ins are data in
   `src/parts/ic-definitions.ts` (`dualRowPins()` builds DIP numbering from two top-to-bottom rows). Custom
-  ones come from the editor modal (IC or Module type → ICs › Custom / Modules › Custom) and persist
+  ones come from the IC editor (`saveCustomIc()`; IC or Module type → ICs › Custom / Modules › Custom) and persist
   in localStorage `custom_ics`. `Ic` is both the catalog entry and the placed chip; `Ic.id`
   identifies the catalog entry, and catalog entries are saved through `Ic.customIcEntries()`,
   which picks its fields (including `category`). Loading *merges* custom ICs into the catalog —
@@ -287,13 +312,14 @@ ICs and custom modules into the catalog. Projects are also kept in the browser: 
 different projects never write the same key), `current-project.ts` tracks which one is open
 (`ProjectState.current`), opens/creates/imports/deletes them, and autosaves the open one shortly
 after any redraw that changed it (via `onRedraw()` in `draw-canvas.ts` — every board change ends
-in a redraw) and when the tab is hidden or closed. `projects-modal.ts` is the UI (File menu
-items, header name, Projects dialog). **Share links** carry a whole project in the editor URL's
+in a redraw) and when the tab is hidden or closed. Its UI is the File menu
+(`src/ui/header/AppHeader.tsx`), the header's project name and the Projects dialog
+(`src/ui/dialogs/ProjectsDialog.tsx`, a `ProjectCard` per project). **Share links** carry a whole project in the editor URL's
 fragment (`#name=…&z=…`, or `json=`/`src=` for links written by people and programs such as AI
 agents): the format is the pure `src/project-file/share-link.ts`, documented for outside writers in
-`docs/share-links.md` (keep the two in step). `share-project.ts` is the Share dialog and opens an
-incoming link as a new stored project (after startup's reopen, via `afterStartup()`, and on
-`hashchange`), then clears the fragment. **Short links** (`#name=…&p=<id>`) name a copy kept on
+`docs/share-links.md` (keep the two in step). `src/ui/dialogs/ShareDialog.tsx` is the Share dialog;
+`src/features/project/open-shared-link.ts` opens an incoming link as a new stored project (at
+startup, after the last project is reopened, and on `hashchange`), then clears the fragment. **Short links** (`#name=…&p=<id>`) name a copy kept on
 Perfboard Designer's project storage (`STORED_PROJECTS_URL` in `share-link.ts`,
 `https://projects.perfboarddesigner.com`): the Share dialog makes one on request, beside the full
 link it always makes, and a `p=` link is fetched without asking, both through
@@ -398,18 +424,19 @@ server) always agree. A jumper wire
 joins only its two end holes; a solder path joins every hole it covers (but a cut one) and any
 solder path it touches; things in one hole are joined; on a stripboard a strip joins its holes up
 to the next cut, and a cut hole joins nothing. Nets are derived — never saved in the file.
-The editor shows them live in the right sidebar above the shortcuts (`src/features/nets-panel.ts`),
-recomputed from `getSaveJson()` shortly after a redraw that changed the board. Unconnected pins
+The editor shows them live in the right sidebar above the shortcuts (`src/ui/nets/NetsPanel.tsx`),
+kept by `src/features/board-nets.ts`, which works them out again from `getSaveJson()` shortly after
+a redraw that changed the board. Unconnected pins
 and wires connecting no pins are in folds above the nets (likely mistakes, kept in sight). Clicking a net, an unconnected pin or
 such wires lights it up on the board until clicked again: `NetHighlightState` holds its holes and
-wires, drawn by the renderer (`view.highlight`, `src/board-render/layers/net-highlight.ts`), and the panel moves it to whichever net holds most of its pins
+wires, drawn by the renderer (`view.highlight`, `src/board-render/layers/net-highlight.ts`), and `board-nets.ts` moves it to whichever net holds most of its pins
 after each change (most of its wires, for wires connecting no pins).
 
 **Component list** (`src/project-file/part-list.ts`): the parts as a bill of materials, from a
 project file alone like the nets: each part's ref, catalog name, value with its unit (an LED's
 colour by name: the LED colours, names and paints, live in `src/parts/component-definitions.ts`),
 type and pin 1's hole, or grouped by part and value, and either as CSV. The editor shows it in
-File → Component List (`src/features/project/part-list-modal.ts`, a click selects the part) and
+File → Component List (`src/ui/dialogs/PartListDialog.tsx`, a click selects the part) and
 downloads what it shows.
 
 **Wire crossings** (`src/project-file/wire-crossings.ts`): jumper wires are insulated, so where
@@ -438,11 +465,14 @@ three.js stays out of the main bundle. Scene units are mm (50px grid = 2.54mm pi
 rendered size vs. its `width`/`height` attributes) — always go through this helper rather than
 using `clientX`/`clientY` directly.
 
-**Shortcuts**: keyboard shortcuts are registered via `ShortcutRegistry.add({key, ctrl?, event,
-description})` in `src/features/shortcut-keys.ts` rather than ad hoc `keydown` listeners; the
-registry also renders the on-page shortcuts legend from this list.
+**Shortcuts**: keyboard shortcuts go into `ShortcutRegistry` (`src/features/shortcut-keys.ts`)
+rather than ad hoc `keydown` listeners: the editor's are listed in
+`src/features/keyboard-shortcuts.ts`, and a UI control adds its own while it's on screen with
+`useShortcut()` (`src/ui/hooks/use-shortcut.ts`). The shortcuts legend
+(`src/ui/nets/ShortcutsLegend.tsx`) lists the registry. While a dialog is open no key reaches them
+(`Modal` stops them), so the board's keys never act behind a dialog.
 
-**DOM coupling**: `Utils.getSafeHtmlElement<T>(id)` (`src/utils/utils.ts`) is the standard way to
-grab a required element by id and throws if it's missing — feature modules assume the relevant
-elements already exist in `index.html` at import time (many call it at module load, not inside a
-handler).
+**DOM**: the page is React's. The core touches only the board's canvas and viewport (`Canvas`,
+handed over by `attachBoard`) and short-lived elements it makes itself (download links, the colour
+input in `pick-color.ts`). It never looks elements up with `document.getElementById`: give it
+state for the UI to read instead.

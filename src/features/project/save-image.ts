@@ -2,8 +2,6 @@ import {boardSizePx, drawBoard, iconsUsedBy, renderBoardSvg} from "../../board-r
 import type {BoardView} from "../../board-render";
 import {COMPONENT_ICON_DIR} from "../../parts/component-definitions";
 import {ViewState} from "../../state/ViewState";
-import {Utils} from "../../utils/utils";
-import {ShortcutRegistry} from "../shortcut-keys";
 import {CanvasPainter} from "../board-canvas/canvas-painter";
 import {browserIcons} from "../board-canvas/browser-icons";
 import {downloadFileName, getSaveJson} from "./save-project";
@@ -15,9 +13,6 @@ import {downloadFileName, getSaveJson} from "./save-project";
 // Fixed resolution multiplier for PNGs, independent of the current zoom/DPR, so the PNG is always
 // the same crisp resolution regardless of what the user is viewing.
 const EXPORT_SCALE = 2;
-
-Utils.getSafeHtmlElement<HTMLButtonElement>('downloadBtn').addEventListener('click', () => void downloadAsImage());
-Utils.getSafeHtmlElement<HTMLButtonElement>('downloadSvgBtn').addEventListener('click', () => void downloadAsSvg());
 
 // What's on screen: the board's printed edge, part labels if they're on, or the solder side if that's showing.
 const exportView = (): BoardView => ({partLabels: ViewState.showPartLabels, holeLabels: true, solderSide: ViewState.solderSide});
@@ -59,5 +54,3 @@ export async function downloadAsSvg() {
   download(url, "svg");
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
-
-ShortcutRegistry.add({key: "p", description: "download as image", event: () => void downloadAsImage()})

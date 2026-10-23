@@ -6,27 +6,25 @@ import {PartState} from "../../state/PartState";
 import {IDot} from "../../interfaces/dot.interface";
 import type {Part} from "../../interfaces/placed-part.interface";
 import {redrawCanvas} from "../draw-canvas";
-import {Utils} from "../../utils/utils";
 import {Canvas} from "../../state/Canvas";
 import {applyCanvasResolution} from "../canvas-sizing";
-import {getCurrentZoom, fitToScreen} from "../view-controls";
-import {GRID_PRESETS} from "./grid-presets";
+import {fitToScreen} from "../zoom";
+import {ViewState} from "../../state/ViewState";
 import {buildDotIndex, dotPositionKey} from "../dot-lookup";
 import {resetForNewBoard} from "../reset-interaction";
+import {holesAlong} from "../../project-file/grid";
 
-export const widthInput = Utils.getSafeHtmlElement<HTMLInputElement>('dotMatrixWidth')
-export const heightInput = Utils.getSafeHtmlElement<HTMLInputElement>('dotMatrixHeight')
-const resizeBtn = Utils.getSafeHtmlElement<HTMLButtonElement>('resizeGridBtn')
-resizeBtn.addEventListener('click', function() {
-  void resizeBoard(parseInt(widthInput.value), parseInt(heightInput.value));
-});
+// The board's size in holes, as the Board section shows it.
+export function boardSize(): {cols: number; rows: number} {
+  return {cols: holesAlong(Canvas.gridWidth), rows: holesAlong(Canvas.gridHeight)};
+}
 
 // Lays out a fresh grid of holes. Holes found in `keep` (by position) are reused as-is rather than
 // recreated, so their color and note survive, and so do the wires and parts anchored to them.
 export function createDotGrid(horizontalDotNumbers: number, verticalDotNumbers: number, keep?: Map<string, IDot>) {
   Canvas.gridWidth = horizontalDotNumbers * GridConfig.dotSpace;
   Canvas.gridHeight = verticalDotNumbers * GridConfig.dotSpace;
-  applyCanvasResolution(getCurrentZoom());
+  applyCanvasResolution(ViewState.zoom);
 
   DotState.dots = [];
   for(let x =  GridConfig.dotSpace / 2; x < Canvas.gridWidth; x +=  GridConfig.dotSpace){
@@ -37,8 +35,8 @@ export function createDotGrid(horizontalDotNumbers: number, verticalDotNumbers: 
 }
 
 // Resizes the board, keeping every hole, wire and part that still fits. Whatever falls off the new
-// edge is removed, after asking. Resolves false if the user cancelled.
-async function resizeBoard(cols: number, rows: number): Promise<boolean> {
+// edge is removed, after asking. Resolves false if the size isn't one or the user cancelled.
+export async function resizeBoard(cols: number, rows: number): Promise<boolean> {
   if (!(cols > 0 && rows > 0)) return false;
   const newWidth = cols * GridConfig.dotSpace;
   const newHeight = rows * GridConfig.dotSpace;
@@ -65,8 +63,6 @@ async function resizeBoard(cols: number, rows: number): Promise<boolean> {
       droppedParts ? `${droppedParts} part${droppedParts === 1 ? "" : "s"}` : "",
     ].filter(Boolean).join(" and ");
     if (!await askConfirm("Resize the board?", `Resizing will remove ${what} that no longer fit on the board. This can't be undone.`, "Resize", true)) {
-      widthInput.value = String(Math.round(Canvas.gridWidth / GridConfig.dotSpace));
-      heightInput.value = String(Math.round(Canvas.gridHeight / GridConfig.dotSpace));
       return false;
     }
   }
@@ -78,18 +74,4 @@ async function resizeBoard(cols: number, rows: number): Promise<boolean> {
   redrawCanvas();
   fitToScreen(true);
   return true;
-}
-
-// Grid Preset Buttons
-const gridPresetsContainer = Utils.getSafeHtmlElement('gridPresets');
-for (const preset of GRID_PRESETS) {
-  const btn = document.createElement('button');
-  btn.className = 'preset-btn';
-  btn.textContent = preset.label;
-  btn.addEventListener('click', () => {
-    widthInput.value = String(preset.w);
-    heightInput.value = String(preset.h);
-    void resizeBoard(preset.w, preset.h);
-  });
-  gridPresetsContainer.appendChild(btn);
 }

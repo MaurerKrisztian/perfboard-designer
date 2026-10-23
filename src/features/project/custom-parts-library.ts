@@ -1,4 +1,3 @@
-import {Utils} from "../../utils/utils";
 import {Ic} from "../ic";
 import {CustomParts} from "../custom-parts";
 import {askConfirm} from "../ask-dialog";
@@ -9,11 +8,9 @@ import {ProjectFileError} from "../../project-file/read-project-file";
 // library file (src/project-file/parts-library.ts), to keep a copy or move them to another
 // browser. Importing adds what's new to the catalog; nothing already there is changed.
 
-const input = Utils.getSafeHtmlElement<HTMLInputElement>("importPartsInput");
-
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
-async function exportParts() {
+export async function exportCustomParts() {
   const customIcs = Ic.customIcEntries();
   const customParts = CustomParts.parts;
   if (!customIcs.length && !customParts.length) {
@@ -29,7 +26,7 @@ async function exportParts() {
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
-async function importParts(file: File) {
+export async function importCustomParts(file: File) {
   let library;
   try {
     library = readPartsLibrary(JSON.parse(await file.text()));
@@ -49,11 +46,3 @@ async function importParts(file: File) {
     : `You already have all ${plural(found, "part")} in ${file.name}.`;
   await askConfirm("Parts imported", message, "OK");
 }
-
-Utils.getSafeHtmlElement("exportPartsBtn").addEventListener("click", () => void exportParts());
-Utils.getSafeHtmlElement("importPartsBtn").addEventListener("click", () => input.click());
-input.addEventListener("change", () => {
-  const file = input.files?.[0];
-  input.value = "";
-  if (file) void importParts(file);
-});

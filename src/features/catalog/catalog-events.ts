@@ -1,34 +1,16 @@
-// How the rest of the app tells the Components panel something changed, without importing it.
-// Kept import-free on purpose, and only index.ts may import components-panel.ts: the panel imports
-// every part source (ic.ts, the definitions...), so any of those importing the panel back forms
-// a cycle in which the panel can run before the classes it reads exist - which crashes startup.
-let catalogChangedListener: (() => void) | undefined;
-let armedPartChangedListener: (() => void) | undefined;
-let recentChangedListener: (() => void) | undefined;
+import {notifyEditorChanged} from "../editor-events";
 
-export function onCatalogChanged(fn: () => void) {
-  catalogChangedListener = fn;
-}
+// Tells the Components panel that what it lists changed: custom parts added, edited, deleted or
+// merged in from a loaded project, or a part placed (the "Recently used…" list). The panel
+// (src/ui/catalog/) rebuilds its items when catalogVersion() moves on.
 
-export function onArmedPartChanged(fn: () => void) {
-  armedPartChangedListener = fn;
-}
+let version = 0;
 
-export function onRecentChanged(fn: () => void) {
-  recentChangedListener = fn;
-}
-
-// A catalog source changed (custom ICs added, deleted or merged in from a loaded project).
 export function notifyCatalogChanged() {
-  catalogChangedListener?.();
+  version++;
+  notifyEditorChanged();
 }
 
-// A different part (or none) is now armed for placement, so the highlight needs refreshing.
-export function notifyArmedPartChanged() {
-  armedPartChangedListener?.();
-}
-
-// A part was placed, so the "Recently used…" list may have changed.
-export function notifyRecentChanged() {
-  recentChangedListener?.();
+export function catalogVersion(): number {
+  return version;
 }

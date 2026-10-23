@@ -3,20 +3,18 @@ import {LineState} from "../state/LineState";
 import {GridConfig} from "../state/GridConfig";
 import {redrawCanvas} from "./draw-canvas";
 import {Canvas} from "../state/Canvas";
-import {Utils} from "../utils/utils";
-import {ShortcutRegistry} from "./shortcut-keys";
 import {ToolState} from "../state/ToolState";
 import {DragState} from "../state/DragState";
 import {updateDrag} from "./component-drag";
 import {ViewState} from "../state/ViewState";
 import {findPartAt} from "./placed-parts";
 import {PartState} from "../state/PartState";
-import {SelectionState} from "../state/SelectionState";
 import {wireDragFrom, wireDragStartDot} from "./wire-drag";
 import {lineLegs} from "./line-path";
 import {isReshaping, reshapeTo, wireGripAt} from "./wire-reshape";
 import {IDot} from "../interfaces/dot.interface";
 import {ILine} from "../interfaces/line.interface";
+import {notifyEditorChanged} from "./editor-events";
 
 export function isOverPlacedPart(x: number, y: number): boolean {
   return PartState.parts.some(part => part.containsPoint(x, y));
@@ -97,33 +95,26 @@ export function hoverAt(e: MouseEvent) {
   const dragMoved = DragState.target ? updateDrag(x, y) : reshapeTo(DotState.hoverDot);
   updateDragCursor(x, y);
 
+  const hoverText = DotState.hoverDot?.description || findHoveredComponentValue(x, y) || "";
+  const textChanged = hoverText !== ViewState.hoverText;
+  ViewState.hoverText = hoverText;
+
   if (dragMoved || DotState.hoverDot !== previousHoverDot || LineState.hoverLine !== previousHoverLine) {
     redrawCanvas();
-  }
-
-  if(DotState.hoverDot && DotState.hoverDot.description){
-    Utils.getSafeHtmlElement('dotDescription').innerText = DotState.hoverDot.description;
-  } else {
-    Utils.getSafeHtmlElement('dotDescription').innerText = findHoveredComponentValue(x, y) || '';
+  } else if (textChanged) {
+    notifyEditorChanged();
   }
 }
 
 // A finger hovers only where it lands (board-touch.ts): following it as it pans would redraw the
 // whole board on every move. A part it drags still follows it.
-Canvas.c.addEventListener('pointermove', (e) => {
+function onPointerMove(e: PointerEvent) {
   if (e.pointerType === 'touch' && !DragState.target) return;
   hoverAt(e);
-});
+}
 
-
-// Moves the selected hole's note onto the hovered hole. The holes themselves stay put: wires and
-// parts are pinned to these dot objects, so replacing them would cut those links.
-ShortcutRegistry.add({key: "m", description: "Move the selected hole's note to the hole under the pointer.", event: ()=>{
-  const from = SelectionState.dot;
-  const to = DotState.hoverDot;
-  if (!from || !to || from === to) return;
-  to.description = from.description;
-  from.description = undefined;
-  SelectionState.clear("dot");
-  redrawCanvas();
-}})
+// Hover on the board's canvas. Returns a function that detaches it again.
+export function attachHover(canvas: HTMLCanvasElement): () => void {
+  canvas.addEventListener('pointermove', onPointerMove);
+  return () => canvas.removeEventListener('pointermove', onPointerMove);
+}

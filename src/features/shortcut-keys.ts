@@ -1,37 +1,56 @@
-import {Utils} from "../utils/utils";
+import {notifyEditorChanged} from "./editor-events";
 
-window.addEventListener('keydown', (event) => {
-  const target = event.target as HTMLElement | null;
-  if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)) {
-    return;
+// The editor's keyboard shortcuts. Each is registered once (keyboard-shortcuts.ts lists the
+// editor's own; a UI control may add one while it's on screen) and the one keydown listener here
+// runs it. The registry also feeds the shortcuts legend in the right sidebar.
+
+export interface IShortcut {
+  key: string;
+  ctrl?: boolean;
+  shift?: boolean;
+  event: (e: KeyboardEvent) => void;
+  description?: string;
+}
+
+// Typing in a field never runs a shortcut.
+export function isTextEntry(target: EventTarget | null): boolean {
+  const el = target as HTMLElement | null;
+  return !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable);
+}
+
+export class ShortcutRegistry {
+  static shortcuts: IShortcut[] = [];
+
+  // Adds a shortcut and returns a function that takes it out again.
+  static add(shortcut: IShortcut): () => void {
+    const clash = this.shortcuts.find((s) => s.key.toLowerCase() === shortcut.key.toLowerCase()
+      && !!s.ctrl === !!shortcut.ctrl && !!s.shift === !!shortcut.shift);
+    if (clash !== undefined) {
+      console.warn(`Shortcut key: ${shortcut.key} already exists`);
+    }
+    this.shortcuts = [...this.shortcuts, shortcut];
+    notifyEditorChanged();
+    return () => {
+      this.shortcuts = this.shortcuts.filter(s => s !== shortcut);
+      notifyEditorChanged();
+    };
   }
+}
 
+function onKeyDown(event: KeyboardEvent) {
+  if (isTextEntry(event.target)) return;
   // Keys compare case-insensitively (so Caps Lock doesn't matter); Shift is its own modifier.
   const keyLower = event.key.toLowerCase();
   for (const shortcut of ShortcutRegistry.shortcuts) {
-    if (keyLower === shortcut.key.toLowerCase() && event.ctrlKey === !!shortcut.ctrl && event.shiftKey === !!shortcut.shift){
+    if (keyLower === shortcut.key.toLowerCase() && event.ctrlKey === !!shortcut.ctrl && event.shiftKey === !!shortcut.shift) {
       event.preventDefault();
       shortcut.event(event);
     }
   }
-});
-
-export interface IShortcut {
-  key: string, ctrl?: boolean, shift?: boolean, event: (e: KeyboardEvent)=>void, description?: string
 }
-export class ShortcutRegistry {
-  static shortcuts:  IShortcut[] = [];
-  static add(shortcut: IShortcut){
-    const clash = this.shortcuts.find((s) => s.key.toLowerCase() === shortcut.key.toLowerCase()
-      && !!s.ctrl === !!shortcut.ctrl && !!s.shift === !!shortcut.shift);
-    if (clash !== undefined){
-      console.warn(`Shortcut key: ${shortcut.key} already exists`)
-    }
-    this.shortcuts.push(shortcut)
-    this.show()
-  }
 
-  static show(){
-    Utils.getSafeHtmlElement("shortcuts").innerHTML = "<b>Shortcuts:</b> <br>" + this.shortcuts.map(s=> `key: <b>${s.ctrl ? "ctrl + ":""}${s.shift ? "shift + ":""} ${s.key} </b> - ${s.description}`).join("<br>")
-  }
+// Starts listening for the shortcuts. Returns a function that stops it.
+export function listenForShortcuts(): () => void {
+  window.addEventListener('keydown', onKeyDown);
+  return () => window.removeEventListener('keydown', onKeyDown);
 }

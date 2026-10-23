@@ -1,13 +1,5 @@
 export class Utils {
-  static getSafeHtmlElement<T extends HTMLElement = HTMLHtmlElement>(id: string): T {
-    const element = document.getElementById(id);
-    if (element == null){
-      throw new Error(`Element: ${id} not found.`)
-    }
-
-    return element as T
-  }
-
+  // As "#rrggbb", or `fallback` for anything but a 3- or 6-digit hex colour.
   static normalizeColor(color?: string, fallback = "#000000"): string {
     if (!color) return fallback;
     if (/^#[0-9A-Fa-f]{6}$/.test(color)) {

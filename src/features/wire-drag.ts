@@ -109,7 +109,7 @@ export function finishWireDrag(to: IDot | undefined): boolean {
 
 // While a wire is dragged: "/" flips its L, Shift straightens it. Caught before the shortcuts
 // (capture phase), since "/" is also the components search.
-function onKey(e: KeyboardEvent) {
+function onWireDragKey(e: KeyboardEvent) {
   if (!from) return;
   if (e.key === "/" && e.type === "keydown") {
     e.preventDefault();
@@ -121,5 +121,7 @@ function onKey(e: KeyboardEvent) {
     requestRedraw();
   }
 }
-window.addEventListener("keydown", onKey, true);
-window.addEventListener("keyup", onKey, true);
+export function listenForWireDragKeys() {
+  window.addEventListener("keydown", onWireDragKey, true);
+  window.addEventListener("keyup", onWireDragKey, true);
+}

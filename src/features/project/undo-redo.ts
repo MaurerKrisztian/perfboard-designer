@@ -1,17 +1,11 @@
 import {HistoryState} from "../../state/HistoryState";
 import {LineState} from "../../state/LineState";
-import {onRedraw, redrawCanvas} from "../draw-canvas";
-import {Utils} from "../../utils/utils";
-import {ShortcutRegistry} from "../shortcut-keys";
+import {redrawCanvas} from "../draw-canvas";
 import {IChange} from "../../interfaces/change.interface";
 import {ILine} from "../../interfaces/line.interface";
 import {addToBoard, takeOffBoard} from "../placed-parts";
 import {setBoardSetup} from "../board-type";
 import {RequirementsState} from "../../state/RequirementsState";
-
-Utils.getSafeHtmlElement<HTMLButtonElement>('backBtn').addEventListener('click', function() {
-undo();
-});
 
 // Where `line` is on the board: that very wire, else one running the same way between the same
 // holes (the objects history holds are the ones it put on the board, so this is a fallback).
@@ -88,11 +82,6 @@ export function undo(){
   }
 }
 
-// Forward button
-Utils.getSafeHtmlElement<HTMLButtonElement>('forwardBtn').addEventListener('click', function() {
-  redo()
-});
-
 export function redo(){
   if(HistoryState.changeIndex < HistoryState.changes.length - 1){
     HistoryState.changeIndex++;
@@ -105,11 +94,11 @@ export function redo(){
   }
 }
 
-// The buttons are greyed out while there's nothing to undo or redo. Every change ends in a redraw.
-onRedraw(() => {
-  Utils.getSafeHtmlElement<HTMLButtonElement>('backBtn').disabled = HistoryState.changeIndex < 0;
-  Utils.getSafeHtmlElement<HTMLButtonElement>('forwardBtn').disabled = HistoryState.changeIndex >= HistoryState.changes.length - 1;
-});
+// Whether there's a change to undo or redo (the buttons are greyed out otherwise).
+export function canUndo(): boolean {
+  return HistoryState.changeIndex >= 0;
+}
 
-ShortcutRegistry.add({key: "z", ctrl: true, description: "Undo last change.", event: undo});
-ShortcutRegistry.add({key: "y", ctrl: true, description: "Redo last undo.", event: redo});
+export function canRedo(): boolean {
+  return HistoryState.changeIndex < HistoryState.changes.length - 1;
+}

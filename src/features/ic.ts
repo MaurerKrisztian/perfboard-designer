@@ -1,6 +1,5 @@
 import {DotState} from "../state/DotState";
 import {IDot} from "../interfaces/dot.interface";
-import {ShortcutRegistry} from "./shortcut-keys";
 import {redrawCanvas} from "./draw-canvas";
 import {Rotation, ToolState} from "../state/ToolState";
 import {SelectionState} from "../state/SelectionState";
@@ -227,6 +226,33 @@ export function deleteCustomIc(id: number | string) {
   }
 }
 
+// A custom chip or dev board as the IC editor (src/ui/dialogs/IcEditorDialog.tsx) describes it.
+export interface CustomIcSpec {
+  name: string;
+  widthPin: number;
+  heightPin: number;
+  pinDescription: Record<number, string>;
+  category: CategoryId;
+}
+
+// Saves a custom chip from the IC editor: a new catalog entry, or `editing`'s new shape. Chips
+// already placed on the board keep their own copy.
+export function saveCustomIc(spec: CustomIcSpec, editing?: Ic) {
+  if (!editing) {
+    const ic = new Ic(spec.widthPin, spec.heightPin, spec.pinDescription, spec.name, true);
+    ic.category = spec.category;
+    Ic.add(ic, true);
+    return;
+  }
+  editing.name = spec.name;
+  editing.widthPin = spec.widthPin;
+  editing.heightPin = spec.heightPin;
+  editing.pinDescription = spec.pinDescription;
+  editing.category = spec.category;
+  Ic.saveCustomIcsToLocalStorage();
+  notifyCatalogChanged();
+}
+
 export function selectIc(id: number | string){
   const ic = Ic.IC_CONTAINER.find(ic => String(ic.id) === String(id));
   if (!ic){
@@ -244,8 +270,6 @@ export function selectIc(id: number | string){
   template.armedFrom = ic;
   setActiveTool({kind: "ic", template});
 }
-
-document.getElementById('rotateToolBtn')?.addEventListener('click', () => rotateSelectedIc());
 
 export function rotateSelectedIc() {
   const selected = SelectionState.part;
@@ -275,9 +299,3 @@ export function rotateSelectedIc() {
     }
   }
 }
-
-ShortcutRegistry.add({
-  key: "r",
-  description: "Rotate selected IC component.",
-  event: rotateSelectedIc
-});

@@ -1,4 +1,5 @@
 import {onRedraw} from "../draw-canvas";
+import {notifyEditorChanged} from "../editor-events";
 import {getSaveJson} from "./save-project";
 import {loadProject} from "./load-project";
 import {ProjectState} from "../../state/ProjectState";
@@ -33,6 +34,7 @@ export function onProjectChange(listener: () => void) {
 function setCurrent(project: {id: string; name: string} | undefined) {
   ProjectState.current = project;
   changeListeners.forEach(listener => listener());
+  notifyEditorChanged();
 }
 
 export function saveNow() {
@@ -55,14 +57,6 @@ export function saveNow() {
 function scheduleSave() {
   if (pendingSave === undefined) pendingSave = window.setTimeout(saveNow, SAVE_DELAY_MS);
 }
-
-onRedraw(scheduleSave);
-
-// A tab being closed or sent to the background may never get to run the pending save.
-window.addEventListener("pagehide", saveNow);
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden") saveNow();
-});
 
 function whyUnreadable(err: unknown): string {
   return err instanceof ProjectFileError ? err.message : "It isn't a valid project file.";
@@ -147,14 +141,6 @@ export function importSharedProject(raw: unknown, name: string | undefined) {
   importProject(() => raw, projectName, projectName);
 }
 
-const startupListeners: (() => void)[] = [];
-
-// Runs `listener` once the project open last time has been reopened at page load, so whatever it
-// opens isn't then replaced by that.
-export function afterStartup(listener: () => void) {
-  startupListeners.push(listener);
-}
-
 // Stores a copy of a project as "<name> copy". The open project stays open.
 export function duplicateProject(id: string) {
   if (ProjectState.current?.id === id) saveNow();
@@ -191,8 +177,6 @@ export function deleteProject(id: string) {
 }
 
 // Reopens the project open last time, or else the most recently edited one, or starts the first.
-// Waits for DOMContentLoaded because index.ts lays out a fresh grid after importing the feature
-// modules, which would replace it.
 function reopenLastProject() {
   try {
     migrateLegacySave("My project");
@@ -206,7 +190,13 @@ function reopenLastProject() {
   }
 }
 
-window.addEventListener("DOMContentLoaded", () => {
+// At startup: reopens the last project and keeps it saved from then on.
+export function startProjects() {
   reopenLastProject();
-  startupListeners.forEach(listener => listener());
-});
+  onRedraw(scheduleSave);
+  // A tab being closed or sent to the background may never get to run the pending save.
+  window.addEventListener("pagehide", saveNow);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") saveNow();
+  });
+}

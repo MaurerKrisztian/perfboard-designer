@@ -3,16 +3,16 @@ import {DragState} from "../state/DragState";
 import {redrawCanvas} from "./draw-canvas";
 import {cancelDrag, endDrag} from "./component-drag";
 import {canPickUpParts, hoverAt, isOverPlacedPart} from "./hover";
-import {clickBoard, endReshape, endWireDrag, hideContextMenu, openContextMenuAt, panTo, pressBoard, startPan, stopPan} from "./select";
+import {clickBoard, endReshape, endWireDrag, openContextMenuAt, panTo, pressBoard, startPan, stopPan} from "./select";
+import {hideBoardMenus} from "./board-menus";
 import {cancelReshape, removeBend, startReshape, WireGrip, wireGripAt} from "./wire-reshape";
 import {DotState} from "../state/DotState";
 import {SelectionState} from "../state/SelectionState";
-import {updateSelectionStatus} from "./selection-status";
 import {axisOf, cancelWireDrag, flipWireDrag, startWireDrag, wireDragStartDot} from "./wire-drag";
 import {IDot} from "../interfaces/dot.interface";
 import {ILine} from "../interfaces/line.interface";
 import {ViewState} from "../state/ViewState";
-import {applyZoomAnchored, clampZoom, getCurrentZoom} from "./view-controls";
+import {applyZoomAnchored, clampZoom} from "./zoom";
 
 // Fingers on the board (select.ts handles mouse and pen). Nothing acts the moment a finger lands,
 // so a second finger can still turn it into a pinch:
@@ -69,14 +69,11 @@ function finishPinch(pinch: Extract<Gesture, {kind: "pinch"}>) {
   Canvas.c.style.transform = '';
   if (pinch.scale === 1 && pinch.midX === pinch.startX && pinch.midY === pinch.startY) return;
   applyZoomAnchored(pinch.zoom * pinch.scale, pinch.startX, pinch.startY);
-  const container = document.getElementById('canvas-container');
-  if (container) {
-    container.scrollLeft -= pinch.midX - pinch.startX;
-    container.scrollTop -= pinch.midY - pinch.startY;
-  }
+  Canvas.viewport.scrollLeft -= pinch.midX - pinch.startX;
+  Canvas.viewport.scrollTop -= pinch.midY - pinch.startY;
 }
 
-Canvas.c.addEventListener('pointerdown', (e) => {
+function onFingerDown(e: PointerEvent) {
   if (e.pointerType !== 'touch') return;
   e.preventDefault();
   Canvas.c.setPointerCapture(e.pointerId);
@@ -84,7 +81,7 @@ Canvas.c.addEventListener('pointerdown', (e) => {
   swallowClick = false;
 
   if (fingers.size === 1) {
-    hideContextMenu();
+    hideBoardMenus();
     if (ViewState.solderSide) {
       // Only for looking at: a finger pans, and a tap or a long press does nothing.
       gesture = {kind: "press", down: e};
@@ -122,17 +119,17 @@ Canvas.c.addEventListener('pointerdown', (e) => {
   if (fingers.size === 2) {
     clearLongPress();
     if (gesture?.kind === "pan") stopPan();
-    if (gesture?.kind === "held") hideContextMenu();
+    if (gesture?.kind === "held") hideBoardMenus();
     cancelWireDrag();
     cancelReshape();
     cancelDrag();
     const {distance, midX, midY} = twoFingers();
     const {left, top} = Canvas.c.getBoundingClientRect();
-    gesture = {kind: "pinch", distance, zoom: getCurrentZoom(), startX: midX, startY: midY, left, top, scale: 1, midX, midY};
+    gesture = {kind: "pinch", distance, zoom: ViewState.zoom, startX: midX, startY: midY, left, top, scale: 1, midX, midY};
     Canvas.c.style.transformOrigin = '0 0';
     redrawCanvas();
   }
-});
+}
 
 // Starts bending the selected wire by `grip`, from the hole under the finger at e.
 function beginReshape(e: PointerEvent, grip: WireGrip) {
@@ -142,7 +139,7 @@ function beginReshape(e: PointerEvent, grip: WireGrip) {
   redrawCanvas();
 }
 
-Canvas.c.addEventListener('pointermove', (e) => {
+function onFingerMove(e: PointerEvent) {
   const finger = fingers.get(e.pointerId);
   if (!finger || !gesture) return;
   finger.x = e.clientX;
@@ -152,7 +149,7 @@ Canvas.c.addEventListener('pointermove', (e) => {
   if (gesture.kind === "held") {
     const {down, wireFrom, grip, line} = gesture;
     if ((!wireFrom && !grip) || Math.hypot(e.clientX - down.clientX, e.clientY - down.clientY) < TAP_SLOP) return;
-    hideContextMenu();
+    hideBoardMenus();
     if (grip && line) {
       SelectionState.current = {kind: "line", line};
       beginReshape(e, grip);
@@ -197,7 +194,7 @@ Canvas.c.addEventListener('pointermove', (e) => {
     Canvas.c.style.transform = `translate(${tx}px, ${ty}px) scale(${pinch.scale})`;
   }
   // A dragged part follows the finger through hover.ts, like the mouse's.
-});
+}
 
 function liftFinger(e: PointerEvent) {
   if (!fingers.delete(e.pointerId)) return;
@@ -258,17 +255,29 @@ function tapGrip(grip: WireGrip) {
     lastBendTap = undefined;
     removeBend(line, grip.index);
     redrawCanvas();
-    updateSelectionStatus();
     return;
   }
   lastBendTap = {line, index: grip.index, at: now};
 }
 
-Canvas.c.addEventListener('pointerup', liftFinger);
-Canvas.c.addEventListener('pointercancel', liftFinger);
-
-Canvas.c.addEventListener('click', (e) => {
+function onClickCapture(e: MouseEvent) {
   if (!swallowClick) return;
   swallowClick = false;
   e.stopPropagation();
-}, true);
+}
+
+// Fingers on the board's canvas. Returns a function that detaches them again.
+export function attachTouchInput(canvas: HTMLCanvasElement): () => void {
+  canvas.addEventListener('pointerdown', onFingerDown);
+  canvas.addEventListener('pointermove', onFingerMove);
+  canvas.addEventListener('pointerup', liftFinger);
+  canvas.addEventListener('pointercancel', liftFinger);
+  canvas.addEventListener('click', onClickCapture, true);
+  return () => {
+    canvas.removeEventListener('pointerdown', onFingerDown);
+    canvas.removeEventListener('pointermove', onFingerMove);
+    canvas.removeEventListener('pointerup', liftFinger);
+    canvas.removeEventListener('pointercancel', liftFinger);
+    canvas.removeEventListener('click', onClickCapture, true);
+  };
+}

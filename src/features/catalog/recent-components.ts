@@ -1,4 +1,4 @@
-import {notifyRecentChanged} from "./catalog-events";
+import {notifyCatalogChanged} from "./catalog-events";
 
 // The keys (see CatalogItem.key) of the components most recently placed on the board, most recent
 // first. Kept in localStorage so it survives reloads, like the collapsed categories.
@@ -32,5 +32,5 @@ export function recordRecentKey(key: string) {
   } catch (e) {
     console.error("Failed to save recently used components to localStorage", e);
   }
-  notifyRecentChanged();
+  notifyCatalogChanged();
 }

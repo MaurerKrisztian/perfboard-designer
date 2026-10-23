@@ -1,7 +1,10 @@
 import type { UserConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 const config: UserConfig = {
   base: "",
+  // The editor's UI is React (src/ui/); the other pages are static HTML.
+  plugins: [react()],
   publicDir: 'assets',
   server: {
     port: 3000,

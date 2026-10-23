@@ -7,7 +7,7 @@ import {Ic} from "../ic";
 import {PlacedStandardComponent} from "../standard-components/placed-standard-component";
 import {PlacedAdvancedComponent} from "../advanced-components/placed-advanced-component";
 import {resetForNewBoard} from "../reset-interaction";
-import {createDotGrid, heightInput, widthInput} from "./resize-grid";
+import {createDotGrid} from "./resize-grid";
 import {buildDotIndex, dotPositionKey} from "../dot-lookup";
 import {GridPos, gridToPx} from "../../project-file/grid";
 import {readProjectFile} from "../../project-file/read-project-file";
@@ -26,8 +26,6 @@ export function loadProject(raw: unknown): {skipped: number} {
   resetForNewBoard();
   RequirementsState.current = project.requirements;
   const {board} = project;
-  widthInput.value = String(board.cols);
-  heightInput.value = String(board.rows);
   setBoardSetup({type: board.type, strips: board.type === "stripboard" ? board.strips : "horizontal"});
   createDotGrid(board.cols, board.rows);
 

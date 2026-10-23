@@ -2,8 +2,6 @@ import {isRouteTool, ToolState} from "../state/ToolState";
 import {DotState} from "../state/DotState";
 import {redrawCanvas} from "./draw-canvas";
 import {Canvas} from "../state/Canvas";
-import {ShortcutRegistry} from "./shortcut-keys";
-import {updateSelectionStatus} from "./selection-status";
 import {endDrag} from "./component-drag";
 import {findPartAt} from "./placed-parts";
 import {SelectionState} from "../state/SelectionState";
@@ -15,10 +13,12 @@ import {behaviorOf} from "./tools";
 import {IDot} from "../interfaces/dot.interface";
 import {cancelReshape, finishReshape, isReshaping, removeBend, startReshape, WireGrip, wireGripAt} from "./wire-reshape";
 import {axisOf, cancelWireDrag, finishWireDrag, setWireDragStraight, startWireDrag, wireDragFrom, wireDragStartDot} from "./wire-drag";
+import {hideBoardMenus, showBoardMenu} from "./board-menus";
+import {isTextEntry} from "./shortcut-keys";
 
 // Board input: routes left clicks to the active tool (src/features/tools/), and owns panning,
-// the right-click context menu and Escape. Mouse and pen come through here; fingers go through
-// board-touch.ts, which reuses the pieces exported below.
+// the right-click context menu, Escape and Enter. Mouse and pen come through here
+// (attachMouseInput); fingers go through board-touch.ts, which reuses the pieces exported below.
 
 let isPanningBoard = false;
 let panStartX = 0;
@@ -38,22 +38,18 @@ let pendingWire: {clientX: number; clientY: number; event: MouseEvent; dot: IDot
 let pendingReshape: {clientX: number; clientY: number; grip: WireGrip} | undefined;
 
 export function startPan(clientX: number, clientY: number) {
-  const container = document.getElementById('canvas-container');
-  if (!container) return;
   isPanningBoard = true;
   panStartX = clientX;
   panStartY = clientY;
-  startScrollLeft = container.scrollLeft;
-  startScrollTop = container.scrollTop;
+  startScrollLeft = Canvas.viewport.scrollLeft;
+  startScrollTop = Canvas.viewport.scrollTop;
   Canvas.c.style.cursor = 'grabbing';
 }
 
 export function panTo(clientX: number, clientY: number) {
   if (!isPanningBoard) return;
-  const container = document.getElementById('canvas-container');
-  if (!container) return;
-  container.scrollLeft = startScrollLeft - (clientX - panStartX);
-  container.scrollTop = startScrollTop - (clientY - panStartY);
+  Canvas.viewport.scrollLeft = startScrollLeft - (clientX - panStartX);
+  Canvas.viewport.scrollTop = startScrollTop - (clientY - panStartY);
 }
 
 export function stopPan() {
@@ -69,13 +65,12 @@ function clickBareBoard(e: MouseEvent) {
   SelectionState.clear("part");
   setSelection(x, y);
   redrawCanvas();
-  updateSelectionStatus();
 }
 
 // A press of the primary button at e, handed to the active tool: in Select mode it picks up the
 // part there (bare board goes through clickBoard instead).
 export function pressBoard(e: MouseEvent) {
-  hideContextMenu();
+  hideBoardMenus();
   const {x, y} = Canvas.toDrawingCoordinates(e);
   const tool = ToolState.active;
   if (!behaviorOf(tool).onPointerDown(tool, {x, y, hoverDot: DotState.hoverDot, keepArmed: e.shiftKey})) {
@@ -85,14 +80,13 @@ export function pressBoard(e: MouseEvent) {
     selectAt(x, y, !isRouteTool(tool));
   }
   redrawCanvas();
-  updateSelectionStatus();
 }
 
 // A whole click (press and release without moving) at e.
 export function clickBoard(e: MouseEvent) {
   const {x, y} = Canvas.toDrawingCoordinates(e);
   if (canPickUpParts() && !isOverPlacedPart(x, y)) {
-    hideContextMenu();
+    hideBoardMenus();
     clickBareBoard(e);
     return;
   }
@@ -100,7 +94,7 @@ export function clickBoard(e: MouseEvent) {
   endDrag();
 }
 
-Canvas.c.addEventListener('pointerdown', function(e) {
+function onPointerDown(e: PointerEvent) {
   if (e.pointerType === 'touch') return;
   // Middle button, or left button while Space is held, always pans; so does any left drag while
   // the solder side shows, which is only for looking at.
@@ -109,59 +103,61 @@ Canvas.c.addEventListener('pointerdown', function(e) {
     startPan(e.clientX, e.clientY);
     return;
   }
+  if (e.button !== 0) return;
 
-  if (e.button === 0) {
-    const {x, y} = Canvas.toDrawingCoordinates(e);
+  const {x, y} = Canvas.toDrawingCoordinates(e);
 
-    // The selected wire's handles come first: a drag there bends that wire.
-    const grip = wireGripAt(x, y, false);
-    if (grip) {
-      hideContextMenu();
-      pendingReshape = {clientX: e.clientX, clientY: e.clientY, grip};
-      return;
-    }
-
-    const wireDot = wireDragStartDot(x, y, false);
-    if (wireDot) {
-      hideContextMenu();
-      pendingWire = {clientX: e.clientX, clientY: e.clientY, event: e, dot: wireDot};
-      return;
-    }
-
-    // Select mode on bare board: wait and see whether this is a click or a drag-to-pan.
-    if (canPickUpParts() && !isOverPlacedPart(x, y)) {
-      hideContextMenu();
-      pendingPan = {clientX: e.clientX, clientY: e.clientY, event: e};
-      return;
-    }
-
-    pressBoard(e);
+  // The selected wire's handles come first: a drag there bends that wire.
+  const grip = wireGripAt(x, y, false);
+  if (grip) {
+    hideBoardMenus();
+    pendingReshape = {clientX: e.clientX, clientY: e.clientY, grip};
+    return;
   }
-});
 
-window.addEventListener('pointermove', (e) => {
+  const wireDot = wireDragStartDot(x, y, false);
+  if (wireDot) {
+    hideBoardMenus();
+    pendingWire = {clientX: e.clientX, clientY: e.clientY, event: e, dot: wireDot};
+    return;
+  }
+
+  // Select mode on bare board: wait and see whether this is a click or a drag-to-pan.
+  if (canPickUpParts() && !isOverPlacedPart(x, y)) {
+    hideBoardMenus();
+    pendingPan = {clientX: e.clientX, clientY: e.clientY, event: e};
+    return;
+  }
+
+  pressBoard(e);
+}
+
+const movedFar = (from: {clientX: number; clientY: number}, e: PointerEvent) =>
+  Math.hypot(e.clientX - from.clientX, e.clientY - from.clientY) >= PAN_DRAG_THRESHOLD;
+
+function onPointerMove(e: PointerEvent) {
   if (e.pointerType === 'touch') return;
-  if (pendingReshape && Math.hypot(e.clientX - pendingReshape.clientX, e.clientY - pendingReshape.clientY) >= PAN_DRAG_THRESHOLD) {
+  if (pendingReshape && movedFar(pendingReshape, e)) {
     startReshape(pendingReshape.grip, DotState.hoverDot);
     pendingReshape = undefined;
     redrawCanvas();
   }
-  if (pendingWire && Math.hypot(e.clientX - pendingWire.clientX, e.clientY - pendingWire.clientY) >= PAN_DRAG_THRESHOLD) {
+  if (pendingWire && movedFar(pendingWire, e)) {
     // The wire bends the way the pointer went first.
     startWireDrag(pendingWire.dot, axisOf(e.clientX - pendingWire.clientX, e.clientY - pendingWire.clientY));
     pendingWire = undefined;
     redrawCanvas();
   }
   if (wireDragFrom()) setWireDragStraight(e.shiftKey);
-  if (pendingPan && Math.hypot(e.clientX - pendingPan.clientX, e.clientY - pendingPan.clientY) >= PAN_DRAG_THRESHOLD) {
+  if (pendingPan && movedFar(pendingPan, e)) {
     // It's a drag: pan from where the press started (so the board doesn't jump), and drop the click.
     startPan(pendingPan.clientX, pendingPan.clientY);
     pendingPan = undefined;
   }
   panTo(e.clientX, e.clientY);
-});
+}
 
-window.addEventListener('pointerup', (e) => {
+function onPointerUp(e: PointerEvent) {
   if (e.pointerType === 'touch') return;
   pendingReshape = undefined;
   if (isReshaping()) endReshape();
@@ -179,92 +175,71 @@ window.addEventListener('pointerup', (e) => {
   if (wireDragFrom()) endWireDrag();
   stopPan();
   endDrag();
-});
+}
 
 // Lets go of a wire being bent: it takes its new route.
 export function endReshape() {
   finishReshape();
   redrawCanvas();
-  updateSelectionStatus();
 }
 
 // Double-clicking a bend of the selected wire takes it out.
-Canvas.c.addEventListener('dblclick', (e) => {
+function onDoubleClick(e: MouseEvent) {
   const line = SelectionState.line;
   const {x, y} = Canvas.toDrawingCoordinates(e);
   const grip = wireGripAt(x, y, false);
   if (!line || grip?.kind !== "bend") return;
   removeBend(line, grip.index);
   redrawCanvas();
-  updateSelectionStatus();
-});
+}
 
 // Lets go of a wire being dragged: drawn to the hole under the pointer, if that's another hole.
 export function endWireDrag() {
   finishWireDrag(DotState.hoverDot);
   redrawCanvas();
-  updateSelectionStatus();
 }
 
 // Hold Space + drag to pan in any mode (as in Figma/Photoshop). A held modifier rather than a
 // one-shot action, so it's tracked here instead of being an entry in ShortcutRegistry.
-function isTextEntry(target: EventTarget | null): boolean {
-  const el = target as HTMLElement | null;
-  return !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable);
-}
-
 function releaseSpacePan() {
   ViewState.spacePanHeld = false;
   if (!isPanningBoard) Canvas.c.style.cursor = 'crosshair';
 }
 
-window.addEventListener('keydown', (e) => {
+function onKeyDown(e: KeyboardEvent) {
   if (e.code !== 'Space' || isTextEntry(e.target)) return;
   // Stops the page from scrolling, and a focused toolbar button from being "clicked" by Space.
   e.preventDefault();
   if (e.repeat) return;
   ViewState.spacePanHeld = true;
   if (!isPanningBoard) Canvas.c.style.cursor = 'grab';
-});
+}
 
-window.addEventListener('keyup', (e) => {
+function onKeyUp(e: KeyboardEvent) {
   if (e.code !== 'Space' || isTextEntry(e.target)) return;
   e.preventDefault();
   releaseSpacePan();
-});
+}
 
-// Letting go of Space in another window would never reach us.
-window.addEventListener('blur', releaseSpacePan);
-
-// Right click context menu handler. A finger's long press opens it through board-touch.ts, so the
+// Right click: the context menu. A finger's long press opens it through board-touch.ts, so the
 // browser's own long-press contextmenu is ignored.
-Canvas.c.addEventListener('contextmenu', function(e) {
+function onContextMenu(e: MouseEvent) {
   e.preventDefault();
   if ((e as PointerEvent).pointerType === 'touch' || ViewState.solderSide) return;
   openContextMenuAt(e);
-});
-
-// The hole the context menu was opened on, for its Start Wire Here.
-let contextHole: IDot | undefined;
-
-export function contextMenuHole(): IDot | undefined {
-  return contextHole;
 }
 
 // Opens the context menu for the part, wire or pad at e, selecting it; nothing there closes it.
 export function openContextMenuAt(e: MouseEvent) {
   const {x, y} = Canvas.toDrawingCoordinates(e);
-  contextHole = DotState.hoverDot;
-  for (const id of ['ctxWireBtn', 'ctxSolderBtn']) {
-    const startBtn = document.getElementById(id);
-    if (startBtn) startBtn.hidden = !contextHole;
-  }
+  const hole = DotState.hoverDot;
+  const menu = {kind: "actions" as const, x: e.clientX, y: e.clientY, hole};
 
   const part = findPartAt(x, y);
   if (part) {
     SelectionState.current = {kind: "part", part};
     redrawCanvas();
-    showContextMenu(e.clientX, e.clientY);
+    showBoardMenu(menu);
     return;
   }
 
@@ -276,90 +251,31 @@ export function openContextMenuAt(e: MouseEvent) {
   }
   redrawCanvas();
 
-  if (SelectionState.line || SelectionState.dot || contextHole) {
-    showContextMenu(e.clientX, e.clientY);
+  if (SelectionState.line || SelectionState.dot || hole) {
+    showBoardMenu(menu);
   } else {
-    hideContextMenu();
+    hideBoardMenus();
   }
 }
-
-// Shows a popup menu at (x, y), moved left or up as needed to stay on screen (a phone's is narrow).
-function placeMenu(menu: HTMLElement, x: number, y: number) {
-  menu.style.display = 'block';
-  const margin = 8;
-  const left = Math.max(margin, Math.min(x, window.innerWidth - menu.offsetWidth - margin));
-  const top = Math.max(margin, Math.min(y, window.innerHeight - menu.offsetHeight - margin));
-  menu.style.left = `${left}px`;
-  menu.style.top = `${top}px`;
-}
-
-export function showContextMenu(x: number, y: number) {
-  const menu = document.getElementById('contextMenu');
-  if (!menu) return;
-  placeMenu(menu, x, y);
-}
-
-export function hideContextMenu() {
-  const menu = document.getElementById('contextMenu');
-  if (menu) {
-    menu.style.display = 'none';
-  }
-  hideLedColorMenu();
-}
-
-// At (x, y), or where the context menu was shown.
-export function showLedColorMenu(x?: number, y?: number) {
-  const menu = document.getElementById('ledColorMenu');
-  const contextMenu = document.getElementById('contextMenu');
-  if (!menu) return;
-  if (x !== undefined && y !== undefined) {
-    if (contextMenu) contextMenu.style.display = 'none';
-    placeMenu(menu, x, y);
-    return;
-  }
-  if (contextMenu) {
-    // Reuse the position the right-click context menu was already shown at.
-    const left = parseFloat(contextMenu.style.left) || 0;
-    const top = parseFloat(contextMenu.style.top) || 0;
-    contextMenu.style.display = 'none';
-    placeMenu(menu, left, top);
-    return;
-  }
-  menu.style.display = 'block';
-}
-
-export function hideLedColorMenu() {
-  const menu = document.getElementById('ledColorMenu');
-  if (menu) {
-    menu.style.display = 'none';
-  }
-}
-
-window.addEventListener('click', (e) => {
-  const menu = document.getElementById('contextMenu');
-  const ledColorMenu = document.getElementById('ledColorMenu');
-  if (menu && !menu.contains(e.target as Node) && ledColorMenu && !ledColorMenu.contains(e.target as Node)) {
-    hideContextMenu();
-  }
-});
 
 // The board bar's cancel button, shown while a placement tool is armed: drops it, as Escape
 // eventually does.
-document.getElementById('cancelToolBtn')?.addEventListener('click', () => {
+export function cancelPlacement() {
   resetInteraction();
-  hideContextMenu();
+  hideBoardMenus();
   redrawCanvas();
-});
+}
 
 // Enter completes what the active tool is building: a wire ends at its last bend.
-ShortcutRegistry.add({key: "Enter", description: "End the wire being drawn at its last bend.", event: () => {
+export function finishActiveTool() {
   const tool = ToolState.active;
   if (!behaviorOf(tool).finish?.(tool)) return;
   redrawCanvas();
-  updateSelectionStatus();
-}});
+}
 
-ShortcutRegistry.add({key: "Escape", description: "Unselect dot or line", event: ()=>{
+// Escape backs out one step: a wire being bent or dragged, then the active tool's own step (the
+// wire tool ends its run but stays armed), then the placement tool and the selection.
+export function stepBack() {
   if (isReshaping()) {
     cancelReshape();
     redrawCanvas();
@@ -370,15 +286,33 @@ ShortcutRegistry.add({key: "Escape", description: "Unselect dot or line", event:
     redrawCanvas();
     return;
   }
-  // A tool may step back first (e.g. the wire tool ends its run but stays armed); otherwise
-  // Escape drops the placement tool and the selection.
   const tool = ToolState.active;
   if (behaviorOf(tool).stepBack?.(tool)) {
-    updateSelectionStatus();
     redrawCanvas();
     return;
   }
-  resetInteraction();
-  hideContextMenu();
-  redrawCanvas();
-}});
+  cancelPlacement();
+}
+
+// Mouse and pen on the board's canvas. Returns a function that detaches it again.
+export function attachMouseInput(canvas: HTMLCanvasElement): () => void {
+  canvas.addEventListener('pointerdown', onPointerDown);
+  canvas.addEventListener('dblclick', onDoubleClick);
+  canvas.addEventListener('contextmenu', onContextMenu);
+  window.addEventListener('pointermove', onPointerMove);
+  window.addEventListener('pointerup', onPointerUp);
+  window.addEventListener('keydown', onKeyDown);
+  window.addEventListener('keyup', onKeyUp);
+  // Letting go of Space in another window would never reach us.
+  window.addEventListener('blur', releaseSpacePan);
+  return () => {
+    canvas.removeEventListener('pointerdown', onPointerDown);
+    canvas.removeEventListener('dblclick', onDoubleClick);
+    canvas.removeEventListener('contextmenu', onContextMenu);
+    window.removeEventListener('pointermove', onPointerMove);
+    window.removeEventListener('pointerup', onPointerUp);
+    window.removeEventListener('keydown', onKeyDown);
+    window.removeEventListener('keyup', onKeyUp);
+    window.removeEventListener('blur', releaseSpacePan);
+  };
+}

@@ -57,6 +57,11 @@ body {
   flex-direction: column;
 }
 
+/* React's mount point (app/index.html): the page's parts lay out as the body's own children. */
+#root {
+  display: contents;
+}
+
 /* App Header */
 .app-header {
   display: flex;
@@ -894,6 +899,19 @@ input[type="number"]:focus, input[type="text"]:focus, input[type="search"]:focus
   font-size: 0.8rem;
   color: var(--text-muted);
   line-height: 1.6;
+}
+
+.shortcut-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  padding: 0.1rem 0;
+}
+
+.shortcut-keys {
+  flex-shrink: 0;
+  min-width: 4.75rem;
+  white-space: nowrap;
 }
 
 kbd {
@@ -2247,15 +2265,6 @@ button.bar-btn[hidden] {
   color: var(--text-muted);
 }
 
-/* Only the actions that apply to the selection (selection-actions.ts lists them on <body>) */
-body:not([data-sel-actions~="rotate"]) [data-action="rotate"],
-body:not([data-sel-actions~="color"]) [data-action="color"],
-body:not([data-sel-actions~="straighten"]) [data-action="straighten"],
-body:not([data-sel-actions~="value"]) [data-action="value"],
-body:not([data-sel-actions~="note"]) [data-action="note"],
-body:not([data-sel-actions~="delete"]) [data-action="delete"],
-body:not([data-sel-actions~="wire"]) #selectionBar [data-action="wire"],
-body:not([data-sel-actions~="solder"]) #selectionBar [data-action="solder"],
 .context-menu button[hidden] {
   display: none;
 }
@@ -2592,8 +2601,14 @@ button.ask-chip:hover {
     font-size: 0.8rem;
   }
 
+  /* Empty, it keeps its line, unseen: showing and hiding it would resize the board's area, and the
+     board would jump under a finger at the start of a gesture. */
   #dotDescription:empty {
-    display: none;
+    visibility: hidden;
+  }
+
+  #dotDescription:empty::before {
+    content: "\00a0";
   }
 
   /* The sidebars as sheets. Shown even if hidden from the View menu on a wider screen. */

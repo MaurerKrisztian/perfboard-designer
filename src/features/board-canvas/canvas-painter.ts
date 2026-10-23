@@ -14,7 +14,7 @@ const MAX_CACHED_SPRITES = 8;
 export class CanvasPainter implements Painter {
   private readonly sprites = new Map<string, HTMLCanvasElement>();
 
-  constructor(private readonly ctx: CanvasRenderingContext2D) {}
+  constructor(readonly ctx: CanvasRenderingContext2D) {}
 
   circle(cx: number, cy: number, r: number, style: ShapeStyle) {
     this.ctx.beginPath();

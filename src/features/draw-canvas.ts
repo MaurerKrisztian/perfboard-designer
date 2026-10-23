@@ -10,20 +10,27 @@ import {CanvasPainter} from "./board-canvas/canvas-painter";
 import {browserIcons} from "./board-canvas/browser-icons";
 import {editorView} from "./board-canvas/editor-view";
 import {getSaveJson} from "./project/save-project";
+import {notifyEditorChanged} from "./editor-events";
 
 // The board on the page. The board renderer (src/board-render/) draws it from a snapshot of the
 // editor's state as a project file, with what the editor marks on it (editorView); the active
 // tool's placement preview (or a wire being dragged out) goes on top. Redrawn from scratch on
-// every change.
+// every change, which then tells the UI (notifyEditorChanged).
 
-// One painter for the page's canvas, so its hole sprites are kept between redraws.
-const painter = new CanvasPainter(Canvas.ctx);
+// One painter per canvas context, so its hole sprites are kept between redraws.
+let painter: CanvasPainter | undefined;
+
+function painterFor(ctx: CanvasRenderingContext2D): CanvasPainter {
+  if (!painter || painter.ctx !== ctx) painter = new CanvasPainter(ctx);
+  return painter;
+}
 
 // A part icon that finishes loading shows up at the next redraw: ask for one.
 browserIcons.onLoad(() => redrawCanvas());
 
-// Run after every redraw. Every change to the board ends in one, so this is how a feature hears
-// about changes without each edit having to report itself (autosave uses it).
+// Run after every redraw. Every change to the board ends in one, so this is how the editor core
+// hears about changes without each edit having to report itself (autosave, the nets, the solder
+// joint count).
 const redrawListeners: (() => void)[] = [];
 
 export function onRedraw(listener: () => void) {
@@ -33,16 +40,19 @@ export function onRedraw(listener: () => void) {
 setRedraw(redrawCanvas);
 
 export function redrawCanvas() {
+  if (!Canvas.isAttached) return;
   Canvas.ctx.clearRect(0, 0, Canvas.gridWidth, Canvas.gridHeight);
-  drawBoard(painter, getSaveJson(), editorView());
+  const boardPainter = painterFor(Canvas.ctx);
+  drawBoard(boardPainter, getSaveJson(), editorView());
   // The wire being dragged out, or else the active tool's placement preview, over everything.
   const tool = ToolState.active;
   const dragFrom = wireDragFrom();
   if (dragFrom) {
-    if (DotState.hoverDot && DotState.hoverDot !== dragFrom) drawWirePreview(painter, wireDragRoute(DotState.hoverDot), false, wireDragKind());
+    if (DotState.hoverDot && DotState.hoverDot !== dragFrom) drawWirePreview(boardPainter, wireDragRoute(DotState.hoverDot), false, wireDragKind());
   } else if (DotState.hoverDot) {
-    behaviorOf(tool).drawPreview?.(tool, DotState.hoverDot, painter);
+    behaviorOf(tool).drawPreview?.(tool, DotState.hoverDot, boardPainter);
   }
 
   for (const listener of redrawListeners) listener();
+  notifyEditorChanged();
 }

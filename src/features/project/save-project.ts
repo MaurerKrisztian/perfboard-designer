@@ -1,7 +1,6 @@
 import {DotState} from "../../state/DotState";
 import {LineState} from "../../state/LineState";
 import {PartState} from "../../state/PartState";
-import {Utils} from "../../utils/utils";
 import {Canvas} from "../../state/Canvas";
 import {Ic} from "../ic";
 import type {PlacedStandardComponent} from "../standard-components/placed-standard-component";
@@ -11,11 +10,6 @@ import {holesAlong, toGridPos} from "../../project-file/grid";
 import {BoardState} from "../../state/BoardState";
 import {ProjectState} from "../../state/ProjectState";
 import {RequirementsState} from "../../state/RequirementsState";
-
-const saveBtn = Utils.getSafeHtmlElement<HTMLButtonElement>('saveProjectBtn');
-saveBtn.addEventListener('click', function() {
-  downloadProjectFile(JSON.stringify(getSaveJson()));
-});
 
 // Downloads are named after the project (the open one by default), minus characters file systems
 // don't allow.
@@ -31,6 +25,11 @@ export function downloadProjectFile(json: string, projectName?: string) {
   document.body.appendChild(downloadAnchorNode); // required for firefox
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
+}
+
+// File → Save Project to File: the board as a project file, named after the project.
+export function saveProjectToFile() {
+  downloadProjectFile(JSON.stringify(getSaveJson()));
 }
 
 // A stripboard lists its cuts. A perfboard has none to list: cuts made while the board was a

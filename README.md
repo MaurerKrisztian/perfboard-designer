@@ -241,8 +241,8 @@ page).
 | `npm run serve` | Preview the production build |
 | `npm run lint` | Lint `src/` with ESLint |
 
-It's built with vanilla TypeScript and the HTML5 Canvas API, with no UI framework. Vite bundles
-it, and three.js powers the 3D view (it's lazy-loaded, so the editor itself stays small).
+It's built with TypeScript: a React UI over an editor core that draws the board with the HTML5
+Canvas API. Vite bundles it, and three.js powers the 3D view (it's lazy-loaded, so the editor itself stays small).
 
 ## Project file format
 

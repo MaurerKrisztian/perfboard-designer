@@ -7,6 +7,7 @@ const MAX_TOUCH_CANVAS_PIXELS = 12_000_000;
 const touchScreen = matchMedia('(pointer: coarse)');
 
 export function applyCanvasResolution(zoom: number): void {
+  if (!Canvas.isAttached) return;
   const dpr = window.devicePixelRatio || 1;
   let effectiveScale = dpr * zoom;
   if (touchScreen.matches) {
@@ -23,19 +24,4 @@ export function applyCanvasResolution(zoom: number): void {
   Canvas.c.style.width = `${targetW * shownScale / dpr}px`;
   Canvas.c.style.height = `${targetH * shownScale / dpr}px`;
   Canvas.ctx.setTransform(targetW / Canvas.gridWidth, 0, 0, targetH / Canvas.gridHeight, 0, 0);
-}
-
-function watchDevicePixelRatio(onChange: () => void): void {
-  const mql = matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
-  mql.addEventListener('change', () => {
-    onChange();
-    watchDevicePixelRatio(onChange);
-  }, { once: true });
-}
-
-export function startDevicePixelRatioWatch(getCurrentZoom: () => number, redrawCanvas: () => void): void {
-  watchDevicePixelRatio(() => {
-    applyCanvasResolution(getCurrentZoom());
-    redrawCanvas();
-  });
 }
