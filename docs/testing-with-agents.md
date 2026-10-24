@@ -75,7 +75,8 @@ D1.A–R3.2. If one of these numbers changes, something changed how boards are r
 | `projectName()` | The open project's name, as the header shows it. |
 | `parts()` | Each part: `ref`, `part` (catalog id or chip name), `pins` with their holes. |
 | `nets()` | Each net: `name`, `pins` (`"U1.8"`, `"D1.K"`), `wires` (indexes into `project().wires`). One pin: an unconnected pin. |
-| `selection()` | `{kind: "pad", at}`, `{kind: "wire", from, to}`, `{kind: "part", ref}` or `null`. |
+| `selection()` | `{kind: "pad", at}`, `{kind: "wire", from, to}`, `{kind: "part", ref}`, `{kind: "many", parts: [refs], wires: [{from, to}]}` (several parts and wires) or `null`. |
+| `addingToSelection()` | Whether Select more is on, so clicks and taps add to the selection. |
 | `hover()` | The hole under the pointer (`at`) and the readout along the board's foot (`text`). |
 | `tool()` | `"select"`, `"wire"`, `"solder"`, `"eraser"`, `"note"`, `"cut"`, or the kind of part being placed. |
 | `view()` | `zoom`, `fit`, `solderSide`, `labels`. |

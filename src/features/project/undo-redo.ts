@@ -6,6 +6,9 @@ import {ILine} from "../../interfaces/line.interface";
 import {addToBoard, takeOffBoard} from "../placed-parts";
 import {setBoardSetup} from "../board-type";
 import {RequirementsState} from "../../state/RequirementsState";
+import {SelectionState} from "../../state/SelectionState";
+import {PartState} from "../../state/PartState";
+import {setLinePoints} from "../line-path";
 
 // Where `line` is on the board: that very wire, else one running the same way between the same
 // holes (the objects history holds are the ones it put on the board, so this is a fallback).
@@ -40,7 +43,9 @@ function applyChange(change: IChange, direction: "apply" | "revert") {
   }
 
   if (change.type === "move") {
-    change.part.setAnchorDots(direction === "apply" ? change.to : change.from);
+    const dots = direction === "apply" ? change.to : change.from;
+    if (change.kind === "line") setLinePoints(change.line, dots);
+    else change.part.setAnchorDots(dots);
     return;
   }
 
@@ -73,11 +78,21 @@ function applyChange(change: IChange, direction: "apply" | "revert") {
   }
 }
 
+// Undoing or redoing can take selected parts and wires off the board: they leave the selection,
+// and the rest of it stays.
+function dropGoneFromSelection() {
+  if (!SelectionState.parts.length && !SelectionState.lines.length) return;
+  const parts = SelectionState.parts.filter(part => PartState.parts.includes(part));
+  const lines = SelectionState.lines.filter(line => LineState.lines.includes(line));
+  if (parts.length + lines.length !== SelectionState.parts.length + SelectionState.lines.length) SelectionState.select(parts, lines);
+}
+
 export function undo(){
   if(HistoryState.changeIndex >= 0){
     const change = HistoryState.changes[HistoryState.changeIndex];
     applyChange(change, "revert");
     HistoryState.changeIndex--;
+    dropGoneFromSelection();
     redrawCanvas();
   }
 }
@@ -90,6 +105,7 @@ export function redo(){
       return;
     }
     applyChange(change, "apply");
+    dropGoneFromSelection();
     redrawCanvas();
   }
 }

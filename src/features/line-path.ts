@@ -9,6 +9,15 @@ export function linePoints(line: ILine): IDot[] {
   return [line.start, ...(line.via ?? []), line.end];
 }
 
+// Puts the wire on new holes in place: `points` are its start, corners and end, as linePoints().
+export function setLinePoints(line: ILine, points: IDot[]) {
+  line.start = points[0];
+  line.end = points[points.length - 1];
+  const via = points.slice(1, -1);
+  if (via.length) line.via = via;
+  else delete line.via;
+}
+
 // Leg i runs from point i to point i + 1 of linePoints().
 export function lineLegs(line: ILine): [IDot, IDot][] {
   const points = linePoints(line);

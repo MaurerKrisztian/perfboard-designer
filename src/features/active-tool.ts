@@ -1,4 +1,5 @@
 import {ActiveTool, ToolState} from "../state/ToolState";
+import {SelectionState} from "../state/SelectionState";
 import {redrawCanvas} from "./draw-canvas";
 
 const toolListeners: (() => void)[] = [];
@@ -12,6 +13,8 @@ export function onToolPicked(listener: () => void) {
 // other). The UI's highlights follow ToolState, so the redraw is all they need.
 export function setActiveTool(tool: ActiveTool) {
   ToolState.active = tool;
+  // Select more is for Select mode.
+  if (tool.kind !== "select") SelectionState.adding = false;
   for (const listener of toolListeners) listener();
   redrawCanvas();
 }

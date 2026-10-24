@@ -219,12 +219,16 @@ store, and no instances are made.
 | `DotState`, `LineState` | every hole (`IDot`) and wire (`ILine`), plus what's hovered |
 | `PartState` | every placed part, in one list grouped by kind (section 5) |
 | `BoardState` | perfboard or stripboard, and the strip direction |
-| `SelectionState` | the one selected hole, wire *or* part (a discriminated union) |
+| `SelectionState` | the selected hole, wire *or* part, or several parts and wires (a discriminated union), and whether Select more is on |
 | `ToolState` | the active tool: a toolbar mode or a placement tool (a discriminated union) |
 | `ViewState` | zoom and Fit, labels on/off, the solder side, what's under the pointer |
 | `NetHighlightState`, `HistoryState`, `ProjectState`, `DragState` | the lit-up net, undo stack, open project, drag in progress |
 
-The two unions make "only one at a time" true by construction: one selection, one tool.
+The two unions keep things apart by construction: one tool, and one selection, which is a single
+hole, wire or part, or else `many` parts and wires (never a hole among them).
+`SelectionState.select(parts, lines)` keeps that so: one item comes out as `part` or `line`, so
+code that acts on one wire or part (`SelectionState.line`, `.part`) never sees a set, and
+`.parts`/`.lines` give every selected one either way.
 
 **Questions.** The editor asks for text (a value, a note) and yes/no (a resize that drops parts),
 and tells the user things (a link that wouldn't open), with its own dialog: `askText`/`askConfirm`/
@@ -330,8 +334,32 @@ removes them all. Escape mid-drag puts the wire back. A finger has no hover, so 
 where it lands. A finger held still on a handle opens the context menu as anywhere else, and moving
 on from there still bends the wire (board-touch.ts keeps the handle's wire through the menu, which
 selects the hole under the finger).
+**Selecting several.** In Select mode a press with Shift held is held back in `select.ts`
+(`pendingBox`): let go, it's a Shift-click that adds the part or wire there to the selection or
+takes it out (`toggleAt()` in `board-selection.ts`); moved, it draws a selection box
+(`src/features/box-select.ts`), and everything whose holes all lie inside it (a part's pins and
+the holes it covers, a wire's ends and corners: `selectInBox()`) joins what was selected before,
+live as the box grows. The redraw draws the box over the board; Escape puts the selection back.
+A finger has no Shift, so the selection bar's Select more (`SelectionState.adding`,
+`toggleSelectMore()`) makes clicks and taps do the same, and a mouse drag box; picking another
+tool, Escape and Deselect turn it off. <kbd>Ctrl</kbd>+<kbd>A</kbd> selects every part and wire.
+A press on one of several selected parts (or between the holes of one of their wires,
+`selectedLineAt()`) picks them all up: `component-drag.ts` moves every part and wire in
+`DragState` by the same step, refusing a step that would push anything off the board, and records
+one `batch` of `move`s (a wire's `move` holds its points before and after). Let go without moving,
+just that item stays selected, as a click on it would leave it. Wires that aren't selected stay
+where they are, as with one part. Delete takes them all off as one `batch`
+(`deleteItems()` in `delete-selection.ts`). `src/features/clipboard.ts` copies, cuts, pastes and
+duplicates the selected parts and wires: a copy is their project-file entries counted from its
+top-left hole, rebuilt by `partFromEntry()`/`lineFromWire()` (`src/features/project/board-entries.ts`,
+which loading uses too) and placed by `placeItems()` (`placed-parts.ts`) as new parts with the
+lowest free refs and new identities, in one step. A paste goes at the hole under the pointer,
+moved back onto the board if it would hang off; Duplicate goes beside the original where there's
+room. Keyboard shortcuts may carry `when` (`IShortcut`): Ctrl+C copies the page's selected text, not
+the board's selection, when there is some.
+
 Switch tools with `setActiveTool()` (`src/features/active-tool.ts`). `resetInteraction()` clears
-the selection and drops a placement tool back to Select.
+the selection (and Select more) and drops a placement tool back to Select.
 
 Keep tool modules free of imports that lead back to `draw-canvas.ts`, which imports the registry
 to draw previews. That's why the note prompt lives in `dot-notes.ts`.
@@ -421,8 +449,8 @@ narrows on `part.kind` only for kind-specific behaviour.
   its definition's `refPrefix` (ICs are U), via `src/project-file/part-refs.ts`.
 - **`PartState.parts`** stays grouped by kind (ICs → standard → advanced), so stacking and the
   per-kind arrays in the file stay stable. Add and remove parts through
-  `src/features/placed-parts.ts`: `placePart`/`removePart` record undo history,
-  `addToBoard`/`takeOffBoard` don't.
+  `src/features/placed-parts.ts`: `placePart`/`removePart` (and `placeItems` for a paste) record
+  undo history, `addToBoard`/`takeOffBoard` don't.
 
 **The catalog** (`src/ui/catalog/`) is the left panel's Parts section: a search box over a
 category tree. It only decides where parts are *listed*.
@@ -489,7 +517,10 @@ Every undoable mutation calls `HistoryState.record(change)` with an `IChange`
   hole it covers already, so it's never split or cut. Corners that don't turn the wire are dropped
   (`lineThrough()` in `line-path.ts`));
 - `add`/`remove`/`move` of a part;
-- `set` of a strip cut or of the board setup.
+- `move` of a wire, its points before and after (a wire moved with other selected things);
+- `set` of a strip cut, of the board setup or of the circuit requirements;
+- `batch` of several, replayed in order and taken back in reverse: placing a part that joins the
+  requirements, and moving, deleting or pasting several things at once.
 
 `undo()`/`redo()` in `src/features/project/undo-redo.ts` replay them through `applyChange()` and
 redraw. History is cleared whenever the board is replaced (load, reset, resize) via
@@ -712,7 +743,9 @@ The editor then draws the active tool's preview on top (`ToolBehavior.drawPrevie
   downloads show them (on the solder side too, columns running right to left), and the selection
   bar names a pad the same way (`holeName()` in `grid.ts`, "G7"); the MCP server's pictures
   leave them off, since agents count holes from 0
-- `selected` and `hovered`: `BoardItem`s, i.e. a part by `ref`, a wire by index, a hole by `[col, row]`
+- `selected` and `hovered`: lists of `BoardItem`s, i.e. a part by `ref`, a wire by index, a hole by
+  `[col, row]`. A selected wire's handles are drawn only when it's all that's selected
+  (`soleSelected()`)
 - `startHole`: a placement's first click
 - `highlight`: a net
 - `solderSide`: the board from below instead, for soldering. `drawBoard` then draws something else

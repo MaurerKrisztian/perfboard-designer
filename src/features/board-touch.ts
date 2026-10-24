@@ -1,7 +1,7 @@
 import {Canvas} from "../state/Canvas";
-import {DragState} from "../state/DragState";
 import {redrawCanvas} from "./draw-canvas";
-import {cancelDrag, endDrag} from "./component-drag";
+import {cancelDrag, endDrag, isDragging} from "./component-drag";
+import {selectedLineAt} from "./board-selection";
 import {canPickUpParts, hoverAt, isOverPlacedPart} from "./hover";
 import {clickBoard, endReshape, endWireDrag, openContextMenuAt, panTo, pressBoard, startPan, stopPan} from "./select";
 import {hideBoardMenus} from "./board-menus";
@@ -18,7 +18,10 @@ import {applyZoomAnchored, clampZoom} from "./zoom";
 // so a second finger can still turn it into a pinch:
 // - a tap (lifted without moving) is a click, so the active tool acts where it lifted;
 // - one finger dragged pans the board, or in Select mode moves the part body it landed on (never a
-//   wire: zoomed in, most of the board is holes, and panning must not draw on it);
+//   wire: zoomed in, most of the board is holes, and panning must not draw on it), or with several
+//   parts and wires selected, all of them, from any of them;
+// - with Select more on (the selection bar's toggle; a finger has no Shift), a tap adds the part
+//   or wire there to the selection or takes it out;
 // - two fingers pinch to zoom and drag to pan: the board is scaled as a picture while they move,
 //   and redrawn at the new zoom when they lift, since redrawing a big board takes a phone too long
 //   to keep up;
@@ -91,8 +94,11 @@ function onFingerDown(e: PointerEvent) {
     const {x, y} = Canvas.toDrawingCoordinates(e);
     const grip = wireGripAt(x, y, true);
     const wireFrom = grip ? undefined : wireDragStartDot(x, y, true);
-    if (!grip && !wireFrom && canPickUpParts() && isOverPlacedPart(x, y)) {
-      // Selects the part and picks it up; it only moves once the finger does.
+    // Selects the part and picks it up (or, on one of several selected parts or wires, all of
+    // them); it only moves once the finger does. With Select more on, a tap adds it instead.
+    // A finger is on a hole nearly anywhere, so a selected wire under it counts even then.
+    const picksUp = !grip && canPickUpParts() && !SelectionState.adding;
+    if (picksUp && ((!wireFrom && isOverPlacedPart(x, y)) || selectedLineAt(x, y))) {
       pressBoard(e);
     }
     gesture = {kind: "press", down: e, wireFrom, grip};
@@ -166,7 +172,7 @@ function onFingerMove(e: PointerEvent) {
     clearLongPress();
     if (gesture.grip) {
       beginReshape(e, gesture.grip);
-    } else if (DragState.target) {
+    } else if (isDragging()) {
       gesture = {kind: "drag"};
     } else {
       gesture = {kind: "pan"};
@@ -210,7 +216,7 @@ function liftFinger(e: PointerEvent) {
   } else if (gesture?.kind === "press" && e.type === "pointerup") {
     // Hover followed the finger's small wobble: aim at where it landed.
     hoverAt(gesture.down);
-    if (DragState.target) {
+    if (isDragging()) {
       endDrag();
     } else {
       clickBoard(gesture.down);

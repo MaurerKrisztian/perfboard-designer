@@ -10,6 +10,9 @@ export interface IShortcut {
   shift?: boolean;
   event: (e: KeyboardEvent) => void;
   description?: string;
+  // Only when this says so: otherwise the key does what it would without the shortcut (Ctrl+C
+  // copies the page's selected text when nothing on the board is selected).
+  when?: () => boolean;
 }
 
 // Typing in a field never runs a shortcut.
@@ -42,7 +45,8 @@ function onKeyDown(event: KeyboardEvent) {
   // Keys compare case-insensitively (so Caps Lock doesn't matter); Shift is its own modifier.
   const keyLower = event.key.toLowerCase();
   for (const shortcut of ShortcutRegistry.shortcuts) {
-    if (keyLower === shortcut.key.toLowerCase() && event.ctrlKey === !!shortcut.ctrl && event.shiftKey === !!shortcut.shift) {
+    if (keyLower === shortcut.key.toLowerCase() && event.ctrlKey === !!shortcut.ctrl && event.shiftKey === !!shortcut.shift
+      && (!shortcut.when || shortcut.when())) {
       event.preventDefault();
       shortcut.event(event);
     }

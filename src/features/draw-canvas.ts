@@ -1,4 +1,4 @@
-import {drawBoard} from "../board-render";
+import {drawBoard, SELECTION_COLOR} from "../board-render";
 import {Canvas} from "../state/Canvas";
 import {DotState} from "../state/DotState";
 import {ToolState} from "../state/ToolState";
@@ -11,11 +11,12 @@ import {browserIcons} from "./board-canvas/browser-icons";
 import {editorView} from "./board-canvas/editor-view";
 import {getSaveJson} from "./project/save-project";
 import {notifyEditorChanged} from "./editor-events";
+import {selectionBox} from "./box-select";
 
 // The board on the page. The board renderer (src/board-render/) draws it from a snapshot of the
 // editor's state as a project file, with what the editor marks on it (editorView); the active
-// tool's placement preview (or a wire being dragged out) goes on top. Redrawn from scratch on
-// every change, which then tells the UI (notifyEditorChanged).
+// tool's placement preview (or a wire being dragged out) and a selection box go on top. Redrawn
+// from scratch on every change, which then tells the UI (notifyEditorChanged).
 
 // One painter per canvas context, so its hole sprites are kept between redraws.
 let painter: CanvasPainter | undefined;
@@ -51,6 +52,12 @@ export function redrawCanvas() {
     if (DotState.hoverDot && DotState.hoverDot !== dragFrom) drawWirePreview(boardPainter, wireDragRoute(DotState.hoverDot), false, wireDragKind());
   } else if (DotState.hoverDot) {
     behaviorOf(tool).drawPreview?.(tool, DotState.hoverDot, boardPainter);
+  }
+  const box = selectionBox();
+  if (box) {
+    boardPainter.rect(box.left, box.top, box.right - box.left, box.bottom - box.top, {
+      fill: "rgba(56, 189, 248, 0.08)", stroke: {paint: SELECTION_COLOR, width: 1.5, dash: [6, 4]},
+    });
   }
 
   for (const listener of redrawListeners) listener();

@@ -142,8 +142,10 @@ created — `ClassName.staticField` is the "store"). E.g. `Canvas` (the board's 
 `LineState` (the grid and wires, plus hover), `ViewState` (zoom, labels, solder side, the hover
 text), `PartState` (every placed part, see below),
 `BoardState` (perfboard or stripboard, see below), `HistoryState` (undo/redo stack). Two
-discriminated unions keep "only one at a time" true by
-construction: `SelectionState.current` (one selected pad, wire *or* part) and `ToolState.active`
+discriminated unions keep things apart by construction: `SelectionState.current` (one selected
+pad, wire *or* part, or `many` parts and wires, never a pad; set it with
+`SelectionState.select()`, which makes one item a `part` or `line`, so `.part`/`.line` mean "the
+one selected" and `.parts`/`.lines` give all of them) and `ToolState.active`
 (what a click on the board does: a toolbar mode — select/eraser/note/cut — or a placement tool —
 wire, solder path, IC, standard or advanced component — with its pending first click). Switch tools through
 `setActiveTool()` (`src/features/active-tool.ts`); `resetInteraction()` clears the selection and
@@ -172,7 +174,16 @@ covers (Nets below); everything else treats it as a wire. A selected wire's hand
 (`wire-reshape.ts`): drag a leg to pull out a bend, drag a bend or an end to move it, double-click
 (double-tap) a bend to take it out, the selection bar's Straighten for all of them; the wire changes
 live and its new route goes through the wire tool's `routeWire` (as placing does) as one undoable
-`replace`, Escape puts it back. Keep tool modules free of imports that lead back to
+`replace`, Escape puts it back. **Selecting several**: in Select mode Shift-click adds or removes a
+part or wire, and a Shift-drag draws a box (`box-select.ts`) adding everything whose holes it
+encloses, live; the selection bar's Select more (`SelectionState.adding`) does the same without
+Shift, for a finger; Ctrl+A selects all. A press on one of several selected parts or wires drags
+them all (`component-drag.ts`, one `batch` of `move`s; let go unmoved, only that one stays
+selected); Delete removes them in one `batch`. `clipboard.ts` copies (Ctrl+C), cuts, pastes (at
+the pointer's hole) and duplicates (Ctrl+D, beside the original) as project-file entries, rebuilt
+by `project/board-entries.ts` (shared with loading) and placed by `placeItems()` with new refs and
+identities. A shortcut's optional `when` lets the key do its usual thing otherwise (Ctrl+C with page
+text selected). Keep tool modules free of imports that lead back to
 `draw-canvas.ts` (it imports the registry to draw previews), which is why a hole's note operations live in
 `dot-notes.ts` and redraw with `requestRedraw()`.
 
@@ -193,8 +204,8 @@ browser only: Path2D, hole sprites cached per zoom, text snapped to device pixel
 `SvgPainter` (`painter/svg-painter.ts`, a string, runs anywhere; lets only plain colour syntax
 through, since colours come from files anyone can write). `BoardView` (`board-view.ts`) is what to
 mark beyond the file — part labels, `holeLabels` (column numbers and row letters printed round the
-edge, `layers/hole-labels.ts`; on in the editor and its downloads, off in MCP pictures), `selected`/`hovered` items (a part by ref, a wire by index, a
-hole by position), a placement's `startHole`, a net `highlight`, or `solderSide` (the board from
+edge, `layers/hole-labels.ts`; on in the editor and its downloads, off in MCP pictures), `selected`/`hovered` item lists (a part by ref, a wire by index, a
+hole by position; a wire's handles only when it's the one thing selected), a placement's `startHole`, a net `highlight`, or `solderSide` (the board from
 below for soldering, mirrored with a `flipX` group, every joint marked: `layers/solder-side.ts`,
 shown read-only by `src/features/solder-view.ts`); `PLAIN_VIEW` is none of it; the
 editor builds its own in `src/features/board-canvas/editor-view.ts`. `draw-board.ts` alone fixes
@@ -306,7 +317,8 @@ jumpers passing over its end holes to join them, is itself cut where it passes o
 ends, and started or ended at a wire's free end (same kind, and for jumpers the same colour and
 width, nothing else in the hole) carries that wire on as one bent wire into one it continues:
 `wire-merge.ts`; a solder path joins every hole it covers already, so it's never split or cut), `add`/`remove`/`move`
-of a part, or `set` of a strip cut or of the board setup. `undo`/`redo` replay these and call `redrawCanvas()`. History is cleared whenever the
+of a part, `move` of a wire (its points; moved with a selection), `set` of a strip cut or of the
+board setup, or a `batch` of several as one step. `undo`/`redo` replay these and call `redrawCanvas()`. History is cleared whenever the
 board is replaced (load, reset, resize) via `resetForNewBoard()`.
 
 **Persistence**: the project file format lives in `src/project-file/` — pure code (no DOM, no

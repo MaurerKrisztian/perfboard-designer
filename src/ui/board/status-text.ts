@@ -4,6 +4,7 @@ import {ViewState} from "../../state/ViewState";
 import {behaviorOf} from "../../features/tools";
 import {holeName, toGridPos} from "../../project-file/grid";
 import {SOLDER_COLOR} from "../../board-render";
+import {selectionLabel} from "./selection-actions";
 
 // What the status line over the board says: what's selected, or what the active tool does next,
 // with the keys and gestures that apply as hints in brackets: "Wire [Click a start pad, or drag
@@ -29,6 +30,13 @@ export function statusMessage(): StatusMessage {
   }
   const tool = ToolState.active;
   const selection = SelectionState.current;
+  if (SelectionState.adding && tool.kind === "select") {
+    const what = selection ? selectionLabel() : "nothing yet";
+    return {text: `Select more: ${what}${hints("Click a part or wire to add or remove it", "Drag a box around more")}`, swatch: SELECTED_PART_COLOR};
+  }
+  if (selection?.kind === "many") {
+    return {text: `${selectionLabel()}${hints("Drag one to move them all", "Shift-click to add or remove", "Ctrl+D to duplicate", "Del to remove")}`, swatch: SELECTED_PART_COLOR};
+  }
   // A selected part outranks a placement tool, which outranks a selected wire or pad.
   if (selection?.kind === "part") {
     const part = selection.part;
@@ -64,7 +72,7 @@ export function forTouch(text: string): string {
     .replace("Drag from a pad to draw a wire", "Hold a pad, then drag, to draw a wire")
     .replace(", or drag pad to pad", "")
     .replace("Drag pad to pad for an L", "Hold a pad and drag for an L")
-    .replace(/\[([^\]]*)\]/g, (_, list: string) => `[${list.split(" • ").filter(hint => !/^(R|Del|D) to |^Shift|^Esc /i.test(hint)).join(" • ")}]`)
+    .replace(/\[([^\]]*)\]/g, (_, list: string) => `[${list.split(" • ").filter(hint => !/^(R|Del|D) to |^Shift|^Esc |^Ctrl|^Drag a box/i.test(hint)).join(" • ")}]`)
     .replace(/ or press (Esc|Enter)\b/g, "")
     .replace(/\bClick\b/g, "Tap")
     .replace(/\bclick\b/g, "tap");

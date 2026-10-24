@@ -28,8 +28,11 @@ export interface TestHandle {
   // Every net, as the Nets panel works it out: one with a single pin is an unconnected pin, one
   // with none is wires that connect no pins.
   nets(): {name?: string; pins: string[]; wires: number[]}[];
-  // What's selected: a pad, a wire (by its ends) or a part (by its ref).
-  selection(): {kind: "pad"; at: GridPos} | {kind: "wire"; from: GridPos; to: GridPos} | {kind: "part"; ref: string} | null;
+  // What's selected: a pad, a wire (by its ends), a part (by its ref), or several parts and wires.
+  selection(): {kind: "pad"; at: GridPos} | {kind: "wire"; from: GridPos; to: GridPos} | {kind: "part"; ref: string}
+    | {kind: "many"; parts: string[]; wires: {from: GridPos; to: GridPos}[]} | null;
+  // Select more (the selection bar's toggle): clicks and taps add to the selection.
+  addingToSelection(): boolean;
   // The hole under the pointer and the readout under the board.
   hover(): {at?: GridPos; text?: string};
   // The active tool: "select", "wire", "solder", "eraser", "note", "cut", or a part being placed.
@@ -66,6 +69,13 @@ function selection(): ReturnType<TestHandle["selection"]> {
   if (!selected) return null;
   if (selected.kind === "dot") return {kind: "pad", at: toGridPos(selected.dot)};
   if (selected.kind === "line") return {kind: "wire", from: toGridPos(selected.line.start), to: toGridPos(selected.line.end)};
+  if (selected.kind === "many") {
+    return {
+      kind: "many",
+      parts: selected.parts.map(part => part.ref),
+      wires: selected.lines.map(line => ({from: toGridPos(line.start), to: toGridPos(line.end)})),
+    };
+  }
   return {kind: "part", ref: selected.part.ref};
 }
 
@@ -132,6 +142,7 @@ export function installTestHandle() {
     parts: () => partPins(getSaveJson()).map(({ref, part, pins}) => ({ref, part, pins})),
     nets: () => nets(getSaveJson()),
     selection,
+    addingToSelection: () => SelectionState.adding,
     hover: () => ({
       ...(DotState.hoverDot ? {at: toGridPos(DotState.hoverDot)} : {}),
       ...(ViewState.hoverText ? {text: ViewState.hoverText} : {}),

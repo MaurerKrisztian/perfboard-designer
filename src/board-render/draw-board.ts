@@ -2,7 +2,7 @@ import {GRID_PITCH_PX} from "../project-file/grid";
 import {partPins} from "../project-file/pin-positions";
 import {ProjectFile, SavedBoard} from "../project-file/project-file";
 import {layoutProjectWires} from "../project-file/wire-crossings";
-import {BoardView, isHovered, isSameItem, PLAIN_VIEW} from "./board-view";
+import {BoardView, isHovered, isSelected, PLAIN_VIEW} from "./board-view";
 import {boardLookFor} from "./board-looks";
 import {drawHoleLabels} from "./layers/hole-labels";
 import {drawHoles} from "./layers/holes";
@@ -33,7 +33,7 @@ export function drawBoard(painter: Painter, project: ProjectFile, view: BoardVie
   const parts = boardParts(project);
   const wireLayout = layoutProjectWires(project);
   const lookOf = (part: BoardPart): PartLook => ({
-    selected: isSameItem(view.selected, {kind: "part", ref: part.entry.ref}),
+    selected: isSelected(view, {kind: "part", ref: part.entry.ref}),
     showRef: view.partLabels,
   });
   const drawLayer = (layer: "under-board" | "over-wires") => {
@@ -54,7 +54,7 @@ export function drawBoard(painter: Painter, project: ProjectFile, view: BoardVie
   drawSolderPaths(painter, project.wires, view);
   // 4. Jumper wires, each with dark edges where it goes over something it doesn't join. Those on
   // the solder side are under the board's other face: faded, unless selected or hovered.
-  const isPicked = (index: number) => isSameItem(view.selected, {kind: "wire", index}) || isHovered(view, {kind: "wire", index});
+  const isPicked = (index: number) => isSelected(view, {kind: "wire", index}) || isHovered(view, {kind: "wire", index});
   painter.group({opacity: GHOST_BOTTOM_WIRES}, () => drawWires(painter, project.wires, wireLayout.hops, PLAIN_VIEW, "bottom", index => !isPicked(index)));
   drawWires(painter, project.wires, wireLayout.hops, view, "bottom", isPicked);
   drawWires(painter, project.wires, wireLayout.hops, view, "top");
