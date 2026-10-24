@@ -13,7 +13,8 @@ browser/MCP parts receive UUIDs. Constructors give duplicates fresh IDs, loading
 and serialization preserves them. IDs are project-scoped. A top-level `schematic` field written
 by older editors is ignored on load and not saved again.
 
-Version 8 adds optional independent `requirements`, defined and checked by
+Version 9 adds a jumper's optional `side: "bottom"` (the solder side; absent is the top), the
+only thing that raises a file to 9 on its own. Version 8 adds optional independent `requirements`, defined and checked by
 `src/project-file/requirements.ts`. Required nets and explicitly unused pins reference stable
 component IDs plus numeric pins. Component/pin snapshots retain missing-item diagnostics;
 board edits never overwrite intended connections. The reader rejects malformed/overlapping
@@ -502,7 +503,7 @@ redraw. History is cleared whenever the board is replaced (load, reset, resize) 
 **The format** lives in `src/project-file/`, pure code shared by the editor, the 3D viewer and the
 MCP server.
 
-- `project-file.ts` defines version 8 (optional requirements), with its shared types in `requirements.ts`. It holds grid
+- `project-file.ts` defines version 9 (a jumper's optional `side`), with its shared types in `requirements.ts`. It holds grid
   `[col, row]` positions, the board type with a stripboard's strips and cuts, only holes with notes,
   wires with the corners they bend at (`via`) and what they are (`kind`: absent for a jumper,
   whose corners are bends and never joints, `"solder"` for a solder path), per-kind part arrays
@@ -589,7 +590,16 @@ paths are on the other side of the board and join what they touch, so they play 
 three or more things meet at a hole, they're joined. `layoutProjectWires(project)` works this out
 leg by leg, and each hop says which `leg` of its wire it's on. The 2D renderer rounds off each
 bend and draws a dark edge where a wire goes over something and a solder dot at junctions; the 3D
-viewer bends its tube at each corner and arches the upper wire.
+viewer bends its tube at each corner and arches the upper wire. A wire lying along another wire's
+run over a stretch is a `WireRun` (parallel legs never meet, so it has no hops), and the 3D viewer
+keeps the upper wire level over it and stacks wires that go over wires that go over others
+(`elevation()` in `src/viewer-3d/project-data.ts`). A jumper on the solder side (`side: "bottom"`)
+is on the other face: layout compares only wires on the same face, though a pin or any wire's end
+in a hole counts for both. The editor moves a selected jumper between faces with "Move to Solder
+Side"/"Move to Top" (`moveSelectedWireToSide()` in `src/features/wire.ts`; one undoable
+replace), and `wire-merge.ts` never splits, cuts or merges across faces. The 2D top view draws
+solder-side wires faded (full strength when selected or hovered), the solder-side view draws them
+at full strength over the solder paths, and the 3D viewer lays them under the board.
 
 In the editor a placed wire (`ILine`) keeps its corners in `via`, and `src/features/line-path.ts`
 holds its geometry: its points and legs, how near a point is (hover and selection), and splitting

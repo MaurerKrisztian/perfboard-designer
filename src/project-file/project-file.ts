@@ -2,26 +2,29 @@ import {GridPos} from "./grid";
 import type {CustomPartSpec} from "../parts/custom-parts";
 import type {CircuitRequirements} from "./requirements";
 
-// The project file format, version 8. Positions are grid [column, row] pairs counted from the
+// The project file format, version 9. Positions are grid [column, row] pairs counted from the
 // top-left hole (column = left to right, row = top to bottom), not pixels, and only holes with a
 // note are listed. Older files are still read, see read-project-file.ts:
-// - version 7: the same, minus circuit requirements (`requirements`).
+// - version 8: the same, minus wires on the solder side (a wire's `side`).
+// - version 7: the same as 8, minus circuit requirements (`requirements`).
 // - version 6: the same as 7, minus part identities (a placed part's `instanceId`).
 // - version 5: the same as 6, minus custom parts (a fixed-pin part's `custom`).
 // - version 4: the same as 5, minus solder paths (a wire's `kind`).
 // - version 3: the same as 4, minus bent wires (a wire's `via`).
 // - version 2: the same as 3, minus the board type (always a perfboard) and part refs.
 // - version 1 (no `version` field): pixel coordinates, every hole listed, the whole IC catalog.
-export const PROJECT_FILE_VERSION = 8;
+export const PROJECT_FILE_VERSION = 9;
 
-// A file says the oldest version that holds everything in it: 8 with requirements, else 6 with a
+// A file says the oldest version that holds everything in it: 9 with a wire on the solder side,
+// else 8 with requirements, else 6 with a
 // custom part, else 5 with a solder path, else 4 if a wire bends, else 3. So a board without them
 // still opens in editors and tools from before. Part identities (version 7) don't raise it: older
 // readers skip the field, and identities only matter to requirements, which are version 8.
-export type FileVersion = 3 | 4 | 5 | 6 | typeof PROJECT_FILE_VERSION;
+export type FileVersion = 3 | 4 | 5 | 6 | 8 | typeof PROJECT_FILE_VERSION;
 
 export function fileVersionFor(project: Pick<ProjectFile, "wires" | "placedAdvancedComponents" | "requirements">): FileVersion {
-  if (project.requirements) return PROJECT_FILE_VERSION;
+  if (project.wires.some(wire => wire.side === "bottom")) return PROJECT_FILE_VERSION;
+  if (project.requirements) return 8;
   if (project.placedAdvancedComponents.some(part => part.custom)) return 6;
   if (project.wires.some(wire => wire.kind === "solder")) return 5;
   return project.wires.some(wire => wire.via?.length) ? 4 : 3;
@@ -85,7 +88,14 @@ export interface SavedWire {
   // A jumper's insulation colour and thickness (drawing px). A solder path has neither.
   color?: string;
   width?: number;
+  // Which face of the board a jumper lies on (version 9). Absent: "top", the component side.
+  // A "bottom" jumper is on the solder side: it joins the holes at its ends like any jumper (so a
+  // wire or a pin in the same hole is on its net), but never goes over or under a top wire, since
+  // they're on different faces. Only jumpers have it; a solder path is always on the copper side.
+  side?: WireSide;
 }
+
+export type WireSide = "top" | "bottom";
 
 // Every placed part has a `ref`: its reference designator (R1, C2, U1...), unique on the board
 // ignoring case. See part-refs.ts.

@@ -42,7 +42,7 @@ export function loadProject(raw: unknown): {skipped: number} {
   LineState.lines = project.wires.map(wire => ({
     start: dotAt(wire.from), end: dotAt(wire.to),
     ...(wire.via ? {via: wire.via.map(dotAt)} : {}),
-    ...(wire.kind === "solder" ? {kind: "solder" as const} : {color: wire.color, width: wire.width}),
+    ...(wire.kind === "solder" ? {kind: "solder" as const} : {color: wire.color, width: wire.width, ...(wire.side === "bottom" ? {side: "bottom" as const} : {})}),
   }));
 
   const parts: Part[] = [];

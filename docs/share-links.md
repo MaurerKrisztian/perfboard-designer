@@ -162,8 +162,8 @@ doesn't need a newer version on its own. A top-level `schematic` field, written 
 is ignored.
 
 A share link carries the same project file as **File → Save Project to File**. Every version
-opens, but write the oldest one that holds your board: version 8 with requirements,
-else version 6 with a custom module, else 5
+opens, but write the oldest one that holds your board: version 9 with a wire on the solder side,
+else version 8 with requirements, else version 6 with a custom module, else 5
 with a solder path, else 4 if a wire bends, else 3 (the same without any of them), which older
 editors open too. It's documented field by field in
 [`src/project-file/project-file.ts`](../src/project-file/project-file.ts). In short:
@@ -179,7 +179,9 @@ editors open too. It's documented field by field in
   holes on its way, in order; a bend joins nothing. With `"kind": "solder"` (version 5) it's a
   solder path instead: a trail of solder on the copper side, with no `color` or `width`, that
   joins every hole it runs over (ends, bends and the holes between) and any solder path it
-  touches.
+  touches. With `"side": "bottom"` (version 9) a jumper lies on the solder side of the board: it
+  joins its end holes like any jumper (so it shares a net with a pin or another wire's end in the
+  same hole) but never crosses a top wire. Absent: the top. A solder path takes no `side`.
 - `placedStandardComponents`: two-lead parts placed between two holes: `definitionId`, `from`,
   `to`, optional `value` (`"10k"`, `"100n"`) and `color` (LEDs). On polarized parts, `from` is
   an LED's cathode, a diode's anode and an electrolytic capacitor's − lead (`leadLabels` in the
@@ -201,7 +203,7 @@ editors open too. It's documented field by field in
   automatically.
 
 The reader is forgiving: empty lists can be left out, a file without `version` that has a `board`
-is read as version 8, and board entries it can't read are skipped (and counted) instead of failing the
+is read as version 9, and board entries it can't read are skipped (and counted) instead of failing the
 whole project.
 
 The `definitionId`s, with each part's pins, are in

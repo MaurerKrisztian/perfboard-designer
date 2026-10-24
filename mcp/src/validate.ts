@@ -100,6 +100,11 @@ export function validateProject(raw: unknown, expectNets?: string[][]): Validati
     const solder = (Array.isArray(data.wires) ? data.wires : []).flatMap((wire, i) => asEntry(wire)?.kind === "solder" ? [wireName(i)] : []);
     if (solder.length) report.warn(`${joinList(solder)} ${solder.length === 1 ? "is" : "are"} "kind": "solder", which version ${data.version} files don't have, so ${solder.length === 1 ? "it was" : "they were"} read as jumper wires. Set "version": ${PROJECT_FILE_VERSION} to keep solder paths.`);
   }
+  // Wires on the solder side came in version 9: an older file's wires are all on the top.
+  if (typeof data.version === "number" && data.version < 9) {
+    const bottom = (Array.isArray(data.wires) ? data.wires : []).flatMap((wire, i) => asEntry(wire)?.side === "bottom" ? [wireName(i)] : []);
+    if (bottom.length) report.warn(`${joinList(bottom)} ${bottom.length === 1 ? "is" : "are"} "side": "bottom", which version ${data.version} files don't have, so ${bottom.length === 1 ? "it was" : "they were"} read as top wires. Set "version": ${PROJECT_FILE_VERSION} to keep the solder side.`);
+  }
   const entries = readEntriesAlone(data, project);
   report.problems.push(...entries.unreadable);
   const unnamed = skipped - entries.unreadable.length;

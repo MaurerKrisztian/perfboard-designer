@@ -1,5 +1,5 @@
 import {IDot} from "./dot.interface";
-import type {WireKind} from "../project-file/project-file";
+import type {WireKind, WireSide} from "../project-file/project-file";
 
 export interface ILine {
   start: IDot,
@@ -11,4 +11,6 @@ export interface ILine {
   kind?: WireKind;
   color?: string;
   width?: number;
+  // A jumper's face (SavedWire.side): absent, the top.
+  side?: WireSide;
 }

@@ -55,6 +55,7 @@ function savedWires(): SavedWire[] {
     ...(line.kind === "solder" ? {kind: "solder" as const} : {
       ...(line.color ? {color: line.color} : {}),
       ...(line.width ? {width: line.width} : {}),
+      ...(line.side === "bottom" ? {side: "bottom" as const} : {}),
     }),
   }));
 }

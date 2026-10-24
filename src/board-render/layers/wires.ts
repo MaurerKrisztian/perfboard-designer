@@ -1,7 +1,7 @@
 import {GridPos, gridToPx} from "../../project-file/grid";
 import {SavedWire} from "../../project-file/project-file";
 import {WireHop} from "../../project-file/wire-crossings";
-import {isSolderPath, solderPathHoles, wirePoints} from "../../project-file/wire-path";
+import {isBottomWire, isSolderPath, solderPathHoles, wirePoints} from "../../project-file/wire-path";
 import {BoardView, isHovered, isSameItem} from "../board-view";
 import {Painter, Point} from "../painter/painter";
 import {
@@ -70,14 +70,20 @@ export function roundedWireLine(points: Point[]): Point[] {
   return line;
 }
 
+// Which jumpers a drawWires() call draws: all, those on the top face, those on the solder side, or
+// the solder side's that aren't selected or hovered (the faded ones in the top view).
+export type WireFace = "all" | "top" | "bottom";
+
 // The jumpers, in list order, so a later wire is drawn over an earlier one, as wire-crossings.ts
 // assumes. Solder paths are drawSolderPaths'.
-export function drawWires(painter: Painter, wires: SavedWire[], hops: WireHop[], view: BoardView) {
+export function drawWires(painter: Painter, wires: SavedWire[], hops: WireHop[], view: BoardView, face: WireFace = "all", only?: (index: number) => boolean) {
   const hopsByWire = new Map<number, WireHop[]>();
   for (const hop of hops) hopsByWire.set(hop.wire, [...(hopsByWire.get(hop.wire) ?? []), hop]);
 
   wires.forEach((wire, index) => {
     if (isSolderPath(wire)) return;
+    if (face !== "all" && isBottomWire(wire) !== (face === "bottom")) return;
+    if (only && !only(index)) return;
     const line = wireLine(wire);
     const ends = [line[0], line[line.length - 1]];
     const width = widthOf(wire);
@@ -198,7 +204,7 @@ export function drawWiresThroughParts(painter: Painter, wires: SavedWire[]) {
       if (isSolderPath(wire)) painter.line(wireLine(wire), {paint: SOLDER_COLOR, width: SOLDER_PATH_WIDTH, cap: "round", join: "round"});
     }
     for (const wire of wires) {
-      if (isSolderPath(wire)) continue;
+      if (isSolderPath(wire) || isBottomWire(wire)) continue;
       painter.line(wireLine(wire), {paint: wire.color || DEFAULT_WIRE_COLOR, width: widthOf(wire), cap: "round", join: "round"});
     }
   });

@@ -14,6 +14,11 @@ export function isSolderPath(wire: {kind?: string}): boolean {
   return wire.kind === "solder";
 }
 
+// A jumper on the solder side (SavedWire.side).
+export function isBottomWire(wire: {side?: string}): boolean {
+  return wire.side === "bottom";
+}
+
 export interface WireLeg {
   from: GridPos;
   to: GridPos;

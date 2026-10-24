@@ -184,11 +184,13 @@ const ARCH_RUN = 1.4;
 const PX_PER_MM = PX_PER_PITCH / PITCH;
 
 /** A wire's centreline in the scene: lying on the board, arching over each hop between its bends. */
-function wireLine(frame: BoardFrame, points: WirePoint[], radius: number): Vector3[] {
+function wireLine(frame: BoardFrame, points: WirePoint[], radius: number, bottom: boolean): Vector3[] {
+  // Height in the scene of a wire `up` mm clear of its face: above the top face, below the bottom.
+  const heightAt = (up: number) => bottom ? BOARD_BOTTOM_Y - up : up;
   const line: Vector3[] = [];
   for (let i = 0; i < points.length;) {
     const start = points[i];
-    line.push(frame.point(start.x, start.y, radius));
+    line.push(frame.point(start.x, start.y, heightAt(radius)));
     let next = i + 1;
     while (next < points.length && points[next].hop) next++;
     if (next >= points.length) break;
@@ -204,7 +206,7 @@ function wireLine(frame: BoardFrame, points: WirePoint[], radius: number): Vecto
     });
     for (const {at, lift} of archSamples(length, hops)) {
       const t = at / length;
-      line.push(frame.point(start.x + (end.x - start.x) * t, start.y + (end.y - start.y) * t, radius + lift));
+      line.push(frame.point(start.x + (end.x - start.x) * t, start.y + (end.y - start.y) * t, heightAt(radius + lift)));
     }
     i = next;
   }
@@ -233,7 +235,7 @@ function lineLength(line: Vector3[]): number {
   return line.reduce((sum, p, i) => i ? sum + p.distanceTo(line[i - 1]) : 0, 0);
 }
 
-/** Insulated jumper wires lying on the top face. Each wire is one continuous insulated run, so
+/** Insulated jumper wires lying on the top face (or, on the solder side, the bottom one). Each wire is one continuous insulated run, so
  *  its bends are just insulation; only its two free ends are stripped, the bare tinned copper
  *  bending down into the hole to its joint underneath, so it reads as soldered there. Where it
  *  crosses another wire, or a hole it doesn't join, it arches over (the later wire over the
@@ -245,7 +247,7 @@ export function buildWires(kit: SceneKit, paths: WirePath[]): Group {
   for (const path of paths) {
     const radius = wireRadius(path.width);
     const insulation = kit.standard(`wire:${path.color}`, {color: path.color, roughness: 0.45});
-    const points = wireLine(frame, path.points, radius);
+    const points = wireLine(frame, path.points, radius, path.bottom);
     if (path.closed) {
       group.add(kit.bentWire(points, radius, insulation));
       // A loop has no free ends; round off the one corner bentWire leaves out.
@@ -263,8 +265,10 @@ export function buildWires(kit: SceneKit, paths: WirePath[]): Group {
     ];
     for (const {hole: {x: px, y: py}, stripped} of ends) {
       // From where the insulation stops, over the hole and down through it.
-      const above = frame.point(px, py, stripped.y);
-      group.add(kit.bentWire([stripped, above, frame.point(px, py, BOARD_BOTTOM_Y - 1.1)], CONDUCTOR_RADIUS, conductor));
+      // (A wire on the solder side goes the other way: up into the hole from below.)
+      const beside = frame.point(px, py, stripped.y);
+      const through = path.bottom ? 0.4 : BOARD_BOTTOM_Y - 1.1;
+      group.add(kit.bentWire([stripped, beside, frame.point(px, py, through)], CONDUCTOR_RADIUS, conductor));
       kit.solder(px, py);
     }
   }

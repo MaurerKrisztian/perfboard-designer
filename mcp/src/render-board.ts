@@ -119,7 +119,7 @@ export function renderBoard(project: ProjectFile, area?: Area): string {
     out.push("", "Wires (index: ends, net):");
     for (const {wire, i} of shownWires) {
       const bends = wire.via?.length ? ` bending at ${wire.via.map(showHole).join(", ")}` : "";
-      out.push(`${i}: ${isSolderPath(wire) ? "solder path " : ""}${showHole(wire.from)}-${showHole(wire.to)}${bends}, ${netText(netOf.get(i))}`);
+      out.push(`${i}: ${isSolderPath(wire) ? "solder path " : wire.side === "bottom" ? "solder side " : ""}${showHole(wire.from)}-${showHole(wire.to)}${bends}, ${netText(netOf.get(i))}`);
     }
   }
   return out.join("\n");

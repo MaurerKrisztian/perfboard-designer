@@ -6,7 +6,7 @@ import {GRID_PITCH_PX, GridPos, gridToPx} from "../project-file/grid";
 import {readProjectFile} from "../project-file/read-project-file";
 import {StripDirection} from "../project-file/project-file";
 import {layoutProjectWires} from "../project-file/wire-crossings";
-import {isSolderPath, solderPathHoles, wireLegs, wirePoints} from "../project-file/wire-path";
+import {isBottomWire, isSolderPath, solderPathHoles, wireLegs, wirePoints} from "../project-file/wire-path";
 import {archHalfRunPx, wireStep} from "./wire-paths";
 import type {CustomPartSpec} from "../parts/custom-parts";
 
@@ -46,6 +46,8 @@ export interface ViewerWire {
   via: {x: number; y: number}[];
   color: string;
   width: number;
+  // On the solder side (SavedWire.side), under the board.
+  bottom: boolean;
   // In order from (x1, y1).
   hops: ViewerHop[];
 }
@@ -177,6 +179,7 @@ export function readProject(raw: unknown): ViewerProject {
       x1: from.x, y1: from.y, x2: to.x, y2: to.y,
       via: (wire.via ?? []).map(px),
       color: wire.color ?? DEFAULT_WIRE_COLOR, width: wire.width ?? DEFAULT_WIRE_WIDTH,
+      bottom: isBottomWire(wire),
       hops: found,
     }];
   });

@@ -19,6 +19,8 @@ const ICONS = {
   "tag": <><path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z"/><circle cx="7.5" cy="7.5" r="1.5"/></>,
   "focus": <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>,
   "straighten": <><path d="M3 9l5-5 5 5 5-5" strokeDasharray="2 2.6"/><path d="M3 18h18"/><path d="M12 12v4"/></>,
+  "to-bottom": <><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 20h16" strokeWidth="3.5" opacity=".5"/></>,
+  "to-top": <><path d="M12 21V9M7 14l5-5 5 5"/><path d="M4 4h16"/></>,
   "rotate": <><path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/></>,
   "color": <path d="M12 2.7 17.7 8.4a8 8 0 1 1-11.4 0z"/>,
   "value": <path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/>,

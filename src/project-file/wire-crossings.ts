@@ -1,7 +1,7 @@
 import {GridPos} from "./grid";
 import {ProjectFile} from "./project-file";
 import {partPins} from "./pin-positions";
-import {holesAlong, isSolderPath, legsMeet, WireLeg, wireLegs, WireRoute} from "./wire-path";
+import {holesAlong, isBottomWire, isSolderPath, legsMeet, WireLeg, wireLegs, WireRoute} from "./wire-path";
 
 // Where wires pass over things without joining them, and where things do join: what the 2D and
 // 3D views draw so a crossing never passes for a joint. A wire joins only the holes at its two
@@ -9,10 +9,12 @@ import {holesAlong, isSolderPath, legsMeet, WireLeg, wireLegs, WireRoute} from "
 // or another wire's end, goes over it, and so does a bend sitting on such a hole. Of two wires
 // crossing between their ends, the later one in the list is on top: the order the editor draws
 // them in. Solder paths are on the other side of the board, and join what they touch: they play
-// no part here (no hops on or under them, and their holes count for nothing).
+// no part here (no hops on or under them, and their holes count for nothing). Jumpers on the
+// solder side are on the other face from the top ones: they cross only each other, though a pin
+// or a wire end in a hole stands through the board, so it counts for both faces.
 
 // A wire's ends and corners, and whether it's a solder path: all the crossings need.
-export type WireEnds = WireRoute & {kind?: string};
+export type WireEnds = WireRoute & {kind?: string; side?: string};
 
 // One place a wire goes over something.
 export interface WireHop {
@@ -89,6 +91,7 @@ export function layoutWires(wires: WireEnds[], pinHoles: GridPos[]): WireLayout 
   for (let i = 0; i < wires.length; i++) {
     const endsOfI = new Set([key(wires[i].from), key(wires[i].to)]);
     for (let j = i + 1; j < wires.length; j++) {
+      if (isBottomWire(wires[i]) !== isBottomWire(wires[j])) continue;
       const isEnd = (at: readonly number[]) => endsOfI.has(key(at)) || key(at) === key(wires[j].from) || key(at) === key(wires[j].to);
       const seen = new Set<string>();
       for (const a of legs[i]) {
@@ -109,6 +112,7 @@ export function layoutWires(wires: WireEnds[], pinHoles: GridPos[]): WireLayout 
   const runs: WireRun[] = [];
   for (let i = 0; i < wires.length; i++) {
     for (let j = i + 1; j < wires.length; j++) {
+      if (isBottomWire(wires[i]) !== isBottomWire(wires[j])) continue;
       for (const a of legs[i]) {
         legs[j].forEach((b, l) => {
           const [bx, by] = b.leg.from;

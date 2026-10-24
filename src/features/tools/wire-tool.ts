@@ -11,7 +11,7 @@ import {lineThrough} from "../line-path";
 import {drawStartMarker, ToolBehavior} from "./tool";
 
 // What a wire is besides its route: a solder path, or a jumper with its colour and thickness.
-export type WireStyle = Pick<ILine, "kind" | "color" | "width">;
+export type WireStyle = Pick<ILine, "kind" | "color" | "width" | "side">;
 
 // A new wire from a route tool: a solder path, or a jumper in the active colour and thickness.
 export function newWireStyle(tool: RouteTool["kind"]): WireStyle {
@@ -21,7 +21,7 @@ export function newWireStyle(tool: RouteTool["kind"]): WireStyle {
 
 // The style a wire keeps when it's rerouted.
 export function styleOf(line: ILine): WireStyle {
-  return line.kind === "solder" ? {kind: "solder"} : {color: line.color, width: line.width};
+  return line.kind === "solder" ? {kind: "solder"} : {color: line.color, width: line.width, ...(line.side === "bottom" ? {side: "bottom" as const} : {})};
 }
 
 // Puts a wire from `start` to `end`, bending at `via`, recorded for undo as one step, and returns
@@ -62,7 +62,7 @@ export function routeWire(points: IDot[], style: WireStyle, replacing?: ILine, n
   }
   for (const [dot, isNew] of [[start, newEnds.start], [end, newEnds.end]] as const) {
     if (!isNew) continue;
-    const split = splitWiresAt(dot);
+    const split = splitWiresAt(dot, style.side);
     removed.push(...split.removed);
     added.push(...split.added);
   }

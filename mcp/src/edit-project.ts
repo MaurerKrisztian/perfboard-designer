@@ -410,6 +410,9 @@ function notFor(kind: string, op: Record<string, unknown>, fields: string[]) {
 
 type WireEnd = readonly number[] | string;
 
+// A new jumper's face: only "bottom" is written, as the file leaves the top unsaid.
+const sideOf = (op: {side?: "top" | "bottom"}): Pick<SavedWire, "side"> => op.side === "bottom" ? {side: "bottom"} : {};
+
 function addWire(project: ProjectFile, op: Op<"add_wire">): string {
   if (op.path && (op.from || op.to)) throw new OpError("Give either `path` or `from` and `to`, not both.");
   if (op.solder) return addSolderPath(project, op);
@@ -425,7 +428,7 @@ function addWire(project: ProjectFile, op: Op<"add_wire">): string {
   for (let i = 1; i < corners.length; i++) {
     project.wires.push({
       from: corners[i - 1].at, to: corners[i].at,
-      ...(op.color ? {color: op.color} : {}), ...(op.width ? {width: op.width} : {}),
+      ...(op.color ? {color: op.color} : {}), ...(op.width ? {width: op.width} : {}), ...sideOf(op),
     });
   }
   const made = corners.length - 1;
@@ -440,7 +443,7 @@ function addBentWire(project: ProjectFile, op: Op<"add_wire">, fromEnd: WireEnd,
   const to = wireEndAt(project, toEnd, "`to`");
   const wire: SavedWire = {
     from: from.at, to: to.at, ...withBends(project, from.at, to.at, via),
-    ...(op.color ? {color: op.color} : {}), ...(op.width ? {width: op.width} : {}),
+    ...(op.color ? {color: op.color} : {}), ...(op.width ? {width: op.width} : {}), ...sideOf(op),
   };
   project.wires.push(wire);
   return `Added wires[${project.wires.length - 1}] from ${from.said} to ${to.said}${bendsSaid(wire)}.`;
@@ -450,6 +453,7 @@ function addBentWire(project: ProjectFile, op: Op<"add_wire">, fromEnd: WireEnd,
 // rest of its holes, so a path's corners are just bends here.
 function addSolderPath(project: ProjectFile, op: Op<"add_wire">): string {
   if (op.color !== undefined || op.width !== undefined) throw new OpError("A solder path is bare solder: it takes no `color` or `width`.");
+  if (op.side !== undefined) throw new OpError("A solder path is always on the copper side: `side` is for jumper wires.");
   if (op.path && op.via) throw new OpError("Give a solder path's bends as `path` or as `via` with `from` and `to`, not both.");
   const given = op.path ?? (op.from && op.to ? [op.from, ...(op.via ?? []), op.to] : undefined);
   if (!given) throw new OpError("A solder path needs `from` and `to`, or a `path` of two or more holes.");
@@ -481,11 +485,14 @@ function updateWire(project: ProjectFile, op: Op<"update_wire">): string {
   if (isSolderPath(project.wires[i]) && (op.color !== undefined || op.width !== undefined)) {
     throw new OpError(`wires[${i}] is a solder path: it has no \`color\` or \`width\`.`);
   }
+  if (isSolderPath(project.wires[i]) && op.side !== undefined) throw new OpError(`wires[${i}] is a solder path: it's always on the copper side.`);
   const updated: SavedWire = {
     ...project.wires[i], ...(from ? {from: from.at} : {}), ...(to ? {to: to.at} : {}),
     ...(op.color !== undefined ? {color: op.color} : {}), ...(op.width !== undefined ? {width: op.width} : {}),
   };
   if (!updated.color) delete updated.color;
+  if (op.side === "top") delete updated.side;
+  if (op.side === "bottom") updated.side = "bottom";
   if (sameHole(updated.from, updated.to)) throw new OpError(`The wire would start and end in hole ${showHole(updated.from)}.`);
   if (op.via !== undefined) {
     delete updated.via;

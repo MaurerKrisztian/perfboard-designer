@@ -6,7 +6,7 @@ import {IDot} from "../../interfaces/dot.interface";
 import {redrawCanvas} from "../../features/draw-canvas";
 import {rotateSelectedIc} from "../../features/ic";
 import {setActiveTool} from "../../features/active-tool";
-import {changeSelectedColor} from "../../features/wire";
+import {changeSelectedColor, moveSelectedWireToSide} from "../../features/wire";
 import {addDescriptionToDot} from "../../features/dot-notes";
 import {deleteSelection} from "../../features/delete-selection";
 import {setSelectedComponentValue} from "../../features/standard-components/standard-component-actions";
@@ -17,7 +17,7 @@ import type {IconName} from "../components/Icon";
 // What can be done to the selected part, wire or pad. The selection bar over the board and the
 // context menu offer the same actions, each only where it applies.
 
-export type SelectionAction = "wire" | "solder" | "rotate" | "color" | "straighten" | "value" | "note" | "delete";
+export type SelectionAction = "wire" | "solder" | "rotate" | "color" | "straighten" | "to-bottom" | "to-top" | "value" | "note" | "delete";
 
 // How each action shows: its icon, and its labels in the selection bar and the context menu.
 export const ACTIONS: Record<SelectionAction, {icon: IconName; label: string; title: string; menuLabel: string; key?: string}> = {
@@ -26,6 +26,8 @@ export const ACTIONS: Record<SelectionAction, {icon: IconName; label: string; ti
   rotate: {icon: "rotate", label: "Rotate", title: "Rotate (R)", menuLabel: "Rotate", key: "R"},
   color: {icon: "color", label: "Color", title: "Change color", menuLabel: "Change Color"},
   straighten: {icon: "straighten", label: "Straighten", title: "Take out the wire's bends", menuLabel: "Straighten"},
+  "to-bottom": {icon: "to-bottom", label: "To solder side", title: "Move this wire to the solder side", menuLabel: "Move to Solder Side"},
+  "to-top": {icon: "to-top", label: "To top", title: "Move this wire to the top", menuLabel: "Move to Top"},
   value: {icon: "value", label: "Value", title: "Set value", menuLabel: "Set Value"},
   note: {icon: "note", label: "Note", title: "Add or edit a note", menuLabel: "Add/Edit Note"},
   delete: {icon: "trash", label: "Delete", title: "Delete (Del)", menuLabel: "Delete", key: "Del"},
@@ -37,8 +39,10 @@ export function availableActions(): SelectionAction[] {
   if (!selection) return [];
   if (selection.kind === "line") {
     // A solder path has no colour.
-    const color: SelectionAction[] = selection.line.kind === "solder" ? [] : ["color"];
-    return selection.line.via?.length ? [...color, "straighten", "delete"] : [...color, "delete"];
+    const jumper = selection.line.kind !== "solder";
+    const color: SelectionAction[] = jumper ? ["color"] : [];
+    const side: SelectionAction[] = jumper ? [selection.line.side === "bottom" ? "to-top" : "to-bottom"] : [];
+    return selection.line.via?.length ? [...color, "straighten", ...side, "delete"] : [...color, ...side, "delete"];
   }
   if (selection.kind === "dot") return selection.dot.description ? ["wire", "solder", "note", "delete"] : ["wire", "solder", "note"];
   const {part} = selection;
@@ -89,6 +93,9 @@ export function runSelectionAction(action: SelectionAction, button: HTMLElement,
     case "straighten":
       if (SelectionState.line) straightenWire(SelectionState.line);
       return redrawCanvas();
+    case "to-bottom":
+    case "to-top":
+      return moveSelectedWireToSide(action === "to-bottom" ? "bottom" : "top");
     case "note":
       if (SelectionState.dot) void addDescriptionToDot();
       return;

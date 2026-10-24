@@ -74,6 +74,8 @@ export interface WirePath {
   color: string;
   width: number;
   closed: boolean;
+  // On the solder side: lies on the bottom face, arching downward.
+  bottom: boolean;
 }
 
 /** The key the solder registry uses for a hole (see SceneKit.solder). */
@@ -90,6 +92,7 @@ interface Segment {
   kb: string;
   color: string;
   width: number;
+  bottom: boolean;
 }
 
 /** Joins the file's wires into the runs they make. A wire bends at its own corners (`via`), and
@@ -118,7 +121,7 @@ export function chainWires(wires: ViewerWire[], componentHoles: ReadonlySet<stri
       }
       if (leg < wire.via.length) hops.push({...wire.via[leg]});
     }
-    segments.push({a, b, hops, ka: holeKey(a.x, a.y), kb: holeKey(b.x, b.y), color: wire.color, width: wire.width});
+    segments.push({a, b, hops, ka: holeKey(a.x, a.y), kb: holeKey(b.x, b.y), color: wire.color, width: wire.width, bottom: wire.bottom});
   }
 
   const touching = new Map<string, number[]>();
@@ -136,7 +139,7 @@ export function chainWires(wires: ViewerWire[], componentHoles: ReadonlySet<stri
     if (!list || list.length !== 2 || componentHoles.has(key)) return undefined;
     const other = list[0] === from ? list[1] : list[0];
     const here = segments[from], there = segments[other];
-    return here.color.toLowerCase() === there.color.toLowerCase() && here.width === there.width ? other : undefined;
+    return here.bottom === there.bottom && here.color.toLowerCase() === there.color.toLowerCase() && here.width === there.width ? other : undefined;
   };
 
   // Walks away from hole `key`, an end of segment `from`, collecting each point passed. Reaching
@@ -164,13 +167,13 @@ export function chainWires(wires: ViewerWire[], componentHoles: ReadonlySet<stri
     visited.add(i);
     const forward = follow(i, segment.kb, visited);
     if (forward.closed) {
-      paths.push({points: [segment.a, ...segment.hops, segment.b, ...forward.points], color: segment.color, width: segment.width, closed: true});
+      paths.push({points: [segment.a, ...segment.hops, segment.b, ...forward.points], color: segment.color, width: segment.width, closed: true, bottom: segment.bottom});
       return;
     }
     const backward = follow(i, segment.ka, visited);
     paths.push({
       points: [...backward.points.reverse(), segment.a, ...segment.hops, segment.b, ...forward.points],
-      color: segment.color, width: segment.width, closed: false,
+      color: segment.color, width: segment.width, closed: false, bottom: segment.bottom,
     });
   });
   return paths;
