@@ -1,5 +1,6 @@
 import {KeyboardEvent, useEffect, useMemo, useRef, useState} from "react";
-import {CatalogCategory, getCategoryPath} from "../../parts/catalog-categories";
+import {CATALOG_CATEGORIES, CatalogCategory, getCategoryPath} from "../../parts/catalog-categories";
+import {Icon} from "../components/Icon";
 import {ToolState} from "../../state/ToolState";
 import {useEditor} from "../hooks/use-editor";
 import {useShortcut} from "../hooks/use-shortcut";
@@ -7,7 +8,7 @@ import {SidebarSection} from "../sidebar/SidebarSection";
 import {catalogItems} from "./catalog-items";
 import {CatalogSearchResult, searchCatalog} from "./catalog-search";
 import {loadCollapsedCategories, saveCollapsedCategories} from "./collapsed-categories";
-import {CatalogTree} from "./CatalogTree";
+import {CatalogTree, RECENT_NODE_ID} from "./CatalogTree";
 import {CatalogResults} from "./CatalogResults";
 
 // The left panel's Parts section: a search box over a category tree. While the box has a query,
@@ -41,7 +42,12 @@ export function ComponentsSection() {
   };
   const toggleCategory = (id: string) => updateCollapsed(set => set.has(id) ? set.delete(id) : set.add(id));
 
-  const changeQuery = (text: string) => {
+  const collapseAll = () => updateCollapsed(set => {
+    CATALOG_CATEGORIES.forEach(category => set.add(category.id));
+    set.add(RECENT_NODE_ID);
+  });
+
+  const changeQuery =(text: string) => {
     setQuery(text);
     setActiveIndex(0);
   };
@@ -106,10 +112,16 @@ export function ComponentsSection() {
   return (
     <SidebarSection id="components" bodyId="componentsSection" icon="chip" title="Parts" bodyClassName="catalog-section-body"
       collapsed={sectionCollapsed} onToggle={() => setSectionCollapsed(c => !c)}>
-      <div className="catalog-search-box">
-        <input type="search" id="catalogSearch" className="catalog-search" placeholder="Search parts" aria-label="Search parts" autoComplete="off"
-          spellCheck={false} ref={search} value={query} onChange={e => changeQuery(e.target.value)} onKeyDown={onSearchKey}/>
-        {!query && <kbd className="catalog-search-key" title="Press / to search">/</kbd>}
+      <div className="catalog-search-row">
+        <div className="catalog-search-box">
+          <input type="search" id="catalogSearch" className="catalog-search" placeholder="Search parts" aria-label="Search parts" autoComplete="off"
+            spellCheck={false} ref={search} value={query} onChange={e => changeQuery(e.target.value)} onKeyDown={onSearchKey}/>
+          {!query && <kbd className="catalog-search-key" title="Press / to search">/</kbd>}
+        </div>
+        <button type="button" className="bar-btn" title="Collapse all categories" aria-label="Collapse all categories"
+          hidden={searching} onClick={collapseAll}>
+          <Icon name="collapse-all"/>
+        </button>
       </div>
       {searching && <CatalogResults query={query} results={results} activeIndex={activeIndex} onHover={setActiveIndex} onPick={pick}/>}
       <div id="catalog-tree" className="catalog-tree" ref={tree} hidden={searching}>

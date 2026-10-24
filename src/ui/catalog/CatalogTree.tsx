@@ -9,7 +9,7 @@ import {CatalogItemRow, depthStyle} from "./CatalogItemRow";
 // category with its subcategories first and its own parts after. Empty categories are left out.
 
 // Shares the collapsed-categories store; not a real category, so it can't clash with one.
-const RECENT_NODE_ID = "recent";
+export const RECENT_NODE_ID = "recent";
 
 interface CatalogTreeProps {
   items: CatalogItem[];
