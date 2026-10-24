@@ -5,7 +5,7 @@ import {
 import {BOARD_BOTTOM_Y, BOARD_THICKNESS, BoardFrame, PITCH, PX_PER_PITCH, SceneKit} from "./scene-kit";
 import {CUT_GAP_PITCH, STRIP_WIDTH_PITCH} from "../project-file/stripboard-geometry";
 import {ViewerBoard, ViewerDot, ViewerProject, ViewerSolderPath} from "./project-data";
-import {archSamples, WirePath, WirePoint, wireRadius} from "./wire-paths";
+import {archHalfRunPx, archSamples, WirePath, WirePoint, wireRadius, wireStep} from "./wire-paths";
 
 const PERFBOARD_COLOR = "#0e5a27";
 // Stripboards are usually SRBP (paper-based), a warm brown.
@@ -179,7 +179,6 @@ export function buildSolderJoints(kit: SceneKit): Group | null {
 
 // How a wire arches over what it doesn't join (its hops): clear of the wire underneath, or of a
 // wire end's bend or a lead standing in a hole, rising and falling over this far either side.
-const ARCH_GAP = 0.15;
 const HOLE_ARCH_LIFT = 1.5;
 const ARCH_RUN = 1.4;
 const PX_PER_MM = PX_PER_PITCH / PITCH;
@@ -196,11 +195,11 @@ function wireLine(frame: BoardFrame, points: WirePoint[], radius: number): Vecto
     const end = points[next];
     const length = Math.hypot(end.x - start.x, end.y - start.y);
     const hops = points.slice(i + 1, next).map(({x, y, hop}) => {
-      const underRadius = hop?.underWidth !== undefined ? wireRadius(hop.underWidth) : 0;
       return {
         at: Math.hypot(x - start.x, y - start.y),
-        lift: underRadius ? 2 * underRadius + ARCH_GAP : HOLE_ARCH_LIFT,
-        halfRun: (ARCH_RUN + underRadius) * PX_PER_MM,
+        ...(hop?.runTo ? {until: Math.hypot(hop.runTo.x - start.x, hop.runTo.y - start.y)} : {}),
+        lift: hop?.underWidth !== undefined ? wireStep(hop.underWidth) + (hop.stack ?? 0) : HOLE_ARCH_LIFT,
+        halfRun: hop?.underWidth !== undefined ? archHalfRunPx(hop.underWidth) : ARCH_RUN * PX_PER_MM,
       };
     });
     for (const {at, lift} of archSamples(length, hops)) {

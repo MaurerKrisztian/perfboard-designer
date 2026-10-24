@@ -5,7 +5,7 @@ import {buildBoard, buildSolderJoints, buildSolderPaths, buildWires} from "./bui
 import {buildStandardPart} from "./build-standard-parts";
 import {buildAdvancedPart} from "./build-advanced-parts";
 import {buildIc} from "./build-ics";
-import {chainWires} from "./wire-paths";
+import {chainWires, holeKey} from "./wire-paths";
 
 export interface BuiltBoard {
   root: Group;
@@ -30,7 +30,12 @@ export function buildBoardScene(project: ViewerProject): BuiltBoard {
     ...project.standardParts.map(part => buildStandardPart(kit, part)),
     ...project.advancedParts.map(part => buildAdvancedPart(kit, part)),
   ];
+  // A solder path's holes count as component holes: wires ending at one are joined there, not
+  // one straight wire passing through.
   const componentHoles = new Set(kit.solderedHoles.keys());
+  for (const path of project.solderPaths) {
+    for (const hole of path.holes) componentHoles.add(holeKey(hole.x, hole.y));
+  }
   const wires = chainWires(project.wires, componentHoles);
   root.add(buildWires(kit, wires));
   root.add(buildSolderPaths(kit, project.solderPaths));

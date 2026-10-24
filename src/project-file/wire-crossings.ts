@@ -27,9 +27,23 @@ export interface WireHop {
   under?: number;
 }
 
+// A stretch where a wire lies along another wire's run, over it (the later wire on top).
+export interface WireRun {
+  // The wire on top, by index, and which of its legs.
+  wire: number;
+  leg: number;
+  // The stretch's ends in grid units, `from` nearer the leg's start.
+  from: [number, number];
+  to: [number, number];
+  // The wire underneath, by index.
+  under: number;
+}
+
 export interface WireLayout {
   // By wire, then along it from its `from` end.
   hops: WireHop[];
+  // Where wires lie along each other: no hops there, as parallel legs never meet.
+  runs: WireRun[];
   // Holes where three or more things are joined: wire ends, and a pin if there is one.
   junctions: GridPos[];
 }
@@ -91,10 +105,32 @@ export function layoutWires(wires: WireEnds[], pinHoles: GridPos[]): WireLayout 
   }
   hops.sort((a, b) => a.wire - b.wire || a.along - b.along);
 
+  // Legs lying along each other: the later wire's stretch over the earlier one's.
+  const runs: WireRun[] = [];
+  for (let i = 0; i < wires.length; i++) {
+    for (let j = i + 1; j < wires.length; j++) {
+      for (const a of legs[i]) {
+        legs[j].forEach((b, l) => {
+          const [bx, by] = b.leg.from;
+          const sx = b.leg.to[0] - bx, sy = b.leg.to[1] - by;
+          const length2 = sx * sx + sy * sy;
+          const rx = a.leg.to[0] - a.leg.from[0], ry = a.leg.to[1] - a.leg.from[1];
+          if (!length2 || rx * sy - ry * sx !== 0 || (a.leg.from[0] - bx) * sy - (a.leg.from[1] - by) * sx !== 0) return;
+          const along = (p: readonly number[]) => ((p[0] - bx) * sx + (p[1] - by) * sy) / length2;
+          const [p, q] = [along(a.leg.from), along(a.leg.to)];
+          const lo = Math.max(0, Math.min(p, q)), hi = Math.min(1, Math.max(p, q));
+          if (hi - lo <= 0) return;
+          runs.push({wire: j, leg: l, from: [bx + lo * sx, by + lo * sy], to: [bx + hi * sx, by + hi * sy], under: i});
+        });
+      }
+    }
+  }
+
   const junctions = [...ends.entries()]
     .filter(([hole, count]) => count + (pins.has(hole) ? 1 : 0) >= 3)
     .map(([hole]) => hole.split(",").map(Number) as GridPos);
   return {
+    runs,
     hops: hops.map(hop => ({wire: hop.wire, leg: hop.leg, at: hop.at, over: hop.over, ...(hop.under !== undefined ? {under: hop.under} : {})})),
     junctions,
   };

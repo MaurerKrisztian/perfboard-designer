@@ -43,14 +43,16 @@ export function splitWiresAt(dot: IDot): {removed: ILine[]; added: ILine[]} {
   return {removed, added};
 }
 
-// `line` cut into pieces at every hole it passes over where another wire ends, so it joins those
-// wires as well (the other way round from splitWiresAt). In order from its start; just `line` when
-// it passes over no wire end, or is a solder path (which joins them already). Nothing in
-// LineState.lines changes.
+// `line` cut into pieces at every hole it passes over where another jumper ends, so it joins those
+// wires as well (the other way round from splitWiresAt). A solder path's ends don't count: a
+// jumper running over them just passes over. In order from its start; just `line` when it passes
+// over no jumper end, or is a solder path (which joins them already). Nothing in LineState.lines
+// changes.
 export function cutAtWireEnds(line: ILine): ILine[] {
   if (isSolder(line)) return [line];
   const cuts = new Map<string, {dot: IDot; along: number}>();
   for (const other of LineState.lines) {
+    if (isSolder(other)) continue;
     for (const end of [other.start, other.end]) {
       const along = distanceAlong(line, end);
       if (along !== undefined) cuts.set(`${end.x},${end.y}`, {dot: end, along});
