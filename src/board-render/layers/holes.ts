@@ -1,6 +1,6 @@
 import {GridPos, gridToPx} from "../../project-file/grid";
 import {ProjectFile} from "../../project-file/project-file";
-import {BoardView, isHovered, isSameItem} from "../board-view";
+import {BoardView, isHovered, isSelected, soleSelected} from "../board-view";
 import {BoardLook} from "../board-looks/board-look";
 import {Painter, Point, Stamp} from "../painter/painter";
 import {HOLE_RADIUS, PAD_RADIUS, SELECTION_COLOR, SOLDER_COLOR, SOLDER_EDGE} from "../palette";
@@ -56,19 +56,20 @@ export function drawHoles(painter: Painter, project: ProjectFile, look: BoardLoo
 // One ring per hole at most: selected wins over a placement's start, which wins over hover.
 function drawHoleRings(painter: Painter, view: BoardView, cols: number, rows: number) {
   const onBoard = ([col, row]: GridPos) => col >= 0 && row >= 0 && col < cols && row < rows;
-  const selected = view.selected?.kind === "hole" && onBoard(view.selected.at) ? view.selected.at : undefined;
+  const sole = soleSelected(view);
+  const selected = sole?.kind === "hole" && onBoard(sole.at) ? sole.at : undefined;
   if (selected) {
     const x = gridToPx(selected[0]), y = gridToPx(selected[1]);
     painter.circle(x, y, PAD_RADIUS + 4, {stroke: {paint: SELECTION_COLOR, width: 3}});
     painter.circle(x, y, PAD_RADIUS + 1, {stroke: {paint: "#ffffff", width: 1.5}});
   }
-  const start = view.startHole && onBoard(view.startHole) && !isSameItem(view.selected, {kind: "hole", at: view.startHole})
+  const start = view.startHole && onBoard(view.startHole) && !isSelected(view, {kind: "hole", at: view.startHole})
     ? view.startHole : undefined;
   if (start) {
     painter.circle(gridToPx(start[0]), gridToPx(start[1]), PAD_RADIUS + 4, {stroke: {paint: START_RING_COLOR, width: 3}});
   }
   for (const item of view.hovered ?? []) {
-    if (item.kind !== "hole" || !onBoard(item.at) || isSameItem(view.selected, item)) continue;
+    if (item.kind !== "hole" || !onBoard(item.at) || isSelected(view, item)) continue;
     if (start && start[0] === item.at[0] && start[1] === item.at[1]) continue;
     painter.circle(gridToPx(item.at[0]), gridToPx(item.at[1]), PAD_RADIUS + 3, {stroke: {paint: HOVER_RING_COLOR, width: 2}});
   }

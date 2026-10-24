@@ -12,12 +12,15 @@ import {deleteSelection} from "../../features/delete-selection";
 import {setSelectedComponentValue} from "../../features/standard-components/standard-component-actions";
 import {straightenWire} from "../../features/wire-reshape";
 import {hideBoardMenus, showBoardMenu} from "../../features/board-menus";
+import {duplicateSelection} from "../../features/clipboard";
+import {toggleSelectMore} from "../../features/select";
 import type {IconName} from "../components/Icon";
 
-// What can be done to the selected part, wire or pad. The selection bar over the board and the
-// context menu offer the same actions, each only where it applies.
+// What can be done to the selected part, wire or pad, or to several parts and wires. The selection
+// bar over the board and the context menu offer the same actions, each only where it applies.
 
-export type SelectionAction = "wire" | "solder" | "rotate" | "color" | "straighten" | "to-bottom" | "to-top" | "value" | "note" | "delete";
+export type SelectionAction = "wire" | "solder" | "rotate" | "color" | "straighten" | "to-bottom" | "to-top" | "value" | "note"
+  | "duplicate" | "select-more" | "delete";
 
 // How each action shows: its icon, and its labels in the selection bar and the context menu.
 export const ACTIONS: Record<SelectionAction, {icon: IconName; label: string; title: string; menuLabel: string; key?: string}> = {
@@ -30,19 +33,23 @@ export const ACTIONS: Record<SelectionAction, {icon: IconName; label: string; ti
   "to-top": {icon: "to-top", label: "To top", title: "Move this wire to the top", menuLabel: "Move to Top"},
   value: {icon: "value", label: "Value", title: "Set value", menuLabel: "Set Value"},
   note: {icon: "note", label: "Note", title: "Add or edit a note", menuLabel: "Add/Edit Note"},
+  duplicate: {icon: "duplicate", label: "Duplicate", title: "Duplicate (Ctrl+D)", menuLabel: "Duplicate", key: "Ctrl+D"},
+  "select-more": {icon: "select-more", label: "Select more", title: "Click or tap more parts and wires to add them (or Shift-click)", menuLabel: "Select More"},
   delete: {icon: "trash", label: "Delete", title: "Delete (Del)", menuLabel: "Delete", key: "Del"},
 };
 
 // The actions that apply to the selection, in the selection bar's order.
 export function availableActions(): SelectionAction[] {
   const selection = SelectionState.current;
-  if (!selection) return [];
+  if (!selection) return SelectionState.adding ? ["select-more"] : [];
+  if (selection.kind === "many") return ["duplicate", "select-more", "delete"];
   if (selection.kind === "line") {
     // A solder path has no colour.
     const jumper = selection.line.kind !== "solder";
     const color: SelectionAction[] = jumper ? ["color"] : [];
     const side: SelectionAction[] = jumper ? [selection.line.side === "bottom" ? "to-top" : "to-bottom"] : [];
-    return selection.line.via?.length ? [...color, "straighten", ...side, "delete"] : [...color, ...side, "delete"];
+    const straighten: SelectionAction[] = selection.line.via?.length ? ["straighten"] : [];
+    return [...color, ...straighten, ...side, "select-more", "delete"];
   }
   if (selection.kind === "dot") return selection.dot.description ? ["wire", "solder", "note", "delete"] : ["wire", "solder", "note"];
   const {part} = selection;
@@ -50,14 +57,20 @@ export function availableActions(): SelectionAction[] {
   if (isRotatable(part)) actions.push("rotate");
   if (part.kind === "standard-component" && isLed(part.definitionId)) actions.push("color");
   if (part.kind !== "ic") actions.push("value");
-  actions.push("delete");
+  actions.push("duplicate", "select-more", "delete");
   return actions;
 }
 
-// What's selected, in a few words: "R1 Resistor", "Wire", "Pad C4".
+const counted = (count: number, one: string) => `${count} ${one}${count === 1 ? "" : "s"}`;
+
+// What's selected, in a few words: "R1 Resistor", "Wire", "Pad C4", "3 parts, 2 wires".
 export function selectionLabel(): string {
   const selection = SelectionState.current;
-  if (!selection) return "";
+  if (!selection) return SelectionState.adding ? "Nothing selected" : "";
+  if (selection.kind === "many") {
+    const {parts, lines} = selection;
+    return [parts.length ? counted(parts.length, "part") : "", lines.length ? counted(lines.length, "wire") : ""].filter(Boolean).join(", ");
+  }
   if (selection.kind === "line") return selection.line.kind === "solder" ? "Solder path" : "Wire";
   if (selection.kind === "dot") return `Pad ${holeName(toGridPos(selection.dot))}`;
   const {part} = selection;
@@ -101,6 +114,10 @@ export function runSelectionAction(action: SelectionAction, button: HTMLElement,
       return;
     case "value":
       return void setSelectedComponentValue();
+    case "duplicate":
+      return duplicateSelection();
+    case "select-more":
+      return toggleSelectMore();
     case "delete":
       return deleteSelection();
   }
@@ -109,5 +126,6 @@ export function runSelectionAction(action: SelectionAction, button: HTMLElement,
 export function deselect() {
   hideBoardMenus();
   SelectionState.clear();
+  SelectionState.adding = false;
   redrawCanvas();
 }

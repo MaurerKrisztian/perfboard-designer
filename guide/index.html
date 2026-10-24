@@ -355,7 +355,9 @@
             tool and the wire tool, from an empty hole or a part's pin. The wire routes itself as an
             <strong>L</strong> with one bend, going first the way you moved first (across, then down;
             or down, then across), and straight when the two holes line up. Press <kbd>/</kbd> while
-            dragging to flip the L, or hold <kbd>Shift</kbd> for a straight wire. It shows dashed as
+            dragging to flip the L, or hold <kbd>Shift</kbd> for a straight wire (with the Select tool,
+            press <kbd>Shift</kbd> once you've started dragging: held as you press, it draws a
+            <a href="#editing">selection box</a> instead). It shows dashed as
             you drag and is placed when you let go on a different hole; let go on the hole you started
             from, or press <kbd>Esc</kbd>, to drop it. You can also right-click a hole and choose
             <strong>Start Wire Here</strong>. On a phone, dragging pans the board instead: see
@@ -441,6 +443,9 @@
             <li><strong>Select</strong> (the default tool): click a part, wire or hole to select it. Drag a part to move it to new holes.</li>
             <li>A selected item gets a bar along the bottom of the board with what you can do to it: <strong>Rotate</strong> a chip or other part that turns, change the <strong>Color</strong> of a wire or LED, <strong>Straighten</strong> a bent wire, set a part's <strong>Value</strong>, add a <strong>Note</strong> to a hole, and <strong>Delete</strong>. <strong>Right-click</strong> anything for the same actions as a menu.</li>
             <li><kbd>Delete</kbd> removes the selected part or wire.</li>
+            <li><strong>Select several at once</strong>: hold <kbd>Shift</kbd> and click parts and wires to add them to the selection (Shift-click one again to take it out), or hold <kbd>Shift</kbd> and drag a box: everything that lies wholly inside it is selected. <kbd>Ctrl</kbd>+<kbd>A</kbd> selects every part and wire. Or click <strong>Select more</strong> in the bar along the bottom of the board, and plain clicks and drags do the same until you click it again.</li>
+            <li>Drag any of the selected parts, or one of the selected wires, and they all move together; wires you didn't select stay where they are. A click on one of them, without dragging, selects just that one. <kbd>Delete</kbd> removes them all, and <strong>Undo</strong> brings them all back in one go.</li>
+            <li><strong>Copy and paste</strong>: <kbd>Ctrl</kbd>+<kbd>C</kbd> copies the selected parts and wires, <kbd>Ctrl</kbd>+<kbd>X</kbd> cuts them, and <kbd>Ctrl</kbd>+<kbd>V</kbd> pastes them with their top-left corner at the hole under the pointer, into this project or another one. <strong>Duplicate</strong> in the bar (or <kbd>Ctrl</kbd>+<kbd>D</kbd>) puts a copy beside the original, where there's room. Copies are new parts, numbered on from the board's own (a copy of R3 might be R7), with the same values.</li>
             <li><strong>Eraser</strong>: click a part or wire to remove it, or a hole to clear its note.</li>
             <li><strong>Note</strong>: click a hole to write a note on it, such as "to 9V battery" or "solder last". Notes show in the bar below the board when you point at the hole. With a hole selected, <kbd>D</kbd> adds a note and <kbd>Shift</kbd>+<kbd>D</kbd> removes it.</li>
             <li><strong>Undo</strong> and <strong>Redo</strong> with <kbd>Ctrl</kbd>+<kbd>Z</kbd> and <kbd>Ctrl</kbd>+<kbd>Y</kbd>, or the arrow buttons above the board. They're greyed out when there's nothing to undo or redo.</li>
@@ -463,7 +468,8 @@
           <ul>
             <li><strong>+</strong> slides up the Components library. Pick a part and it slides away again, ready for you to tap the board.</li>
             <li>While you place a part or a wire, a hint over the board says what to tap next, such as "Tap start pad", with a button to cancel and, for chips, one to rotate the part first.</li>
-            <li>Tap a part, wire or hole to select it. A bar along the bottom shows what you can do to it: wire, solder, rotate, color, value, note and delete. Pressing and holding it opens the same actions as a menu.</li>
+            <li>Tap a part, wire or hole to select it. A bar along the bottom shows what you can do to it: wire, solder, rotate, color, value, note, duplicate and delete. Pressing and holding it opens the same actions as a menu.</li>
+            <li>To select several parts and wires, tap <strong>Select more</strong> in that bar, then tap each one you want (tap one again to take it out). Tap <strong>Select more</strong> again when you're done. Drag any of them with one finger and they all move.</li>
             <li>Drag with one finger to pan. In Select mode, drag a part's body to move it, or a selected wire's handles to <a href="#wires">bend it</a>, straight away or after holding your finger still (double-tap a bend to take it out).</li>
             <li>To draw a wire, press and hold a hole or a pin and choose <strong>Start Wire Here</strong>, then tap the holes it bends at and the one it goes to. Or keep your finger down after the menu appears and drag to that hole: the wire bends once, as an L, and a tap with a second finger flips it. Tapping a hole also gives a <strong>Wire</strong> button in the bar along the bottom.</li>
             <li>To draw a <a href="#solder-paths">solder path</a>, tap <strong>Solder</strong> in the bottom toolbar, then tap the holes it runs through; tap the last one again to end it. Pressing and holding a hole also offers <strong>Start Solder Path Here</strong>, and a selected hole has a <strong>Solder</strong> button.</li>
@@ -648,8 +654,14 @@
                 <tr><td><kbd>Esc</kbd></td><td>Take back a wire's last bend, end a wire run, put down the part you're placing, or clear the selection</td></tr>
                 <tr><td><kbd>Enter</kbd></td><td>End the wire you're drawing at its last bend</td></tr>
                 <tr><td><kbd>/</kbd> while dragging a wire</td><td>Flip its L</td></tr>
-                <tr><td><kbd>Shift</kbd> while dragging a wire</td><td>Draw it straight</td></tr>
-                <tr><td><kbd>Delete</kbd></td><td>Delete the selected part or wire</td></tr>
+                <tr><td><kbd>Shift</kbd> while dragging a wire</td><td>Draw it straight (with the Select tool, press it once the wire is on its way: held as you press, it draws a selection box)</td></tr>
+                <tr><td><kbd>Delete</kbd></td><td>Delete the selected parts and wires</td></tr>
+                <tr><td><kbd>Shift</kbd> + click</td><td>Add a part or wire to the selection, or take it out</td></tr>
+                <tr><td><kbd>Shift</kbd> + drag</td><td>Select everything inside a box</td></tr>
+                <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>Select every part and wire</td></tr>
+                <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>X</kbd></td><td>Copy or cut the selected parts and wires</td></tr>
+                <tr><td><kbd>Ctrl</kbd>+<kbd>V</kbd></td><td>Paste at the hole under the pointer</td></tr>
+                <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>Duplicate the selected parts and wires</td></tr>
                 <tr><td><kbd>C</kbd></td><td>Change the color of the selected wire</td></tr>
                 <tr><td><kbd>D</kbd></td><td>Add a note to the selected hole</td></tr>
                 <tr><td><kbd>Shift</kbd>+<kbd>D</kbd></td><td>Remove the selected hole's note</td></tr>

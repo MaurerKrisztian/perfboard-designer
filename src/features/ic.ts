@@ -272,6 +272,9 @@ export function selectIc(id: number | string){
 }
 
 export function rotateSelectedIc() {
+  // Several things selected: there's no one part to turn (and turning the one under the pointer
+  // would drop the others from the selection).
+  if (SelectionState.isMany) return;
   const selected = SelectionState.part;
   if (selected && isRotatable(selected)) {
     selected.rotate();

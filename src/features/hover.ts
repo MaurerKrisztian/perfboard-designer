@@ -4,8 +4,7 @@ import {GridConfig} from "../state/GridConfig";
 import {redrawCanvas} from "./draw-canvas";
 import {Canvas} from "../state/Canvas";
 import {ToolState} from "../state/ToolState";
-import {DragState} from "../state/DragState";
-import {updateDrag} from "./component-drag";
+import {isDragging, updateDrag} from "./component-drag";
 import {ViewState} from "../state/ViewState";
 import {findPartAt} from "./placed-parts";
 import {PartState} from "../state/PartState";
@@ -92,7 +91,7 @@ export function hoverAt(e: MouseEvent) {
 
 
   // A part, or a selected wire's handle, being dragged follows the pointer.
-  const dragMoved = DragState.target ? updateDrag(x, y) : reshapeTo(DotState.hoverDot);
+  const dragMoved = isDragging() ? updateDrag(x, y) : reshapeTo(DotState.hoverDot);
   updateDragCursor(x, y);
 
   const hoverText = DotState.hoverDot?.description || findHoveredComponentValue(x, y) || "";
@@ -109,7 +108,7 @@ export function hoverAt(e: MouseEvent) {
 // A finger hovers only where it lands (board-touch.ts): following it as it pans would redraw the
 // whole board on every move. A part it drags still follows it.
 function onPointerMove(e: PointerEvent) {
-  if (e.pointerType === 'touch' && !DragState.target) return;
+  if (e.pointerType === 'touch' && !isDragging()) return;
   hoverAt(e);
 }
 

@@ -2587,6 +2587,13 @@ svg.tool-icon {
   color: var(--danger);
 }
 
+/* Select more, while it's on. */
+.selection-bar button.is-on,
+.selection-bar button.is-on:hover {
+  color: var(--copper-hi);
+  background: var(--copper-wash);
+}
+
 .selection-bar button.is-danger:hover {
   background: var(--danger-wash);
 }

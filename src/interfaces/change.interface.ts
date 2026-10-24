@@ -16,6 +16,9 @@ export type IChange =
   | { type: "replace"; kind: "line"; removed: ILine[]; added: ILine[] }
   | { type: "add" | "remove"; kind: "part"; part: Part }
   | { type: "move"; kind: "part"; part: Part; from: IDot[]; to: IDot[] }
+  // A wire moved with the parts and wires selected with it: its points (start, corners, end;
+  // linePoints) before and after. Same shape, so the wire stays the same object.
+  | { type: "move"; kind: "line"; line: ILine; from: IDot[]; to: IDot[] }
   // `cut` is the hole's state after the change.
   | { type: "set"; kind: "cut"; dot: IDot; cut: boolean }
   | { type: "set"; kind: "board"; from: BoardSetup; to: BoardSetup };

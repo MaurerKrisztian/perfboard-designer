@@ -8,7 +8,9 @@ import {SelectionState} from "../state/SelectionState";
 import {resetInteraction} from "./reset-interaction";
 import {canPickUpParts, isOverPlacedPart} from "./hover";
 import {ViewState} from "../state/ViewState";
-import {selectAt, selectLine, setSelection} from "./board-selection";
+import {selectAt, selectedLineAt, selectLine, setSelection, toggleAt} from "./board-selection";
+import {boxTo, cancelBox, finishBox, isBoxSelecting, startBox} from "./box-select";
+import {Point} from "../interfaces/point.interface";
 import {behaviorOf} from "./tools";
 import {IDot} from "../interfaces/dot.interface";
 import {cancelReshape, finishReshape, isReshaping, removeBend, startReshape, WireGrip, wireGripAt} from "./wire-reshape";
@@ -36,6 +38,32 @@ let pendingWire: {clientX: number; clientY: number; event: MouseEvent; dot: IDot
 // And a left press on a handle of the selected wire may be the start of bending it
 // (wire-reshape.ts). Just a click there leaves the wire selected.
 let pendingReshape: {clientX: number; clientY: number; grip: WireGrip} | undefined;
+// And a press with Shift held (or Select more on) in Select mode may be the start of a selection
+// box (box-select.ts), or a click adding the part or wire there to the selection.
+let pendingBox: {clientX: number; clientY: number; from: Point} | undefined;
+// A box's redraw waits for the next frame, so a fast pointer doesn't redraw the board per pixel.
+let boxFrame = 0;
+
+function redrawBoxSoon() {
+  if (boxFrame) return;
+  boxFrame = requestAnimationFrame(() => {
+    boxFrame = 0;
+    redrawCanvas();
+  });
+}
+
+// In Select mode, Shift (or Select more) makes a click add to the selection, and a drag box more in.
+function addsToSelection(e: MouseEvent): boolean {
+  return canPickUpParts() && (e.shiftKey || SelectionState.adding);
+}
+
+// Select more on or off: while it's on, clicks and taps add parts and wires to the selection.
+export function toggleSelectMore() {
+  SelectionState.adding = !SelectionState.adding;
+  if (SelectionState.adding && SelectionState.dot) SelectionState.clear();
+  hideBoardMenus();
+  redrawCanvas();
+}
 
 export function startPan(clientX: number, clientY: number) {
   isPanningBoard = true;
@@ -85,6 +113,13 @@ export function pressBoard(e: MouseEvent) {
 // A whole click (press and release without moving) at e.
 export function clickBoard(e: MouseEvent) {
   const {x, y} = Canvas.toDrawingCoordinates(e);
+  if (addsToSelection(e)) {
+    // A finger's tap with Select more on; a mouse's Shift-click comes here too.
+    hideBoardMenus();
+    toggleAt(x, y);
+    redrawCanvas();
+    return;
+  }
   if (canPickUpParts() && !isOverPlacedPart(x, y)) {
     hideBoardMenus();
     clickBareBoard(e);
@@ -107,6 +142,13 @@ function onPointerDown(e: PointerEvent) {
 
   const {x, y} = Canvas.toDrawingCoordinates(e);
 
+  // Shift (or Select more) first: a click adds to the selection, a drag draws a selection box.
+  if (addsToSelection(e)) {
+    hideBoardMenus();
+    pendingBox = {clientX: e.clientX, clientY: e.clientY, from: {x, y}};
+    return;
+  }
+
   // The selected wire's handles come first: a drag there bends that wire.
   const grip = wireGripAt(x, y, false);
   if (grip) {
@@ -119,6 +161,12 @@ function onPointerDown(e: PointerEvent) {
   if (wireDot) {
     hideBoardMenus();
     pendingWire = {clientX: e.clientX, clientY: e.clientY, event: e, dot: wireDot};
+    return;
+  }
+
+  // On a wire of a selection of several (between its holes): the whole selection moves.
+  if (canPickUpParts() && selectedLineAt(x, y)) {
+    pressBoard(e);
     return;
   }
 
@@ -137,6 +185,14 @@ const movedFar = (from: {clientX: number; clientY: number}, e: PointerEvent) =>
 
 function onPointerMove(e: PointerEvent) {
   if (e.pointerType === 'touch') return;
+  if (pendingBox && movedFar(pendingBox, e)) {
+    startBox(pendingBox.from);
+    pendingBox = undefined;
+  }
+  if (isBoxSelecting()) {
+    boxTo(Canvas.toDrawingCoordinates(e));
+    redrawBoxSoon();
+  }
   if (pendingReshape && movedFar(pendingReshape, e)) {
     startReshape(pendingReshape.grip, DotState.hoverDot);
     pendingReshape = undefined;
@@ -159,6 +215,19 @@ function onPointerMove(e: PointerEvent) {
 
 function onPointerUp(e: PointerEvent) {
   if (e.pointerType === 'touch') return;
+  if (pendingBox) {
+    // Released without moving: Shift-click, adding (or taking out) what's there.
+    const {from} = pendingBox;
+    pendingBox = undefined;
+    toggleAt(from.x, from.y);
+    redrawCanvas();
+  }
+  if (isBoxSelecting()) {
+    finishBox();
+    cancelAnimationFrame(boxFrame);
+    boxFrame = 0;
+    redrawCanvas();
+  }
   pendingReshape = undefined;
   if (isReshaping()) endReshape();
   if (pendingPan) {
@@ -236,6 +305,11 @@ export function openContextMenuAt(e: MouseEvent) {
   const menu = {kind: "actions" as const, x: e.clientX, y: e.clientY, hole};
 
   const part = findPartAt(x, y);
+  // On one of several selected parts or wires: the menu acts on them all.
+  if ((part && SelectionState.isMany && SelectionState.hasPart(part)) || (!part && selectedLineAt(x, y))) {
+    showBoardMenu(menu);
+    return;
+  }
   if (part) {
     SelectionState.current = {kind: "part", part};
     redrawCanvas();
@@ -273,9 +347,15 @@ export function finishActiveTool() {
   redrawCanvas();
 }
 
-// Escape backs out one step: a wire being bent or dragged, then the active tool's own step (the
-// wire tool ends its run but stays armed), then the placement tool and the selection.
+// Escape backs out one step: a selection box, a wire being bent or dragged, then the active
+// tool's own step (the wire tool ends its run but stays armed), then the placement tool and the
+// selection.
 export function stepBack() {
+  if (isBoxSelecting()) {
+    cancelBox();
+    redrawCanvas();
+    return;
+  }
   if (isReshaping()) {
     cancelReshape();
     redrawCanvas();

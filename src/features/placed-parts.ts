@@ -1,5 +1,8 @@
 import type {Part} from "../interfaces/placed-part.interface";
+import type {ILine} from "../interfaces/line.interface";
+import type {IChange} from "../interfaces/change.interface";
 import {PartState} from "../state/PartState";
+import {LineState} from "../state/LineState";
 import {HistoryState} from "../state/HistoryState";
 import {SelectionState} from "../state/SelectionState";
 import {BoardRefs, refPrefixFor} from "../project-file/part-refs";
@@ -20,7 +23,7 @@ export function addToBoard(part: Part) {
 // Takes a part off the board, dropping it from the selection. Records no history. Returns false
 // if it wasn't on the board.
 export function takeOffBoard(part: Part): boolean {
-  if (SelectionState.part === part) SelectionState.clear();
+  SelectionState.forget({part});
   const index = PartState.parts.indexOf(part);
   if (index < 0) return false;
   PartState.parts.splice(index, 1);
@@ -32,24 +35,48 @@ function giveRef(part: Part) {
   part.ref = refs.claimNext(refPrefixFor(part));
 }
 
+// New parts join the circuit requirements' inventory (when there are requirements), as the
+// change that does it; undefined when there's nothing to change.
+function requireParts(parts: Part[]): IChange | undefined {
+  const before = RequirementsState.current;
+  if (!before || !parts.length) return undefined;
+  const next = includeRequiredComponents(before, {
+    placedIcs: parts.flatMap(part => part.kind === "ic" ? [part.serialize()] : []),
+    placedStandardComponents: parts.flatMap(part => part.kind === "standard-component" ? [part.serialize()] : []),
+    placedAdvancedComponents: parts.flatMap(part => part.kind === "advanced-component" ? [part.serialize()] : []),
+  });
+  RequirementsState.current = next;
+  return {type: "set", kind: "requirements", from: before, to: next};
+}
+
 // Places a new part as one undoable step, and selects it.
 export function placePart(part: Part) {
   giveRef(part);
   addToBoard(part);
   SelectionState.current = {kind: "part", part};
-  const before = RequirementsState.current;
-  if (before) {
-    const next = includeRequiredComponents(before, {
-      placedIcs: part.kind === "ic" ? [part.serialize()] : [],
-      placedStandardComponents: part.kind === "standard-component" ? [part.serialize()] : [],
-      placedAdvancedComponents: part.kind === "advanced-component" ? [part.serialize()] : [],
-    });
-    RequirementsState.current = next;
-    HistoryState.record({type: "batch", kind: "batch", changes: [
-      {type: "add", kind: "part", part},
-      {type: "set", kind: "requirements", from: before, to: next},
-    ]});
-  } else HistoryState.record({type: "add", kind: "part", part});
+  const required = requireParts([part]);
+  const added: IChange = {type: "add", kind: "part", part};
+  HistoryState.record(required ? {type: "batch", kind: "batch", changes: [added, required]} : added);
+}
+
+// Places new parts and wires (a paste) as one undoable step, each part with the lowest free ref
+// for its kind, and selects them all.
+export function placeItems(parts: Part[], lines: ILine[]) {
+  const changes: IChange[] = [];
+  for (const part of parts) {
+    giveRef(part);
+    addToBoard(part);
+    changes.push({type: "add", kind: "part", part});
+  }
+  for (const line of lines) {
+    LineState.lines.push(line);
+    changes.push({type: "add", kind: "line", line});
+  }
+  const required = requireParts(parts);
+  if (required) changes.push(required);
+  if (!changes.length) return;
+  HistoryState.record(changes.length === 1 ? changes[0] : {type: "batch", kind: "batch", changes});
+  SelectionState.select(parts, lines);
 }
 
 // Removes a part as one undoable step. Returns false if it wasn't on the board.

@@ -4,16 +4,13 @@ import type {Part} from "../../interfaces/placed-part.interface";
 import {IDot} from "../../interfaces/dot.interface";
 import {redrawCanvas} from "../draw-canvas";
 import {Ic} from "../ic";
-import {PlacedStandardComponent} from "../standard-components/placed-standard-component";
-import {PlacedAdvancedComponent} from "../advanced-components/placed-advanced-component";
 import {resetForNewBoard} from "../reset-interaction";
 import {createDotGrid} from "./resize-grid";
 import {buildDotIndex, dotPositionKey} from "../dot-lookup";
 import {GridPos, gridToPx} from "../../project-file/grid";
 import {readProjectFile} from "../../project-file/read-project-file";
 import {setBoardSetup} from "../board-type";
-import {isCategoryId} from "../../parts/catalog-categories";
-import {isModuleName} from "../../parts/ic-package";
+import {lineFromWire, partFromEntry} from "./board-entries";
 import {CustomParts} from "../custom-parts";
 import {RequirementsState} from "../../state/RequirementsState";
 
@@ -39,41 +36,15 @@ export function loadProject(raw: unknown): {skipped: number} {
     for (const at of board.cuts) dotAt(at).cut = true;
   }
 
-  LineState.lines = project.wires.map(wire => ({
-    start: dotAt(wire.from), end: dotAt(wire.to),
-    ...(wire.via ? {via: wire.via.map(dotAt)} : {}),
-    ...(wire.kind === "solder" ? {kind: "solder" as const} : {color: wire.color, width: wire.width, ...(wire.side === "bottom" ? {side: "bottom" as const} : {})}),
-  }));
+  LineState.lines = project.wires.map(wire => lineFromWire(wire, dotAt));
 
-  const parts: Part[] = [];
-  for (const saved of project.placedIcs) {
-    const ic = new Ic(saved.widthPin, saved.heightPin, {...saved.pinDescription}, saved.name);
-    ic.ref = saved.ref;
-    ic.instanceId = saved.instanceId as string;
-    ic.category = isCategoryId(saved.category) ? saved.category : isModuleName(saved.name) ? "modules.custom" : "ics.custom";
-    ic.rotationAngle = saved.rotation;
-    ic.topLeftDot = dotAt(saved.at);
-    parts.push(ic);
-  }
-  for (const saved of project.placedStandardComponents) {
-    const component = new PlacedStandardComponent(saved.definitionId, dotAt(saved.from), dotAt(saved.to));
-    component.ref = saved.ref;
-    component.instanceId = saved.instanceId as string;
-    component.value = saved.value;
-    component.color = saved.color;
-    parts.push(component);
-  }
-  for (const saved of project.placedAdvancedComponents) {
-    const component = new PlacedAdvancedComponent(saved.definitionId, dotAt(saved.at), saved.rotation);
-    if (saved.custom) component.custom = saved.custom;
-    component.ref = saved.ref;
-    component.instanceId = saved.instanceId as string;
-    component.rows = saved.rows;
-    component.cols = saved.cols;
-    component.value = saved.value;
-    parts.push(component);
-  }
-  // Kind by kind, in the grouped order PartState.parts keeps.
+  // Kind by kind, in the grouped order PartState.parts keeps. The reader gives every part an
+  // instanceId, which the parts keep.
+  const parts: Part[] = [
+    ...project.placedIcs.map(entry => partFromEntry({kind: "ic", entry}, dotAt)),
+    ...project.placedStandardComponents.map(entry => partFromEntry({kind: "standard-component", entry}, dotAt)),
+    ...project.placedAdvancedComponents.map(entry => partFromEntry({kind: "advanced-component", entry}, dotAt)),
+  ];
   PartState.parts = parts;
 
   // A file's custom ICs join the catalog (and are kept, like ones made here) rather than replacing it,

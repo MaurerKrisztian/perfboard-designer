@@ -2,7 +2,7 @@ import {GridPos, gridToPx} from "../../project-file/grid";
 import {SavedWire} from "../../project-file/project-file";
 import {WireHop} from "../../project-file/wire-crossings";
 import {isBottomWire, isSolderPath, solderPathHoles, wirePoints} from "../../project-file/wire-path";
-import {BoardView, isHovered, isSameItem} from "../board-view";
+import {BoardView, isHovered, isSameItem, isSelected, soleSelected} from "../board-view";
 import {Painter, Point} from "../painter/painter";
 import {
   DEFAULT_WIRE_COLOR, DEFAULT_WIRE_WIDTH, PAD_RADIUS, SELECTION_COLOR, SOLDER_COLOR, SOLDER_EDGE, SOLDER_PATH_WIDTH,
@@ -88,16 +88,18 @@ export function drawWires(painter: Painter, wires: SavedWire[], hops: WireHop[],
     const ends = [line[0], line[line.length - 1]];
     const width = widthOf(wire);
     const item = {kind: "wire", index} as const;
-    if (isSameItem(view.selected, item)) {
+    // Selected with other things, it can't be bent there: the glow, but no handles.
+    const handles = isSameItem(soleSelected(view), item);
+    if (isSelected(view, item)) {
       // A glow along it, and a handle on each end.
       painter.line(line, {paint: SELECTION_COLOR, width: width + 6, cap: "round", join: "round"});
-      for (const end of ends) painter.circle(end.x, end.y, width + 3, {fill: SELECTION_COLOR});
+      if (handles) for (const end of ends) painter.circle(end.x, end.y, width + 3, {fill: SELECTION_COLOR});
     } else if (isHovered(view, item)) {
       painter.line(line, {paint: HOVER_COLOR, width: width + 3, cap: "round", join: "round"});
     }
     drawOverEdges(painter, line, wire, wires, hopsByWire.get(index) ?? []);
     painter.line(line, {paint: wire.color || DEFAULT_WIRE_COLOR, width, cap: "round", join: "round"});
-    if (isSameItem(view.selected, item)) drawBendHandles(painter, wire);
+    if (handles) drawBendHandles(painter, wire);
   });
 }
 
@@ -107,14 +109,14 @@ export function drawSolderPaths(painter: Painter, wires: SavedWire[], view: Boar
     if (!isSolderPath(wire)) return;
     const line = wireLine(wire);
     const item = {kind: "wire", index} as const;
-    const selected = isSameItem(view.selected, item);
+    const selected = isSelected(view, item);
     if (selected) {
       painter.line(line, {paint: SELECTION_COLOR, width: SOLDER_PATH_WIDTH + 8, cap: "round", join: "round"});
     } else if (isHovered(view, item)) {
       painter.line(line, {paint: HOVER_COLOR, width: SOLDER_PATH_WIDTH + 6, cap: "round", join: "round"});
     }
     drawSolderPath(painter, wire);
-    if (selected) {
+    if (isSameItem(soleSelected(view), item)) {
       // Handles the size of a default jumper's, like its bend handles (drawBendHandles): a solder
       // path has no width of its own, and handles as wide as the trail would hide its beads.
       for (const end of [line[0], line[line.length - 1]]) {

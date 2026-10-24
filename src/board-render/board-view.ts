@@ -17,7 +17,9 @@ export interface BoardView {
   partLabels?: boolean;
   // Column numbers and row letters printed round the board's edge, as on a real board.
   holeLabels?: boolean;
-  selected?: BoardItem;
+  // What's selected: one part, wire or hole, or several parts and wires. A selected wire shows its
+  // handles only when it's the one thing selected.
+  selected?: BoardItem[];
   // Under the pointer: a hole and a wire can both be.
   hovered?: BoardItem[];
   // The first click of a two-click placement.
@@ -36,6 +38,15 @@ export function isSameItem(a: BoardItem | undefined, b: BoardItem): boolean {
   if (a.kind === "part" && b.kind === "part") return a.ref === b.ref;
   if (a.kind === "wire" && b.kind === "wire") return a.index === b.index;
   return a.kind === "hole" && b.kind === "hole" && a.at[0] === b.at[0] && a.at[1] === b.at[1];
+}
+
+export function isSelected(view: BoardView, item: BoardItem): boolean {
+  return view.selected?.some(selected => isSameItem(selected, item)) ?? false;
+}
+
+// The one thing selected, if just one is.
+export function soleSelected(view: BoardView): BoardItem | undefined {
+  return view.selected?.length === 1 ? view.selected[0] : undefined;
 }
 
 export function isHovered(view: BoardView, item: BoardItem): boolean {
