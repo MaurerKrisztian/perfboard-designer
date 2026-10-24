@@ -6,6 +6,8 @@ import {holeInput as hole} from "./project-source";
 // A wire end: a hole, or a pin by name, which stands for the hole it's in.
 const wireEnd = z.union([z.array(z.number().int()).length(2), z.string()])
   .describe('A hole [column, row], or a pin by name: "U1.7", "U1.DISCH", "D1.K", "R2.1" (the hole that pin is in).');
+const wireSide = z.enum(["top", "bottom"]).optional()
+  .describe('Which face a jumper lies on: "top" (default) or "bottom", the solder side (format version 9). A bottom wire joins its end holes like any jumper but never crosses a top wire, so use it to take a long wire out of the way; it is shown faded in the top view. Not for solder paths.');
 const rotation = z.union([z.literal(0), z.literal(90), z.literal(180), z.literal(270)]);
 const wireSelector = z.union([z.number().int().min(0), z.array(hole).length(2)])
   .describe("A wire by its index in wires, or by its two end holes [[c, r], [c, r]] (either way round).");
@@ -78,6 +80,7 @@ export const editOp = z.discriminatedUnion("op", [
       .describe("true: a solder path instead of a jumper wire, a trail of solder on the copper side, made as one path (a `path`'s corners and any `via` are its bends). Bare solder joins every hole it runs over, ends, bends and all, and every solder path it touches: run it only over holes it should connect. No color or width."),
     color: z.string().optional(),
     width: z.number().positive().optional(),
+    side: wireSide,
   }),
   z.object({
     op: z.literal("update_wire"),
@@ -87,6 +90,7 @@ export const editOp = z.discriminatedUnion("op", [
     via: z.array(hole).optional().describe("Its bends, replacing the ones it has; [] makes it straight. Left out, its bends stay."),
     color: z.string().optional(),
     width: z.number().positive().optional(),
+    side: wireSide,
   }),
   z.object({
     op: z.literal("remove_wires"),

@@ -256,10 +256,10 @@ function optional<K extends string, V>(key: K, value: V | undefined): {[P in K]?
   return (value === undefined ? {} : {[key]: value}) as {[P in K]?: V};
 }
 
-// Versions 2 to 8: grid positions. Version 3 added the board type (with a stripboard's cuts) and
-// part refs, version 4 bent wires, version 5 solder paths, version 6 custom parts. A version 2 board
+// Versions 2 to 9: grid positions. Version 3 added the board type (with a stripboard's cuts) and
+// part refs, version 4 bent wires, version 5 solder paths, version 6 custom parts, version 9 wires on the solder side. A version 2 board
 // is always a perfboard, and its parts are given refs on reading.
-function readGridFile(data: Entry, version: 2 | 3 | 4 | 5 | 6 | 7 | 8): ReadProjectResult {
+function readGridFile(data: Entry, version: 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9): ReadProjectResult {
   const boardEntry = asEntry(data.board);
   const cols = boardEntry && wholeCount(boardEntry.cols);
   const rows = boardEntry && wholeCount(boardEntry.rows);
@@ -283,6 +283,7 @@ function readGridFile(data: Entry, version: 2 | 3 | 4 | 5 | 6 | 7 | 8): ReadProj
     return {
       from, to, ...(via.length ? {via} : {}),
       ...optional("color", text(entry.color)), ...optional("width", positiveNumber(entry.width)),
+      ...(version >= 9 && entry.side === "bottom" ? {side: "bottom" as const} : {}),
     };
   });
 
@@ -407,7 +408,7 @@ export function readProjectFile(raw: unknown): ReadProjectResult {
   // Version 1 never had a `board`, so a file without a version that has one was written by hand
   // (or by a program) to the current format, and only left the version out.
   if (data.version === undefined) return asEntry(data.board) ? readGridFile(data, PROJECT_FILE_VERSION) : readV1(data);
-  if (data.version === 2 || data.version === 3 || data.version === 4 || data.version === 5 || data.version === 6 || data.version === 7 || data.version === 8) return readGridFile(data, data.version);
+  if (data.version === 2 || data.version === 3 || data.version === 4 || data.version === 5 || data.version === 6 || data.version === 7 || data.version === 8 || data.version === 9) return readGridFile(data, data.version);
   if (typeof data.version === "number" && data.version > PROJECT_FILE_VERSION) {
     throw new ProjectFileError(
       "This project was saved by a newer version of Perfboard Designer. Reload the page to get the latest version, then open it again."

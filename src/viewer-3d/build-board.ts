@@ -5,7 +5,7 @@ import {
 import {BOARD_BOTTOM_Y, BOARD_THICKNESS, BoardFrame, PITCH, PX_PER_PITCH, SceneKit} from "./scene-kit";
 import {CUT_GAP_PITCH, STRIP_WIDTH_PITCH} from "../project-file/stripboard-geometry";
 import {ViewerBoard, ViewerDot, ViewerProject, ViewerSolderPath} from "./project-data";
-import {archSamples, WirePath, WirePoint, wireRadius} from "./wire-paths";
+import {archHalfRunPx, archSamples, WirePath, WirePoint, wireRadius, wireStep} from "./wire-paths";
 
 const PERFBOARD_COLOR = "#0e5a27";
 // Stripboards are usually SRBP (paper-based), a warm brown.
@@ -179,33 +179,34 @@ export function buildSolderJoints(kit: SceneKit): Group | null {
 
 // How a wire arches over what it doesn't join (its hops): clear of the wire underneath, or of a
 // wire end's bend or a lead standing in a hole, rising and falling over this far either side.
-const ARCH_GAP = 0.15;
 const HOLE_ARCH_LIFT = 1.5;
 const ARCH_RUN = 1.4;
 const PX_PER_MM = PX_PER_PITCH / PITCH;
 
 /** A wire's centreline in the scene: lying on the board, arching over each hop between its bends. */
-function wireLine(frame: BoardFrame, points: WirePoint[], radius: number): Vector3[] {
+function wireLine(frame: BoardFrame, points: WirePoint[], radius: number, bottom: boolean): Vector3[] {
+  // Height in the scene of a wire `up` mm clear of its face: above the top face, below the bottom.
+  const heightAt = (up: number) => bottom ? BOARD_BOTTOM_Y - up : up;
   const line: Vector3[] = [];
   for (let i = 0; i < points.length;) {
     const start = points[i];
-    line.push(frame.point(start.x, start.y, radius));
+    line.push(frame.point(start.x, start.y, heightAt(radius)));
     let next = i + 1;
     while (next < points.length && points[next].hop) next++;
     if (next >= points.length) break;
     const end = points[next];
     const length = Math.hypot(end.x - start.x, end.y - start.y);
     const hops = points.slice(i + 1, next).map(({x, y, hop}) => {
-      const underRadius = hop?.underWidth !== undefined ? wireRadius(hop.underWidth) : 0;
       return {
         at: Math.hypot(x - start.x, y - start.y),
-        lift: underRadius ? 2 * underRadius + ARCH_GAP : HOLE_ARCH_LIFT,
-        halfRun: (ARCH_RUN + underRadius) * PX_PER_MM,
+        ...(hop?.runTo ? {until: Math.hypot(hop.runTo.x - start.x, hop.runTo.y - start.y)} : {}),
+        lift: hop?.underWidth !== undefined ? wireStep(hop.underWidth) + (hop.stack ?? 0) : HOLE_ARCH_LIFT,
+        halfRun: hop?.underWidth !== undefined ? archHalfRunPx(hop.underWidth) : ARCH_RUN * PX_PER_MM,
       };
     });
     for (const {at, lift} of archSamples(length, hops)) {
       const t = at / length;
-      line.push(frame.point(start.x + (end.x - start.x) * t, start.y + (end.y - start.y) * t, radius + lift));
+      line.push(frame.point(start.x + (end.x - start.x) * t, start.y + (end.y - start.y) * t, heightAt(radius + lift)));
     }
     i = next;
   }
@@ -234,7 +235,7 @@ function lineLength(line: Vector3[]): number {
   return line.reduce((sum, p, i) => i ? sum + p.distanceTo(line[i - 1]) : 0, 0);
 }
 
-/** Insulated jumper wires lying on the top face. Each wire is one continuous insulated run, so
+/** Insulated jumper wires lying on the top face (or, on the solder side, the bottom one). Each wire is one continuous insulated run, so
  *  its bends are just insulation; only its two free ends are stripped, the bare tinned copper
  *  bending down into the hole to its joint underneath, so it reads as soldered there. Where it
  *  crosses another wire, or a hole it doesn't join, it arches over (the later wire over the
@@ -246,7 +247,7 @@ export function buildWires(kit: SceneKit, paths: WirePath[]): Group {
   for (const path of paths) {
     const radius = wireRadius(path.width);
     const insulation = kit.standard(`wire:${path.color}`, {color: path.color, roughness: 0.45});
-    const points = wireLine(frame, path.points, radius);
+    const points = wireLine(frame, path.points, radius, path.bottom);
     if (path.closed) {
       group.add(kit.bentWire(points, radius, insulation));
       // A loop has no free ends; round off the one corner bentWire leaves out.
@@ -264,8 +265,10 @@ export function buildWires(kit: SceneKit, paths: WirePath[]): Group {
     ];
     for (const {hole: {x: px, y: py}, stripped} of ends) {
       // From where the insulation stops, over the hole and down through it.
-      const above = frame.point(px, py, stripped.y);
-      group.add(kit.bentWire([stripped, above, frame.point(px, py, BOARD_BOTTOM_Y - 1.1)], CONDUCTOR_RADIUS, conductor));
+      // (A wire on the solder side goes the other way: up into the hole from below.)
+      const beside = frame.point(px, py, stripped.y);
+      const through = path.bottom ? 0.4 : BOARD_BOTTOM_Y - 1.1;
+      group.add(kit.bentWire([stripped, beside, frame.point(px, py, through)], CONDUCTOR_RADIUS, conductor));
       kit.solder(px, py);
     }
   }

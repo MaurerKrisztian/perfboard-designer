@@ -7,6 +7,7 @@ import {Utils} from "../utils/utils";
 import {distanceAlong, linePoints, lineThrough, splitLine} from "./line-path";
 import {BoardState} from "../state/BoardState";
 import {DEFAULT_WIRE_WIDTH} from "../board-render";
+import type {WireSide} from "../project-file/project-file";
 
 function dotsEqual(a: Point, b: Point): boolean {
   return a.x === b.x && a.y === b.y;
@@ -23,16 +24,19 @@ function isPinDot(dot: IDot): boolean {
 }
 
 const isSolder = (line: ILine) => line.kind === "solder";
+// Jumpers on the two faces of the board never cross, split or merge into each other.
+const sameSide = (a: ILine, b: ILine) => (a.side === "bottom") === (b.side === "bottom");
 
 // Splits every jumper running over `dot` (passing over it, or bending over it) into two that end
 // there, so a wire ending on another joins it (a jumper only connects the holes at its ends; a
-// solder path joins every hole it covers, so it's left whole). The split wires are swapped for
+// solder path joins every hole it covers, so it's left whole). Only those on the new wire's face
+// (`side`): a wire on the other face just lies there. The split wires are swapped for
 // their halves in LineState.lines; the caller records the history.
-export function splitWiresAt(dot: IDot): {removed: ILine[]; added: ILine[]} {
+export function splitWiresAt(dot: IDot, side?: WireSide): {removed: ILine[]; added: ILine[]} {
   const removed: ILine[] = [];
   const added: ILine[] = [];
   for (const line of [...LineState.lines]) {
-    if (isSolder(line)) continue;
+    if (isSolder(line) || (line.side === "bottom") !== (side === "bottom")) continue;
     const halves = splitLine(line, dot);
     if (!halves) continue;
     LineState.lines.splice(LineState.lines.indexOf(line), 1);
@@ -43,14 +47,16 @@ export function splitWiresAt(dot: IDot): {removed: ILine[]; added: ILine[]} {
   return {removed, added};
 }
 
-// `line` cut into pieces at every hole it passes over where another wire ends, so it joins those
-// wires as well (the other way round from splitWiresAt). In order from its start; just `line` when
-// it passes over no wire end, or is a solder path (which joins them already). Nothing in
-// LineState.lines changes.
+// `line` cut into pieces at every hole it passes over where another jumper ends, so it joins those
+// wires as well (the other way round from splitWiresAt). A solder path's ends don't count: a
+// jumper running over them just passes over. In order from its start; just `line` when it passes
+// over no jumper end, or is a solder path (which joins them already). Nothing in LineState.lines
+// changes.
 export function cutAtWireEnds(line: ILine): ILine[] {
   if (isSolder(line)) return [line];
   const cuts = new Map<string, {dot: IDot; along: number}>();
   for (const other of LineState.lines) {
+    if (isSolder(other) || !sameSide(other, line)) continue;
     for (const end of [other.start, other.end]) {
       const along = distanceAlong(line, end);
       if (along !== undefined) cuts.set(`${end.x},${end.y}`, {dot: end, along});
@@ -94,7 +100,7 @@ export function mergeNewWire(newLine: ILine, ends = {start: true, end: true}): {
     if (isPinDot(dot) || isStripHole(dot)) return undefined;
     const ending = LineState.lines.filter(line => dotsEqual(line.start, dot) || dotsEqual(line.end, dot));
     const [line] = ending;
-    if (ending.length !== 1 || absorbed.includes(line) || dotsEqual(line.start, line.end)) return undefined;
+    if (ending.length !== 1 || absorbed.includes(line) || dotsEqual(line.start, line.end) || !sameSide(line, newLine)) return undefined;
     if (!isSolder(newLine) && LineState.lines.some(other => isSolder(other) && distanceAlong(other, dot) !== undefined)) return undefined;
     if (isSolder(line) || isSolder(newLine)) return isSolder(line) && isSolder(newLine) ? line : undefined;
     return sameColor(line.color, newLine.color) && widthOf(line) === widthOf(newLine) ? line : undefined;

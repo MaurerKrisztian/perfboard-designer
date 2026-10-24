@@ -2,7 +2,7 @@ import {GRID_PITCH_PX} from "../project-file/grid";
 import {partPins} from "../project-file/pin-positions";
 import {ProjectFile, SavedBoard} from "../project-file/project-file";
 import {layoutProjectWires} from "../project-file/wire-crossings";
-import {BoardView, isSameItem, PLAIN_VIEW} from "./board-view";
+import {BoardView, isHovered, isSameItem, PLAIN_VIEW} from "./board-view";
 import {boardLookFor} from "./board-looks";
 import {drawHoleLabels} from "./layers/hole-labels";
 import {drawHoles} from "./layers/holes";
@@ -52,8 +52,12 @@ export function drawBoard(painter: Painter, project: ProjectFile, view: BoardVie
   drawHoles(painter, project, look, holesUnderChips(project), view);
   // 3b. Solder paths, on the copper side but shown through the board: they join what they cover.
   drawSolderPaths(painter, project.wires, view);
-  // 4. Jumper wires, each with dark edges where it goes over something it doesn't join.
-  drawWires(painter, project.wires, wireLayout.hops, view);
+  // 4. Jumper wires, each with dark edges where it goes over something it doesn't join. Those on
+  // the solder side are under the board's other face: faded, unless selected or hovered.
+  const isPicked = (index: number) => isSameItem(view.selected, {kind: "wire", index}) || isHovered(view, {kind: "wire", index});
+  painter.group({opacity: GHOST_BOTTOM_WIRES}, () => drawWires(painter, project.wires, wireLayout.hops, PLAIN_VIEW, "bottom", index => !isPicked(index)));
+  drawWires(painter, project.wires, wireLayout.hops, view, "bottom", isPicked);
+  drawWires(painter, project.wires, wireLayout.hops, view, "top");
   // 5. Every other part, standing above the wires; the wires show through them, faded.
   drawLayer("over-wires");
   drawWiresThroughParts(painter, project.wires);
@@ -73,6 +77,8 @@ export function drawBoard(painter: Painter, project: ProjectFile, view: BoardVie
 // wires a little more, since they tell which joints belong together.
 const GHOST_PARTS = 0.18;
 const GHOST_WIRES = 0.4;
+// The solder side's wires in the top view: under the board, so faint.
+const GHOST_BOTTOM_WIRES = 0.35;
 
 // The board from below, for soldering: mirrored left to right, copper side up (a stripboard's
 // strips and cuts and the solder paths at full strength), the component side faded behind it,
@@ -97,9 +103,11 @@ function drawSolderSide(painter: Painter, project: ProjectFile, holeLabels: bool
     }
     painter.stamp(look.hole, holes);
     painter.group({opacity: GHOST_PARTS}, () => drawLayer("under-board"));
-    painter.group({opacity: GHOST_WIRES}, () => drawWires(painter, project.wires, [], PLAIN_VIEW));
+    painter.group({opacity: GHOST_WIRES}, () => drawWires(painter, project.wires, [], PLAIN_VIEW, "top"));
     painter.group({opacity: GHOST_PARTS}, () => drawLayer("over-wires"));
     for (const wire of project.wires) if (isSolderPath(wire)) drawSolderPath(painter, wire);
+    // The wires on this face, over the solder paths, at full strength.
+    drawWires(painter, project.wires, layoutProjectWires(project).hops, PLAIN_VIEW, "bottom");
   });
   // Outside the mirrored group, so the print reads the right way round.
   if (holeLabels) drawHoleLabels(painter, project.board, width, height, true);

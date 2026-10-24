@@ -43,7 +43,7 @@ part's required inventory entry and the physical part in one history batch. Dele
 required until explicitly forgotten. New projects clear requirements; resizing/copying and MCP
 edits preserve them. MCP validation checks saved requirements only when enabled; `expectNets` is
 unchanged. A top-level `schematic` field from older editors is read and ignored. Release the
-frontend, MCP and hosted reader together for format-8 files.
+frontend, MCP and hosted reader together for format-9 files.
 
 `ARCHITECTURE.md` (repo root) is the developer guide to all of this, for people: how each part
 works and how to extend it. Keep it in step with this file: a change that makes a section of
@@ -311,12 +311,12 @@ board is replaced (load, reset, resize) via `resetForNewBoard()`.
 
 **Persistence**: the project file format lives in `src/project-file/` — pure code (no DOM, no
 editor state) shared by the editor and the 3D viewer. `project-file.ts` defines the current format
-(version 8 adds optional requirements; version 7 part identities; grid `[col, row]` positions, the board type with a stripboard's strip direction and
+(version 9 adds a jumper's optional `side: "bottom"`, the solder side, which the editor sets with a selected wire's Move to Solder Side action and which only crosses wires on its own face (`wire-crossings.ts`); version 8 adds optional requirements; version 7 part identities; grid `[col, row]` positions, the board type with a stripboard's strip direction and
 cuts, only holes with notes, wires with the corners they bend at (`via`) and their `kind` (absent:
 a jumper, whose corners never join; `"solder"`: a solder path, which joins every hole it covers;
 `wire-path.ts` gives a wire's points, legs and a solder path's holes), per-kind part arrays with
 each part's `ref` (a custom module with its whole spec in `custom`), the user's custom ICs). A file
-says the oldest version that holds it (`fileVersionFor()`: 8 with requirements, else 6 with a custom module, else 5 with a
+says the oldest version that holds it (`fileVersionFor()`: 9 with a solder-side wire, else 8 with requirements, else 6 with a custom module, else 5 with a
 solder path, else 4 if a wire bends, else 3), so boards without them
 still open in older editors and the published MCP server. It's
 written to be read by people and programs (e.g. the MCP server) as well as the editor: facts

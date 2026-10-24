@@ -1346,8 +1346,16 @@ kbd {
 }
 
 /* The parts list's search box, with the key that reaches it */
+.catalog-search-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .catalog-search-box {
   position: relative;
+  flex: 1;
+  min-width: 0;
 }
 
 input.catalog-search {

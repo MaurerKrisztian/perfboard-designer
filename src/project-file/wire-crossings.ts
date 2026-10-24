@@ -1,7 +1,7 @@
 import {GridPos} from "./grid";
 import {ProjectFile} from "./project-file";
 import {partPins} from "./pin-positions";
-import {holesAlong, isSolderPath, legsMeet, WireLeg, wireLegs, WireRoute} from "./wire-path";
+import {holesAlong, isBottomWire, isSolderPath, legsMeet, WireLeg, wireLegs, WireRoute} from "./wire-path";
 
 // Where wires pass over things without joining them, and where things do join: what the 2D and
 // 3D views draw so a crossing never passes for a joint. A wire joins only the holes at its two
@@ -9,10 +9,12 @@ import {holesAlong, isSolderPath, legsMeet, WireLeg, wireLegs, WireRoute} from "
 // or another wire's end, goes over it, and so does a bend sitting on such a hole. Of two wires
 // crossing between their ends, the later one in the list is on top: the order the editor draws
 // them in. Solder paths are on the other side of the board, and join what they touch: they play
-// no part here (no hops on or under them, and their holes count for nothing).
+// no part here (no hops on or under them, and their holes count for nothing). Jumpers on the
+// solder side are on the other face from the top ones: they cross only each other, though a pin
+// or a wire end in a hole stands through the board, so it counts for both faces.
 
 // A wire's ends and corners, and whether it's a solder path: all the crossings need.
-export type WireEnds = WireRoute & {kind?: string};
+export type WireEnds = WireRoute & {kind?: string; side?: string};
 
 // One place a wire goes over something.
 export interface WireHop {
@@ -27,9 +29,23 @@ export interface WireHop {
   under?: number;
 }
 
+// A stretch where a wire lies along another wire's run, over it (the later wire on top).
+export interface WireRun {
+  // The wire on top, by index, and which of its legs.
+  wire: number;
+  leg: number;
+  // The stretch's ends in grid units, `from` nearer the leg's start.
+  from: [number, number];
+  to: [number, number];
+  // The wire underneath, by index.
+  under: number;
+}
+
 export interface WireLayout {
   // By wire, then along it from its `from` end.
   hops: WireHop[];
+  // Where wires lie along each other: no hops there, as parallel legs never meet.
+  runs: WireRun[];
   // Holes where three or more things are joined: wire ends, and a pin if there is one.
   junctions: GridPos[];
 }
@@ -75,6 +91,7 @@ export function layoutWires(wires: WireEnds[], pinHoles: GridPos[]): WireLayout 
   for (let i = 0; i < wires.length; i++) {
     const endsOfI = new Set([key(wires[i].from), key(wires[i].to)]);
     for (let j = i + 1; j < wires.length; j++) {
+      if (isBottomWire(wires[i]) !== isBottomWire(wires[j])) continue;
       const isEnd = (at: readonly number[]) => endsOfI.has(key(at)) || key(at) === key(wires[j].from) || key(at) === key(wires[j].to);
       const seen = new Set<string>();
       for (const a of legs[i]) {
@@ -91,10 +108,33 @@ export function layoutWires(wires: WireEnds[], pinHoles: GridPos[]): WireLayout 
   }
   hops.sort((a, b) => a.wire - b.wire || a.along - b.along);
 
+  // Legs lying along each other: the later wire's stretch over the earlier one's.
+  const runs: WireRun[] = [];
+  for (let i = 0; i < wires.length; i++) {
+    for (let j = i + 1; j < wires.length; j++) {
+      if (isBottomWire(wires[i]) !== isBottomWire(wires[j])) continue;
+      for (const a of legs[i]) {
+        legs[j].forEach((b, l) => {
+          const [bx, by] = b.leg.from;
+          const sx = b.leg.to[0] - bx, sy = b.leg.to[1] - by;
+          const length2 = sx * sx + sy * sy;
+          const rx = a.leg.to[0] - a.leg.from[0], ry = a.leg.to[1] - a.leg.from[1];
+          if (!length2 || rx * sy - ry * sx !== 0 || (a.leg.from[0] - bx) * sy - (a.leg.from[1] - by) * sx !== 0) return;
+          const along = (p: readonly number[]) => ((p[0] - bx) * sx + (p[1] - by) * sy) / length2;
+          const [p, q] = [along(a.leg.from), along(a.leg.to)];
+          const lo = Math.max(0, Math.min(p, q)), hi = Math.min(1, Math.max(p, q));
+          if (hi - lo <= 0) return;
+          runs.push({wire: j, leg: l, from: [bx + lo * sx, by + lo * sy], to: [bx + hi * sx, by + hi * sy], under: i});
+        });
+      }
+    }
+  }
+
   const junctions = [...ends.entries()]
     .filter(([hole, count]) => count + (pins.has(hole) ? 1 : 0) >= 3)
     .map(([hole]) => hole.split(",").map(Number) as GridPos);
   return {
+    runs,
     hops: hops.map(hop => ({wire: hop.wire, leg: hop.leg, at: hop.at, over: hop.over, ...(hop.under !== undefined ? {under: hop.under} : {})})),
     junctions,
   };

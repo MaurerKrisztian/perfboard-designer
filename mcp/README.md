@@ -262,6 +262,7 @@ doesn't connect it, and two wires crossing aren't shorted, so a crossing is fine
 it so it doesn't pass for a joint, and the 3D view arches the upper wire). A hole takes one part's
 pin or lead at most (a second part there is an error, as on a real board) plus any number of wire
 ends, and everything in a hole is joined: to connect two parts, run a wire between their pins.
+A jumper can lie on the solder side (`side: "bottom"`, format version 9): it joins its end holes the same way but never crosses a top wire.
 On a stripboard, every hole along a strip is joined up to the next cut, and a cut hole connects to
 nothing. `get_nets` and `validate_project` work this out with the same code as the
 editor's Nets panel, so they agree with what you see there.
