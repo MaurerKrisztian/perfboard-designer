@@ -23,6 +23,7 @@
   --danger: #ef6a54;
   --danger-wash: rgba(239, 106, 84, 0.14);
   --warn: #e8b84a;
+  --warn-wash: rgba(232, 184, 74, 0.12);
   /* The net picked in the Nets panel, on the board too (NET_HIGHLIGHT_COLOR in draw-canvas.ts). */
   --net-highlight: #e879f9;
   --radius-s: 6px;
@@ -1562,6 +1563,90 @@ svg.net-icon {
 
 .nets-fold .net-pin.selected {
   border-color: var(--net-highlight);
+}
+
+/* A part that looks backwards: what's wrong with it, beside a button to turn it round. */
+.polarity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0.45rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.polarity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 0.15rem 0.2rem 0.15rem 0.35rem;
+  background-color: var(--warn-wash);
+  border-left: 2px solid var(--warn);
+  border-radius: var(--radius-s);
+}
+
+button.polarity-show {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.45rem;
+  min-width: 0;
+  padding: 0.25rem 0;
+  background: none;
+  border: none;
+  color: var(--silk);
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+}
+
+button.polarity-show .pin-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 16px;
+  margin-top: 0.1rem;
+}
+
+.polarity-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.polarity-part strong {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.polarity-detail {
+  color: var(--silk-dim);
+}
+
+button.polarity-show:hover .polarity-detail {
+  color: var(--silk);
+}
+
+button.polarity-fix {
+  flex-shrink: 0;
+  gap: 0.25rem;
+  margin-top: 0.15rem;
+  padding: 0.2rem 0.35rem;
+  background: none;
+  border: none;
+  color: var(--warn);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+button.polarity-fix:hover {
+  background-color: var(--ink-2);
+}
+
+button.polarity-fix .icon {
+  width: 14px;
+  height: 14px;
 }
 
 /* The keyboard shortcuts, folded away at the panel's foot */

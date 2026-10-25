@@ -2,6 +2,7 @@ import {onRedraw, redrawCanvas} from "./draw-canvas";
 import {getSaveJson} from "./project/save-project";
 import {onProjectChange} from "./project/current-project";
 import {computeNets, Net, NetPin} from "../project-file/nets";
+import {PolarityWarning, polarityWarnings} from "../project-file/polarity";
 import {GridPos} from "../project-file/grid";
 import {ProjectFile, SavedWire} from "../project-file/project-file";
 import {RequiredPin, requiredPinKey} from "../project-file/requirements";
@@ -12,13 +13,16 @@ import {notifyEditorChanged} from "./editor-events";
 
 // The board's nets (which pins it connects), kept up to date as it changes, and the one lit up on
 // the board. Worked out from the project file, the same snapshot autosave writes, by nets.ts, so
-// they match what any program reading that file works out. The Nets panel (src/ui/nets/) shows
+// they match what any program reading that file works out; so are the parts that look to be in
+// backwards (polarity.ts). The Nets panel (src/ui/nets/) shows
 // them; picking a net, an unconnected pin or wires connecting no pins lights it up
 // (NetHighlightState) until it's picked again, and the light follows the net as it's edited.
 
 export interface BoardNets {
   project: ProjectFile;
   nets: Net[];
+  // Polarized parts the supply rails show to be the wrong way round.
+  polarity: PolarityWarning[];
 }
 
 // Every change ends in a redraw, but so does hovering: refresh shortly after the first redraw of a
@@ -112,7 +116,8 @@ function refresh() {
   const json = JSON.stringify(snapshot);
   if (json === lastJson) return;
   lastJson = json;
-  current = {project: snapshot, nets: computeNets(snapshot).nets};
+  const netlist = computeNets(snapshot);
+  current = {project: snapshot, nets: netlist.nets, polarity: polarityWarnings(snapshot, netlist)};
   if (NetHighlightState.current) {
     followHighlight();
     // The board was drawn with the net as it was before the change.

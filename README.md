@@ -89,8 +89,9 @@ device.
 - 📝 **Notes on any hole**: label pads like `+9V`, `GND` or `TP1` so the layout still makes sense
   months later.
 - 🔗 **Check the connections**: the **Nets** panel lists which pins your wires and strips
-  connect, live as you edit, plus pins left unconnected and wires that connect nothing. Click a
-  net to light it up on the board.
+  connect, live as you edit, plus pins left unconnected, wires that connect nothing, and LEDs,
+  diodes and electrolytic capacitors that look backwards on the supply rails. Click a net to
+  light it up on the board.
 - 💾 **Save, share and export**: keep as many projects as you like in the browser, saved
   automatically as you go. Share a board with a link that opens a copy of it (no account or
   upload: the board is in the link), or ask for a short link instead. Download it as a JSON
@@ -282,8 +283,8 @@ What the assistant can do with it:
 - Start a perfboard or stripboard, place parts, route wires and cut strips.
 - Make parts the library doesn't have: a transistor in a known package with its own pinout, a
   sensor module, a custom chip. They open in the editor like the ones you make yourself.
-- Check the wiring: pins left unconnected, parts sharing a hole, shorted supply rails, strips
-  shorting a chip. Given the netlist it meant, it reports every missing or extra connection.
+- Check the wiring: pins left unconnected, parts sharing a hole, shorted supply rails, LEDs and
+  electrolytic capacitors in backwards, strips shorting a chip. Given the netlist it meant, it reports every missing or extra connection.
 - Hand you a share link (and a short link if you ask) that opens the board in the editor.
 - Show you a picture of the board right in the chat, in Claude and ChatGPT.
 - Read a board link you share with it, change the board and give you a new link.

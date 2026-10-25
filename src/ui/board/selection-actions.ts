@@ -14,12 +14,13 @@ import {straightenWire} from "../../features/wire-reshape";
 import {hideBoardMenus, showBoardMenu} from "../../features/board-menus";
 import {duplicateSelection} from "../../features/clipboard";
 import {toggleSelectMore} from "../../features/select";
+import {canTurnRound, turnSelectedPartRound} from "../../features/part-polarity";
 import type {IconName} from "../components/Icon";
 
 // What can be done to the selected part, wire or pad, or to several parts and wires. The selection
 // bar over the board and the context menu offer the same actions, each only where it applies.
 
-export type SelectionAction = "wire" | "solder" | "rotate" | "color" | "straighten" | "to-bottom" | "to-top" | "value" | "note"
+export type SelectionAction = "wire" | "solder" | "rotate" | "turn-round" | "color" | "straighten" | "to-bottom" | "to-top" | "value" | "note"
   | "duplicate" | "select-more" | "delete";
 
 // How each action shows: its icon, and its labels in the selection bar and the context menu.
@@ -27,6 +28,7 @@ export const ACTIONS: Record<SelectionAction, {icon: IconName; label: string; ti
   wire: {icon: "wire", label: "Wire", title: "Start a wire from this pad", menuLabel: "Start Wire Here"},
   solder: {icon: "solder-path", label: "Solder", title: "Start a solder path from this pad", menuLabel: "Start Solder Path Here"},
   rotate: {icon: "rotate", label: "Rotate", title: "Rotate (R)", menuLabel: "Rotate", key: "R"},
+  "turn-round": {icon: "turn-round", label: "Turn round", title: "Turn it round end to end: its leads swap holes", menuLabel: "Turn Round"},
   color: {icon: "color", label: "Color", title: "Change color", menuLabel: "Change Color"},
   straighten: {icon: "straighten", label: "Straighten", title: "Take out the wire's bends", menuLabel: "Straighten"},
   "to-bottom": {icon: "to-bottom", label: "To solder side", title: "Move this wire to the solder side", menuLabel: "Move to Solder Side"},
@@ -55,6 +57,7 @@ export function availableActions(): SelectionAction[] {
   const {part} = selection;
   const actions: SelectionAction[] = [];
   if (isRotatable(part)) actions.push("rotate");
+  if (canTurnRound(part)) actions.push("turn-round");
   if (part.kind === "standard-component" && isLed(part.definitionId)) actions.push("color");
   if (part.kind !== "ic") actions.push("value");
   actions.push("duplicate", "select-more", "delete");
@@ -101,6 +104,8 @@ export function runSelectionAction(action: SelectionAction, button: HTMLElement,
     }
     case "rotate":
       return rotateSelectedIc();
+    case "turn-round":
+      return turnSelectedPartRound();
     case "color":
       return changeSelectedColor();
     case "straighten":

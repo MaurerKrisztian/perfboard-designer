@@ -49,7 +49,8 @@ const key = ([c, r]: GridPos) => `${c},${r}`;
 // pin tied to it.
 const POWER_NAME = /^([ADP]?GND|V(CC|DD|SS|EE|IN|BAT|BUS)\d*|V[+-]|[+-]?\d+(\.\d+)?V|\d+V\d+)$/i;
 
-const isPowerName = (name: string) => POWER_NAME.test(name);
+// A supply rail's name: "GND", "VCC", "5V", "3V3". Which side of the supply it is: rails.ts.
+export const isPowerName = (name: string) => POWER_NAME.test(name);
 
 // A name listing more than three, cut short: "GND/VCC/VDD/…".
 const MORE = "…";
