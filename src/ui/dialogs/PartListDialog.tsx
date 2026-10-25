@@ -6,15 +6,18 @@ import {holeName} from "../../project-file/grid";
 import {groupedPartListCsv, groupPartList, partList, partListCsv, TYPE_SEPARATOR} from "../../project-file/part-list";
 import {redrawCanvas} from "../../features/draw-canvas";
 import {downloadFileName, getSaveJson} from "../../features/project/save-project";
+import {PartListView, printPartList} from "../../features/project/print-part-list";
 import {Modal} from "../components/Modal";
 import {SegmentedControl} from "../components/SegmentedControl";
 import {useTouchScreen} from "../hooks/use-media-query";
+import {partInfo} from "../nets/part-info";
 
 // File → Component List: every part on the board in a table (src/project-file/part-list.ts works
 // it out from the save snapshot), each part on its own or grouped by part and value for buying
-// them, and the table shown downloaded as a CSV. A click on a part selects it on the board.
+// them, and the table shown downloaded as a CSV or printed (or saved as a PDF from the print
+// dialog). A click on a part selects it on the board.
 
-type View = "each" | "grouped";
+type View = PartListView;
 
 const VIEWS: {value: View; label: string}[] = [
   {value: "each", label: "Each part"},
@@ -23,10 +26,12 @@ const VIEWS: {value: View; label: string}[] = [
 
 // The table as shown, as a CSV file named after the project. A UTF-8 byte order mark first, so
 // spreadsheet apps read "Ω" and "µ" correctly.
+const projectName = () => ProjectState.current?.name?.trim() || "perfboard-project";
+
 function downloadCsv(text: string, view: View) {
   const url = URL.createObjectURL(new Blob(["\uFEFF", text], {type: "text/csv;charset=utf-8"}));
   const link = document.createElement("a");
-  const name = ProjectState.current?.name?.trim() || "perfboard-project";
+  const name = projectName();
   link.download = downloadFileName("csv", `${name} ${view === "each" ? "components" : "parts to buy"}`);
   link.href = url;
   link.click();
@@ -34,7 +39,8 @@ function downloadCsv(text: string, view: View) {
 }
 
 export function PartListDialog({onClose}: {onClose: () => void}) {
-  const [rows] = useState(() => partList(getSaveJson()));
+  const [project] = useState(getSaveJson);
+  const [rows] = useState(() => partList(project));
   const [view, setView] = useState<View>("each");
   const touch = useTouchScreen();
   const groups = groupPartList(rows);
@@ -106,6 +112,9 @@ export function PartListDialog({onClose}: {onClose: () => void}) {
       </div>
       <div className="modal-footer projects-footer">
         <span className="projects-footer-hint">{hint}</span>
+        <button className="btn" disabled={!rows.length} title="Print the table, or save it as a PDF from the print dialog"
+          onClick={() => printPartList({projectName: projectName(), view, rows, groups, board: project.board,
+            iconFor: ref => partInfo(project).get(ref)?.icon})}>PDF / Print</button>
         <button className="btn-primary" disabled={!rows.length}
           onClick={() => downloadCsv(view === "each" ? partListCsv(rows) : groupedPartListCsv(groups), view)}>Download CSV</button>
       </div>

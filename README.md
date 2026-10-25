@@ -163,7 +163,8 @@ galleries: [connectors](examples/new-components-connectors.json),
 3. **Check it in 3D**: open **3D View** to see how everything fits, and flip the board to check
    the solder side.
 4. **Save it and build it**: use **File → Save Project to File** to keep the design, and
-   **File → Download Image** to print a PNG for your workbench.
+   **File → Export PDF** for a project sheet: the board from both sides, the components and a
+   shopping list, the nets and checks, and true-size pages to lay your parts on at the workbench.
 
 ## Keyboard shortcuts and mouse controls
 

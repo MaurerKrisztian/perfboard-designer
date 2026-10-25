@@ -214,7 +214,10 @@ what the editor marks on it (`editorView()`), then draws the active tool's previ
 Rendering below.
 
 **Rendering** (`src/board-render/`): one renderer draws every 2D board — the editor's canvas, PNG
-and SVG export, Projects-dialog thumbnails, the catalog's chip icons, the MCP server's pictures —
+and SVG export, the project PDF (File › Export PDF, `project/project-document.ts`: its sections
+picked in `ExportPdfDialog.tsx`, the board scaled to the page or, by `print-board.ts`, sized in mm
+for true size; printed from `print-frame.ts`'s hidden frame, in `print-style.ts`'s look),
+Projects-dialog thumbnails, the catalog's chip icons, the MCP server's pictures —
 as `drawBoard(painter, project, view)`: a project file in, shapes out onto a `Painter`
 (`painter/painter.ts`: circle/arc/rect/line/polygon/path/text/image/group/stamp, each call carrying
 its whole style). Two painters: `CanvasPainter` (`src/features/board-canvas/canvas-painter.ts`,
@@ -513,7 +516,8 @@ project file alone like the nets: each part's ref, catalog name, value with its 
 colour by name: the LED colours, names and paints, live in `src/parts/component-definitions.ts`),
 type and pin 1's hole, or grouped by part and value, and either as CSV. The editor shows it in
 File → Component List (`src/ui/dialogs/PartListDialog.tsx`, a click selects the part) and
-downloads what it shows.
+downloads what it shows as CSV, or prints it, icons and all (`project/print-part-list.ts`, through
+`print-frame.ts`'s hidden frame, where the browser's Save as PDF makes a PDF).
 
 **Wire crossings** (`src/project-file/wire-crossings.ts`): jumper wires are insulated, so where
 one runs across another wire, or over a hole holding a pin, a lead or another wire's end, it goes

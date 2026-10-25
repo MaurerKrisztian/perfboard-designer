@@ -4,6 +4,7 @@ import {AskDialog} from "./AskDialog";
 import {ProjectsDialog} from "./ProjectsDialog";
 import {ShareDialog} from "./ShareDialog";
 import {PartListDialog} from "./PartListDialog";
+import {ExportPdfDialog} from "./ExportPdfDialog";
 import {IcEditorDialog} from "./IcEditorDialog";
 import {CustomModuleDialog} from "./CustomModuleDialog";
 import {CustomShapeDialog} from "./CustomShapeDialog";
@@ -19,6 +20,7 @@ export function Dialogs() {
       {open?.kind === "projects" && <ProjectsDialog startNew={open.startNew} onClose={closeDialog}/>}
       {open?.kind === "share" && <ShareDialog onClose={closeDialog}/>}
       {open?.kind === "part-list" && <PartListDialog onClose={closeDialog}/>}
+      {open?.kind === "export-pdf" && <ExportPdfDialog onClose={closeDialog}/>}
       {open?.kind === "custom-part" && <CustomPartDialog onClose={closeDialog}/>}
       {open?.kind === "ic-editor" && <IcEditorDialog type={open.type} editing={open.editing} onBack={back} onClose={closeDialog}/>}
       {open?.kind === "custom-module" && <CustomModuleDialog editing={open.editing} onBack={back} onClose={closeDialog}/>}

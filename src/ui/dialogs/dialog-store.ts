@@ -11,6 +11,7 @@ export type OpenDialog =
   | {kind: "projects"; startNew: boolean}
   | {kind: "share"}
   | {kind: "part-list"}
+  | {kind: "export-pdf"}
   // The parts list's one way to make a part of your own: pick what kind, then its editor below.
   | {kind: "custom-part"}
   // A new chip of `type`, or a custom one being edited. `fromChooser`: opened from custom-part,

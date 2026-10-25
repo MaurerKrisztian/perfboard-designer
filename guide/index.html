@@ -651,6 +651,24 @@
             Turn on <strong>Labels</strong> first to include part names and values, or switch to the
             <a href="#solder-side">solder side</a> to save that instead.
           </p>
+          <h3 id="export-pdf">Project PDF</h3>
+          <p>
+            <strong>File › Export PDF…</strong> makes one document about the project, for the bench,
+            a friend or your notes. Tick what goes in it:
+          </p>
+          <ul>
+            <li><strong>Overview:</strong> the name, the board's size, its figures (parts, nets, wires, joints), the board itself, and whether its checks found anything.</li>
+            <li><strong>Board pictures:</strong> the top with each part's ref, and the solder side as you'll hold it to solder.</li>
+            <li><strong>Components</strong> and the <strong>Shopping list</strong>, each part with its icon, the shopping list with a box to tick for each.</li>
+            <li><strong>Nets:</strong> which pins each net joins, to check the finished board with a meter.</li>
+            <li><strong>Checks:</strong> short circuits, parts in backwards, required connections not yet wired, and pins left unconnected.</li>
+            <li><strong>True size, 1:1:</strong> the top and the solder side at 2.54 mm from hole to hole, to lay your parts on or tape to the board while you solder. Print at 100% (Actual size), not "Fit to page": a 50 mm bar on each page lets you check the scale with a ruler.</li>
+          </ul>
+          <p>
+            Pick <strong>A4</strong> or <strong>US Letter</strong> paper (it starts on the one used where
+            you are). It opens your browser's print dialog: print it, or choose <strong>Save as PDF</strong>
+            as the printer to get the PDF. Your choices are remembered for next time.
+          </p>
           <h3 id="component-list">Component list</h3>
           <p>
             <strong>File › Component List…</strong> shows every part on the board in a table: its
@@ -658,7 +676,9 @@
             B12. Click a part to find it on the board. <strong>Grouped by value</strong> turns the
             table into a shopping list, with how many of each part and value you need, smallest value
             first. <strong>Download CSV</strong> saves the table as shown, ready for Excel, Google
-            Sheets or a supplier's order form.
+            Sheets or a supplier's order form. <strong>PDF / Print</strong> prints it as shown, each
+            part with its icon, and the shopping list with a box to tick for each part; choose
+            <strong>Save as PDF</strong> as the printer for a PDF.
           </p>
         </section>
 

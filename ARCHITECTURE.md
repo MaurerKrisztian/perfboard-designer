@@ -713,7 +713,21 @@ from the catalog, its value written out with its unit (an LED's colour by name, 
 paint), its catalog type and pin 1's hole; `groupPartList()` makes it a shopping list by part and
 value; `partListCsv()`/`groupedPartListCsv()` write either as CSV. The editor shows it in File →
 Component List (`src/ui/dialogs/PartListDialog.tsx`), where a click on a row selects that
-part.
+part. Its PDF / Print prints the table as shown (`src/features/project/print-part-list.ts`, each
+part with its catalog icon, which the dialog looks up with the Nets panel's `partInfo()`; the
+shopping list with a box to tick per row), through the browser's print dialog
+(`print-frame.ts`, shared with the project PDF), where Save as PDF makes the PDF.
+
+**Project PDF** (File › Export PDF, `src/ui/dialogs/ExportPdfDialog.tsx`): one document about the
+project, its sections ticked in the dialog (remembered, localStorage `pdf_sections`), on A4 or US
+Letter (`pdf_paper`; first the paper used where the computer is, by its time zone,
+`regionalPaper()`), which the page sets with `@page size` and sizes its pictures to, and laid out
+by `src/features/project/project-document.ts` from the project file alone: an overview (figures,
+the board, and a verdict from the checks), the board from both sides, the component and shopping
+tables (`print-part-list.ts`), the nets (`computeNets()`), the checks (`shortedRails()`,
+`polarityWarnings()`, `requiredNetReports()`, unconnected pins, wires connecting no pins) and
+true-size pages with a 50 mm check bar (`print-board.ts`). All printed pages share one look,
+`print-style.ts`, and print through `print-frame.ts`.
 
 ## 10. Rendering
 
@@ -861,6 +875,7 @@ definition's `iconFile`, else `<id>.svg`). Painters ask for icons by file name:
 | Editor board | `src/features/draw-canvas.ts` | `CanvasPainter` on the page canvas | `editorView()` |
 | PNG export | `src/features/project/save-image.ts` (`downloadAsImage`) | `CanvasPainter` on an offscreen canvas at 2× | labels as shown |
 | SVG export | `save-image.ts` (`downloadAsSvg`) | `renderBoardSvg` with fetched icons | labels as shown |
+| Project PDF | `src/features/project/project-document.ts` (`exportProjectPdf`), its board pictures from `print-board.ts` | `renderBoardSvg`, scaled to the page, or sized in mm (2.54 mm a hole) for the true-size pages | top with labels, and the solder side |
 | Thumbnails | `src/features/project/project-thumbnail.ts` | `CanvasPainter`, scaled to fit | `PLAIN_VIEW` |
 | Catalog chip icons | `dipIconSvg()` / `moduleIconSvg()` in `artists/ic-package/` | `SvgPainter` | n/a |
 | MCP pictures | `mcp/src/board-image.ts`, Worker `GET /render.svg` | `renderBoardSvg`, icons baked in | labels on |

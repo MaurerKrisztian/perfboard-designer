@@ -1,6 +1,7 @@
 import {boardSizePx, drawBoard, iconsUsedBy, renderBoardSvg} from "../../board-render";
 import type {BoardView} from "../../board-render";
 import {COMPONENT_ICON_DIR} from "../../parts/component-definitions";
+import type {ProjectFile} from "../../project-file/project-file";
 import {ViewState} from "../../state/ViewState";
 import {CanvasPainter} from "../board-canvas/canvas-painter";
 import {browserIcons} from "../board-canvas/browser-icons";
@@ -37,19 +38,24 @@ export async function downloadAsImage() {
   download(canvas.toDataURL(), "png");
 }
 
-export async function downloadAsSvg() {
-  const project = getSaveJson();
-  // The SVG carries its icons inside it, so it shows the same anywhere it's opened.
+// The part icons `project` uses, as SVG source for an SVG to carry inside it, so it shows the same
+// anywhere it's opened. One that won't load is left out: its part gets its stand-in box.
+export async function embeddedIcons(project: ProjectFile): Promise<(icon: string) => string | undefined> {
   const icons = new Map<string, string>();
   await Promise.all(iconsUsedBy(project).map(async icon => {
     try {
       const response = await fetch(`${COMPONENT_ICON_DIR}${icon}`);
       if (response.ok) icons.set(icon, await response.text());
     } catch {
-      // Left out: the part gets its stand-in box.
+      // Left out.
     }
   }));
-  const svg = renderBoardSvg(project, {icons: icon => icons.get(icon), view: exportView()});
+  return icon => icons.get(icon);
+}
+
+export async function downloadAsSvg() {
+  const project = getSaveJson();
+  const svg = renderBoardSvg(project, {icons: await embeddedIcons(project), view: exportView()});
   const url = URL.createObjectURL(new Blob([svg], {type: "image/svg+xml"}));
   download(url, "svg");
   setTimeout(() => URL.revokeObjectURL(url), 10_000);

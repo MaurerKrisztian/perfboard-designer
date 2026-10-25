@@ -50,6 +50,7 @@ export function AppHeader() {
               <MenuDivider/>
               <MenuItem onClick={() => void downloadAsImage()}>Download Image</MenuItem>
               <MenuItem onClick={() => void downloadAsSvg()}>Download SVG</MenuItem>
+              <MenuItem onClick={() => openDialog({kind: "export-pdf"})}>Export PDF...</MenuItem>
               <MenuDivider/>
               <MenuItem onClick={() => openDialog({kind: "part-list"})}>Component List...</MenuItem>
               <MenuDivider/>
