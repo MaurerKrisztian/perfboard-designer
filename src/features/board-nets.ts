@@ -4,7 +4,7 @@ import {onProjectChange} from "./project/current-project";
 import {computeNets, Net, NetPin} from "../project-file/nets";
 import {GridPos} from "../project-file/grid";
 import {ProjectFile, SavedWire} from "../project-file/project-file";
-import type {RequiredPin} from "../project-file/requirements";
+import {RequiredPin, requiredPinKey} from "../project-file/requirements";
 import {NetHighlightState} from "../state/NetHighlightState";
 import {ProjectState} from "../state/ProjectState";
 import {highlightRequirements} from "./requirement-highlight";
@@ -61,6 +61,24 @@ export function highlightRequiredPins(pins: RequiredPin[]) {
   highlightRequirements(current.project, pins, current.nets);
   picked = undefined;
   redrawCanvas();
+}
+
+const pinsKey = (pins: RequiredPin[]) => pins.map(requiredPinKey).sort().join(" ");
+
+// Which required pins are lit (a key for the set), if the light shows requirements.
+export function litRequiredPins(): string | undefined {
+  const pins = NetHighlightState.current?.requirements;
+  return pins && pinsKey(pins);
+}
+
+// Lights up these required pins' board nets, or puts the light out when it shows them already.
+export function toggleRequiredPins(pins: RequiredPin[]) {
+  if (litRequiredPins() === pinsKey(pins)) {
+    setPicked(undefined);
+    redrawCanvas();
+    return;
+  }
+  highlightRequiredPins(pins);
 }
 
 // After a change, the lit net is the one now holding most of its pins (none if they're all gone),

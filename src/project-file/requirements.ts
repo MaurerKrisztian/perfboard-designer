@@ -1,6 +1,6 @@
 import type { ProjectFile } from "./project-file";
 import { partPins } from "./pin-positions";
-import { computeNets, Net, NetPin } from "./nets";
+import { boardPins, computeNets, Net, NetPin, netName, pinId, pinName } from "./nets";
 
 export interface RequiredPin {
   componentId: string;
@@ -179,6 +179,101 @@ export function connectRequiredPins(
   };
 }
 
+// Makes `pins` one required net: the net `netId` when it exists (its pins replaced, its place kept),
+// else a new one. A pin already in another net moves here (a net left with one pin goes) and is
+// no longer marked unused. Fewer than two pins leave no net, so this also deletes one. Every pin
+// must already be in the inventory (includeRequiredComponents).
+export function setRequiredNet(
+  requirements: CircuitRequirements,
+  netId: string | undefined,
+  pins: RequiredPin[]
+): CircuitRequirements {
+  const unique = [
+    ...new Map(
+      pins.map(({ componentId, pin }) => [
+        requiredPinKey({ componentId, pin }),
+        { componentId, pin },
+      ])
+    ).values(),
+  ];
+  const keys = new Set(unique.map(requiredPinKey));
+  const taken = new Set(requirements.nets.map((net) => net.id));
+  const editing = netId !== undefined && taken.has(netId);
+  let id = editing ? (netId as string) : undefined;
+  if (!id) {
+    let sequence = 1;
+    while (taken.has(`net-${sequence}`)) sequence++;
+    id = `net-${sequence}`;
+  }
+  const replacement: RequiredNet = { id, pins: unique };
+  const nets: RequiredNet[] = [];
+  for (const net of requirements.nets) {
+    if (editing && net.id === netId) {
+      if (unique.length > 1) nets.push(replacement);
+      continue;
+    }
+    const kept = net.pins.filter((pin) => !keys.has(requiredPinKey(pin)));
+    if (kept.length > 1)
+      nets.push(kept.length === net.pins.length ? net : { ...net, pins: kept });
+  }
+  if (!editing && unique.length > 1) nets.push(replacement);
+  return {
+    ...requirements,
+    nets,
+    unused: requirements.unused.filter((pin) => !keys.has(requiredPinKey(pin))),
+  };
+}
+
+// One required net as the board has it: its pins by name (as nets name them, "U1.8 VCC", "D1.K"),
+// which of them are on the board, and whether the board joins them all.
+export interface RequiredNetReport {
+  id: string;
+  // From its pins' names, as the board's nets are named ("GND"); absent when none is named.
+  name?: string;
+  pins: { pin: RequiredPin; name: string; onBoard: boolean }[];
+  wired: boolean;
+}
+
+export function requiredNetReports(
+  project: ProjectFile,
+  actual: Net[] = computeNets(project).nets
+): RequiredNetReport[] {
+  const ids = new Map(
+    entries(project).map((part) => [part.ref, part.instanceId ?? part.ref])
+  );
+  const netOf = new Map<string, Net>();
+  const boardPin = new Map<string, NetPin>();
+  for (const net of actual) {
+    for (const pin of net.pins) {
+      const key = requiredPinKey({
+        componentId: ids.get(pin.ref) as string,
+        pin: pin.pin,
+      });
+      netOf.set(key, net);
+      boardPin.set(key, pin);
+    }
+  }
+  return (project.requirements?.nets ?? []).map((net) => {
+    const onBoard = net.pins.flatMap((pin) => boardPin.get(requiredPinKey(pin)) ?? []);
+    const pins = net.pins.map((pin) => {
+      const found = boardPin.get(requiredPinKey(pin));
+      return {
+        pin,
+        name: found ? pinName(found) : requirementPinName(project, pin),
+        onBoard: !!found,
+      };
+    });
+    const groups = new Set(net.pins.map((pin) => netOf.get(requiredPinKey(pin))));
+    const name = netName(onBoard);
+    return {
+      id: net.id,
+      ...(name ? { name } : {}),
+      pins,
+      wired: onBoard.length === net.pins.length && groups.size === 1,
+    };
+  });
+}
+
 export function forgetRequiredComponent(
   requirements: CircuitRequirements,
   id: string
@@ -196,17 +291,39 @@ export function forgetRequiredComponent(
   };
 }
 
+// Each board pin's name as nets give it ("D1.K", "U1.8"), by requiredPinKey, worked out once per
+// project file.
+const boardPinNames = new WeakMap<ProjectFile, Map<string, string>>();
+
+function pinNamesOf(project: ProjectFile): Map<string, string> {
+  let names = boardPinNames.get(project);
+  if (!names) {
+    const ids = new Map(
+      entries(project).map((part) => [part.ref, part.instanceId ?? part.ref])
+    );
+    names = new Map(
+      boardPins(project).map((pin) => [
+        requiredPinKey({ componentId: ids.get(pin.ref) as string, pin: pin.pin }),
+        pinId(pin),
+      ])
+    );
+    boardPinNames.set(project, names);
+  }
+  return names;
+}
+
+// A required pin as nets name it ("D1.K", "U1.8"); a part no longer on the board by the ref it had
+// and the pin's number.
 export function requirementPinName(
   project: ProjectFile,
   pin: RequiredPin
 ): string {
-  const saved = entries(project).find(
-    (part) => (part.instanceId ?? part.ref) === pin.componentId
-  );
+  const onBoard = pinNamesOf(project).get(requiredPinKey(pin));
+  if (onBoard) return onBoard;
   const remembered = project.requirements?.components.find(
     (part) => part.id === pin.componentId
   );
-  return `${saved?.ref ?? remembered?.ref ?? pin.componentId}.${pin.pin}`;
+  return `${remembered?.ref ?? pin.componentId}.${pin.pin}`;
 }
 
 export function requirementNets(project: ProjectFile): Net[] {

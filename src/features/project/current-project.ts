@@ -5,6 +5,7 @@ import {getSaveJson} from "./save-project";
 import {loadProject} from "./load-project";
 import {ProjectState} from "../../state/ProjectState";
 import {ProjectFile} from "../../project-file/project-file";
+import {NewBoard, rememberNewBoard, savedBoardFor} from "./new-board";
 import {ProjectFileError, readProjectFile, ReadProjectResult} from "../../project-file/read-project-file";
 import {
   createStoredProject, deleteStoredProject, getLastOpenProjectId, getStoredProject, listStoredProjects,
@@ -106,10 +107,12 @@ function createAndOpen(name: string, project: ProjectFile): boolean {
   return openProject(id);
 }
 
-// Starts an empty project, on a board of the open one's type and size, and opens it.
-export function newProject(name: string): boolean {
+// Starts an empty project and opens it: on `board` when given (the New project card's choice,
+// remembered as the next one's starting point), else on a board of the open one's type and size.
+export function newProject(name: string, setup?: NewBoard): boolean {
   const current = getSaveJson();
-  const board = current.board.type === "stripboard" ? {...current.board, cuts: []} : current.board;
+  if (setup) rememberNewBoard(setup);
+  const board = setup ? savedBoardFor(setup) : current.board.type === "stripboard" ? {...current.board, cuts: []} : current.board;
   return createAndOpen(name, {
     ...current, requirements: undefined, board, pads: [], wires: [], placedIcs: [], placedStandardComponents: [], placedAdvancedComponents: [],
   });

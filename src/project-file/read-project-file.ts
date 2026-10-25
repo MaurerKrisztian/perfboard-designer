@@ -23,7 +23,7 @@ export interface ReadProjectResult {
 const NOT_A_PROJECT = "This file isn't a Perfboard Designer project.";
 // A bigger board almost certainly means a corrupt or hostile file, and building it would hang the
 // tab. Far beyond any real perfboard (the largest preset is 29 x 43).
-const MAX_BOARD_SIDE = 500;
+export const MAX_BOARD_SIDE = 500;
 
 type Entry = Record<string, unknown>;
 

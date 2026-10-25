@@ -6,6 +6,7 @@ import {solderTool, wireTool} from "./wire-tool";
 import {icTool} from "./ic-tool";
 import {standardComponentTool} from "./standard-component-tool";
 import {advancedComponentTool} from "./advanced-component-tool";
+import {requiredNetTool} from "./required-net-tool";
 
 const BEHAVIORS: {[K in ActiveTool["kind"]]: ToolBehavior<Extract<ActiveTool, {kind: K}>>} = {
   "select": selectTool,
@@ -17,6 +18,7 @@ const BEHAVIORS: {[K in ActiveTool["kind"]]: ToolBehavior<Extract<ActiveTool, {k
   "ic": icTool,
   "standard-component": standardComponentTool,
   "advanced-component": advancedComponentTool,
+  "required-net": requiredNetTool,
 };
 
 // The behavior for a tool's kind. The cast is safe - BEHAVIORS pairs every kind with the behavior

@@ -1,25 +1,15 @@
 import {useEffect, useState} from "react";
 import {BoardState} from "../../state/BoardState";
-import {BoardType, StripDirection} from "../../project-file/project-file";
 import {switchBoard} from "../../features/board-type";
 import {boardSize, resizeBoard} from "../../features/project/resize-grid";
 import {GRID_PRESETS} from "../../features/project/grid-presets";
 import {SegmentedControl} from "../components/SegmentedControl";
+import {BOARD_TYPES, STRIP_DIRECTIONS} from "../components/BoardSetupFields";
 import {useEditor} from "../hooks/use-editor";
 import {SidebarSection} from "./SidebarSection";
 
 // The Board section: perfboard or stripboard (and a stripboard's strip direction), and the board's
 // size in holes, typed or picked from the common board sizes.
-
-const BOARD_TYPES: {value: BoardType; label: string}[] = [
-  {value: "perfboard", label: "Perfboard"},
-  {value: "stripboard", label: "Stripboard"},
-];
-
-const STRIP_DIRECTIONS: {value: StripDirection; label: string}[] = [
-  {value: "horizontal", label: "↔ Horizontal strips"},
-  {value: "vertical", label: "↕ Vertical strips"},
-];
 
 export function BoardSection() {
   const setup = useEditor(() => BoardState.setup);

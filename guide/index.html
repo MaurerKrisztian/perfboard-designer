@@ -133,6 +133,7 @@
           <li><a href="#stripboard">Stripboard and strip cuts</a></li>
           <li><a href="#nets">Check connections</a></li>
           <li><a href="#solder-side">Solder side view</a></li>
+          <li><a href="#requirements">Required connections</a></li>
           <li><a href="#3d-view">The 3D view</a></li>
           <li><a href="#saving">Save, share and export</a></li>
           <li><a href="#ai">Design with AI</a></li>
@@ -152,7 +153,7 @@
           <ol class="steps">
             <li>
               <h3>Pick the board</h3>
-              <p>In <strong>Board</strong>, choose <strong>Perfboard</strong> or <strong>Stripboard</strong>, then a preset size or the number of holes across (W) and down (H), and click <strong>Resize</strong>.</p>
+              <p>The card over the empty board says what it's on, such as <strong>Perfboard, 14 × 20 holes</strong>. Click <strong>Change</strong> to pick <strong>Perfboard</strong> or <strong>Stripboard</strong> and a size, either one of the sizes boards are sold in or the number of holes across and down. A new project (<strong>File › New Project…</strong>) asks the same when you start it. Then click <strong>Start from scratch</strong>, or <strong>Open an example</strong> to look around a finished 555 blinker first, or <strong>Design it with AI</strong> to have an AI assistant lay the board out for you (see <a href="#ai">below</a>).</p>
             </li>
             <li>
               <h3>Place the parts</h3>
@@ -202,6 +203,8 @@
             number of holes across (<strong>W</strong>) and down (<strong>H</strong>) to match the
             board on your bench and click <strong>Resize</strong>, or click a preset such as
             <strong>5x7</strong> or <strong>7x9</strong> (in centimetres, the sizes boards are sold in).
+            While the board is still empty, the card over it does the same: click <strong>Change</strong>
+            on it.
           </p>
           <p>
             Like a real board, the edge is printed with each column's number (from 1) and each row's
@@ -355,7 +358,9 @@
             tool and the wire tool, from an empty hole or a part's pin. The wire routes itself as an
             <strong>L</strong> with one bend, going first the way you moved first (across, then down;
             or down, then across), and straight when the two holes line up. Press <kbd>/</kbd> while
-            dragging to flip the L, or hold <kbd>Shift</kbd> for a straight wire. It shows dashed as
+            dragging to flip the L, or hold <kbd>Shift</kbd> for a straight wire (with the Select tool,
+            press <kbd>Shift</kbd> once you've started dragging: held as you press, it draws a
+            <a href="#editing">selection box</a> instead). It shows dashed as
             you drag and is placed when you let go on a different hole; let go on the hole you started
             from, or press <kbd>Esc</kbd>, to drop it. You can also right-click a hole and choose
             <strong>Start Wire Here</strong>. On a phone, dragging pans the board instead: see
@@ -441,6 +446,9 @@
             <li><strong>Select</strong> (the default tool): click a part, wire or hole to select it. Drag a part to move it to new holes.</li>
             <li>A selected item gets a bar along the bottom of the board with what you can do to it: <strong>Rotate</strong> a chip or other part that turns, change the <strong>Color</strong> of a wire or LED, <strong>Straighten</strong> a bent wire, set a part's <strong>Value</strong>, add a <strong>Note</strong> to a hole, and <strong>Delete</strong>. <strong>Right-click</strong> anything for the same actions as a menu.</li>
             <li><kbd>Delete</kbd> removes the selected part or wire.</li>
+            <li><strong>Select several at once</strong>: hold <kbd>Shift</kbd> and click parts and wires to add them to the selection (Shift-click one again to take it out), or hold <kbd>Shift</kbd> and drag a box: everything that lies wholly inside it is selected. <kbd>Ctrl</kbd>+<kbd>A</kbd> selects every part and wire. Or click <strong>Select more</strong> in the bar along the bottom of the board, and plain clicks and drags do the same until you click it again.</li>
+            <li>Drag any of the selected parts, or one of the selected wires, and they all move together; wires you didn't select stay where they are. A click on one of them, without dragging, selects just that one. <kbd>Delete</kbd> removes them all, and <strong>Undo</strong> brings them all back in one go.</li>
+            <li><strong>Copy and paste</strong>: <kbd>Ctrl</kbd>+<kbd>C</kbd> copies the selected parts and wires, <kbd>Ctrl</kbd>+<kbd>X</kbd> cuts them, and <kbd>Ctrl</kbd>+<kbd>V</kbd> pastes them with their top-left corner at the hole under the pointer, into this project or another one. <strong>Duplicate</strong> in the bar (or <kbd>Ctrl</kbd>+<kbd>D</kbd>) puts a copy beside the original, where there's room. Copies are new parts, numbered on from the board's own (a copy of R3 might be R7), with the same values.</li>
             <li><strong>Eraser</strong>: click a part or wire to remove it, or a hole to clear its note.</li>
             <li><strong>Note</strong>: click a hole to write a note on it, such as "to 9V battery" or "solder last". Notes show in the bar below the board when you point at the hole. With a hole selected, <kbd>D</kbd> adds a note and <kbd>Shift</kbd>+<kbd>D</kbd> removes it.</li>
             <li><strong>Undo</strong> and <strong>Redo</strong> with <kbd>Ctrl</kbd>+<kbd>Z</kbd> and <kbd>Ctrl</kbd>+<kbd>Y</kbd>, or the arrow buttons above the board. They're greyed out when there's nothing to undo or redo.</li>
@@ -463,7 +471,8 @@
           <ul>
             <li><strong>+</strong> slides up the Components library. Pick a part and it slides away again, ready for you to tap the board.</li>
             <li>While you place a part or a wire, a hint over the board says what to tap next, such as "Tap start pad", with a button to cancel and, for chips, one to rotate the part first.</li>
-            <li>Tap a part, wire or hole to select it. A bar along the bottom shows what you can do to it: wire, solder, rotate, color, value, note and delete. Pressing and holding it opens the same actions as a menu.</li>
+            <li>Tap a part, wire or hole to select it. A bar along the bottom shows what you can do to it: wire, solder, rotate, color, value, note, duplicate and delete. Pressing and holding it opens the same actions as a menu.</li>
+            <li>To select several parts and wires, tap <strong>Select more</strong> in that bar, then tap each one you want (tap one again to take it out). Tap <strong>Select more</strong> again when you're done. Drag any of them with one finger and they all move.</li>
             <li>Drag with one finger to pan. In Select mode, drag a part's body to move it, or a selected wire's handles to <a href="#wires">bend it</a>, straight away or after holding your finger still (double-tap a bend to take it out).</li>
             <li>To draw a wire, press and hold a hole or a pin and choose <strong>Start Wire Here</strong>, then tap the holes it bends at and the one it goes to. Or keep your finger down after the menu appears and drag to that hole: the wire bends once, as an L, and a tap with a second finger flips it. Tapping a hole also gives a <strong>Wire</strong> button in the bar along the bottom.</li>
             <li>To draw a <a href="#solder-paths">solder path</a>, tap <strong>Solder</strong> in the bottom toolbar, then tap the holes it runs through; tap the last one again to end it. Pressing and holding a hole also offers <strong>Start Solder Path Here</strong>, and a selected hole has a <strong>Solder</strong> button.</li>
@@ -507,10 +516,14 @@
             A <strong>net</strong> is a set of pins that are electrically connected. The
             <strong>Nets</strong> panel on the right works them out live from your wires, shared
             holes and, on a stripboard, the strips and cuts. Each net is named from its pins where it
-            can be, for example GND, VCC or OUT, and lists its pins as "U1.8 VCC", "R1.1" or
-            "D1.K" (the LED's cathode).
+            can be, for example GND, VCC or OUT, with a ground or supply symbol before a rail. Each
+            pin shows its part's icon from the parts list.
           </p>
           <ul>
+            <li><strong>Detailed</strong> (the switch at the top of the panel) gives each pin a line
+              saying what it is: <strong>D1</strong> LED · Red, cathode (K), or <strong>U1</strong>
+              NE555 Timer, pin 8 · VCC. <strong>Short</strong> packs them into chips, "U1.8 VCC",
+              "R1.1" or "D1.K", for a long list; hover a chip for the same words.</li>
             <li><strong>Click a net</strong> to highlight its holes and wires on the board; click it again to turn the highlight off.</li>
             <li><strong>Not connected</strong> lists pins wired to nothing, the most common slip on a real board.</li>
             <li><strong>Connecting no pins</strong> lists wires that don't reach any part.</li>
@@ -545,16 +558,27 @@
         </section>
 
         <section id="requirements">
-          <h2>Requirements check</h2>
-          <p>A project can carry <strong>requirements</strong>: the connections the board is meant
-            to have, which an AI agent or another program can write into the project file. When a
-            board has them, the <strong>Nets</strong> panel shows a Requirements card that reports
-            missing connections, unexpected joins, missing components or pins, and pins nobody has
-            specified. Click a report to highlight its board nets. An incomplete plan never reports
-            a full match, and this checks connectivity, not whether the circuit will operate.</p>
-          <p>Requirements are saved in the project file and share links, and editing the board
-            never changes them. Parts you add are added to their list of components without being
-            connected to anything.</p>
+          <h2>Required connections: check the board against your schematic</h2>
+          <p>Optionally, list the nets your circuit should have, and the editor ticks each one off
+            as you wire it. Open <strong>Required connections</strong> at the top of the
+            <strong>Nets</strong> panel:</p>
+          <ul>
+            <li><strong>Add a net</strong>, then click the pins it joins on the board (click one
+              again to take it out) and press <kbd>Enter</kbd> or <strong>Save net</strong>.
+              <kbd>Esc</kbd> cancels. Place the parts first: a net is made of their pins.</li>
+            <li><strong>Use current wiring</strong> copies every net the board has now, so any
+              later change that breaks one shows up.</li>
+            <li>Each net shows a tick once the board joins all its pins, or <strong>To wire</strong>
+              until then. Click a net to light it up on the board; the pencil changes its pins and
+              the bin deletes it.</li>
+            <li>Problems are listed above the nets: a wire joining two nets that should be apart, or
+              a required part that's gone from the board (<strong>Forget it</strong> stops
+              requiring it).</li>
+          </ul>
+          <p>The list is saved in the project file and share links, editing the board never changes
+            it, and <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes changes to it. An AI agent can write one too.
+            Pins left out of every net aren't checked, and this checks connectivity, not whether the
+            circuit will operate. <strong>Remove list</strong> takes it away.</p>
         </section>
         <section id="3d-view">
           <h2>Preview the board in 3D</h2>
@@ -585,7 +609,9 @@
             Every board is a project, saved automatically in your browser as you edit. Click the
             project name in the header, or <strong>File › Open Project…</strong>, to see them all
             with thumbnails, and open, rename, duplicate or delete them. <strong>File › New
-            Project…</strong> starts a fresh board.
+            Project…</strong> starts a fresh board: name it, pick perfboard or stripboard and a size,
+            with a picture of the board as you choose, and click <strong>Create project</strong>. The
+            next new project starts from the same choice.
           </p>
           <div class="tip">
             <p><strong>Keep a backup:</strong> browser storage is cleared if you clear your site data. Use <strong>File › Save Project to File…</strong> to download a project file, and <strong>Import Project from File…</strong> to open it again on any computer.</p>
@@ -646,10 +672,16 @@
                 <tr><td><kbd>S</kbd></td><td>Turn the solder path tool on or off</td></tr>
                 <tr><td><kbd>R</kbd></td><td>Rotate the part you're placing, or the selected part</td></tr>
                 <tr><td><kbd>Esc</kbd></td><td>Take back a wire's last bend, end a wire run, put down the part you're placing, or clear the selection</td></tr>
-                <tr><td><kbd>Enter</kbd></td><td>End the wire you're drawing at its last bend</td></tr>
+                <tr><td><kbd>Enter</kbd></td><td>End the wire you're drawing at its last bend, or save the required net you're picking</td></tr>
                 <tr><td><kbd>/</kbd> while dragging a wire</td><td>Flip its L</td></tr>
-                <tr><td><kbd>Shift</kbd> while dragging a wire</td><td>Draw it straight</td></tr>
-                <tr><td><kbd>Delete</kbd></td><td>Delete the selected part or wire</td></tr>
+                <tr><td><kbd>Shift</kbd> while dragging a wire</td><td>Draw it straight (with the Select tool, press it once the wire is on its way: held as you press, it draws a selection box)</td></tr>
+                <tr><td><kbd>Delete</kbd></td><td>Delete the selected parts and wires</td></tr>
+                <tr><td><kbd>Shift</kbd> + click</td><td>Add a part or wire to the selection, or take it out</td></tr>
+                <tr><td><kbd>Shift</kbd> + drag</td><td>Select everything inside a box</td></tr>
+                <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>Select every part and wire</td></tr>
+                <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>X</kbd></td><td>Copy or cut the selected parts and wires</td></tr>
+                <tr><td><kbd>Ctrl</kbd>+<kbd>V</kbd></td><td>Paste at the hole under the pointer</td></tr>
+                <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>Duplicate the selected parts and wires</td></tr>
                 <tr><td><kbd>C</kbd></td><td>Change the color of the selected wire</td></tr>
                 <tr><td><kbd>D</kbd></td><td>Add a note to the selected hole</td></tr>
                 <tr><td><kbd>Shift</kbd>+<kbd>D</kbd></td><td>Remove the selected hole's note</td></tr>

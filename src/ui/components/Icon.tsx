@@ -25,6 +25,8 @@ const ICONS = {
   "rotate": <><path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/></>,
   "color": <path d="M12 2.7 17.7 8.4a8 8 0 1 1-11.4 0z"/>,
   "value": <path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/>,
+  "duplicate": <><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></>,
+  "select-more": <><path d="M4 3l6.5 17 2.4-7.1 7.1-2.4z"/><path d="M18 15v6M15 18h6"/></>,
   "trash": <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>,
   "x": <path d="M18 6 6 18M6 6l12 12"/>,
   "nets": <><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></>,
@@ -36,6 +38,12 @@ const ICONS = {
   "link": <><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></>,
   "solder": <><path d="M3 20h18"/><path d="M7 20v-3a5 5 0 0 1 10 0v3"/><path d="M12 12V3M9 6l3-3 3 3"/></>,
   "cube": <><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></>,
+  "ground": <path d="M12 3v9M5 12h14M8 16h8M10.5 20h3"/>,
+  "bolt": <path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/>,
+  "check": <path d="M4 12.5l5 5L20 6.5"/>,
+  "pencil": <><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z"/><path d="M14.5 5.5l3 3"/></>,
+  "sparkle": <><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></>,
+  "external": <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>,
 } satisfies Record<string, ReactNode>;
 
 export type IconName = keyof typeof ICONS;

@@ -16,7 +16,7 @@ export const selectTool: ToolBehavior<Extract<ActiveTool, {kind: "select"}>> = {
     selectAt(x, y, true);
     return true;
   },
-  statusText: () => "Select [Drag from a pad to draw a wire]",
+  statusText: () => "Select [Drag from a pad to draw a wire • Shift-drag to select several]",
 };
 
 // Removes the topmost part under the pointer, else the wire, else the hole's note.

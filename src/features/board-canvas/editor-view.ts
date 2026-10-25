@@ -7,18 +7,19 @@ import {SelectionState} from "../../state/SelectionState";
 import {ToolState} from "../../state/ToolState";
 import {ViewState} from "../../state/ViewState";
 
-// What the editor marks on the board, for the board renderer: the selection, what's under the
-// pointer, a placement's first click, the net picked in the Nets panel, and whether part labels
-// are on. Items are named as the project file knows them (a part by ref, a wire by its index,
-// a hole by its position), since that's what the renderer draws from.
+// What the editor marks on the board, for the board renderer: the selection (one item, or several
+// parts and wires), what's under the pointer, a placement's first click, the net picked in the
+// Nets panel (or the pins picked for a required net), and whether part labels are on. Items are named as the project file knows them (a
+// part by ref, a wire by its index, a hole by its position), since that's what the renderer draws
+// from.
 
-function selectedItem(): BoardItem | undefined {
+function selectedItems(): BoardItem[] {
   const selection = SelectionState.current;
-  if (!selection) return undefined;
-  if (selection.kind === "part") return {kind: "part", ref: selection.part.ref};
-  if (selection.kind === "dot") return {kind: "hole", at: toGridPos(selection.dot)};
-  const index = LineState.lines.indexOf(selection.line);
-  return index >= 0 ? {kind: "wire", index} : undefined;
+  if (selection?.kind === "dot") return [{kind: "hole", at: toGridPos(selection.dot)}];
+  const parts = SelectionState.parts.map((part): BoardItem => ({kind: "part", ref: part.ref}));
+  const wires = SelectionState.lines.map(line => LineState.lines.indexOf(line)).filter(index => index >= 0)
+    .map((index): BoardItem => ({kind: "wire", index}));
+  return [...parts, ...wires];
 }
 
 function hoveredItems(): BoardItem[] {
@@ -32,11 +33,15 @@ function hoveredItems(): BoardItem[] {
 export function editorView(): BoardView {
   if (ViewState.solderSide) return {solderSide: true, holeLabels: true};
   const start = ToolState.pendingStart;
-  const net = NetHighlightState.current;
+  const tool = ToolState.active;
+  // While a required net's pins are being picked, they're what's lit.
+  const net = tool.kind === "required-net"
+    ? {holes: tool.picked.flatMap(pin => pin.at ? [pin.at] : []), wires: []}
+    : NetHighlightState.current;
   return {
     partLabels: ViewState.showPartLabels,
     holeLabels: true,
-    selected: selectedItem(),
+    selected: selectedItems(),
     hovered: hoveredItems(),
     ...(start ? {startHole: toGridPos(start)} : {}),
     ...(net ? {highlight: {holes: net.holes, wires: net.wires}} : {}),

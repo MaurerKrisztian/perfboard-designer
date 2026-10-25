@@ -21,9 +21,20 @@ board edits never overwrite intended connections. The reader rejects malformed/o
 assignments rather than silently discarding constraints. An unassigned terminal is unchecked,
 not implicitly disconnected. Only complete coverage with no mismatches reports a match.
 
-The editor keeps the open project's requirements in `RequirementsState`; there is no editor
-for them in the app, they come from project files, share links and MCP edits.
-`src/ui/nets/RequirementsCard.tsx` renders the shared comparator in the Nets sidebar, and
+The editor keeps the open project's requirements in `RequirementsState`. They're optional: a
+project has none until the user adds a net, copies in the board's wiring, or they come from a
+project file, share link or MCP edit. The Nets panel's Required connections
+(`src/ui/nets/RequirementsCard.tsx`) is folded away until wanted. It lists each required net
+from `requiredNetReports()`, ticked once the board joins its pins, with the shared comparator's
+other problems (unexpected joins, parts gone from the board, which Forget drops) above them.
+Adding or changing a net arms the `required-net` tool (`src/features/tools/required-net-tool.ts`):
+clicking a pin picks it or takes it back out, the picked pins light up on the board
+(`editor-view.ts`), Enter or the bar over the board (`RequiredNetBar.tsx`) saves them through
+`setRequiredNet()` (a pin picked from another net moves out of it), and Escape drops them.
+`src/features/required-nets.ts` makes every change, a deleted net or the whole list removed
+too, one undoable `set`. `requirementPinName()` names pins as nets do ("D1.K"), so the
+comparator's messages match the chips.
+`RequirementsCard.tsx` renders the shared comparator in the Nets sidebar, and
 `requirement-highlight.ts` gives multi-net diagnostics stable-identity highlights. Physical board
 wiring remains authoritative for actual connectivity, including strip copper. `placePart()`
 extends an existing requirement inventory and records the part plus requirement change as one
@@ -191,7 +202,7 @@ sections; the tool modes as a row for the phone), `catalog/` (the left panel's P
 `board/` (the board's toolbar, canvas, selection bar, menus, the status and its text, the hover
 readout, the empty board's start card), `nets/` (nets, requirements, shortcuts legend), `dialogs/`,
 `mobile/`. `components/` holds the shared pieces (`Modal`, `Icon`,
-`SegmentedControl`, `NumberField`), `hooks/` the shared hooks, `lib/` small helpers. Components
+`SegmentedControl`, `NumberField`, `BoardSetupFields`), `hooks/` the shared hooks, `lib/` small helpers. Components
 use the class names in `src/style.css`; there's no CSS-in-JS.
 
 **The look.** The editor is made of a circuit board's materials: soldermask green-black surfaces
@@ -219,12 +230,16 @@ store, and no instances are made.
 | `DotState`, `LineState` | every hole (`IDot`) and wire (`ILine`), plus what's hovered |
 | `PartState` | every placed part, in one list grouped by kind (section 5) |
 | `BoardState` | perfboard or stripboard, and the strip direction |
-| `SelectionState` | the one selected hole, wire *or* part (a discriminated union) |
+| `SelectionState` | the selected hole, wire *or* part, or several parts and wires (a discriminated union), and whether Select more is on |
 | `ToolState` | the active tool: a toolbar mode or a placement tool (a discriminated union) |
 | `ViewState` | zoom and Fit, labels on/off, the solder side, what's under the pointer |
 | `NetHighlightState`, `HistoryState`, `ProjectState`, `DragState` | the lit-up net, undo stack, open project, drag in progress |
 
-The two unions make "only one at a time" true by construction: one selection, one tool.
+The two unions keep things apart by construction: one tool, and one selection, which is a single
+hole, wire or part, or else `many` parts and wires (never a hole among them).
+`SelectionState.select(parts, lines)` keeps that so: one item comes out as `part` or `line`, so
+code that acts on one wire or part (`SelectionState.line`, `.part`) never sees a set, and
+`.parts`/`.lines` give every selected one either way.
 
 **Questions.** The editor asks for text (a value, a note) and yes/no (a resize that drops parts),
 and tells the user things (a link that wouldn't open), with its own dialog: `askText`/`askConfirm`/
@@ -330,8 +345,32 @@ removes them all. Escape mid-drag puts the wire back. A finger has no hover, so 
 where it lands. A finger held still on a handle opens the context menu as anywhere else, and moving
 on from there still bends the wire (board-touch.ts keeps the handle's wire through the menu, which
 selects the hole under the finger).
+**Selecting several.** In Select mode a press with Shift held is held back in `select.ts`
+(`pendingBox`): let go, it's a Shift-click that adds the part or wire there to the selection or
+takes it out (`toggleAt()` in `board-selection.ts`); moved, it draws a selection box
+(`src/features/box-select.ts`), and everything whose holes all lie inside it (a part's pins and
+the holes it covers, a wire's ends and corners: `selectInBox()`) joins what was selected before,
+live as the box grows. The redraw draws the box over the board; Escape puts the selection back.
+A finger has no Shift, so the selection bar's Select more (`SelectionState.adding`,
+`toggleSelectMore()`) makes clicks and taps do the same, and a mouse drag box; picking another
+tool, Escape and Deselect turn it off. <kbd>Ctrl</kbd>+<kbd>A</kbd> selects every part and wire.
+A press on one of several selected parts (or between the holes of one of their wires,
+`selectedLineAt()`) picks them all up: `component-drag.ts` moves every part and wire in
+`DragState` by the same step, refusing a step that would push anything off the board, and records
+one `batch` of `move`s (a wire's `move` holds its points before and after). Let go without moving,
+just that item stays selected, as a click on it would leave it. Wires that aren't selected stay
+where they are, as with one part. Delete takes them all off as one `batch`
+(`deleteItems()` in `delete-selection.ts`). `src/features/clipboard.ts` copies, cuts, pastes and
+duplicates the selected parts and wires: a copy is their project-file entries counted from its
+top-left hole, rebuilt by `partFromEntry()`/`lineFromWire()` (`src/features/project/board-entries.ts`,
+which loading uses too) and placed by `placeItems()` (`placed-parts.ts`) as new parts with the
+lowest free refs and new identities, in one step. A paste goes at the hole under the pointer,
+moved back onto the board if it would hang off; Duplicate goes beside the original where there's
+room. Keyboard shortcuts may carry `when` (`IShortcut`): Ctrl+C copies the page's selected text, not
+the board's selection, when there is some.
+
 Switch tools with `setActiveTool()` (`src/features/active-tool.ts`). `resetInteraction()` clears
-the selection and drops a placement tool back to Select.
+the selection (and Select more) and drops a placement tool back to Select.
 
 Keep tool modules free of imports that lead back to `draw-canvas.ts`, which imports the registry
 to draw previews. That's why the note prompt lives in `dot-notes.ts`.
@@ -421,8 +460,8 @@ narrows on `part.kind` only for kind-specific behaviour.
   its definition's `refPrefix` (ICs are U), via `src/project-file/part-refs.ts`.
 - **`PartState.parts`** stays grouped by kind (ICs → standard → advanced), so stacking and the
   per-kind arrays in the file stay stable. Add and remove parts through
-  `src/features/placed-parts.ts`: `placePart`/`removePart` record undo history,
-  `addToBoard`/`takeOffBoard` don't.
+  `src/features/placed-parts.ts`: `placePart`/`removePart` (and `placeItems` for a paste) record
+  undo history, `addToBoard`/`takeOffBoard` don't.
 
 **The catalog** (`src/ui/catalog/`) is the left panel's Parts section: a search box over a
 category tree. It only decides where parts are *listed*.
@@ -489,7 +528,10 @@ Every undoable mutation calls `HistoryState.record(change)` with an `IChange`
   hole it covers already, so it's never split or cut. Corners that don't turn the wire are dropped
   (`lineThrough()` in `line-path.ts`));
 - `add`/`remove`/`move` of a part;
-- `set` of a strip cut or of the board setup.
+- `move` of a wire, its points before and after (a wire moved with other selected things);
+- `set` of a strip cut, of the board setup or of the circuit requirements;
+- `batch` of several, replayed in order and taken back in reverse: placing a part that joins the
+  requirements, and moving, deleting or pasting several things at once.
 
 `undo()`/`redo()` in `src/features/project/undo-redo.ts` replay them through `applyChange()` and
 redraw. History is cleared whenever the board is replaced (load, reset, resize) via
@@ -535,6 +577,15 @@ MCP server.
 - The UI is the File menu (`src/ui/header/AppHeader.tsx`), the header's project name and the
   Projects dialog (`src/ui/dialogs/ProjectsDialog.tsx`, a `ProjectCard` per project, with a
   thumbnail from `project-thumbnail.ts`, section 10).
+- A new project starts on the board its card sets up (`NewProjectCard`: name, then
+  `src/ui/components/BoardSetupFields.tsx` for type, strips and size, beside a thumbnail of the
+  empty board). `src/features/project/new-board.ts` holds that `NewBoard`: it starts as the one
+  picked last time (localStorage `new_project_board`, kept by `newProject(name, board)`), else the
+  open board's. Started without one (the first visit, deleting the last project), a project is on
+  a board like the open one. The empty board's start card (`EmptyBoardHint.tsx`) shows the open
+  board and changes it with the same fields, through `changeOpenBoard()`, then offers three ways
+  to start: from scratch (puts the card away), the 555 blinker example, or Design it with AI (the
+  `mcp-server/` page, in a new tab).
 
 **Share links** carry a whole project in the editor URL's fragment: `#name=…&z=…`, or
 `json=`/`src=` for links written by people and programs. A **short link**, `#name=…&p=<id>`,
@@ -582,6 +633,11 @@ always agree.
 - The editor shows them live in the Nets panel (`src/ui/nets/NetsPanel.tsx`), kept by
   `src/features/board-nets.ts`. Clicking a net lights it up on the board (`NetHighlightState`,
   drawn by the renderer), and the light follows the net as the board changes.
+- Each pin shows its part's catalog icon. The panel's Short / Detailed switch (UI-only, kept in
+  localStorage as `nets_view`) shows pins as chips ("D1.K") or a line each: ref, part name and
+  value, and what the pin is ("cathode (K)", "pin 8 · VCC"). `src/ui/nets/part-info.ts` works
+  that out from `partList()` and the definitions' icons; `PinList.tsx` draws both views, for the
+  nets and for Required connections. A rail's net has a ground or supply icon.
 
 **Wire crossings** (`src/project-file/wire-crossings.ts`): jumper wires are insulated. Where one
 runs across another wire, or over a hole holding a pin, a lead or another wire's end, it goes
@@ -712,7 +768,9 @@ The editor then draws the active tool's preview on top (`ToolBehavior.drawPrevie
   downloads show them (on the solder side too, columns running right to left), and the selection
   bar names a pad the same way (`holeName()` in `grid.ts`, "G7"); the MCP server's pictures
   leave them off, since agents count holes from 0
-- `selected` and `hovered`: `BoardItem`s, i.e. a part by `ref`, a wire by index, a hole by `[col, row]`
+- `selected` and `hovered`: lists of `BoardItem`s, i.e. a part by `ref`, a wire by index, a hole by
+  `[col, row]`. A selected wire's handles are drawn only when it's all that's selected
+  (`soleSelected()`)
 - `startHole`: a placement's first click
 - `highlight`: a net
 - `solderSide`: the board from below instead, for soldering. `drawBoard` then draws something else

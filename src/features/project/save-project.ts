@@ -10,6 +10,7 @@ import {holesAlong, toGridPos} from "../../project-file/grid";
 import {BoardState} from "../../state/BoardState";
 import {ProjectState} from "../../state/ProjectState";
 import {RequirementsState} from "../../state/RequirementsState";
+import type {ILine} from "../../interfaces/line.interface";
 
 // Downloads are named after the project (the open one by default), minus characters file systems
 // don't allow.
@@ -47,8 +48,9 @@ function savedPads(): SavedPad[] {
   return DotState.dots.flatMap(dot => dot.description?.trim() ? [{at: toGridPos(dot), note: dot.description}] : []);
 }
 
-function savedWires(): SavedWire[] {
-  return LineState.lines.map(line => ({
+// A wire's entry in the project file.
+export function savedWire(line: ILine): SavedWire {
+  return {
     from: toGridPos(line.start),
     to: toGridPos(line.end),
     ...(line.via?.length ? {via: line.via.map(toGridPos)} : {}),
@@ -57,7 +59,11 @@ function savedWires(): SavedWire[] {
       ...(line.width ? {width: line.width} : {}),
       ...(line.side === "bottom" ? {side: "bottom" as const} : {}),
     }),
-  }));
+  };
+}
+
+function savedWires(): SavedWire[] {
+  return LineState.lines.map(savedWire);
 }
 
 // The file keeps one array per kind of part. PartState.parts is grouped by kind in the same

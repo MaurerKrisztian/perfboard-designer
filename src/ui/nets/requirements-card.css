@@ -1,51 +1,342 @@
-.requirements-validation {
-  color: #b9c9de;
-  background: #111e30;
-  border: 1px solid #2b405a;
-  border-radius: 8px;
-  font-size: 12px;
-  margin-bottom: 10px;
+/* Required connections (RequirementsCard.tsx): the optional list of nets the board should have, at
+   the top of the Nets panel. A fold like the panel's others; inside, a row per net, ticked in
+   copper once wired, and the problems above them in red. Colours are style.css's tokens. */
+.reqs {
+  margin: 0 0 0.5rem;
+  padding: 0.35rem 0.5rem 0.5rem;
+  border-bottom: 1px solid var(--line);
 }
-.requirements-validation summary {
-  padding: 10px 12px;
-  cursor: pointer;
+
+.reqs summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--silk);
   font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
 }
-.requirements-validation[data-status="match"] summary {
-  color: #5eead4;
+
+.reqs summary::-webkit-details-marker {
+  display: none;
 }
-.requirements-validation[data-status="mismatch"] summary {
-  color: #fda4af;
+
+.reqs summary::before {
+  content: "▸";
+  color: var(--silk-faint);
+  font-size: 0.7rem;
+  transition: transform 0.12s ease;
 }
-.requirements-validation[data-status="incomplete"] summary {
-  color: #fcd34d;
+
+.reqs[open] summary::before {
+  transform: rotate(90deg);
 }
-.requirements-validation-body {
-  max-height: 180px;
-  overflow-y: auto;
-  padding: 0 12px 10px;
+
+.reqs-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.reqs-tag,
+.reqs-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1px 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--silk-faint);
+  font-size: 0.72rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.reqs-status.is-good {
+  border-color: var(--copper-line);
+  color: var(--copper-hi);
+}
+
+.reqs-status.is-open {
+  border-color: rgba(232, 184, 74, 0.45);
+  color: var(--warn);
+}
+
+.reqs-status.is-bad {
+  border-color: rgba(239, 106, 84, 0.5);
+  color: var(--danger);
+}
+
+.reqs-status svg.icon {
+  width: 12px;
+  height: 12px;
+}
+
+.reqs-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-top: 0.55rem;
+}
+
+.reqs-intro,
+.reqs-muted {
+  margin: 0;
+  color: var(--silk-dim);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.reqs-muted {
+  color: var(--silk-faint);
+  font-size: 0.75rem;
+}
+
+.reqs-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.reqs-actions button {
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+button.reqs-link {
+  padding: 0.15rem 0.3rem;
+  background: none;
+  border: none;
+  color: var(--copper-hi);
+  font-size: 0.78rem;
+}
+
+button.reqs-link:hover {
+  background: var(--ink-2);
+}
+
+.reqs-actions button.reqs-remove {
+  margin-left: auto;
+  padding: 0.3rem 0.4rem;
+  color: var(--silk-faint);
+  font-size: 0.75rem;
+}
+
+.reqs-actions button.reqs-remove:hover {
+  color: var(--danger);
+}
+
+.reqs-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--silk-dim);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+/* What doesn't match the list: a wire joining two nets, a part gone from the board. */
+.reqs-problem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 0.2rem 0.2rem 0.2rem 0.5rem;
+  background-color: var(--danger-wash);
+  border-left: 2px solid var(--danger);
+  border-radius: var(--radius-s);
+}
+
+button.reqs-problem-text {
+  flex: 1;
+  justify-content: flex-start;
+  padding: 0.25rem 0;
+  background: none;
+  border: none;
+  color: var(--silk);
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
   overflow-wrap: anywhere;
 }
-.requirements-validation-body p {
-  margin: 4px 0 10px;
+
+.reqs-problem button.reqs-link {
+  flex-shrink: 0;
+  color: var(--danger);
 }
-.requirements-validation-body button {
-  display: block;
-  width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-  border: 1px solid #31465e;
-  border-radius: 6px;
-  color: #d5e1f2;
-  background: #17263a;
+
+/* A net to have: a tick once wired, its name, its pins; edit and delete beside it. */
+.reqs-nets {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reqs-net {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  border-left: 2px solid transparent;
+  border-radius: var(--radius-s);
+}
+
+.reqs-net:hover {
+  background-color: var(--ink-2);
+}
+
+.reqs-net.is-lit {
+  background-color: rgba(232, 121, 249, 0.1);
+  border-left-color: var(--net-highlight);
+}
+
+button.reqs-net-main {
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.3rem;
+  padding: 0.45rem 0.3rem 0.5rem 0.5rem;
+  background: none;
+  border: none;
+  color: var(--silk);
+  font-weight: 400;
   text-align: left;
-  font-size: 12px;
-  cursor: pointer;
 }
-.requirements-validation-body button:hover {
-  background: #223b53;
+
+button.reqs-net-main:hover {
+  background: none;
 }
-.requirements-validation :focus-visible {
-  outline: 2px solid #67e8f9;
-  outline-offset: 2px;
+
+button.reqs-net-main:focus-visible {
+  outline: 2px solid var(--net-highlight);
+  outline-offset: 1px;
+}
+
+.reqs-net-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.reqs-mark {
+  flex-shrink: 0;
+}
+
+svg.reqs-mark {
+  width: 14px;
+  height: 14px;
+  color: var(--copper-hi);
+}
+
+.reqs-mark-open {
+  width: 10px;
+  height: 10px;
+  margin: 0 2px;
+  border: 1.5px solid var(--warn);
+  border-radius: 50%;
+}
+
+.reqs-net-name {
+  overflow: hidden;
+  color: var(--silk);
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reqs-net-state {
+  margin-left: auto;
+  color: var(--warn);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.reqs-net.is-wired .reqs-net-state {
+  color: var(--silk-faint);
+}
+
+.net-pin.is-missing {
+  border-style: dashed;
+  color: var(--silk-faint);
+  text-decoration: line-through;
+}
+
+/* Over the end of the net's top line while it's pointed at, so its pins keep the row's width. */
+.reqs-net-actions {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.2rem;
+  display: flex;
+  background-color: var(--ink-2);
+  border-radius: var(--radius-s);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.reqs-net:hover .reqs-net-actions,
+.reqs-net:focus-within .reqs-net-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* No hover on a touch screen: the actions always show, beside the net. */
+@media (hover: none) {
+  .reqs-net-actions {
+    position: static;
+    flex-shrink: 0;
+    padding: 0.3rem 0.2rem 0 0;
+    background: none;
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.reqs-net-actions button {
+  padding: 0.3rem;
+  background: none;
+  border: none;
+  color: var(--silk-dim);
+}
+
+.reqs-net-actions button:hover {
+  background-color: var(--ink-3);
+  color: var(--silk);
+}
+
+/* The net whose pins are being picked on the board. */
+.reqs-picking {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.6rem 0.6rem 0.65rem;
+  background-color: rgba(232, 121, 249, 0.07);
+  border: 1px solid rgba(232, 121, 249, 0.45);
+  border-radius: var(--radius-m);
+}
+
+.reqs-picking-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+}
+
+.reqs-picking-head strong {
+  color: var(--silk);
+  font-weight: 600;
+}
+
+.reqs-picking-head span {
+  color: var(--silk-dim);
+  font-size: 0.76rem;
 }

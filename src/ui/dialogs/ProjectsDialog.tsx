@@ -7,10 +7,13 @@ import {Modal} from "../components/Modal";
 import {importProjectFromFile} from "../header/AppHeader";
 import {openDialog} from "./dialog-store";
 import {ProjectCard} from "./ProjectCard";
+import {emptyProjectOn, lastNewBoard, NewBoard} from "../../features/project/new-board";
+import {drawProjectThumbnail} from "../../features/project/project-thumbnail";
+import {BoardSetupFields, describeBoard} from "../components/BoardSetupFields";
 
 // The Projects dialog: a card per project kept in this browser, with a picture of its board, to
-// open, rename, copy, download or delete; and a first card that starts a new one. Naming,
-// renaming and confirming a delete happen in the card itself.
+// open, rename, copy, download or delete; and a first card that starts a new one, on the board
+// picked for it. Naming, setting up, renaming and confirming a delete happen in the card itself.
 
 // The search box appears once there are this many projects to look through.
 const SEARCH_FROM = 7;
@@ -70,8 +73,8 @@ export function ProjectsDialog({startNew, onClose}: {startNew: boolean; onClose:
         )}
         <ul className="projects-grid">
           <NewProjectCard creating={mode.kind === "new"} onStart={() => setMode({kind: "new"})} onCancel={() => setMode({kind: "list"})}
-            onCreate={name => {
-              newProject(name || unusedProjectName(DEFAULT_PROJECT_NAME));
+            onCreate={(name, board) => {
+              newProject(name || unusedProjectName(DEFAULT_PROJECT_NAME), board);
               onClose();
             }}/>
           {shown.map(project => (
@@ -97,12 +100,20 @@ interface NewProjectCardProps {
   creating: boolean;
   onStart: () => void;
   onCancel: () => void;
-  onCreate: (name: string) => void;
+  onCreate: (name: string, board: NewBoard) => void;
 }
 
-// The first card: starts a new project, then asks for its name in place.
+// The first card: starts a new project, then, across the dialog's width, asks for its name and the
+// board it's on, starting from the board picked last time, with a picture of that board.
 function NewProjectCard({creating, onStart, onCancel, onCreate}: NewProjectCardProps) {
   const [name, setName] = useState(() => unusedProjectName(DEFAULT_PROJECT_NAME));
+  const [board, setBoard] = useState(lastNewBoard);
+  // Enter in a size box commits it and submits the form in one go: submit what was just committed.
+  const latest = useRef(board);
+  const changeBoard = (next: NewBoard) => {
+    latest.current = next;
+    setBoard(next);
+  };
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (creating) input.current?.select();
@@ -119,18 +130,36 @@ function NewProjectCard({creating, onStart, onCancel, onCreate}: NewProjectCardP
   }
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    onCreate(name.trim());
+    onCreate(name.trim(), latest.current);
   };
   return (
-    <li className="project-card project-new">
+    <li className="project-card project-new is-creating">
       <form className="project-new-form" onSubmit={submit}>
-        <label className="project-new-label">Name your new project</label>
-        <input ref={input} type="text" className="project-new-input" aria-label="New project name" value={name} onChange={e => setName(e.target.value)}/>
+        <div className="project-new-fields">
+          <label className="project-new-label" htmlFor="newProjectName">Name</label>
+          <input ref={input} id="newProjectName" type="text" className="project-new-input" value={name} onChange={e => setName(e.target.value)}/>
+          <span className="project-new-label">Board</span>
+          <BoardSetupFields board={board} onChange={changeBoard} idPrefix="newProject"/>
+        </div>
+        <figure className="project-new-preview">
+          <BoardPreview board={board}/>
+          <figcaption>{describeBoard(board)}</figcaption>
+        </figure>
         <div className="project-new-actions">
           <button type="button" className="btn" onClick={onCancel}>Cancel</button>
-          <button type="submit" className="btn-primary">Create</button>
+          <button type="submit" className="btn-primary">Create project</button>
         </div>
       </form>
     </li>
   );
+}
+
+// The empty board as it will open.
+function BoardPreview({board}: {board: NewBoard}) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const {type, strips, cols, rows} = board;
+  useEffect(() => {
+    if (canvas.current) drawProjectThumbnail(canvas.current, emptyProjectOn({type, strips, cols, rows}));
+  }, [type, strips, cols, rows]);
+  return <canvas ref={canvas} className="project-new-board" aria-hidden="true"/>;
 }

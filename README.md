@@ -172,7 +172,9 @@ galleries: [connectors](examples/new-components-connectors.json),
 | Add a note to the selected hole | `D` |
 | Remove a hole's note | `Shift` + `D` |
 | Change the selected wire's color | `C` |
-| Delete the selected part or wire | `Delete` |
+| Delete the selected parts and wires | `Delete` |
+| Select several parts and wires | `Shift` + click, `Shift` + drag a box, or `Ctrl` + `A` |
+| Copy, cut, paste (at the pointer), duplicate | `Ctrl` + `C` / `X` / `V` / `D` |
 | Undo / redo | `Ctrl` + `Z` / `Ctrl` + `Y` |
 | Deselect, or step back out of a tool | `Esc` |
 | Fullscreen | `F` |
