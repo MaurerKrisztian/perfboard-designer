@@ -1,8 +1,17 @@
 import {IDot} from "../interfaces/dot.interface";
 import type {Ic} from "../features/ic";
 import type {CustomPartSpec} from "../parts/custom-parts";
+import type {GridPos} from "../project-file/grid";
+import type {RequiredPin} from "../project-file/requirements";
 
 export type Rotation = 0 | 90 | 180 | 270;
+
+// A pin picked for a required net: which one, its name ("U1.8 VCC"), and its hole (absent for a
+// pin of a part no longer on the board, kept from the net being edited).
+export interface PickedPin extends RequiredPin {
+  name: string;
+  at?: GridPos;
+}
 
 // What a left click on the board does: one of the toolbar's modes, or a placement tool picked
 // from the wire button or a catalog. A placement tool's `start` is its first click, while it
@@ -23,7 +32,10 @@ export type ActiveTool =
   | {kind: "standard-component"; definitionId: string; start?: IDot}
   // Only grid-sizable parts (header pins) take two clicks; the rest place on one. `custom`: a
   // user-made part's spec (src/parts/custom-parts.ts), whose definitionId is "custom".
-  | {kind: "advanced-component"; definitionId: string; rotation: Rotation; start?: IDot; custom?: CustomPartSpec};
+  | {kind: "advanced-component"; definitionId: string; rotation: Rotation; start?: IDot; custom?: CustomPartSpec}
+  // Picks the pins of a required net (the Nets panel's Required connections) by clicking them:
+  // the net `netId` being edited, or a new one. Nothing changes until it's saved (Enter).
+  | {kind: "required-net"; netId?: string; picked: PickedPin[]};
 
 // The tools that draw a wire's route hole by hole: jumper wires and solder paths.
 export type RouteTool = Extract<ActiveTool, {kind: "wire" | "solder"}>;

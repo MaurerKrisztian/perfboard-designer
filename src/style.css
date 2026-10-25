@@ -2835,6 +2835,19 @@ svg.tool-icon {
   background: var(--danger-wash);
 }
 
+/* The required-net bar's Save. */
+.selection-bar button.is-primary {
+  color: var(--copper-hi);
+}
+
+.selection-bar button.is-primary:hover {
+  background: var(--copper-wash);
+}
+
+.selection-bar button:disabled:hover {
+  background: transparent;
+}
+
 .selection-bar button.selection-bar-close {
   color: var(--silk-dim);
 }

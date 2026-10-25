@@ -21,9 +21,20 @@ board edits never overwrite intended connections. The reader rejects malformed/o
 assignments rather than silently discarding constraints. An unassigned terminal is unchecked,
 not implicitly disconnected. Only complete coverage with no mismatches reports a match.
 
-The editor keeps the open project's requirements in `RequirementsState`; there is no editor
-for them in the app, they come from project files, share links and MCP edits.
-`src/ui/nets/RequirementsCard.tsx` renders the shared comparator in the Nets sidebar, and
+The editor keeps the open project's requirements in `RequirementsState`. They're optional: a
+project has none until the user adds a net, copies in the board's wiring, or they come from a
+project file, share link or MCP edit. The Nets panel's Required connections
+(`src/ui/nets/RequirementsCard.tsx`) is folded away until wanted. It lists each required net
+from `requiredNetReports()`, ticked once the board joins its pins, with the shared comparator's
+other problems (unexpected joins, parts gone from the board, which Forget drops) above them.
+Adding or changing a net arms the `required-net` tool (`src/features/tools/required-net-tool.ts`):
+clicking a pin picks it or takes it back out, the picked pins light up on the board
+(`editor-view.ts`), Enter or the bar over the board (`RequiredNetBar.tsx`) saves them through
+`setRequiredNet()` (a pin picked from another net moves out of it), and Escape drops them.
+`src/features/required-nets.ts` makes every change, a deleted net or the whole list removed
+too, one undoable `set`. `requirementPinName()` names pins as nets do ("D1.K"), so the
+comparator's messages match the chips.
+`RequirementsCard.tsx` renders the shared comparator in the Nets sidebar, and
 `requirement-highlight.ts` gives multi-net diagnostics stable-identity highlights. Physical board
 wiring remains authoritative for actual connectivity, including strip copper. `placePart()`
 extends an existing requirement inventory and records the part plus requirement change as one

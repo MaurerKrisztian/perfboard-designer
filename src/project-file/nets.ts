@@ -77,7 +77,8 @@ export function pinName(pin: NetPin): string {
 // net is.
 const POLARITY_MARK = /^[+\-−]$/;
 
-function netName(pins: NetPin[]): string | undefined {
+// A net's name from its pins' names ("GND", "TRIG/THRESH"), or undefined when none is named.
+export function netName(pins: NetPin[]): string | undefined {
   const names = pins
     .filter(p => p.kind !== "standard-component")
     .map(p => p.label?.trim() ?? "")

@@ -36,8 +36,16 @@ nets. `src/project-file/requirements.ts` owns its types, strict reader, inventor
 pure comparison. Stable component IDs plus numeric pins bind requirements; snapshots keep missing
 parts/pins reportable. Unspecified pins are unchecked, not implicitly unused; only full coverage
 without mismatches may report a match; turning checking off is a saved choice the reader and
-writer must preserve. The editor holds them in `RequirementsState` and has no UI to edit them;
-`src/ui/nets/RequirementsCard.tsx` renders diagnostics in the Nets panel. Preserve multi-net
+writer must preserve. The editor holds them in `RequirementsState`; they're optional, edited in
+the Nets panel's Required connections (`src/ui/nets/RequirementsCard.tsx`, folded away until
+wanted): a net is added or changed by clicking its pins on the board with the `required-net` tool
+(`src/features/tools/required-net-tool.ts`, Enter saves, Esc drops; `RequiredNetBar.tsx` over the
+board), or the board's wiring is copied in (`createRequirements(project, true)`), and nets are
+deleted there; `src/features/required-nets.ts` makes each change one undoable `set`. Pure net
+editing (`setRequiredNet()`: a picked pin moves out of any other net) and the per-net report
+(`requiredNetReports()`: ticked once the board joins its pins) live in `requirements.ts`; problems
+other than a missing connection (unexpected joins, parts gone, with Forget) are listed above the
+nets. Preserve multi-net
 requirement highlights instead of following only one actual net. `placePart()` records a new
 part's required inventory entry and the physical part in one history batch. Deleted parts remain
 required until explicitly forgotten. New projects clear requirements; resizing/copying and MCP

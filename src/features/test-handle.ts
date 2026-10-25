@@ -35,7 +35,8 @@ export interface TestHandle {
   addingToSelection(): boolean;
   // The hole under the pointer and the readout under the board.
   hover(): {at?: GridPos; text?: string};
-  // The active tool: "select", "wire", "solder", "eraser", "note", "cut", or a part being placed.
+  // The active tool: "select", "wire", "solder", "eraser", "note", "cut", "required-net", or a part
+  // being placed.
   tool(): string;
   view(): {zoom: number; fit: boolean; solderSide: boolean; labels: boolean};
   // The editor's question or notice on screen (src/features/ask-dialog.ts), if any.

@@ -9,7 +9,7 @@ import {ViewState} from "../../state/ViewState";
 
 // What the editor marks on the board, for the board renderer: the selection (one item, or several
 // parts and wires), what's under the pointer, a placement's first click, the net picked in the
-// Nets panel, and whether part labels are on. Items are named as the project file knows them (a
+// Nets panel (or the pins picked for a required net), and whether part labels are on. Items are named as the project file knows them (a
 // part by ref, a wire by its index, a hole by its position), since that's what the renderer draws
 // from.
 
@@ -33,7 +33,11 @@ function hoveredItems(): BoardItem[] {
 export function editorView(): BoardView {
   if (ViewState.solderSide) return {solderSide: true, holeLabels: true};
   const start = ToolState.pendingStart;
-  const net = NetHighlightState.current;
+  const tool = ToolState.active;
+  // While a required net's pins are being picked, they're what's lit.
+  const net = tool.kind === "required-net"
+    ? {holes: tool.picked.flatMap(pin => pin.at ? [pin.at] : []), wires: []}
+    : NetHighlightState.current;
   return {
     partLabels: ViewState.showPartLabels,
     holeLabels: true,

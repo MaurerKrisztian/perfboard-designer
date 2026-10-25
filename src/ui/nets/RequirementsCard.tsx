@@ -1,49 +1,229 @@
-import {useMemo} from "react";
+import {useMemo, useState} from "react";
 import type {ProjectFile} from "../../project-file/project-file";
 import type {Net} from "../../project-file/nets";
-import {RequiredPin, requirementPinName, RequirementValidation, validateRequirements} from "../../project-file/requirements";
+import {RequiredPin, requiredNetReports, RequiredNetReport, validateRequirements} from "../../project-file/requirements";
+import {litRequiredPins, toggleRequiredPins} from "../../features/board-nets";
+import {
+  cancelRequiredNet, deleteRequiredNet, forgetRequiredPart, pickRequiredNet, removeRequirements, requireCurrentWiring,
+  saveRequiredNet, setRequirementsChecking,
+} from "../../features/required-nets";
+import {PickedPin, ToolState} from "../../state/ToolState";
+import {Icon} from "../components/Icon";
+import {useEditor} from "../hooks/use-editor";
+import {usePhoneLayout} from "../hooks/use-media-query";
+import {setSheet} from "../layout/layout-store";
+import {cx} from "../lib/class-names";
 import "./requirements-card.css";
 
-// How the board's actual connections compare with the project's requirements (the connections it
-// should have): a summary that unfolds to each mismatch and the pins not yet specified. Each one
-// lights up its pins and the board nets they're on.
+// Required connections: the nets the circuit should have (the project's requirements), an optional
+// list at the top of the Nets panel. Folded away until wanted; a net is added by clicking its pins
+// on the board (the required-net tool), or the board's wiring is copied in as it is. Each net is
+// ticked once the board joins its pins, and what doesn't match (wires joining nets that should be
+// apart, parts gone from the board) is listed above them. Clicking a net or a problem lights its
+// pins' board nets up.
 
-const MAX_ISSUES = 100;
-const MAX_UNSPECIFIED = 30;
+const MAX_PROBLEMS = 50;
 
-function summary(result: RequirementValidation): string {
-  if (result.status === "disabled") return "Requirements · validation off";
-  if (result.status === "match") return `Requirements match · ${result.checked}/${result.total} pins`;
-  if (result.status === "mismatch") return `Requirements · ${result.issues.length} mismatch${result.issues.length === 1 ? "" : "es"}`;
-  return result.total ? `Requirements incomplete · ${result.unspecified.length} unspecified pins` : "Requirements empty · add components";
-}
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+// The tool's state while a net's pins are being picked.
+const picking = () => ToolState.active.kind === "required-net" ? ToolState.active : undefined;
 
 interface RequirementsCardProps {
   project: ProjectFile;
   nets: Net[];
-  onInspect: (pins: RequiredPin[]) => void;
 }
 
-export function RequirementsCard({project, nets, onInspect}: RequirementsCardProps) {
-  const result = useMemo(() => validateRequirements(project, nets), [project, nets]);
-  const inspect = (text: string, pins: RequiredPin[], key: string) => (
-    <button key={key} type="button" title="Highlight the involved terminals and actual board nets" onClick={() => onInspect(pins)}>{text}</button>
-  );
-  const unspecified = result.unspecified.slice(0, MAX_UNSPECIFIED).map(pin => requirementPinName(project, pin)).join(", ");
+export function RequirementsCard({project, nets}: RequirementsCardProps) {
+  const tool = useEditor(picking);
+  const phone = usePhoneLayout();
+  // Unset: folded while there's no list, open once there is one (or a first net is being picked).
+  const [open, setOpen] = useState<boolean>();
+  const requirements = project.requirements;
+  const shownOpen = open ?? (!!requirements || !!tool);
+
+  // On a phone the Nets sheet covers the board: put it away so the pins can be tapped.
+  const startPicking = (netId?: string) => {
+    pickRequiredNet(netId);
+    if (phone) setSheet(undefined);
+  };
+
   return (
-    <details className="requirements-validation" data-status={result.status}>
-      <summary>{summary(result)}</summary>
-      <div className="requirements-validation-body">
-        <p>
-          {result.status === "disabled"
-            ? "Checking is turned off for these requirements, so intended and actual connections are not compared."
-            : `${result.checked}/${result.total} board pins specified. This compares connectivity, not circuit operation. Unspecified pins are unchecked, not assumed disconnected.`}
-        </p>
-        {result.issues.slice(0, MAX_ISSUES).map((issue, i) => inspect(issue.message, issue.pins, `issue-${i}`))}
-        {result.issues.length > MAX_ISSUES && <p>{result.issues.length - MAX_ISSUES} more mismatches. Resolve these and recheck.</p>}
-        {result.unspecified.length > 0 && inspect(
-          `Unspecified: ${unspecified}${result.unspecified.length > MAX_UNSPECIFIED ? "…" : ""}`, result.unspecified, "unspecified")}
+    <details className="reqs" open={shownOpen} onToggle={e => {
+      const now = e.currentTarget.open;
+      if (now !== shownOpen) setOpen(now);
+    }}>
+      <summary>
+        <span className="reqs-title">Required connections</span>
+        {requirements ? <RequirementsStatus project={project} nets={nets}/> : <span className="reqs-tag">Optional</span>}
+      </summary>
+      <div className="reqs-body">
+        {requirements
+          ? <RequiredNets project={project} nets={nets} tool={tool} startPicking={startPicking}/>
+          : <NoRequirements nets={nets} tool={tool} startPicking={startPicking}/>}
       </div>
     </details>
+  );
+}
+
+function NoRequirements({nets, tool, startPicking}: {nets: Net[]; tool?: Picking; startPicking: (netId?: string) => void}) {
+  const wired = nets.some(net => net.pins.length > 1);
+  return (
+    <>
+      <p className="reqs-intro">
+        List which pins your circuit should join, from a schematic or a plan. Each net is ticked off
+        once it's wired, and wrong connections show up here.
+      </p>
+      {tool ? <PickingNet tool={tool}/> : (
+        <div className="reqs-actions">
+          <button className="btn-accent" onClick={() => startPicking()}><Icon name="plus"/>Add a net</button>
+          <button disabled={!wired} title={wired ? "Require every net the board has now" : "Nothing on the board is wired yet"}
+            onClick={requireCurrentWiring}>Use current wiring</button>
+        </div>
+      )}
+    </>
+  );
+}
+
+type Picking = Exclude<ReturnType<typeof picking>, undefined>;
+
+function useChecks(project: ProjectFile, nets: Net[]) {
+  const reports = useMemo(() => requiredNetReports(project, nets), [project, nets]);
+  const result = useMemo(() => validateRequirements(project, nets), [project, nets]);
+  // A missing connection is the net row without its tick; the rest are problems of their own.
+  const problems = result.issues.filter(issue => issue.kind !== "missing-connection");
+  return {reports, result, problems, wired: reports.filter(report => report.wired).length};
+}
+
+function RequirementsStatus({project, nets}: RequirementsCardProps) {
+  const {reports, result, problems, wired} = useChecks(project, nets);
+  if (result.status === "disabled") return <span className="reqs-status">Checking off</span>;
+  if (problems.length) return <span className="reqs-status is-bad">{plural(problems.length, "problem")}</span>;
+  if (!reports.length) return <span className="reqs-status">No nets yet</span>;
+  if (wired === reports.length) return <span className="reqs-status is-good"><Icon name="check"/>All {reports.length} wired</span>;
+  return <span className="reqs-status is-open">{wired}/{reports.length} wired</span>;
+}
+
+interface RequiredNetsProps extends RequirementsCardProps {
+  tool?: Picking;
+  startPicking: (netId?: string) => void;
+}
+
+function RequiredNets({project, nets, tool, startPicking}: RequiredNetsProps) {
+  const {reports, result, problems} = useChecks(project, nets);
+  const lit = useEditor(litRequiredPins);
+  const checking = project.requirements?.validate ?? false;
+  const unlisted = result.unspecified.length;
+  return (
+    <>
+      {!checking && (
+        <div className="reqs-note">
+          Checking is off, so nets aren't ticked off and nothing is compared.
+          <button className="reqs-link" onClick={() => setRequirementsChecking(true)}>Turn it on</button>
+        </div>
+      )}
+      {problems.slice(0, MAX_PROBLEMS).map((issue, i) => (
+        <div key={`${issue.kind}-${i}`} className="reqs-problem">
+          <button className="reqs-problem-text" title="Show it on the board" onClick={() => toggleRequiredPins(issue.pins)}>
+            {issue.message}
+          </button>
+          {issue.kind === "missing-component" && issue.pins[0] && (
+            <button className="reqs-link" title="Stop requiring this part and its pins" onClick={() => forgetRequiredPart(issue.pins[0].componentId)}>
+              Forget it
+            </button>
+          )}
+        </div>
+      ))}
+      {problems.length > MAX_PROBLEMS && <p className="reqs-muted">{problems.length - MAX_PROBLEMS} more problems.</p>}
+      {reports.length > 0 && (
+        <ul className="reqs-nets">
+          {reports.map((report, i) => tool?.netId === report.id
+            ? <li key={report.id}><PickingNet tool={tool}/></li>
+            : <RequiredNetRow key={report.id} report={report} index={i} checking={checking} lit={lit} busy={!!tool}
+              onEdit={() => startPicking(report.id)}/>)}
+        </ul>
+      )}
+      {tool && !tool.netId && <PickingNet tool={tool}/>}
+      {!tool && (
+        <div className="reqs-actions">
+          <button onClick={() => startPicking()}><Icon name="plus"/>Add a net</button>
+          <button className="reqs-link reqs-remove" onClick={() => void removeRequirements()}>Remove list</button>
+        </div>
+      )}
+      {checking && unlisted > 0 && reports.length > 0 && (
+        <p className="reqs-muted">{plural(unlisted, "pin")} on the board {unlisted === 1 ? "isn't" : "aren't"} in any net here, so {unlisted === 1 ? "it isn't" : "they aren't"} checked.</p>
+      )}
+    </>
+  );
+}
+
+const pinsKey = (pins: RequiredPin[]) => pins.map(pin => `${pin.componentId}:${pin.pin}`).sort().join(" ");
+
+interface RequiredNetRowProps {
+  report: RequiredNetReport;
+  index: number;
+  checking: boolean;
+  lit?: string;
+  // Another net's pins are being picked: no editing this one meanwhile.
+  busy: boolean;
+  onEdit: () => void;
+}
+
+function RequiredNetRow({report, index, checking, lit, busy, onEdit}: RequiredNetRowProps) {
+  const pins = report.pins.map(item => item.pin);
+  const isLit = lit === pinsKey(pins);
+  return (
+    <li className={cx("reqs-net", checking && report.wired && "is-wired", isLit && "is-lit")}>
+      <button className="reqs-net-main" title={isLit ? "Stop showing it on the board" : "Show it on the board"}
+        aria-pressed={isLit} onClick={() => toggleRequiredPins(pins)}>
+        <span className="reqs-net-head">
+          {checking && (report.wired
+            ? <Icon name="check" className="icon reqs-mark"/>
+            : <span className="reqs-mark reqs-mark-open" aria-hidden="true"/>)}
+          <span className="reqs-net-name">{report.name ?? `Net ${index + 1}`}</span>
+          {checking && <span className="reqs-net-state">{report.wired ? "Wired" : report.pins.every(pin => pin.onBoard) ? "To wire" : "Part missing"}</span>}
+        </span>
+        <span className="net-pins">
+          {report.pins.map(item => <PinChip key={`${item.pin.componentId}:${item.pin.pin}`} name={item.name} missing={!item.onBoard}/>)}
+        </span>
+      </button>
+      <span className="reqs-net-actions">
+        <button title="Change its pins" aria-label="Change its pins" disabled={busy} onClick={onEdit}><Icon name="pencil"/></button>
+        <button title="Delete this net" aria-label="Delete this net" disabled={busy} onClick={() => deleteRequiredNet(report.id)}><Icon name="trash"/></button>
+      </span>
+    </li>
+  );
+}
+
+// "U1.8 VCC" as the Nets panel shows a pin: "U1.8", then its name.
+function PinChip({name, missing}: {name: string; missing?: boolean}) {
+  const space = name.indexOf(" ");
+  return (
+    <span className={cx("net-pin", missing && "is-missing")} title={missing ? `${name}: its part isn't on the board` : name}>
+      {space < 0 ? name : <>{name.slice(0, space)}<span className="net-pin-label">{name.slice(space + 1)}</span></>}
+    </span>
+  );
+}
+
+// The net whose pins are being picked on the board, with Save and Cancel.
+function PickingNet({tool}: {tool: Picking}) {
+  const count = tool.picked.length;
+  const deletes = !!tool.netId && count < 2;
+  return (
+    <div className="reqs-picking">
+      <div className="reqs-picking-head">
+        <strong>{tool.netId ? "Editing net" : "New net"}</strong>
+        <span>Click its pins on the board</span>
+      </div>
+      <span className="net-pins">
+        {count ? tool.picked.map((pin: PickedPin) => <PinChip key={`${pin.componentId}:${pin.pin}`} name={pin.name} missing={!pin.at}/>)
+          : <span className="reqs-muted">No pins picked yet.</span>}
+      </span>
+      <div className="reqs-actions">
+        <button className="btn-accent" disabled={!tool.netId && count < 2} title={!tool.netId && count < 2 ? "Pick at least two pins" : "Save the net (Enter)"}
+          onClick={saveRequiredNet}>{deletes ? "Delete net" : "Save net"}</button>
+        <button title="Cancel (Esc)" onClick={cancelRequiredNet}>Cancel</button>
+      </div>
+    </div>
   );
 }

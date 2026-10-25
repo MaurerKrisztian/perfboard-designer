@@ -78,7 +78,7 @@ D1.A–R3.2. If one of these numbers changes, something changed how boards are r
 | `selection()` | `{kind: "pad", at}`, `{kind: "wire", from, to}`, `{kind: "part", ref}`, `{kind: "many", parts: [refs], wires: [{from, to}]}` (several parts and wires) or `null`. |
 | `addingToSelection()` | Whether Select more is on, so clicks and taps add to the selection. |
 | `hover()` | The hole under the pointer (`at`) and the readout along the board's foot (`text`). |
-| `tool()` | `"select"`, `"wire"`, `"solder"`, `"eraser"`, `"note"`, `"cut"`, or the kind of part being placed. |
+| `tool()` | `"select"`, `"wire"`, `"solder"`, `"eraser"`, `"note"`, `"cut"`, `"required-net"` (picking a required net's pins), or the kind of part being placed. |
 | `view()` | `zoom`, `fit`, `solderSide`, `labels`. |
 | `dialog()` | The question or notice showing (`kind` `"text"`, `"confirm"` or `"notice"`, `title`, `message`), or `null`. |
 | `holeToScreen(col, row)` | `{x, y}` in page pixels: where to click or tap to hit that hole. |

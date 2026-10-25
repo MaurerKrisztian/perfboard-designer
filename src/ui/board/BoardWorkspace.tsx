@@ -9,9 +9,10 @@ import {SelectionBar} from "./SelectionBar";
 import {HoverReadout} from "./HoverReadout";
 import {StatusHints} from "./StatusBadge";
 import {EmptyBoardHint} from "./EmptyBoardHint";
+import {RequiredNetBar} from "./RequiredNetBar";
 
-// The middle of the page: the board's toolbar, the board with the selection bar over its bottom
-// edge (and, while it's empty, how to start), and along the foot the status's hints and what's
+// The middle of the page: the board's toolbar, the board with the selection bar (or, while a
+// required net's pins are picked, its bar) over its bottom edge (and, while it's empty, how to start), and along the foot the status's hints and what's
 // under the pointer. On a phone the toolbar, hints and all, floats over the board instead.
 export function BoardWorkspace() {
   const phone = usePhoneLayout();
@@ -23,6 +24,7 @@ export function BoardWorkspace() {
         {phone && <BoardToolbar/>}
         <BoardCanvas/>
         <SelectionBar/>
+        <RequiredNetBar/>
         <EmptyBoardHint/>
       </div>
       <footer className="stage-foot">

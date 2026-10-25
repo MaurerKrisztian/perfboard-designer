@@ -40,7 +40,7 @@ export function registerEditorShortcuts() {
   add("d", "Remove the selected hole's note.", removeNoteFromSelectedHole, {shift: true});
   add("m", "Move the selected hole's note to the hole under the pointer.", moveNoteToHoveredHole);
   add("b", "Show the solder side (the board from below).", toggleSolderSide);
-  add("Enter", "End the wire being drawn at its last bend.", finishActiveTool);
+  add("Enter", "End the wire being drawn at its last bend, or save the required net being picked.", finishActiveTool);
   add("Escape", "Step back: unselect, or cancel what's being placed.", stepBack);
   add("z", "Undo the last change.", undo, {ctrl: true});
   add("y", "Redo the last undo.", redo, {ctrl: true});

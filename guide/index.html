@@ -133,6 +133,7 @@
           <li><a href="#stripboard">Stripboard and strip cuts</a></li>
           <li><a href="#nets">Check connections</a></li>
           <li><a href="#solder-side">Solder side view</a></li>
+          <li><a href="#requirements">Required connections</a></li>
           <li><a href="#3d-view">The 3D view</a></li>
           <li><a href="#saving">Save, share and export</a></li>
           <li><a href="#ai">Design with AI</a></li>
@@ -553,16 +554,27 @@
         </section>
 
         <section id="requirements">
-          <h2>Requirements check</h2>
-          <p>A project can carry <strong>requirements</strong>: the connections the board is meant
-            to have, which an AI agent or another program can write into the project file. When a
-            board has them, the <strong>Nets</strong> panel shows a Requirements card that reports
-            missing connections, unexpected joins, missing components or pins, and pins nobody has
-            specified. Click a report to highlight its board nets. An incomplete plan never reports
-            a full match, and this checks connectivity, not whether the circuit will operate.</p>
-          <p>Requirements are saved in the project file and share links, and editing the board
-            never changes them. Parts you add are added to their list of components without being
-            connected to anything.</p>
+          <h2>Required connections: check the board against your schematic</h2>
+          <p>Optionally, list the nets your circuit should have, and the editor ticks each one off
+            as you wire it. Open <strong>Required connections</strong> at the top of the
+            <strong>Nets</strong> panel:</p>
+          <ul>
+            <li><strong>Add a net</strong>, then click the pins it joins on the board (click one
+              again to take it out) and press <kbd>Enter</kbd> or <strong>Save net</strong>.
+              <kbd>Esc</kbd> cancels. Place the parts first: a net is made of their pins.</li>
+            <li><strong>Use current wiring</strong> copies every net the board has now, so any
+              later change that breaks one shows up.</li>
+            <li>Each net shows a tick once the board joins all its pins, or <strong>To wire</strong>
+              until then. Click a net to light it up on the board; the pencil changes its pins and
+              the bin deletes it.</li>
+            <li>Problems are listed above the nets: a wire joining two nets that should be apart, or
+              a required part that's gone from the board (<strong>Forget it</strong> stops
+              requiring it).</li>
+          </ul>
+          <p>The list is saved in the project file and share links, editing the board never changes
+            it, and <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes changes to it. An AI agent can write one too.
+            Pins left out of every net aren't checked, and this checks connectivity, not whether the
+            circuit will operate. <strong>Remove list</strong> takes it away.</p>
         </section>
         <section id="3d-view">
           <h2>Preview the board in 3D</h2>
@@ -656,7 +668,7 @@
                 <tr><td><kbd>S</kbd></td><td>Turn the solder path tool on or off</td></tr>
                 <tr><td><kbd>R</kbd></td><td>Rotate the part you're placing, or the selected part</td></tr>
                 <tr><td><kbd>Esc</kbd></td><td>Take back a wire's last bend, end a wire run, put down the part you're placing, or clear the selection</td></tr>
-                <tr><td><kbd>Enter</kbd></td><td>End the wire you're drawing at its last bend</td></tr>
+                <tr><td><kbd>Enter</kbd></td><td>End the wire you're drawing at its last bend, or save the required net you're picking</td></tr>
                 <tr><td><kbd>/</kbd> while dragging a wire</td><td>Flip its L</td></tr>
                 <tr><td><kbd>Shift</kbd> while dragging a wire</td><td>Draw it straight (with the Select tool, press it once the wire is on its way: held as you press, it draws a selection box)</td></tr>
                 <tr><td><kbd>Delete</kbd></td><td>Delete the selected parts and wires</td></tr>

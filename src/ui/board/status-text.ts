@@ -72,7 +72,7 @@ export function forTouch(text: string): string {
     .replace("Drag from a pad to draw a wire", "Hold a pad, then drag, to draw a wire")
     .replace(", or drag pad to pad", "")
     .replace("Drag pad to pad for an L", "Hold a pad and drag for an L")
-    .replace(/\[([^\]]*)\]/g, (_, list: string) => `[${list.split(" • ").filter(hint => !/^(R|Del|D) to |^Shift|^Esc |^Ctrl|^Drag a box/i.test(hint)).join(" • ")}]`)
+    .replace(/\[([^\]]*)\]/g, (_, list: string) => `[${list.split(" • ").filter(hint => !/^(R|Del|D) to |^Shift|^Esc |^Enter |^Ctrl|^Drag a box/i.test(hint)).join(" • ")}]`)
     .replace(/ or press (Esc|Enter)\b/g, "")
     .replace(/\bClick\b/g, "Tap")
     .replace(/\bclick\b/g, "tap");

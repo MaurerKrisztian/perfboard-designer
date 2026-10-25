@@ -1,12 +1,13 @@
 import {KeyboardEvent, ReactNode, useState} from "react";
-import {boardNets, highlightRequiredPins, pickedNet, toggleNetHighlight} from "../../features/board-nets";
+import {boardNets, pickedNet, toggleNetHighlight} from "../../features/board-nets";
 import {comparePins, isPowerNet, Net, NetPin, pinId} from "../../project-file/nets";
 import {GridPos} from "../../project-file/grid";
 import {useEditor} from "../hooks/use-editor";
 import {cx} from "../lib/class-names";
 import {RequirementsCard} from "./RequirementsCard";
 
-// The board's nets: which pins it connects, kept up to date as it changes (src/features/board-nets.ts).
+// The board's nets: which pins it connects, kept up to date as it changes (src/features/board-nets.ts),
+// under the optional list of the nets it should have (RequirementsCard).
 // Unconnected pins and wires connecting no pins come first, in folds: they're likely mistakes, and
 // below a long list of nets they'd be out of sight. Picking a net, a pin or such wires lights it up
 // on the board until it's picked again.
@@ -43,7 +44,7 @@ export function NetsPanel() {
     <div className="nets-panel">
       <div className="section-title">Nets <span id="netsCount" className="nets-count">{connected.length || ""}</span></div>
       <div id="nets">
-        {current?.project.requirements && <RequirementsCard project={current.project} nets={nets} onInspect={highlightRequiredPins}/>}
+        {current && <RequirementsCard project={current.project} nets={nets}/>}
         {unconnected.length > 0 && fold("unconnected", `${plural(unconnected.length, "pin")} not connected`,
           unconnected.map(net => (
             <Pickable key={pinId(net.pins[0])} net={net} picked={picked} className="net-pin" title={`${pinTitle(net.pins[0])}: click to show it on the board`}>
