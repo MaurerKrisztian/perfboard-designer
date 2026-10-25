@@ -446,7 +446,7 @@
           <h2>Select, move and delete</h2>
           <ul>
             <li><strong>Select</strong> (the default tool): click a part, wire or hole to select it. Drag a part to move it to new holes.</li>
-            <li>A selected item gets a bar along the bottom of the board with what you can do to it: <strong>Rotate</strong> a chip or other part that turns, change the <strong>Color</strong> of a wire or LED, <strong>Straighten</strong> a bent wire, set a part's <strong>Value</strong>, add a <strong>Note</strong> to a hole, and <strong>Delete</strong>. <strong>Right-click</strong> anything for the same actions as a menu.</li>
+            <li>A selected item gets a bar along the bottom of the board with what you can do to it: <strong>Rotate</strong> a chip or other part that turns, <strong>Turn round</strong> an LED, diode or electrolytic capacitor end to end, change the <strong>Color</strong> of a wire or LED, <strong>Straighten</strong> a bent wire, set a part's <strong>Value</strong>, add a <strong>Note</strong> to a hole, and <strong>Delete</strong>. <strong>Right-click</strong> anything for the same actions as a menu.</li>
             <li><kbd>Delete</kbd> removes the selected part or wire.</li>
             <li><strong>Select several at once</strong>: hold <kbd>Shift</kbd> and click parts and wires to add them to the selection (Shift-click one again to take it out), or hold <kbd>Shift</kbd> and drag a box: everything that lies wholly inside it is selected. <kbd>Ctrl</kbd>+<kbd>A</kbd> selects every part and wire. Or click <strong>Select more</strong> in the bar along the bottom of the board, and plain clicks and drags do the same until you click it again.</li>
             <li>Drag any of the selected parts, or one of the selected wires, and they all move together; wires you didn't select stay where they are. A click on one of them, without dragging, selects just that one. <kbd>Delete</kbd> removes them all, and <strong>Undo</strong> brings them all back in one go.</li>
@@ -473,7 +473,7 @@
           <ul>
             <li><strong>+</strong> slides up the Components library. Pick a part and it slides away again, ready for you to tap the board.</li>
             <li>While you place a part or a wire, a hint over the board says what to tap next, such as "Tap start pad", with a button to cancel and, for chips, one to rotate the part first.</li>
-            <li>Tap a part, wire or hole to select it. A bar along the bottom shows what you can do to it: wire, solder, rotate, color, value, note, duplicate and delete. Pressing and holding it opens the same actions as a menu.</li>
+            <li>Tap a part, wire or hole to select it. A bar along the bottom shows what you can do to it: wire, solder, rotate, turn round, color, value, note, duplicate and delete. Pressing and holding it opens the same actions as a menu.</li>
             <li>To select several parts and wires, tap <strong>Select more</strong> in that bar, then tap each one you want (tap one again to take it out). Tap <strong>Select more</strong> again when you're done. Drag any of them with one finger and they all move.</li>
             <li>Drag with one finger to pan. In Select mode, drag a part's body to move it, or a selected wire's handles to <a href="#wires">bend it</a>, straight away or after holding your finger still (double-tap a bend to take it out).</li>
             <li>To draw a wire, press and hold a hole or a pin and choose <strong>Start Wire Here</strong>, then tap the holes it bends at and the one it goes to. Or keep your finger down after the menu appears and drag to that hole: the wire bends once, as an L, and a tap with a second finger flips it. Tapping a hole also gives a <strong>Wire</strong> button in the bar along the bottom.</li>
@@ -527,11 +527,18 @@
               NE555 Timer, pin 8 · VCC. <strong>Short</strong> packs them into chips, "U1.8 VCC",
               "R1.1" or "D1.K", for a long list; hover a chip for the same words.</li>
             <li><strong>Click a net</strong> to highlight its holes and wires on the board; click it again to turn the highlight off.</li>
+            <li><strong>Looks backwards</strong> lists polarized parts that are the wrong way round
+              between the supply rails: an LED or electrolytic capacitor with its anode or + on GND
+              or its cathode or − on VCC, or a diode straight across the supply. Click one to select
+              it, or <strong>Turn round</strong> to swap its leads. The rails are pins named like VCC,
+              GND or 5V, a battery holder's + and −, and holes with a note such as +9V or GND: if
+              your power comes in on a header or terminal block, give its holes a note so the check
+              can see the rails. A part between two signals isn't judged.</li>
             <li><strong>Not connected</strong> lists pins wired to nothing, the most common slip on a real board.</li>
             <li><strong>Connecting no pins</strong> lists wires that don't reach any part.</li>
           </ul>
           <div class="tip">
-            <p><strong>Before you solder:</strong> go through your schematic net by net and check each one in the panel. A net named like "GND/VCC" means two supply rails are shorted, often by an uncut strip.</p>
+            <p><strong>Before you solder:</strong> go through your schematic net by net and check each one in the panel. A net named like "GND/VCC" means two supply rails are shorted, often by an uncut strip. (One named like "5V/VCC" is just one rail with two names.)</p>
           </div>
           <p>
             Perfboard Designer checks how the board is wired, not how the circuit behaves: it doesn't
