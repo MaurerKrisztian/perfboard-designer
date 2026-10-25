@@ -6,6 +6,7 @@ import {GRID_PITCH_PX, GridPos, gridToPx} from "../project-file/grid";
 import {readProjectFile} from "../project-file/read-project-file";
 import {StripDirection} from "../project-file/project-file";
 import {layoutProjectWires} from "../project-file/wire-crossings";
+import {partList, PartListRow} from "../project-file/part-list";
 import {isBottomWire, isSolderPath, solderPathHoles, wireLegs, wirePoints} from "../project-file/wire-path";
 import {archHalfRunPx, wireStep} from "./wire-paths";
 import type {CustomPartSpec} from "../parts/custom-parts";
@@ -59,6 +60,8 @@ export interface ViewerSolderPath {
 }
 
 export interface ViewerIc {
+  // What the part is called in an exported model: its ref, what it is and its value (partLabel).
+  label: string;
   name: string;
   widthPin: number;
   heightPin: number;
@@ -71,6 +74,7 @@ export interface ViewerIc {
 }
 
 export interface ViewerStandardPart {
+  label: string;
   definitionId: string;
   value?: string;
   color?: string;
@@ -81,6 +85,7 @@ export interface ViewerStandardPart {
 }
 
 export interface ViewerAdvancedPart {
+  label: string;
   definitionId: string;
   // A user-made part's own definition (SavedAdvancedComponent.custom).
   custom?: CustomPartSpec;
@@ -110,11 +115,16 @@ const DEFAULT_WIRE_WIDTH = 4;
 
 const px = ([col, row]: GridPos) => ({x: gridToPx(col), y: gridToPx(row)});
 
+// A part as the component list names it: "R1 Resistor 10kΩ", "U1 NE555 Timer".
+const partLabel = (row: PartListRow) => [row.ref, row.part, row.value].filter(Boolean).join(" ");
+
 /** Reads a project file (already JSON-decoded, any version) into the viewer's pixel-space model.
  *  Throws ProjectFileError on files that aren't perfboard projects at all; individual malformed
  *  entries are left out instead. */
 export function readProject(raw: unknown): ViewerProject {
   const {project} = readProjectFile(raw);
+  const labels = new Map(partList(project).map(row => [row.ref, partLabel(row)]));
+  const labelOf = (ref: string) => labels.get(ref) ?? ref;
   const {cols, rows} = project.board;
   const board: ViewerBoard = project.board.type === "stripboard"
     ? {type: "stripboard", strips: project.board.strips, cuts: project.board.cuts.map(px)}
@@ -192,6 +202,7 @@ export function readProject(raw: unknown): ViewerProject {
   const ics: ViewerIc[] = project.placedIcs.map(ic => {
     const {x: left, y: top} = px(ic.at);
     return {
+      label: labelOf(ic.ref),
       name: ic.name,
       // The chip body needs two pin columns to have any width.
       widthPin: Math.max(2, ic.widthPin),
@@ -207,6 +218,7 @@ export function readProject(raw: unknown): ViewerProject {
     const start = px(part.from);
     const end = px(part.to);
     return {
+      label: labelOf(part.ref),
       definitionId: part.definitionId, value: part.value, color: part.color,
       startX: start.x, startY: start.y, endX: end.x, endY: end.y,
     };
@@ -215,6 +227,7 @@ export function readProject(raw: unknown): ViewerProject {
   const advancedParts: ViewerAdvancedPart[] = project.placedAdvancedComponents.map(part => {
     const anchor = px(part.at);
     return {
+      label: labelOf(part.ref),
       definitionId: part.definitionId, ...(part.custom ? {custom: part.custom} : {}), value: part.value, rotationAngle: part.rotation,
       anchorX: anchor.x, anchorY: anchor.y, rows: part.rows, cols: part.cols,
     };

@@ -7,6 +7,7 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
 import {RoomEnvironment} from "three/examples/jsm/environments/RoomEnvironment.js";
 import {readProject} from "./project-data";
 import {buildBoardScene, BuiltBoard} from "./build-scene";
+import {exportGlb} from "./export-model";
 
 // Read-only 3D view of a perfboard project. It only ever receives project-file data (the
 // same JSON "Save Project" writes) - never the editor's live state - and is loaded on demand,
@@ -52,6 +53,7 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, className: strin
 
 // The toolbar's line icons (24-unit paths), drawn in the text colour.
 const ICONS = {
+  download: ["M12 3v12", "m7 10 5 5 5-5", "M5 21h14"],
   camera: ["M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z", "M12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"],
   folder: ["M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9l-.8-1.2A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"],
   close: ["M18 6 6 18", "M6 6l12 12"],
@@ -136,7 +138,7 @@ class Viewer3d {
     this.loop();
   }
 
-  // A toolbar along the top (title, then screenshot, open and close), and the view switch floating
+  // A toolbar along the top (title, then screenshot, 3D export, open and close), and the view switch floating
   // over the bottom of the board, where a thumb reaches it.
   private buildDom() {
     const toolbar = element("div", "viewer3d-toolbar");
@@ -156,6 +158,7 @@ class Viewer3d {
       return btn;
     };
     button("Screenshot", ICONS.camera, () => this.screenshot());
+    button("Export 3D", ICONS.download, () => void this.exportModel());
 
     const fileInput = element("input", "viewer3d-file");
     fileInput.type = "file";
@@ -268,6 +271,22 @@ class Viewer3d {
     link.download = "perfboard-3d.png";
     link.href = this.renderer.domElement.toDataURL("image/png");
     link.click();
+  }
+
+  // The board as a .glb file, for other 3D programs (export-model.ts).
+  private async exportModel() {
+    if (!this.board) return;
+    try {
+      const url = URL.createObjectURL(await exportGlb(this.board.root));
+      const link = document.createElement("a");
+      link.download = "perfboard-3d.glb";
+      link.href = url;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e) {
+      console.error(e);
+      this.showError("Couldn't export the 3D model.");
+    }
   }
 
   private showError(message: string) {

@@ -72,10 +72,10 @@ like `document`/`Path2D` fail lint there), outside code imports the renderer onl
 https://perfboarddesigner.com (GitHub Pages custom domain, kept across deploys by `assets/CNAME`).
 Keep all in-site URLs relative — never `/...` — so it also works under the github.io subfolder
 `/perfboard-designer/`. Absolute URLs belong only in SEO tags (canonical, og:*, sitemap).
-- `index.html` — static, JS-free SEO landing page (styles in `src/landing/`).
+- `index.html` — static SEO landing page, JS-free but for the consent banner (styles in `src/landing/`).
 - `app/index.html` — the editor itself (everything below). Static assets in `assets/` (the Vite
   publicDir) are served from the site root, so from the editor they're `../icons/...` etc.
-- `guide/index.html` — static, JS-free SEO user guide: how to use the editor, feature by feature
+- `guide/index.html` — static SEO user guide, JS-free but for the consent banner: how to use the editor, feature by feature
   (styles in `src/guide/`, on top of the landing's). Linked from the editor's Help menu. When a
   change alters how a feature is used (a tool, shortcut, menu or panel), update the guide too.
 - `contributors/index.html` — standalone page (`src/contributors/`) listing contributors live from
@@ -85,6 +85,12 @@ Keep all in-site URLs relative — never `/...` — so it also works under the g
   the landing's styles plus `src/mcp-page/` (its own styles and copy buttons; imports nothing from
   the editor). Named `mcp-server/` because `mcp/` is the server's package. Keep its setup steps in
   step with `mcp/README.md`.
+- `assets/consent.js` — Google Analytics behind a consent banner, for every page: each loads it
+  with a plain script tag at the top of its head (copied as is, not bundled). GA loads, and sets
+  cookies, only after the visitor accepts; the choice is localStorage `analytics_consent`;
+  anything with `data-consent-settings` (the footers' Cookie settings, the editor's Help ›
+  Cookie Settings via `src/ui/lib/consent-settings.ts`) reopens the banner. It reports pages
+  without their #fragment, where share links carry a board. A new page loads it too.
 - `assets/404.html` — GitHub Pages' not-found page, copied as-is (not a Vite input). It's served at
   whatever missing URL was requested, so it's fully self-contained (inline CSS/SVG) and is the one
   page that uses root-based links (`/app/`, `/`).
@@ -528,7 +534,10 @@ reader and laid out in pixels by its own `project-data.ts`, and never imports ed
 — only pure data modules (the project-file reader, component definitions, value parsing/color
 codes, `rotateOffset`). The editor side is just
 `src/features/open-3d-view.ts`, which snapshots `getSaveJson()` and lazy-imports the viewer, so
-three.js stays out of the main bundle. Scene units are mm (50px grid = 2.54mm pitch).
+three.js stays out of the main bundle. Scene units are mm (50px grid = 2.54mm pitch). Export 3D
+(`export-model.ts`) saves a copy of the board as a `.glb`, scaled to metres (glTF's unit), with
+instanced meshes made plain, each part's group named as the component list names it ("R1 Resistor
+10kΩ"); the GLTFExporter is imported only when it's used.
 
 **Canvas coordinates**: mouse events are mapped to canvas drawing-space coordinates via
 `Canvas.toDrawingCoordinates(e)`, which accounts for CSS scaling of the canvas element (its

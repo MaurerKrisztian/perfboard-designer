@@ -11,6 +11,7 @@ import {saveProjectToFile} from "../../features/project/save-project";
 import {downloadAsImage, downloadAsSvg} from "../../features/project/save-image";
 import {importProjectFile} from "../../features/project/current-project";
 import {exportCustomParts, importCustomParts} from "../../features/project/custom-parts-library";
+import {hasConsentSettings, openConsentSettings} from "../lib/consent-settings";
 
 // Picks a project file and opens it as a new project, named after the file.
 export async function importProjectFromFile() {
@@ -61,6 +62,7 @@ export function AppHeader() {
               <MenuLink href="../mcp-server/">Design with AI (MCP)</MenuLink>
               <MenuDivider/>
               <MenuLink href="https://github.com/MaurerKrisztian/perfboard-designer/issues">Report a Bug</MenuLink>
+              {hasConsentSettings() && <MenuItem onClick={openConsentSettings}>Cookie Settings...</MenuItem>}
             </Menu>
             <ProjectNameButton/>
           </>

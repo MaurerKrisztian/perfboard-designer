@@ -134,6 +134,7 @@ jumper wire, on a perfboard or stripboard sized to match yours.
 - Drag to orbit, right-drag to pan and scroll to zoom, or jump to an angled, top or bottom view.
 - Check the solder side to see where wires and leads meet the copper.
 - Save a screenshot of the render to share or keep next to your build.
+- Export the board as a true-to-size 3D model (`.glb`) for Blender, CAD tools or any glTF viewer.
 
 Component variants use the board's 2.54 mm hole grid. Check the
 [component footprint notes](docs/component-footprints.md) for package details, pin labels,
@@ -201,7 +202,9 @@ rename, duplicate or delete them from **File → Open Project**. **Save Project 
 project file you can import again or share, and **Share** makes a link with the board inside
 the link itself. Nothing is uploaded to a server, unless you ask **Share** for a short link: then
 a copy of that board is stored at `projects.perfboarddesigner.com` so the short link can open
-it, and deleted after a year unopened.
+it, and deleted after a year unopened. If you accept analytics cookies, Google Analytics counts
+which pages are visited, never what's on your boards; **Cookie settings** (in the site's footer, or
+the editor's Help menu) changes that.
 
 ### Does it work for stripboard (Veroboard)?
 

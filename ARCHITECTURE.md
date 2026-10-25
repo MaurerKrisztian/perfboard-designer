@@ -72,12 +72,20 @@ at https://perfboarddesigner.com.
 
 | Page | Source | What it is |
 | --- | --- | --- |
-| `/` | `index.html`, `src/landing/` | Static, JS-free landing page (SEO). |
+| `/` | `index.html`, `src/landing/` | Static landing page (SEO), JS-free but for the consent banner. |
 | `/app/` | `app/index.html`, `src/ui/main.tsx` | The editor: everything below. |
-| `/guide/` | `guide/index.html`, `src/guide/` | Static, JS-free user guide (SEO): how to use the editor, feature by feature. Reuses the landing's styles. Keep it in step with the editor when a feature changes how it's used. Linked from the editor's Help menu. |
+| `/guide/` | `guide/index.html`, `src/guide/` | Static user guide (SEO), JS-free but for the consent banner: how to use the editor, feature by feature. Reuses the landing's styles. Keep it in step with the editor when a feature changes how it's used. Linked from the editor's Help menu. |
 | `/contributors/` | `contributors/index.html`, `src/contributors/` | Contributors, live from the GitHub API. Imports nothing from the editor. |
 | `/mcp-server/` | `mcp-server/index.html`, `src/mcp-page/` | How to connect AI agents to the hosted MCP server. Keep its steps in step with `mcp/README.md`. |
 | 404 | `assets/404.html` | GitHub Pages' not-found page, fully self-contained. |
+
+Every page loads `assets/consent.js` with a plain script tag at the top of its head (`/consent.js`
+on the 404 page): Google Analytics behind a consent banner. Nothing loads from Google, and no
+cookie is set, until the visitor accepts (Consent Mode's basic setup); the choice is kept in
+localStorage (`analytics_consent`) for the whole site, and anything with a `data-consent-settings`
+attribute reopens the banner: the footers' Cookie settings, and the editor's Help › Cookie
+Settings (`src/ui/lib/consent-settings.ts`). It reports each page without its `#fragment`, where
+the editor's share links carry a whole board. A new page loads it too.
 
 `assets/` is Vite's publicDir: served from the site root, so from the editor the part icons are
 `../icons/components/…`. **Keep in-site URLs relative** (never `/…`), so the site also works under
@@ -929,11 +937,17 @@ definition's `iconFile`, else `<id>.svg`). Painters ask for icons by file name:
 - A wire's insulation stops short of each end, as a stripped jumper's does, and the bare tinned
   copper bends down into the hole to its joint underneath (`buildWires`), so a wire end reads as
   soldered there.
-- Its controls: a toolbar (screenshot, open file, close; icons only on a phone) and an
+- Its controls: a toolbar (screenshot, 3D export, open file, close; icons only on a phone) and an
   Angled/Top/Bottom switch floating over the bottom of the view. Each view is framed by the
   window's height, or its width on a tall phone screen.
 - Models for fixed-pin parts are builders in `src/viewer-3d/parts/`, picked by definition id in
   `build-catalog-parts.ts`.
+- Export 3D saves the board as a glTF binary (`.glb`, `export-model.ts`): a copy of the scene's
+  board scaled from mm to metres (glTF's unit), its instanced meshes (the holes) turned into plain
+  meshes, since not every program reads glTF instancing. three.js's GLTFExporter is loaded only when
+  it's used. Each part is its own object, named as the component list names it ("R1 Resistor
+  10kΩ", from `partList()`, by `build-scene.ts`), beside Board, Wires, Solder paths and Solder
+  joints, so other programs' outliners read like the board.
 
 ## 12. MCP server
 
