@@ -472,7 +472,11 @@ solder path it touches; things in one hole are joined; on a stripboard a strip j
 to the next cut, and a cut hole joins nothing. Nets are derived — never saved in the file.
 The editor shows them live in the right panel above the shortcuts (`src/ui/nets/NetsPanel.tsx`),
 kept by `src/features/board-nets.ts`, which works them out again from `getSaveJson()` shortly after
-a redraw that changed the board. Unconnected pins
+a redraw that changed the board. Each pin carries its part's catalog icon, and a Short / Detailed
+switch (remembered, `nets_view`) shows pins as chips or as a line each with the part's name, value
+and what the pin is ("cathode (K)", "pin 8 · VCC"): `src/ui/nets/part-info.ts` (from
+`partList()`), drawn by `PinList.tsx`, which Required connections uses too; a rail's net has a
+ground or supply icon. Unconnected pins
 and wires connecting no pins are in folds above the nets (likely mistakes, kept in sight). Clicking a net, an unconnected pin or
 such wires lights it up on the board until clicked again: `NetHighlightState` holds its holes and
 wires, drawn by the renderer (`view.highlight`, `src/board-render/layers/net-highlight.ts`), and `board-nets.ts` moves it to whichever net holds most of its pins

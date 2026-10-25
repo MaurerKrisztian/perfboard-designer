@@ -269,23 +269,34 @@ svg.reqs-mark {
   text-decoration: line-through;
 }
 
+/* Over the end of the net's top line while it's pointed at, so its pins keep the row's width. */
 .reqs-net-actions {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.2rem;
   display: flex;
-  flex-shrink: 0;
-  padding: 0.3rem 0.2rem 0 0;
+  background-color: var(--ink-2);
+  border-radius: var(--radius-s);
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.12s ease;
 }
 
 .reqs-net:hover .reqs-net-actions,
 .reqs-net:focus-within .reqs-net-actions {
   opacity: 1;
+  pointer-events: auto;
 }
 
-/* No hover on a touch screen: the actions always show. */
+/* No hover on a touch screen: the actions always show, beside the net. */
 @media (hover: none) {
   .reqs-net-actions {
+    position: static;
+    flex-shrink: 0;
+    padding: 0.3rem 0.2rem 0 0;
+    background: none;
     opacity: 1;
+    pointer-events: auto;
   }
 }
 

@@ -7,12 +7,15 @@ import {
   cancelRequiredNet, deleteRequiredNet, forgetRequiredPart, pickRequiredNet, removeRequirements, requireCurrentWiring,
   saveRequiredNet, setRequirementsChecking,
 } from "../../features/required-nets";
-import {PickedPin, ToolState} from "../../state/ToolState";
+import {ToolState} from "../../state/ToolState";
 import {Icon} from "../components/Icon";
 import {useEditor} from "../hooks/use-editor";
 import {usePhoneLayout} from "../hooks/use-media-query";
 import {setSheet} from "../layout/layout-store";
+import {useStore} from "../lib/store";
 import {cx} from "../lib/class-names";
+import {boardPinFor, NetsView, netsViewStore} from "./part-info";
+import {PinList} from "./PinList";
 import "./requirements-card.css";
 
 // Required connections: the nets the circuit should have (the project's requirements), an optional
@@ -60,13 +63,13 @@ export function RequirementsCard({project, nets}: RequirementsCardProps) {
       <div className="reqs-body">
         {requirements
           ? <RequiredNets project={project} nets={nets} tool={tool} startPicking={startPicking}/>
-          : <NoRequirements nets={nets} tool={tool} startPicking={startPicking}/>}
+          : <NoRequirements project={project} nets={nets} tool={tool} startPicking={startPicking}/>}
       </div>
     </details>
   );
 }
 
-function NoRequirements({nets, tool, startPicking}: {nets: Net[]; tool?: Picking; startPicking: (netId?: string) => void}) {
+function NoRequirements({project, nets, tool, startPicking}: {project: ProjectFile; nets: Net[]; tool?: Picking; startPicking: (netId?: string) => void}) {
   const wired = nets.some(net => net.pins.length > 1);
   return (
     <>
@@ -74,7 +77,7 @@ function NoRequirements({nets, tool, startPicking}: {nets: Net[]; tool?: Picking
         List which pins your circuit should join, from a schematic or a plan. Each net is ticked off
         once it's wired, and wrong connections show up here.
       </p>
-      {tool ? <PickingNet tool={tool}/> : (
+      {tool ? <PickingNet tool={tool} project={project}/> : (
         <div className="reqs-actions">
           <button className="btn-accent" onClick={() => startPicking()}><Icon name="plus"/>Add a net</button>
           <button disabled={!wired} title={wired ? "Require every net the board has now" : "Nothing on the board is wired yet"}
@@ -112,6 +115,7 @@ interface RequiredNetsProps extends RequirementsCardProps {
 function RequiredNets({project, nets, tool, startPicking}: RequiredNetsProps) {
   const {reports, result, problems} = useChecks(project, nets);
   const lit = useEditor(litRequiredPins);
+  const view = useStore(netsViewStore, state => state.view);
   const checking = project.requirements?.validate ?? false;
   const unlisted = result.unspecified.length;
   return (
@@ -138,12 +142,12 @@ function RequiredNets({project, nets, tool, startPicking}: RequiredNetsProps) {
       {reports.length > 0 && (
         <ul className="reqs-nets">
           {reports.map((report, i) => tool?.netId === report.id
-            ? <li key={report.id}><PickingNet tool={tool}/></li>
+            ? <li key={report.id}><PickingNet tool={tool} project={project}/></li>
             : <RequiredNetRow key={report.id} report={report} index={i} checking={checking} lit={lit} busy={!!tool}
-              onEdit={() => startPicking(report.id)}/>)}
+              project={project} view={view} onEdit={() => startPicking(report.id)}/>)}
         </ul>
       )}
-      {tool && !tool.netId && <PickingNet tool={tool}/>}
+      {tool && !tool.netId && <PickingNet tool={tool} project={project}/>}
       {!tool && (
         <div className="reqs-actions">
           <button onClick={() => startPicking()}><Icon name="plus"/>Add a net</button>
@@ -166,10 +170,12 @@ interface RequiredNetRowProps {
   lit?: string;
   // Another net's pins are being picked: no editing this one meanwhile.
   busy: boolean;
+  project: ProjectFile;
+  view: NetsView;
   onEdit: () => void;
 }
 
-function RequiredNetRow({report, index, checking, lit, busy, onEdit}: RequiredNetRowProps) {
+function RequiredNetRow({report, index, checking, lit, busy, project, view, onEdit}: RequiredNetRowProps) {
   const pins = report.pins.map(item => item.pin);
   const isLit = lit === pinsKey(pins);
   return (
@@ -183,9 +189,9 @@ function RequiredNetRow({report, index, checking, lit, busy, onEdit}: RequiredNe
           <span className="reqs-net-name">{report.name ?? `Net ${index + 1}`}</span>
           {checking && <span className="reqs-net-state">{report.wired ? "Wired" : report.pins.every(pin => pin.onBoard) ? "To wire" : "Part missing"}</span>}
         </span>
-        <span className="net-pins">
-          {report.pins.map(item => <PinChip key={`${item.pin.componentId}:${item.pin.pin}`} name={item.name} missing={!item.onBoard}/>)}
-        </span>
+        <PinList project={project} view={view} items={report.pins.map(item => ({
+          key: `${item.pin.componentId}:${item.pin.pin}`, pin: boardPinFor(project, item.pin), name: item.name,
+        }))}/>
       </button>
       <span className="reqs-net-actions">
         <button title="Change its pins" aria-label="Change its pins" disabled={busy} onClick={onEdit}><Icon name="pencil"/></button>
@@ -195,18 +201,8 @@ function RequiredNetRow({report, index, checking, lit, busy, onEdit}: RequiredNe
   );
 }
 
-// "U1.8 VCC" as the Nets panel shows a pin: "U1.8", then its name.
-function PinChip({name, missing}: {name: string; missing?: boolean}) {
-  const space = name.indexOf(" ");
-  return (
-    <span className={cx("net-pin", missing && "is-missing")} title={missing ? `${name}: its part isn't on the board` : name}>
-      {space < 0 ? name : <>{name.slice(0, space)}<span className="net-pin-label">{name.slice(space + 1)}</span></>}
-    </span>
-  );
-}
-
 // The net whose pins are being picked on the board, with Save and Cancel.
-function PickingNet({tool}: {tool: Picking}) {
+function PickingNet({tool, project}: {tool: Picking; project: ProjectFile}) {
   const count = tool.picked.length;
   const deletes = !!tool.netId && count < 2;
   return (
@@ -215,10 +211,11 @@ function PickingNet({tool}: {tool: Picking}) {
         <strong>{tool.netId ? "Editing net" : "New net"}</strong>
         <span>Click its pins on the board</span>
       </div>
-      <span className="net-pins">
-        {count ? tool.picked.map((pin: PickedPin) => <PinChip key={`${pin.componentId}:${pin.pin}`} name={pin.name} missing={!pin.at}/>)
-          : <span className="reqs-muted">No pins picked yet.</span>}
-      </span>
+      {count
+        ? <PinList project={project} view="short" items={tool.picked.map(pin => ({
+          key: `${pin.componentId}:${pin.pin}`, pin: boardPinFor(project, pin), name: pin.name,
+        }))}/>
+        : <span className="reqs-muted">No pins picked yet.</span>}
       <div className="reqs-actions">
         <button className="btn-accent" disabled={!tool.netId && count < 2} title={!tool.netId && count < 2 ? "Pick at least two pins" : "Save the net (Enter)"}
           onClick={saveRequiredNet}>{deletes ? "Delete net" : "Save net"}</button>

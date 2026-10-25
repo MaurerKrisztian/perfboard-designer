@@ -633,6 +633,11 @@ always agree.
 - The editor shows them live in the Nets panel (`src/ui/nets/NetsPanel.tsx`), kept by
   `src/features/board-nets.ts`. Clicking a net lights it up on the board (`NetHighlightState`,
   drawn by the renderer), and the light follows the net as the board changes.
+- Each pin shows its part's catalog icon. The panel's Short / Detailed switch (UI-only, kept in
+  localStorage as `nets_view`) shows pins as chips ("D1.K") or a line each: ref, part name and
+  value, and what the pin is ("cathode (K)", "pin 8 · VCC"). `src/ui/nets/part-info.ts` works
+  that out from `partList()` and the definitions' icons; `PinList.tsx` draws both views, for the
+  nets and for Required connections. A rail's net has a ground or supply icon.
 
 **Wire crossings** (`src/project-file/wire-crossings.ts`): jumper wires are insulated. Where one
 runs across another wire, or over a hole holding a pin, a lead or another wire's end, it goes

@@ -1263,8 +1263,13 @@ button.empty-board-close:hover {
   flex-shrink: 0;
 }
 
+/* "Nets 7", and the Short / Detailed switch at the far end. */
+.nets-title {
+  justify-content: space-between;
+}
+
 .nets-count {
-  margin-left: auto;
+  margin-left: 0.35rem;
   color: var(--silk-dim);
   font-size: 0.85rem;
   font-weight: 500;
@@ -1314,8 +1319,7 @@ button.empty-board-close:hover {
 .net-head {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0.45rem;
   margin-bottom: 0.3rem;
 }
 
@@ -1337,13 +1341,89 @@ button.empty-board-close:hover {
   white-space: nowrap;
 }
 
+.nets-view {
+  display: flex;
+  gap: 1px;
+  padding: 2px;
+  background-color: var(--ink-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+}
+
+.nets-view button {
+  padding: 0.15rem 0.45rem;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  color: var(--silk-faint);
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.nets-view button:hover {
+  background-color: var(--ink-2);
+  color: var(--silk);
+}
+
+.nets-view button.is-on {
+  background-color: var(--copper-wash);
+  color: var(--copper-hi);
+}
+
+.nets-help {
+  margin: 0 0.5rem 0.4rem;
+  color: var(--silk-faint);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/* Before a net's name: a ground or supply symbol for a rail, a dot for a signal. */
+svg.net-icon {
+  align-self: center;
+  width: 14px;
+  height: 14px;
+  color: var(--copper-hi);
+}
+
+.net-icon-signal {
+  align-self: center;
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  margin: 0 3.5px;
+  background-color: var(--silk-faint);
+  border-radius: 50%;
+}
+
+.net-head .net-size {
+  margin-left: auto;
+}
+
 .net-pins {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem;
 }
 
+/* A part's icon from the parts list, before a pin's name. */
+.pin-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 12px;
+  object-fit: contain;
+}
+
+.pin-icon-none {
+  display: inline-block;
+}
+
+.net-pin .pin-icon {
+  margin-right: 4px;
+}
+
 .net-pin {
+  display: inline-flex;
+  align-items: center;
   padding: 1px 6px;
   background-color: var(--ink-2);
   border: 1px solid var(--line);
@@ -1357,6 +1437,95 @@ button.empty-board-close:hover {
   margin-left: 0.3rem;
   color: var(--silk);
   font-weight: 500;
+}
+
+/* The detailed view: a line per pin, its part's icon, ref, name and value, and what the pin is. */
+.pin-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pin-row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 1.5rem;
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+}
+
+.pin-row .pin-icon {
+  width: 22px;
+  height: 16px;
+}
+
+.pin-row-part {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.pin-row-part strong {
+  flex-shrink: 0;
+  color: var(--silk);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.pin-row-name {
+  overflow: hidden;
+  color: var(--silk-dim);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pin-row-role {
+  color: var(--silk-faint);
+  font-size: 0.74rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pin-row.is-missing {
+  opacity: 0.6;
+}
+
+.pin-row.is-missing strong {
+  text-decoration: line-through;
+}
+
+.net.is-detailed .net-head {
+  margin-bottom: 0.4rem;
+}
+
+.pin-row.is-pickable {
+  border-left: 2px solid transparent;
+  cursor: pointer;
+}
+
+.pin-row.is-pickable:hover {
+  background-color: var(--ink-2);
+}
+
+.pin-row.is-pickable.selected {
+  background-color: rgba(232, 121, 249, 0.1);
+  border-left-color: var(--net-highlight);
+}
+
+.pin-row.is-pickable:focus-visible {
+  outline: 2px solid var(--net-highlight);
+  outline-offset: 1px;
+}
+
+.nets-fold .pin-rows {
+  margin-top: 0.45rem;
 }
 
 .nets-empty {

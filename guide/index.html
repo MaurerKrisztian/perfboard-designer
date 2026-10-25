@@ -516,10 +516,14 @@
             A <strong>net</strong> is a set of pins that are electrically connected. The
             <strong>Nets</strong> panel on the right works them out live from your wires, shared
             holes and, on a stripboard, the strips and cuts. Each net is named from its pins where it
-            can be, for example GND, VCC or OUT, and lists its pins as "U1.8 VCC", "R1.1" or
-            "D1.K" (the LED's cathode).
+            can be, for example GND, VCC or OUT, with a ground or supply symbol before a rail. Each
+            pin shows its part's icon from the parts list.
           </p>
           <ul>
+            <li><strong>Detailed</strong> (the switch at the top of the panel) gives each pin a line
+              saying what it is: <strong>D1</strong> LED · Red, cathode (K), or <strong>U1</strong>
+              NE555 Timer, pin 8 · VCC. <strong>Short</strong> packs them into chips, "U1.8 VCC",
+              "R1.1" or "D1.K", for a long list; hover a chip for the same words.</li>
             <li><strong>Click a net</strong> to highlight its holes and wires on the board; click it again to turn the highlight off.</li>
             <li><strong>Not connected</strong> lists pins wired to nothing, the most common slip on a real board.</li>
             <li><strong>Connecting no pins</strong> lists wires that don't reach any part.</li>
