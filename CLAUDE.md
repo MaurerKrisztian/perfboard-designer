@@ -456,7 +456,8 @@ missing to those modules without reshaping their output, which the Nets panel an
 ("U1.8 VCC", "D1.K", "C1.+", "R1.1"). Beyond the format, `validate_project` (`mcp/src/validate.ts`, one function per check)
 warns about a wire passing over a pin without ending there, duplicate wires, a two-lead part with both leads on one net, IC pins and two-lead parts' leads
 connected to nothing (not dev boards' or NC pins), wires that connect no pins, supply rails shorted
-together (a power net named like "GND/VCC"), and on a stripboard, pins of one part shorted by a
+together (`shortedRails()`: VCC with GND, 5V with 3V3, a battery's two terminals; VCC with 5V is one
+rail), polarized parts in backwards (`polarityWarnings()`, below), and on a stripboard, pins of one part shorted by a
 strip or sitting in a cut hole. Wires crossing are only listed in its `notes`, never warned about.
 Its optional `expectNets` (`mcp/src/expected-nets.ts`: the netlist the agent meant, as lists of
 "REF.pin") reports every missing or extra connection as an error, treating the list as complete.
@@ -481,6 +482,22 @@ and wires connecting no pins are in folds above the nets (likely mistakes, kept 
 such wires lights it up on the board until clicked again: `NetHighlightState` holds its holes and
 wires, drawn by the renderer (`view.highlight`, `src/board-render/layers/net-highlight.ts`), and `board-nets.ts` moves it to whichever net holds most of its pins
 after each change (most of its wires, for wires connecting no pins).
+
+**Supply rails and polarity** (`src/project-file/rails.ts`, `src/project-file/polarity.ts`), from a
+project file and its nets alone like the nets. A net is a rail when its pins are named after one
+(the nets' rail names, `isPowerName()`: a chip's VCC/GND, a module's 5V), when it holds a power
+source's terminal (a definition's `powerSource`: a battery holder's + is the positive supply, its −
+ground) or when one of its holes has a rail's name as its note ("+9V"); `supplyRails()` says which
+side each is (positive, ground, negative; VSS/VEE/V- is ground unless the board's ground is another
+net), and `shortedRails()` the nets joining rails that can't be one. `polarityWarnings()` names
+polarized parts the rails show to be the wrong way round: an LED, an electrolytic capacitor or a
+part with + and − pins (a buzzer) with an end on the wrong rail, or a plain diode conducting
+straight across the supply (one with its cathode on VCC is a flyback diode, not a mistake). Only
+what the rails settle is reported: a part between two signals is never judged. The editor lists
+them in the Nets panel's open fold above the others (`src/ui/nets/PolarityWarnings.tsx`, kept by
+`board-nets.ts`): a click selects the part, and a two-lead part turns round from there or with the
+selection's Turn round (`src/features/part-polarity.ts`: its leads swap holes, one undoable `move`).
+The MCP server warns about each in `validate_project`.
 
 **Component list** (`src/project-file/part-list.ts`): the parts as a bill of materials, from a
 project file alone like the nets: each part's ref, catalog name, value with its unit (an LED's

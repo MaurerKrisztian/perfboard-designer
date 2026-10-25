@@ -54,6 +54,9 @@ export interface AdvancedComponentDefinition {
   // icon's own artwork is visible. Only sensible when bodyOutline's aspect ratio matches the
   // icon's own aspect ratio, otherwise the icon will over/undershoot the box on one axis.
   iconFillsBody?: boolean;
+  // A power source, a battery holder: its "+" pin is the board's positive supply and its "−" pin
+  // ground, which the polarity checks go by (src/project-file/rails.ts).
+  powerSource?: boolean;
   // The part's pin count isn't fixed by the package: the user drags out a rows x cols block of
   // pins at placement time (header pins). pinOffsets then only holds the 1x1 default - the real
   // lattice lives on the placed instance's rows/cols.
@@ -519,7 +522,7 @@ export const ADVANCED_COMPONENT_DEFINITIONS: AdvancedComponentDefinition[] = [
   })),
   {
     // Generic open CR2032 holder with PC pins about 20 mm apart, across the cell.
-    id: "coin-cell-holder", refPrefix: "BT", category: "batteries", name: "Coin Cell Holder (CR2032, 8-hole span)", fallbackLabel: "2032",
+    id: "coin-cell-holder", refPrefix: "BT", powerSource: true, category: "batteries", name: "Coin Cell Holder (CR2032, 8-hole span)", fallbackLabel: "2032",
     keywords: ["cr2032", "coin cell", "button cell", "rtc backup", "3v", "bs-7"],
     pinOffsets: [{dx: 0, dy: 0}, {dx: 8, dy: 0}], pinLabels: ["+", "−"],
     bodyOutline: rectangularOutline(-0.6, -4.53, 8.6, 4.53), iconFillsBody: true,
@@ -527,7 +530,7 @@ export const ADVANCED_COMPONENT_DEFINITIONS: AdvancedComponentDefinition[] = [
   },
   {
     // Keystone 2462: both terminals at one end, 12.7 mm (5 holes) apart.
-    id: "battery-2xaa", refPrefix: "BT", category: "batteries", name: "Battery Holder (2 × AA, Keystone 2462)", fallbackLabel: "2×AA",
+    id: "battery-2xaa", refPrefix: "BT", powerSource: true, category: "batteries", name: "Battery Holder (2 × AA, Keystone 2462)", fallbackLabel: "2×AA",
     keywords: ["aa", "battery", "3v", "two cell", "keystone"],
     pinOffsets: [{dx: 0, dy: 0}, {dx: 0, dy: -5}], pinLabels: ["+", "−"],
     bodyOutline: rectangularOutline(-22.13, -8.98, 1.3, 3.98),
@@ -536,7 +539,7 @@ export const ADVANCED_COMPONENT_DEFINITIONS: AdvancedComponentDefinition[] = [
   },
   {
     // Keystone 1043: contacts 71.6 mm apart at either end, 0.24 mm off a 28-hole span each.
-    id: "battery-18650", refPrefix: "BT", category: "batteries", name: "Battery Holder (18650, Keystone 1043, 28-hole span)", fallbackLabel: "18650",
+    id: "battery-18650", refPrefix: "BT", powerSource: true, category: "batteries", name: "Battery Holder (18650, Keystone 1043, 28-hole span)", fallbackLabel: "18650",
     keywords: ["18650", "li-ion", "lithium", "battery", "3.7v", "keystone"],
     pinOffsets: [{dx: 0, dy: 0}, {dx: 28, dy: 0}], pinLabels: ["+", "−"],
     bodyOutline: rectangularOutline(-1.18, -4.075, 29.18, 4.075), iconFillsBody: true,

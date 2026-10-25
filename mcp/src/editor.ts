@@ -18,6 +18,8 @@ export {
   boardPins, comparePins, computeNets, isPowerNet, type Net, type Netlist, type NetPin, pinId, pinName,
 } from "../../src/project-file/nets";
 export {layoutProjectWires, type WireLayout} from "../../src/project-file/wire-crossings";
+export {shortedRails} from "../../src/project-file/rails";
+export {polarityWarnings} from "../../src/project-file/polarity";
 export {
   decodeEmbeddedProject, makeHostedShareFragment, makeShareFragment, makeStoredShareFragment, MAX_SHARED_PROJECT_BYTES,
   readShareFragment, STORED_ID, STORED_PROJECTS_URL,

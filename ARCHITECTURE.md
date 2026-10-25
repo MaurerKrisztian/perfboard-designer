@@ -114,7 +114,7 @@ src/
     project/           save/load, local projects, share links, export, undo/redo
     board-canvas/      the editor's side of drawing: canvas painter, icons, what to mark
   parts/               PURE: part definitions, categories, values, and where a placed part's pins and body are
-  project-file/        PURE: the project file format, its reader, pins, nets, crossings, share links
+  project-file/        PURE: the project file format, its reader, pins, nets, rails and polarity, crossings, share links
   board-render/        PURE: draws a board from a project file onto any Painter
   viewer-3d/           read-only three.js view of a project file (lazy-loaded)
   landing/, contributors/, mcp-page/   the other pages' own code
@@ -638,6 +638,34 @@ always agree.
   value, and what the pin is ("cathode (K)", "pin 8 · VCC"). `src/ui/nets/part-info.ts` works
   that out from `partList()` and the definitions' icons; `PinList.tsx` draws both views, for the
   nets and for Required connections. A rail's net has a ground or supply icon.
+
+**Supply rails and polarity** (`src/project-file/rails.ts`, `src/project-file/polarity.ts`): which
+nets are supply rails and which way round polarized parts sit on them, from a project file and its
+nets alone, like the nets.
+
+- A net is a rail when its pins are named after one (the names nets take their names from,
+  `isPowerName()` in `nets.ts`: a chip's VCC or GND, a module's 5V or 3V3), when it holds a power
+  source's terminal (a definition with `powerSource`, the battery holders: + is the positive
+  supply, − ground), or when one of its holes has a rail's name as its note ("+9V", "GND").
+- `supplyRails()` gives each rail's side: positive, ground or negative, and the voltage its name
+  states, if any. VSS, VEE and an op amp's V- are ground, unless the board's ground is another net,
+  when they're the negative supply.
+- `shortedRails()` lists nets joining rails that can't be one: a positive supply with ground or a
+  negative one, ground with a negative supply, two different stated voltages (5V and 3V3), or a
+  battery's two terminals. Names for one rail together (VCC and 5V, GND and AGND, GND and V-)
+  aren't a short.
+- `polarityWarnings()` names polarized parts the rails show to be the wrong way round. An LED, an
+  electrolytic capacitor or a part with + and − pins (a buzzer) is backwards when both its ends are
+  on rails the wrong way round, when its cathode or − is on a positive supply no other rail is
+  known to be above, or when its anode or + is on ground with no negative supply. A plain diode is
+  reported only when it conducts straight across the supply: a cathode on VCC is a flyback or
+  clamp diode doing its job. A part between two signals is never judged.
+- The editor keeps the warnings with the nets (`board-nets.ts`) and lists them in the Nets panel,
+  in a fold open from the start above the others (`src/ui/nets/PolarityWarnings.tsx`). A click on
+  one selects the part (on a phone, putting the sheet away); a two-lead part turns round from
+  there, or with the selection's Turn round (`src/features/part-polarity.ts`: its leads swap holes,
+  one undoable `move`). The MCP server's `validate_project` warns about each, and about shorted
+  rails.
 
 **Wire crossings** (`src/project-file/wire-crossings.ts`): jumper wires are insulated. Where one
 runs across another wire, or over a hole holding a pin, a lead or another wire's end, it goes

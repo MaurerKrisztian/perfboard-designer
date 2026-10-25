@@ -10,12 +10,14 @@ import {cx} from "../lib/class-names";
 import {describePin, NetsView, netsViewStore, partInfo, setNetsView} from "./part-info";
 import {PinChipContent, PinList, PinRowContent} from "./PinList";
 import {RequirementsCard} from "./RequirementsCard";
+import {PolarityWarnings} from "./PolarityWarnings";
 
 // The board's nets: which pins it connects, kept up to date as it changes (src/features/board-nets.ts),
 // under the optional list of the nets it should have (RequirementsCard). Each pin shows its part's
 // icon, and the view is short (a chip per pin) or detailed (a line per pin saying what part and pin
-// it is). Unconnected pins and wires connecting no pins come first, in folds: they're likely
-// mistakes, and below a long list of nets they'd be out of sight. Picking a net, a pin or such
+// it is). Parts that look backwards (PolarityWarnings), unconnected pins and wires connecting no
+// pins come first, in folds: they're likely mistakes, and below a long list of nets they'd be out
+// of sight. Picking a net, a pin or such
 // wires lights it up on the board until it's picked again.
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
@@ -77,6 +79,7 @@ export function NetsPanel() {
           <p className="nets-help">A net is a group of pins the board joins together. Click one to light it up on the board.</p>
         )}
         {current && <RequirementsCard project={current.project} nets={nets}/>}
+        {current && <PolarityWarnings warnings={current.polarity} project={current.project}/>}
         {unconnected.length > 0 && fold("unconnected", `${plural(unconnected.length, "pin")} not connected`,
           unconnected.map(net => {
             const pin = net.pins[0];

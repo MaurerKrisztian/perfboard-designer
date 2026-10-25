@@ -1,6 +1,7 @@
 import {
-  Box, comparePins, computeNets, CUSTOM_PART_ID, GridPos, isModulePart, isPowerNet, isSolderPath, isValidRef, layoutProjectWires, Net, Netlist,
-  NetPin, PartPins, partPins, pinName, PlacedPin, PROJECT_FILE_VERSION, ProjectFile, ProjectFileError, readProjectFile, solderPathHoles, validateRequirements,
+  Box, comparePins, computeNets, CUSTOM_PART_ID, GridPos, isModulePart, isSolderPath, isValidRef, layoutProjectWires, Net, Netlist, NetPin, PartPins,
+  partPins, pinName, PlacedPin, polarityWarnings, PROJECT_FILE_VERSION, ProjectFile, ProjectFileError, readProjectFile, shortedRails, solderPathHoles,
+  validateRequirements,
 } from "./editor";
 import {partsLike} from "./parts";
 import {holeContents, WireIndex} from "./nets-report";
@@ -346,6 +347,7 @@ function checkConnections(board: Board) {
   const loose = checkLoosePins(board);
   checkStrayWires(board, loose);
   checkShortedRails(board);
+  checkPolarity(board);
 }
 
 // A wire running or bending over a pin it doesn't join (a warning), or over another wire or wire
@@ -429,12 +431,19 @@ function checkStrayWires({nets, wireIndex, report, badEnds}: Board, reported: Se
   }
 }
 
-// A net named after two or more supply rails ("GND/VCC") joins them.
-function checkShortedRails({nets, report}: Board) {
-  for (const net of nets.nets) {
-    if (!isPowerNet(net) || !net.name?.includes("/")) continue;
-    const rails = net.name.split("/").filter(name => name !== "…");
-    const railPins = net.pins.filter(pin => rails.some(rail => rail.toLowerCase() === pin.label?.toLowerCase()));
-    report.warn(`Short circuit: one net joins the supply rails ${rails.slice(0, -1).join(", ")} and ${rails[rails.length - 1]}${net.name.endsWith("…") ? " and more" : ""} (${railPins.map(pinName).join(", ")}). Separate them, unless they're meant to be one rail; get_nets lists all ${plural(net.pins.length, "pin")} on it.`);
+// A net joining supply rails that can't be one rail: a positive supply and ground, say, or 5V and
+// 3V3, or a battery's two terminals. Names for one rail together (VCC and 5V, GND and AGND, GND and
+// an op amp's V-) are fine. Pins, batteries and hole notes mark the rails (rails.ts).
+function checkShortedRails({project, nets, report}: Board) {
+  for (const {net, rails, pins} of shortedRails(project, nets)) {
+    const by = pins.length ? ` (${pins.map(pinName).join(", ")})` : "";
+    report.warn(`Short circuit: one net joins the supply rails ${joinList(rails)}${by}. Separate them, unless they're meant to be one rail; get_nets lists all ${plural(net.pins.length, "pin")} on it.`);
   }
+}
+
+// A polarized part the supply rails show to be in the wrong way round: an LED, an electrolytic
+// capacitor or a part with + and − pins backwards, or a diode conducting straight across the
+// supply (polarity.ts). Parts between two signals aren't judged.
+function checkPolarity({project, nets, report}: Board) {
+  for (const warning of polarityWarnings(project, nets)) report.warn(warning.message);
 }
