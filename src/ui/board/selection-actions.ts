@@ -15,18 +15,20 @@ import {hideBoardMenus, showBoardMenu} from "../../features/board-menus";
 import {duplicateSelection} from "../../features/clipboard";
 import {toggleSelectMore} from "../../features/select";
 import {canTurnRound, turnSelectedPartRound} from "../../features/part-polarity";
+import {canConnectWiresAt, connectWiresAt, partPinUnderWire} from "../../features/connect-wire";
 import type {IconName} from "../components/Icon";
 
 // What can be done to the selected part, wire or pad, or to several parts and wires. The selection
 // bar over the board and the context menu offer the same actions, each only where it applies.
 
-export type SelectionAction = "wire" | "solder" | "rotate" | "turn-round" | "color" | "straighten" | "to-bottom" | "to-top" | "value" | "note"
+export type SelectionAction = "wire" | "solder" | "connect" | "rotate" | "turn-round" | "color" | "straighten" | "to-bottom" | "to-top" | "value" | "note"
   | "duplicate" | "select-more" | "delete";
 
 // How each action shows: its icon, and its labels in the selection bar and the context menu.
 export const ACTIONS: Record<SelectionAction, {icon: IconName; label: string; title: string; menuLabel: string; key?: string}> = {
   wire: {icon: "wire", label: "Wire", title: "Start a wire from this pad", menuLabel: "Start Wire Here"},
   solder: {icon: "solder-path", label: "Solder", title: "Start a solder path from this pad", menuLabel: "Start Solder Path Here"},
+  connect: {icon: "connect", label: "Connect to wire", title: "Join the wire running over this hole to what's in it", menuLabel: "Connect to Wire"},
   rotate: {icon: "rotate", label: "Rotate", title: "Rotate (R)", menuLabel: "Rotate", key: "R"},
   "turn-round": {icon: "turn-round", label: "Turn round", title: "Turn it round end to end: its leads swap holes", menuLabel: "Turn Round"},
   color: {icon: "color", label: "Color", title: "Change color", menuLabel: "Change Color"},
@@ -53,15 +55,26 @@ export function availableActions(): SelectionAction[] {
     const straighten: SelectionAction[] = selection.line.via?.length ? ["straighten"] : [];
     return [...color, ...straighten, ...side, "select-more", "delete"];
   }
-  if (selection.kind === "dot") return selection.dot.description ? ["wire", "solder", "note", "delete"] : ["wire", "solder", "note"];
+  const connect: SelectionAction[] = holeToConnect() ? ["connect"] : [];
+  if (selection.kind === "dot") return [...connect, "wire", "solder", "note", ...(selection.dot.description ? ["delete" as const] : [])];
   const {part} = selection;
-  const actions: SelectionAction[] = [];
+  const actions: SelectionAction[] = [...connect];
   if (isRotatable(part)) actions.push("rotate");
   if (canTurnRound(part)) actions.push("turn-round");
   if (part.kind === "standard-component" && isLed(part.definitionId)) actions.push("color");
   if (part.kind !== "ic") actions.push("value");
   actions.push("duplicate", "select-more", "delete");
   return actions;
+}
+
+// The hole Connect to wire joins at: `hole` (where the context menu was opened) when a jumper passes
+// over what's in it, else the selected pad, or the selected part's one pin under a wire.
+export function holeToConnect(hole?: IDot): IDot | undefined {
+  if (hole && canConnectWiresAt(hole)) return hole;
+  const selection = SelectionState.current;
+  if (selection?.kind === "dot") return canConnectWiresAt(selection.dot) ? selection.dot : undefined;
+  if (selection?.kind === "part") return partPinUnderWire(selection.part);
+  return undefined;
 }
 
 const counted = (count: number, one: string) => `${count} ${one}${count === 1 ? "" : "s"}`;
@@ -81,8 +94,8 @@ export function selectionLabel(): string {
   return name ? `${part.ref} ${name}` : part.ref;
 }
 
-// Runs an action from a button. `startHole` is where a wire starts: the hole the context menu was
-// opened on, or else the selected pad. An LED's colours are a small menu of their own, opened
+// Runs an action from a button. `startHole` is the hole the context menu was opened on: where a
+// wire starts (else the selected pad), and where Connect to wire joins first. An LED's colours are a small menu of their own, opened
 // under the button.
 export function runSelectionAction(action: SelectionAction, button: HTMLElement, startHole?: IDot) {
   const part = SelectionState.part;
@@ -100,6 +113,11 @@ export function runSelectionAction(action: SelectionAction, button: HTMLElement,
       if (!hole) return;
       SelectionState.clear();
       setActiveTool({kind: action, start: hole});
+      return;
+    }
+    case "connect": {
+      const hole = holeToConnect(startHole);
+      if (hole) connectWiresAt(hole);
       return;
     }
     case "rotate":

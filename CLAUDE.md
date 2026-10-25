@@ -219,6 +219,7 @@ mark beyond the file — part labels, `holeLabels` (column numbers and row lette
 edge, `layers/hole-labels.ts`; on in the editor and its downloads, off in MCP pictures), `selected`/`hovered` item lists (a part by ref, a wire by index, a
 hole by position; a wire's handles only when it's the one thing selected), a placement's `startHole`, a net `highlight`, or `solderSide` (the board from
 below for soldering, mirrored with a `flipX` group, every joint marked: `layers/solder-side.ts`,
+a jumper broken by a gap round each joint it only passes over: `drawWiresFromBelow()`,
 shown read-only by `src/features/solder-view.ts`); `PLAIN_VIEW` is none of it; the
 editor builds its own in `src/features/board-canvas/editor-view.ts`. `draw-board.ts` alone fixes
 the layer order: board look → under-board parts (chips) → holes (not those under a chip's body;
@@ -328,7 +329,9 @@ that should be undoable calls `HistoryState.record(change)` with an `IChange`
 jumpers passing over its end holes to join them, is itself cut where it passes over other wires'
 ends, and started or ended at a wire's free end (same kind, and for jumpers the same colour and
 width, nothing else in the hole) carries that wire on as one bent wire into one it continues:
-`wire-merge.ts`; a solder path joins every hole it covers already, so it's never split or cut), `add`/`remove`/`move`
+`wire-merge.ts`; a solder path joins every hole it covers already, so it's never split or cut; the
+selection's Connect to Wire, `connect-wire.ts`, splits the jumpers passing over a hole holding a pin
+or a jumper's end the same way, for a part placed after the wire), `add`/`remove`/`move`
 of a part, `move` of a wire (its points; moved with a selection), `set` of a strip cut or of the
 board setup, or a `batch` of several as one step. `undo`/`redo` replay these and call `redrawCanvas()`. History is cleared whenever the
 board is replaced (load, reset, resize) via `resetForNewBoard()`.

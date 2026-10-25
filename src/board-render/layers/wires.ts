@@ -1,11 +1,12 @@
 import {GridPos, gridToPx} from "../../project-file/grid";
 import {SavedWire} from "../../project-file/project-file";
 import {WireHop} from "../../project-file/wire-crossings";
-import {isBottomWire, isSolderPath, solderPathHoles, wirePoints} from "../../project-file/wire-path";
+import {holesAlong, isBottomWire, isSolderPath, solderPathHoles, wireLegs, wirePoints} from "../../project-file/wire-path";
 import {BoardView, isHovered, isSameItem, isSelected, soleSelected} from "../board-view";
 import {Painter, Point} from "../painter/painter";
 import {
-  DEFAULT_WIRE_COLOR, DEFAULT_WIRE_WIDTH, PAD_RADIUS, SELECTION_COLOR, SOLDER_COLOR, SOLDER_EDGE, SOLDER_PATH_WIDTH,
+  DEFAULT_WIRE_COLOR, DEFAULT_WIRE_WIDTH, HOLE_RADIUS, PAD_RADIUS, SELECTION_COLOR, SOLDER_COLOR, SOLDER_EDGE, SOLDER_JOINT_RADIUS,
+  SOLDER_PATH_WIDTH,
 } from "../palette";
 
 // Wires, and how crossings show (see src/project-file/wire-crossings.ts). A wire runs straight from
@@ -18,9 +19,9 @@ import {
 
 const HOVER_COLOR = "#94a3b8";
 const OVER_EDGE_COLOR = "#0b1120";
-const JUNCTION_FILL = "#d1d5db";
-const JUNCTION_EDGE = "#374151";
-const JUNCTION_RADIUS = 6;
+// A junction's blob of solder over the wire ends: the hole's own solder (layers/holes.ts), only
+// bigger, covering it whole so there's one outline, not two a pixel apart.
+const JUNCTION_RADIUS = HOLE_RADIUS + 2;
 const BEND_HANDLE_FILL = "#ffffff";
 // A solder path's bead on each of its holes, covering the pad.
 const SOLDER_BEAD_RADIUS = PAD_RADIUS - 0.5;
@@ -31,6 +32,8 @@ const THROUGH_PART_OPACITY = 0.45;
 // straight steps the bend is drawn.
 const BEND_RADIUS = 14;
 const BEND_STEPS = 6;
+// In the solder side view, the clear space between a joint's solder and a wire only passing over it.
+const JOINT_GAP = 4;
 
 const widthOf = (wire: SavedWire) => wire.width || DEFAULT_WIRE_WIDTH;
 // How wide it's drawn: a solder path has no width of its own.
@@ -101,6 +104,50 @@ export function drawWires(painter: Painter, wires: SavedWire[], hops: WireHop[],
     painter.line(line, {paint: wire.color || DEFAULT_WIRE_COLOR, width, cap: "round", join: "round"});
     if (handles) drawBendHandles(painter, wire);
   });
+}
+
+const holeKey = ([col, row]: GridPos) => `${col},${row}`;
+
+// The jumpers on one face as the solder side view shows them, where every joint is a blob of solder
+// (`joints`) that would hide a dark edge: each wire is broken by a gap round every joint it only
+// passes over (a pin, a lead or another wire's end it doesn't join, or a solder path's hole), so it
+// stops short of that solder, while a wire ending in a joint runs into it. Where it crosses another
+// wire it gets its dark edges, as in the top view.
+export function drawWiresFromBelow(painter: Painter, wires: SavedWire[], hops: WireHop[], joints: GridPos[], face: "top" | "bottom") {
+  const isJoint = new Set(joints.map(holeKey));
+  wires.forEach((wire, index) => {
+    if (isSolderPath(wire) || isBottomWire(wire) !== (face === "bottom")) return;
+    const line = wireLine(wire);
+    const width = widthOf(wire);
+    drawOverEdges(painter, line, wire, wires, hops.filter(hop => hop.wire === index && hop.over === "wire"));
+    const gaps = holesPassedOver(wire)
+      .filter(at => isJoint.has(holeKey(at)))
+      .map(([col, row]) => nearestAlong(line, {x: gridToPx(col), y: gridToPx(row)}));
+    // Round caps reach half the wire's width past each piece's end.
+    const half = SOLDER_JOINT_RADIUS + JOINT_GAP + width / 2;
+    for (const piece of piecesBetweenGaps(line, gaps, half)) {
+      painter.line(piece, {paint: wire.color || DEFAULT_WIRE_COLOR, width, cap: "round", join: "round"});
+    }
+  });
+}
+
+// The holes a jumper passes over without ending in them: its corners and the holes along its legs.
+function holesPassedOver(wire: SavedWire): GridPos[] {
+  const corners = wirePoints(wire).slice(1, -1);
+  const along = wireLegs(wire).flatMap(leg => holesAlong(leg).map(hole => hole.at));
+  return [...corners, ...along];
+}
+
+// `line` with a gap `half` px either side of each point `gaps` (px along it), as the pieces left.
+function piecesBetweenGaps(line: Point[], gaps: number[], half: number): Point[][] {
+  const pieces: Point[][] = [];
+  let from = 0;
+  for (const at of [...gaps].sort((a, b) => a - b)) {
+    if (at - half > from) pieces.push(sliceLine(line, from, at - half));
+    from = Math.max(from, at + half);
+  }
+  pieces.push(sliceLine(line, from, Infinity));
+  return pieces.filter(piece => piece.length > 1);
 }
 
 // Every solder path, with the selected or hovered one marked as a jumper is.
@@ -214,6 +261,8 @@ export function drawWiresThroughParts(painter: Painter, wires: SavedWire[]) {
 
 export function drawJunctions(painter: Painter, junctions: GridPos[]) {
   for (const [col, row] of junctions) {
-    painter.circle(gridToPx(col), gridToPx(row), JUNCTION_RADIUS, {fill: JUNCTION_FILL, stroke: {paint: JUNCTION_EDGE, width: 1.5}});
+    const x = gridToPx(col), y = gridToPx(row);
+    painter.circle(x, y, JUNCTION_RADIUS, {fill: SOLDER_COLOR, stroke: {paint: SOLDER_EDGE, width: 1}});
+    painter.circle(x - 2.2, y - 2.2, 2.2, {fill: SOLDER_SHINE});
   }
 }

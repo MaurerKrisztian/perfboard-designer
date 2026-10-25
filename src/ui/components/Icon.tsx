@@ -23,6 +23,7 @@ const ICONS = {
   "to-bottom": <><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 20h16" strokeWidth="3.5" opacity=".5"/></>,
   "to-top": <><path d="M12 21V9M7 14l5-5 5 5"/><path d="M4 4h16"/></>,
   "rotate": <><path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/></>,
+  "connect": <><path d="M3 9h18" opacity=".5"/><path d="M12 9v12"/><circle cx="12" cy="9" r="3"/></>,
   "turn-round": <path d="M7 4 3 8l4 4M3 8h14M17 12l4 4-4 4M21 16H7"/>,
   "color": <path d="M12 2.7 17.7 8.4a8 8 0 1 1-11.4 0z"/>,
   "value": <path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/>,

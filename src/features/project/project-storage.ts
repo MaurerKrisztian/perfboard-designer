@@ -37,6 +37,12 @@ export async function storeProject(project: ProjectFile, wanted: {id?: string; n
   return (JSON.parse(text) as {id: string}).id;
 }
 
+// Where the storage serves pictures of a stored board: an SVG and a PNG.
+export function storedPictures(id: string): {svg: string; png: string} {
+  if (!PROJECTS_URL) throw new Error(TURNED_OFF);
+  return {svg: `${PROJECTS_URL}/${id}.svg`, png: `${PROJECTS_URL}/${id}.png`};
+}
+
 // The project a short link names, parsed but not yet checked: pass it to readProjectFile. Throws
 // ProjectFileError when it can't be had.
 export async function fetchStoredProject(id: string): Promise<unknown> {

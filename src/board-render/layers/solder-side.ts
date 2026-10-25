@@ -3,7 +3,7 @@ import {partPins} from "../../project-file/pin-positions";
 import {ProjectFile} from "../../project-file/project-file";
 import {isSolderPath, solderPathHoles} from "../../project-file/wire-path";
 import {Painter} from "../painter/painter";
-import {LABEL_COLOR, LABEL_HALO, PAD_RADIUS, SOLDER_COLOR, SOLDER_EDGE} from "../palette";
+import {LABEL_COLOR, LABEL_HALO, PAD_RADIUS, SOLDER_COLOR, SOLDER_EDGE, SOLDER_JOINT_RADIUS} from "../palette";
 
 // What the solder side view marks over the mirrored board (drawBoard does the board itself): a
 // blob of solder on every hole that needs one, a square round pin 1 of every part with more than
@@ -50,7 +50,7 @@ export function drawSolderJoints(painter: Painter, project: ProjectFile, width: 
   }
   for (const [col, row] of solderJoints(project)) {
     const x = mirroredX(col, width), y = gridToPx(row);
-    painter.circle(x, y, PAD_RADIUS + 1.5, {fill: SOLDER_COLOR, stroke: {paint: SOLDER_EDGE, width: 2}});
+    painter.circle(x, y, SOLDER_JOINT_RADIUS, {fill: SOLDER_COLOR, stroke: {paint: SOLDER_EDGE, width: 2}});
     painter.circle(x - 2.5, y - 2.5, 3.2, {fill: SOLDER_SHINE});
   }
 }

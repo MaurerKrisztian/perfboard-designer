@@ -5,7 +5,7 @@ import type {LedColor} from "../../parts/component-definitions";
 import {Icon} from "../components/Icon";
 import {shallowEqual, useEditor} from "../hooks/use-editor";
 import {useClickOutside} from "../hooks/use-click-outside";
-import {ACTIONS, availableActions, runSelectionAction, SelectionAction} from "./selection-actions";
+import {ACTIONS, availableActions, holeToConnect, runSelectionAction, SelectionAction} from "./selection-actions";
 
 // The board's popup menus (src/features/board-menus.ts opens them): the context menu, with what
 // can be done to what it was opened on, and the LED colour menu. A click anywhere else closes them.
@@ -15,12 +15,18 @@ export function BoardMenus() {
   return menu.kind === "actions" ? <ContextMenu menu={menu}/> : <LedColorMenu menu={menu}/>;
 }
 
-// The context menu's order: Start Wire/Solder Path Here only when it was opened on a hole.
+// The context menu's order: Start Wire/Solder Path Here only when it was opened on a hole, then
+// Connect to Wire when a wire passes over that hole (or the selection's pad or pin) unjoined.
 const MENU_ORDER: SelectionAction[] = ["rotate", "turn-round", "color", "straighten", "to-bottom", "to-top", "note", "value", "duplicate", "delete"];
 
 function ContextMenu({menu}: {menu: Extract<BoardMenu, {kind: "actions"}>}) {
   const available = useEditor(availableActions, shallowEqual);
-  const actions: SelectionAction[] = [...(menu.hole ? ["wire", "solder"] as const : []), ...MENU_ORDER.filter(a => available.includes(a))];
+  const connect = useEditor(() => !!holeToConnect(menu.hole));
+  const actions: SelectionAction[] = [
+    ...(menu.hole ? ["wire", "solder"] as const : []),
+    ...(connect ? ["connect"] as const : []),
+    ...MENU_ORDER.filter(a => available.includes(a)),
+  ];
   return (
     <PopupMenu id="contextMenu" x={menu.x} y={menu.y}>
       {actions.map(action => {

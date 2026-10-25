@@ -415,7 +415,10 @@
             a dark edge along it there. Where three or more things meet in one hole, a solder dot
             marks the joint. To connect two wires, end them in the same hole, or end one on a hole the
             other passes over: whichever you draw last, the wire running past is split there and
-            joined.
+            joined. A part placed after the wire isn't joined that way: when a lead lands in a hole
+            a wire passes over, right-click the hole (long-press on a phone) and choose
+            <strong>Connect to Wire</strong>, or select the part and click <strong>Connect to
+            wire</strong> in the bar. The wire is split there and joined to the lead.
           </p>
           <p>
             Every hole you'll solder, one holding a pin, a lead or a wire's end, shows silver solder
@@ -444,7 +447,7 @@
           <h2>Select, move and delete</h2>
           <ul>
             <li><strong>Select</strong> (the default tool): click a part, wire or hole to select it. Drag a part to move it to new holes.</li>
-            <li>A selected item gets a bar along the bottom of the board with what you can do to it: <strong>Rotate</strong> a chip or other part that turns, <strong>Turn round</strong> an LED, diode or electrolytic capacitor end to end, change the <strong>Color</strong> of a wire or LED, <strong>Straighten</strong> a bent wire, set a part's <strong>Value</strong>, add a <strong>Note</strong> to a hole, and <strong>Delete</strong>. <strong>Right-click</strong> anything for the same actions as a menu.</li>
+            <li>A selected item gets a bar along the bottom of the board with what you can do to it: <strong>Rotate</strong> a chip or other part that turns, <strong>Turn round</strong> an LED, diode or electrolytic capacitor end to end, <strong>Connect to wire</strong> a lead or pad that a wire passes over, change the <strong>Color</strong> of a wire or LED, <strong>Straighten</strong> a bent wire, set a part's <strong>Value</strong>, add a <strong>Note</strong> to a hole, and <strong>Delete</strong>. <strong>Right-click</strong> anything for the same actions as a menu.</li>
             <li><kbd>Delete</kbd> removes the selected part or wire.</li>
             <li><strong>Select several at once</strong>: hold <kbd>Shift</kbd> and click parts and wires to add them to the selection (Shift-click one again to take it out), or hold <kbd>Shift</kbd> and drag a box: everything that lies wholly inside it is selected. <kbd>Ctrl</kbd>+<kbd>A</kbd> selects every part and wire. Or click <strong>Select more</strong> in the bar along the bottom of the board, and plain clicks and drags do the same until you click it again.</li>
             <li>Drag any of the selected parts, or one of the selected wires, and they all move together; wires you didn't select stay where they are. A click on one of them, without dragging, selects just that one. <kbd>Delete</kbd> removes them all, and <strong>Undo</strong> brings them all back in one go.</li>
@@ -552,7 +555,9 @@
             your hand with the copper side up. The parts and wires show faintly through it for
             bearings, and every hole you need to solder gets a bright solder blob: each pin and lead,
             each end of a wire, and every hole a solder path covers. Solder paths show at full
-            strength, since this is the side you make them on.
+            strength, since this is the side you make them on. A wire runs right into the blobs of
+            the holes it's soldered into, and stops short, with a gap, of any joint it only passes
+            over, so you can tell at a glance which joints it belongs to.
           </p>
           <ul>
             <li>A yellow square marks pin 1 of every chip and other part with more than two pins, so nothing goes in backwards.</li>
@@ -633,8 +638,9 @@
           <p>
             For a link short enough for a forum post or a chat, click <strong>Make Short
             Link</strong> and give it a name, such as <code>led-blinker</code>. That stores a copy
-            of the board on Perfboard Designer's server under that name. Anyone with the link can open
-            it, the stored copy never changes, and it's deleted after a year unopened.
+            of the board on Perfboard Designer's server under that name, and gives you the short link
+            plus links to a picture of the board as SVG and PNG, ready to post. Anyone with the link
+            can open it, and the stored copy never changes.
           </p>
           <h3>Images for printing and documentation</h3>
           <p>

@@ -2386,6 +2386,15 @@ input.share-link-input {
   flex-shrink: 0;
 }
 
+/* What a short link's row holds: the link, or a picture of the board. */
+.share-row-label {
+  flex-shrink: 0;
+  width: 2.5rem;
+  align-self: center;
+  color: var(--silk-dim);
+  font-size: 0.8rem;
+}
+
 /* Projects dialog: a grid of cards, one per project, each with a thumbnail of its board */
 .projects-card {
   max-width: 820px;

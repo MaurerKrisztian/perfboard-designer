@@ -688,6 +688,12 @@ at full strength over the solder paths, and the 3D viewer lays them under the bo
 In the editor a placed wire (`ILine`) keeps its corners in `via`, and `src/features/line-path.ts`
 holds its geometry: its points and legs, how near a point is (hover and selection), and splitting
 it at a hole it runs or bends over (`wire-merge.ts` uses that to join a wire ending on another).
+A part's lead or a wire's end can still land in a hole a jumper only passes over (the part placed
+after the wire, say). Connect to Wire (`src/features/connect-wire.ts`, in the context menu and the
+selection bar) joins them: it splits the jumpers passing over that hole there with
+`splitWiresAt()`, as one undoable `replace`. A pin joins the jumpers on both faces, a jumper's end
+only those on its own face. With a part selected it's offered only when exactly one of its pins
+lies under a wire, since joining several could short the part.
 
 **Rule:** no connectivity or crossing logic anywhere else, the MCP server included. Add what's
 missing to these modules without reshaping their output.
@@ -806,7 +812,9 @@ The editor then draws the active tool's preview on top (`ToolBehavior.drawPrevie
   support), the component side faded inside that group, and outside it, at mirrored positions so
   text reads the right way, a solder blob on every joint (`solderJoints()`: each pin and lead, each
   jumper's ends, every hole a solder path covers), the solder paths at full strength, a square round each multi-pin part's pin 1, part refs, and a stripboard's cuts as red
-  crosses (`layers/solder-side.ts`). The editor shows it with the board bar's Solder side button or
+  crosses (`layers/solder-side.ts`). The blobs would hide a wire's dark edges, so there a jumper is
+  drawn broken by a gap round each joint it only passes over, and runs into the joints it ends in
+  (`drawWiresFromBelow()` in `layers/wires.ts`). The editor shows it with the board bar's Solder side button or
   <kbd>B</kbd> (`src/features/solder-view.ts`), read-only while it's on, and downloads it as shown.
 
 `PLAIN_VIEW` (`{}`) is the plain board. The editor builds its view in

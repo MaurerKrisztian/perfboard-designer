@@ -2,13 +2,13 @@ import {RefObject, useEffect, useRef, useState} from "react";
 import {ProjectState} from "../../state/ProjectState";
 import {makeShareFragment, makeStoredShareFragment} from "../../project-file/share-link";
 import {getSaveJson} from "../../features/project/save-project";
-import {SHORT_LINKS, storeProject} from "../../features/project/project-storage";
+import {SHORT_LINKS, storedPictures, storeProject} from "../../features/project/project-storage";
 import {Modal} from "../components/Modal";
 import {cx} from "../lib/class-names";
 
 // The Share dialog: a link that carries the board as it is now, in the link itself, and on request
-// a short link to a copy stored on Perfboard Designer's project storage. The full link always
-// works, without the storage. Opening links is in src/features/project/open-shared-link.ts.
+// a short link to a copy stored on Perfboard Designer's project storage, with links to pictures of
+// it (SVG and PNG). The full link always works, without the storage. Opening links is in src/features/project/open-shared-link.ts.
 
 // Some chat apps and mail clients cut links off past a few thousand characters.
 const LONG_LINK = 8000;
@@ -96,20 +96,22 @@ function NoteText({note}: {note: Note}) {
   return <p className={cx("share-note", note.warning && "is-warning")} aria-live="polite">{note.text}</p>;
 }
 
-// Stores a copy of the board for a short link, under the name typed (or the project's).
+// What a short link gives: the link, and pictures of the stored board.
+interface StoredLinks {
+  link: string;
+  svg: string;
+  png: string;
+}
+
+// Stores a copy of the board for a short link, under the name typed (or the project's), and shows
+// the link with its pictures' links.
 function ShortLink() {
   const [name, setName] = useState(ProjectState.current?.name ?? "");
-  const [link, setLink] = useState("");
+  const [links, setLinks] = useState<StoredLinks>();
   const [info, setInfo] = useState<Note>({text: ""});
   const [busy, setBusy] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const linkInput = useRef<HTMLInputElement>(null);
-  // A dialog closed meanwhile mustn't get the link.
+  // A dialog closed meanwhile mustn't get the links.
   const mounted = useMounted();
-
-  useEffect(() => {
-    if (link) selectLink(linkInput.current);
-  }, [link]);
 
   const make = async () => {
     const projectName = ProjectState.current?.name;
@@ -119,9 +121,8 @@ function ShortLink() {
     try {
       const id = await storeProject(getSaveJson(), {...(wanted ? {id: wanted} : {}), ...(projectName ? {name: projectName} : {})});
       if (!mounted.current) return;
-      setLink(editorLink(makeStoredShareFragment(id, projectName)));
-      setCopied(false);
-      setInfo({text: `Stored as "${id}". The stored copy never changes: after changing the board, make a new link.`});
+      setLinks({link: editorLink(makeStoredShareFragment(id, projectName)), ...storedPictures(id)});
+      setInfo({text: `Stored as "${id}". The stored copy doesn't change: after changing the board, make a new link.`});
     } catch (err) {
       console.error(err);
       if (!mounted.current) return;
@@ -131,14 +132,9 @@ function ShortLink() {
     }
   };
 
-  const copy = async () => {
-    if (await copyLink(linkInput.current)) setCopied(true);
-    else setInfo({text: "Copying was blocked. Select the link and copy it yourself."});
-  };
-
   return (
     <div className="share-short">
-      <p className="share-note"><strong>Short link:</strong> stores a copy of the board on Perfboard Designer's server, so the link can be short. Anyone with the link can open it; it's deleted after a year unopened.</p>
+      <p className="share-note"><strong>Short link:</strong> stores a copy of the board on Perfboard Designer's server and gives you a short link to it, with links to a picture of the board as SVG and PNG.</p>
       <div className="share-row">
         <input type="text" maxLength={40} placeholder="Name for the link, e.g. led-blinker" aria-label="Name for the short link"
           value={name} onChange={e => setName(e.target.value)}
@@ -147,13 +143,41 @@ function ShortLink() {
           }}/>
         <button className="btn" disabled={busy} onClick={() => void make()}>Make Short Link</button>
       </div>
-      {link && (
-        <div className="share-row">
-          <input ref={linkInput} type="text" className="share-link-input" readOnly aria-label="Short link" value={link}/>
-          <button className="btn" onClick={() => void copy()}>{copied ? "Copied ✓" : "Copy"}</button>
-        </div>
+      {links && (
+        <>
+          <CopyRow label="Link" value={links.link} selected/>
+          <CopyRow label="SVG" value={links.svg}/>
+          <CopyRow label="PNG" value={links.png}/>
+        </>
       )}
       <NoteText note={info}/>
+    </div>
+  );
+}
+
+// One link with a Copy button; `selected` selects it as it appears, ready to copy.
+function CopyRow({label, value, selected = false}: {label: string; value: string; selected?: boolean}) {
+  const [copied, setCopied] = useState(false);
+  const [blocked, setBlocked] = useState(false);
+  const input = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setCopied(false);
+    if (selected) selectLink(input.current);
+  }, [value, selected]);
+
+  const copy = async () => {
+    const worked = await copyLink(input.current);
+    setCopied(worked);
+    setBlocked(!worked);
+  };
+
+  return (
+    <div className="share-row">
+      <span className="share-row-label">{label}</span>
+      <input ref={input} type="text" className="share-link-input" readOnly aria-label={`Short link: ${label}`} value={value}/>
+      <button className="btn" title={blocked ? "Copying was blocked. Select the link and copy it yourself." : undefined}
+        onClick={() => void copy()}>{copied ? "Copied ✓" : blocked ? "Select it" : "Copy"}</button>
     </div>
   );
 }
