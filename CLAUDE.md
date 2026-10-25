@@ -94,7 +94,11 @@ a click does. The toolbar above the board (`src/ui/board/BoardToolbar.tsx`) has 
 (`StatusBadge.tsx`, its text from `status-text.ts`: what's selected or what the tool does, with
 cancel/rotate while placing), undo/redo, zoom, Fit, Labels, Focus; the status's hints run along the
 board's foot (`StatusHints`) beside the hover readout (`HoverReadout.tsx`). An empty board shows how
-to start (`EmptyBoardHint.tsx`, with the 555 blinker example to open). Actions on the selection live in `src/ui/board/selection-actions.ts`: the context
+to start (`EmptyBoardHint.tsx`: the board it's on, with Change to set it up there, then Start from
+scratch, which puts the card away, the 555 blinker example, or Design it with AI, a link to the
+`mcp-server/` page). A new project's card in the Projects dialog asks for its name and its
+board (`BoardSetupFields.tsx`, the same fields as the empty board's Change; `src/features/project/new-board.ts` starts it
+from the board picked last time). Actions on the selection live in `src/ui/board/selection-actions.ts`: the context
 menu (`BoardMenus.tsx`; the core's `board-menus.ts` says which menu is open, where) and the
 selection bar floating over the board (`SelectionBar.tsx`) show only the actions that apply
 (`availableActions()`). Icons are `<Icon name="…"/>` (`src/ui/components/Icon.tsx`, one SVG sprite
@@ -132,7 +136,7 @@ UI-only state (the open dialog, sidebars shown, focus mode, the phone's sheet) l
 stores (`src/ui/lib/store.ts`): `src/ui/dialogs/dialog-store.ts`, `src/ui/layout/layout-store.ts`.
 Components are function components, one per file, grouped by area (`header/`, `sidebar/`,
 `catalog/`, `board/`, `nets/`, `dialogs/`, `mobile/`); `components/` holds the shared ones
-(`Modal`, `Icon`, `SegmentedControl`, `NumberField`), `hooks/` and `lib/` the shared hooks and
+(`Modal`, `Icon`, `SegmentedControl`, `NumberField`, `BoardSetupFields`), `hooks/` and `lib/` the shared hooks and
 helpers. They use the class names in `src/style.css` (no CSS-in-JS). A new feature is functions
 in `src/features/` plus a component in `src/ui/` that calls them.
 

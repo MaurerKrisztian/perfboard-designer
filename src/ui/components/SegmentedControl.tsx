@@ -13,7 +13,7 @@ export function SegmentedControl<T extends string>({id, options, value, onChange
   return (
     <div className="board-switch" id={id} hidden={hidden}>
       {options.map(option => (
-        <button key={option.value} className={cx(option.value === value && "active-mode")} onClick={() => onChange(option.value)}>
+        <button key={option.value} type="button" className={cx(option.value === value && "active-mode")} onClick={() => onChange(option.value)}>
           {option.label}
         </button>
       ))}

@@ -191,7 +191,7 @@ sections; the tool modes as a row for the phone), `catalog/` (the left panel's P
 `board/` (the board's toolbar, canvas, selection bar, menus, the status and its text, the hover
 readout, the empty board's start card), `nets/` (nets, requirements, shortcuts legend), `dialogs/`,
 `mobile/`. `components/` holds the shared pieces (`Modal`, `Icon`,
-`SegmentedControl`, `NumberField`), `hooks/` the shared hooks, `lib/` small helpers. Components
+`SegmentedControl`, `NumberField`, `BoardSetupFields`), `hooks/` the shared hooks, `lib/` small helpers. Components
 use the class names in `src/style.css`; there's no CSS-in-JS.
 
 **The look.** The editor is made of a circuit board's materials: soldermask green-black surfaces
@@ -566,6 +566,15 @@ MCP server.
 - The UI is the File menu (`src/ui/header/AppHeader.tsx`), the header's project name and the
   Projects dialog (`src/ui/dialogs/ProjectsDialog.tsx`, a `ProjectCard` per project, with a
   thumbnail from `project-thumbnail.ts`, section 10).
+- A new project starts on the board its card sets up (`NewProjectCard`: name, then
+  `src/ui/components/BoardSetupFields.tsx` for type, strips and size, beside a thumbnail of the
+  empty board). `src/features/project/new-board.ts` holds that `NewBoard`: it starts as the one
+  picked last time (localStorage `new_project_board`, kept by `newProject(name, board)`), else the
+  open board's. Started without one (the first visit, deleting the last project), a project is on
+  a board like the open one. The empty board's start card (`EmptyBoardHint.tsx`) shows the open
+  board and changes it with the same fields, through `changeOpenBoard()`, then offers three ways
+  to start: from scratch (puts the card away), the 555 blinker example, or Design it with AI (the
+  `mcp-server/` page, in a new tab).
 
 **Share links** carry a whole project in the editor URL's fragment: `#name=…&z=…`, or
 `json=`/`src=` for links written by people and programs. A **short link**, `#name=…&p=<id>`,
