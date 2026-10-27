@@ -115,8 +115,8 @@ async function record(browser, scenePath, out, baseUrl, opts) {
     // clip plays (the user guide's <video poster>).
     const poster = out.replace(/\.mp4$/, ".webp");
     execFileSync("ffmpeg", [
-      ...["-loglevel", "error", "-y", "-sseof", "-0.1", "-i", out],
-      ...["-frames:v", "1", "-c:v", "libwebp", "-quality", "70", poster],
+      ...["-loglevel", "error", "-y", "-sseof", "-0.5", "-i", out],
+      ...["-update", "1", "-c:v", "libwebp", "-quality", "70", poster],
     ]);
     console.log(`Wrote ${out} and its poster`);
     return true;

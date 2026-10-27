@@ -58,5 +58,11 @@ circuit, step by step), and `tour/` (the editor tour's clips, `src/ui/dialogs/To
 also shown in the user guide: short loops without captions, since the text beside them says what
 they show).
 
+The browser draws WebGL in software (SwiftShader), so the 3D view's clip (`tour/view3d.cjs`) stutters
+on a machine without a GPU, such as a cloud session: record it where there is one, with the GPU's
+GL, e.g. on Linux with an NVIDIA card `__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia`
+and Chromium launched with `--use-angle=gl --enable-gpu --ignore-gpu-blocklist` (Vulkan records the
+3D canvas blank).
+
 In a recording, dialogs' backdrops are dimmed without their blur: the headless browser draws the
 blur so slowly that the video stops getting frames while a dialog is open.
