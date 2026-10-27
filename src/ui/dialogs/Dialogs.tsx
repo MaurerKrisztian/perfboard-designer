@@ -9,6 +9,7 @@ import {IcEditorDialog} from "./IcEditorDialog";
 import {CustomModuleDialog} from "./CustomModuleDialog";
 import {CustomShapeDialog} from "./CustomShapeDialog";
 import {CustomPartDialog} from "./CustomPartDialog";
+import {TourDialog} from "./TourDialog";
 
 // The open dialog (dialog-store.ts), and over it any question the editor asks.
 export function Dialogs() {
@@ -21,6 +22,7 @@ export function Dialogs() {
       {open?.kind === "share" && <ShareDialog onClose={closeDialog}/>}
       {open?.kind === "part-list" && <PartListDialog onClose={closeDialog}/>}
       {open?.kind === "export-pdf" && <ExportPdfDialog onClose={closeDialog}/>}
+      {open?.kind === "tour" && <TourDialog chapter={open.chapter} onClose={closeDialog}/>}
       {open?.kind === "custom-part" && <CustomPartDialog onClose={closeDialog}/>}
       {open?.kind === "ic-editor" && <IcEditorDialog type={open.type} editing={open.editing} onBack={back} onClose={closeDialog}/>}
       {open?.kind === "custom-module" && <CustomModuleDialog editing={open.editing} onBack={back} onClose={closeDialog}/>}

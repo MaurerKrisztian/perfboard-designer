@@ -132,6 +132,9 @@ https://projects.perfboarddesigner.com/mcp; a local one is `cd mcp && npm run bu
 ## Pitfalls
 
 - The editor is at `/app/`, not `/`.
+- A first visit (a fresh browser profile) opens the tour, a dialog over the editor
+  that takes the keyboard while it's open. Skip it by setting localStorage `tour_seen` to `"true"`
+  before the page loads (Playwright: `context.addInitScript`), or close it with Escape.
 - An empty board shows a start card over its middle (`.empty-board-card`), which takes clicks there:
   open a board by link first, or dismiss it with its ✕.
 - A git worktree whose `node_modules` links to this repo's shares Vite's dependency cache

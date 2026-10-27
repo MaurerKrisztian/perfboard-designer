@@ -1,6 +1,7 @@
 import {createStore} from "../lib/store";
 import type {Ic} from "../../features/ic";
 import type {CustomPartSpec} from "../../parts/custom-parts";
+import type {TourChapterId} from "./TourDialog";
 
 // Which of the editor's dialogs is open: one at a time (the editor's questions, AskDialog, can show
 // over any of them). Dialogs.tsx shows it.
@@ -12,6 +13,8 @@ export type OpenDialog =
   | {kind: "share"}
   | {kind: "part-list"}
   | {kind: "export-pdf"}
+  // The tour (TourDialog.tsx), open at a chapter.
+  | {kind: "tour"; chapter: TourChapterId}
   // The parts list's one way to make a part of your own: pick what kind, then its editor below.
   | {kind: "custom-part"}
   // A new chip of `type`, or a custom one being edited. `fromChooser`: opened from custom-part,

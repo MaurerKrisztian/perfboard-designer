@@ -25,7 +25,9 @@ devDependencies). **Do not introduce Playwright or any other automated test tool
 tests changes manually in the browser. To check a change yourself in a browser, follow
 **docs/testing-with-agents.md**: boards opened by link, `data-editor-ready`, and on the dev server
 `window.__perfboard` (`src/features/test-handle.ts`) to read the board, selection, nets and hole
-positions, with `settled()` to wait for a change.
+positions, with `settled()` to wait for a change. The one exception is `tools/demo-video/`, which
+films the editor for demo and tutorial videos (not tests): scripted scenes played with a Playwright
+already on the machine (never added to `package.json`) and saved as MP4s (`tools/demo-video/README.md`).
 
 ## Architecture
 
@@ -122,6 +124,15 @@ that `App` renders); use them, not emoji.
 which holds the open question; `src/ui/dialogs/AskDialog.tsx` shows it), never
 `prompt()`/`confirm()`/`alert()` (embedding pages may block them, and they freeze the page). Placing a part returns to Select with it selected; Shift-click
 keeps the tool armed (`BoardClick.keepArmed`).
+
+**Tour**: `src/ui/dialogs/TourDialog.tsx`, a dialog of slides (a looping clip and a line or two of
+text each, with a phone wording where it's taps) in three chapters: "The basics", opened by itself
+on the first visit (localStorage `tour_seen`), "How boards work" (wires vs solder paths, the solder
+side, strips and cuts, editing) and "More features" (a slide each); Help opens any. Its clips are
+`assets/tour/*.mp4` with a `.webp` poster (the last frame) each, recorded from the scenes of the
+same names in `tools/demo-video/scenes/tour/`; the user guide shows them too, in the sections about
+what they show. When a change alters what a clip shows, or how a feature a slide explains works,
+update the slide (and the guide) and record its clip again.
 
 **Phone layout**: on a small or touch screen (one media query, in both the end of `src/style.css`
 and `PHONE_QUERY` in `src/ui/hooks/use-media-query.ts`; keep them the same) the board fills the

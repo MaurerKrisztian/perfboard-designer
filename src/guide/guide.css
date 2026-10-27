@@ -192,6 +192,14 @@ kbd {
   margin: 1.5rem 0;
 }
 
+/* A clip from the editor's tour (assets/tour/), shown with its last frame until it's played. */
+.guide-article .hero-shot video {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #0b1411;
+}
+
 .guide-article figcaption {
   padding: 0.65rem 0.9rem;
   border-top: 1px solid var(--border);

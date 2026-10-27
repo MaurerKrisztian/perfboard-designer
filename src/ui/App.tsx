@@ -10,6 +10,7 @@ import {BoardMenus} from "./board/BoardMenus";
 import {NetsSidebar} from "./nets/NetsSidebar";
 import {MobileNav} from "./mobile/MobileNav";
 import {Dialogs} from "./dialogs/Dialogs";
+import {showTourOnFirstVisit} from "./dialogs/TourDialog";
 import {layoutStore, setFocusMode, setSheet, toggleFocusMode} from "./layout/layout-store";
 import {useStore} from "./lib/store";
 import {useEditor} from "./hooks/use-editor";
@@ -23,6 +24,7 @@ import {fitToScreen} from "../features/zoom";
 // the board's canvas is on the page (BoardCanvas attaches it first: children's effects run first).
 export function App() {
   useEffect(startEditor, []);
+  useEffect(showTourOnFirstVisit, []);
   const focusMode = useStore(layoutStore, layout => layout.focusMode);
   useFocusMode(focusMode);
   usePhoneSheets();

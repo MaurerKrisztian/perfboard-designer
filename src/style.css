@@ -2069,6 +2069,129 @@ button.close-btn:hover {
   border-top: 1px solid var(--line);
 }
 
+/* The tour: chapters, each a run of slides */
+/* Narrower on a short window, so the 16:10 clip, the text and the buttons fit without scrolling
+   (the card is at most 90vh tall; about 21rem of it isn't the clip). */
+.tour-card {
+  max-width: min(720px, calc((90vh - 21rem) * 1.6));
+}
+
+.tour {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.tour-chapters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.5rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+button.tour-chapter {
+  padding: 0.35rem 0.75rem;
+  background: none;
+  border-color: transparent;
+  color: var(--silk-dim);
+}
+
+button.tour-chapter:hover {
+  background-color: var(--ink-2);
+  border-color: transparent;
+  color: var(--silk);
+}
+
+button.tour-chapter.is-active {
+  background-color: var(--copper-wash);
+  color: var(--copper-hi);
+}
+
+.tour-media {
+  aspect-ratio: 16 / 10;
+  background-color: var(--ink-0);
+  border-bottom: 1px solid var(--line);
+}
+
+.tour-media video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.tour-body {
+  gap: 0.4rem;
+  overflow: visible;
+}
+
+.tour-step {
+  color: var(--copper);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tour-title {
+  margin: 0;
+  color: var(--silk);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.tour-text {
+  margin: 0;
+  color: var(--silk-dim);
+  line-height: 1.5;
+}
+
+.tour-again {
+  margin: 0.35rem 0 0;
+  color: var(--silk-faint);
+  font-size: 0.85rem;
+}
+
+.tour-footer {
+  align-items: center;
+}
+
+.tour-dots {
+  display: flex;
+  gap: 0.15rem;
+  margin-right: auto;
+}
+
+button.tour-dot {
+  width: 1.4rem;
+  height: 1.4rem;
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+button.tour-dot::before {
+  content: "";
+  display: block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin: auto;
+  border-radius: 50%;
+  background-color: var(--line-strong);
+}
+
+button.tour-dot:hover {
+  background: none;
+}
+
+button.tour-dot:hover::before {
+  background-color: var(--silk-faint);
+}
+
+button.tour-dot.is-active::before {
+  background-color: var(--copper);
+}
+
 /* Share Link dialog */
 .custom-part-card {
   max-width: 720px;
@@ -3286,6 +3409,15 @@ button.ask-chip:hover {
 @media (max-width: 768px), (pointer: coarse) and (max-width: 1024px), (pointer: coarse) and (max-height: 500px) {
   :root {
     --mobile-nav-height: calc(3.6rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* The tour's buttons need the footer's width; its "Step n of 6" shows where you are. */
+  .tour-dots {
+    display: none;
+  }
+
+  .tour-footer {
+    justify-content: flex-end;
   }
 
   body {

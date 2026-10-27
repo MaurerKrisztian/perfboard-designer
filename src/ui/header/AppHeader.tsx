@@ -59,6 +59,9 @@ export function AppHeader() {
             </Menu>
             <ViewMenu control={menu}/>
             <Menu label="Help" control={menu}>
+              <MenuItem onClick={() => openDialog({kind: "tour", chapter: "basics"})}>Tour: The Basics...</MenuItem>
+              <MenuItem onClick={() => openDialog({kind: "tour", chapter: "concepts"})}>Tour: How Boards Work...</MenuItem>
+              <MenuItem onClick={() => openDialog({kind: "tour", chapter: "features"})}>Tour: More Features...</MenuItem>
               <MenuLink href="../guide/">User Guide</MenuLink>
               <MenuLink href="../mcp-server/">Design with AI (MCP)</MenuLink>
               <MenuDivider/>

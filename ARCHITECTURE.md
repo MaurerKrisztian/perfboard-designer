@@ -594,6 +594,16 @@ MCP server.
   board and changes it with the same fields, through `changeOpenBoard()`, then offers three ways
   to start: from scratch (puts the card away), the 555 blinker example, or Design it with AI (the
   `mcp-server/` page, in a new tab).
+- A first visit opens the tour (`src/ui/dialogs/TourDialog.tsx`, localStorage `tour_seen`): slides
+  of a short looping clip and a line or two of text, worded for taps on a phone, in three
+  chapters. "The basics" opens first and ends by offering "How boards work" (wires join only their
+  ends, solder paths every hole they cover, the solder side, wires on the back, strips and cuts,
+  editing), which offers "More features" (bending wires, selecting several, values and colours,
+  notes, parts in backwards, required connections, custom parts, the component list and PDF); Help
+  › Tour opens any. The clips are `assets/tour/*.mp4`, each with a `.webp` poster of its last frame,
+  recorded from the scenes in `tools/demo-video/scenes/tour/` (`tools/demo-video/README.md`). The
+  user guide shows the same clips in the sections about what they show. When a change alters what
+  one shows, record it again rather than leaving the tour and the guide out of date.
 
 **Share links** carry a whole project in the editor URL's fragment: `#name=…&z=…`, or
 `json=`/`src=` for links written by people and programs. A **short link**, `#name=…&p=<id>`,
@@ -1048,3 +1058,6 @@ Check server changes with a throwaway script outside the repo that drives the bu
   - server: `cd mcp && npm run typecheck && npm run build`.
 - **Testing:** there's no test suite, and none should be added. Check changes by hand in the
   browser (`npm run start`, `/app/`), e.g. by opening `examples/*.json` through File › Import.
+- **Videos:** `tools/demo-video/` films the editor from scripted scenes (the tour's clips, demo and
+  tutorial videos). It isn't test tooling and adds no dependency: it uses a Playwright and ffmpeg
+  already on the machine.
