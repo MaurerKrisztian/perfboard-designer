@@ -71,7 +71,7 @@
       ]
     }
     </script>
-  <link rel="stylesheet" href="../assets/index.5e33b6b7.css">
+  <link rel="stylesheet" href="../assets/index.b8903659.css">
   <link rel="stylesheet" href="../assets/landing.0837469d.css">
 </head>
 
@@ -152,7 +152,11 @@
           <h2>Quick start: your first board in five steps</h2>
           <p>
             Open the <a href="../app/">designer</a>. A small perfboard is ready to use, and your work
-            is saved in the browser as you go, so there's nothing to set up first.
+            is saved in the browser as you go, so there's nothing to set up first. On your first visit a
+            short tour shows the basics in six steps, then offers a chapter on how boards work (what
+            wires and solder paths join, the solder side and stripboard strips) and one on more
+            features. Watch any of them again from <strong>Help › Tour</strong>. The clips in this guide
+            come from the same tour.
           </p>
           <ol class="steps">
             <li>
@@ -231,6 +235,12 @@
             Raspberry Pi Pico, Wemos D1 Mini), connectors, switches, displays, sensors, batteries,
             relays and buzzers.
           </p>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Placing parts</span></div>
+            <video src="../tour/parts.mp4" poster="../tour/parts.webp" width="832" height="520"
+                   controls muted loop playsinline preload="none" aria-label="Placing parts"></video>
+            <figcaption>Search the parts list, pick a part, and click where its leads go.</figcaption>
+          </figure>
           <p>
             Press <kbd>/</kbd> to jump to the search box and type a name, a value or a part number,
             such as "555", "header" or "electrolytic". Parts you've placed recently are listed under
@@ -278,6 +288,12 @@
             follows the value: a resistor gets the right color bands, and a ceramic capacitor the
             three-digit code printed on it (such as 104 for 100 nF).
           </p>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Values and colours</span></div>
+            <video src="../tour/values-colors.mp4" poster="../tour/values-colors.webp" width="832" height="520"
+                   controls muted loop playsinline preload="none" aria-label="Values and colours"></video>
+            <figcaption>A resistor's value sets its colour bands; an LED's colour is picked from a menu.</figcaption>
+          </figure>
           <p>
             For an LED, <strong>Change Color</strong> picks red, green, blue, yellow or RGB. Click
             <strong>Labels</strong> above the board to show every part's name and value right on the
@@ -294,6 +310,12 @@
             <strong>module</strong> with pins anywhere, or a <strong>transistor or other
             package</strong>. Its editor opens; <strong>Back</strong> takes you to the choice again.
           </p>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">A custom module</span></div>
+            <video src="../tour/custom-part.mp4" poster="../tour/custom-part.webp" width="960" height="600"
+                   controls muted loop playsinline preload="none" aria-label="A custom module"></video>
+            <figcaption>Custom part… makes a module: name it, click its pins, save it and place it.</figcaption>
+          </figure>
           <h3>IC chips and dev boards</h3>
           <p>For a part with two rows of pins, like a DIP chip or an ESP32 board, set:</p>
           <ul>
@@ -370,6 +392,12 @@
             <strong>Start Wire Here</strong>. On a phone, dragging pans the board instead: see
             <a href="#phone">On a phone or tablet</a>.
           </p>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">The wire tool</span></div>
+            <video src="../tour/wires.mp4" poster="../tour/wires.webp" width="832" height="520"
+                   controls muted loop playsinline preload="none" aria-label="The wire tool"></video>
+            <figcaption>Press W, click one pin, then the other; empty holes on the way bend the wire.</figcaption>
+          </figure>
           <p>
             To route a wire your own way, click <strong>Wire Tool</strong> or press <kbd>W</kbd>, then
             click the hole where the wire starts and each hole on its way:
@@ -396,6 +424,12 @@
             Click a wire with the Select tool and it shows handles: a white one on each bend and a
             small dot in the middle of each straight stretch.
           </p>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Bending a wire</span></div>
+            <video src="../tour/reshape-wire.mp4" poster="../tour/reshape-wire.webp" width="832" height="520"
+                   controls muted loop playsinline preload="none" aria-label="Bending a wire"></video>
+            <figcaption>Drag a selected wire to pull out a bend, drag the bend to move it, and Straighten takes it out.</figcaption>
+          </figure>
           <ul>
             <li><strong>Drag the wire</strong> anywhere along it (or by its middle dot) to pull out a new bend. It follows the pointer from hole to hole.</li>
             <li><strong>Drag a bend</strong> to move it. Let go of it in line with the holes either side and it's gone.</li>
@@ -411,6 +445,12 @@
             move a long run out of a crowded board. It shows faded in the normal view, and at full
             strength in the solder side view. Select it and choose <strong>To top</strong> to bring it back.
           </p>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">A wire on the solder side</span></div>
+            <video src="../tour/wire-back.mp4" poster="../tour/wire-back.webp" width="960" height="600"
+                   controls muted loop playsinline preload="none" aria-label="A wire on the solder side"></video>
+            <figcaption>To solder side moves the selected wire under the board; the solder side view shows it in full.</figcaption>
+          </figure>
           <h3>How wires connect</h3>
           <p>
             Wires are insulated jumpers, like the ones you solder on the back of a board.
@@ -424,6 +464,12 @@
             <strong>Connect to Wire</strong>, or select the part and click <strong>Connect to
             wire</strong> in the bar. The wire is split there and joined to the lead.
           </p>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Crossing wires</span></div>
+            <video src="../tour/wires-join.mp4" poster="../tour/wires-join.webp" width="832" height="520"
+                   controls muted loop playsinline preload="none" aria-label="Crossing wires"></video>
+            <figcaption>Two wires that cross stay apart: the Nets panel lists two separate nets.</figcaption>
+          </figure>
           <p>
             Every hole you'll solder, one holding a pin, a lead or a wire's end, shows silver solder
             inside its copper ring, so you can see at a glance where the joints are. A hole a wire
@@ -438,6 +484,12 @@
             it exactly like a wire: click the holes it runs through, or drag from one hole to another.
             The editor draws it as silver solder with a bead on each hole, under the jumper wires.
           </p>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Solder paths</span></div>
+            <video src="../tour/solder-paths.mp4" poster="../tour/solder-paths.webp" width="832" height="520"
+                   controls muted loop playsinline preload="none" aria-label="Solder paths"></video>
+            <figcaption>A solder path joins every hole it runs over, so a second one can join it anywhere along it.</figcaption>
+          </figure>
           <ul>
             <li><strong>A solder path connects every hole it runs over</strong>: its ends, its bends and each hole along the way, plus any other solder path it touches. Run it only over holes that should be joined.</li>
             <li>It has no color or thickness. Select, bend, erase and undo work on it the same as on a wire.</li>
@@ -460,6 +512,24 @@
             <li><strong>Note</strong>: click a hole to write a note on it, such as "to 9V battery" or "solder last". Notes show in the bar below the board when you point at the hole. With a hole selected, <kbd>D</kbd> adds a note and <kbd>Shift</kbd>+<kbd>D</kbd> removes it.</li>
             <li><strong>Undo</strong> and <strong>Redo</strong> with <kbd>Ctrl</kbd>+<kbd>Z</kbd> and <kbd>Ctrl</kbd>+<kbd>Y</kbd>, or the arrow buttons above the board. They're greyed out when there's nothing to undo or redo.</li>
           </ul>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Move, rotate and undo</span></div>
+            <video src="../tour/edit-parts.mp4" poster="../tour/edit-parts.webp" width="832" height="520"
+                   controls muted loop playsinline preload="none" aria-label="Move, rotate and undo"></video>
+            <figcaption>Drag a part to move it, R rotates the selected part, and Ctrl+Z and Ctrl+Y undo and redo.</figcaption>
+          </figure>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Select several and duplicate</span></div>
+            <video src="../tour/multi-select.mp4" poster="../tour/multi-select.webp" width="832" height="520"
+                   controls muted loop playsinline preload="none" aria-label="Select several and duplicate"></video>
+            <figcaption>Shift-drag a box round parts and wires to select them, then Ctrl+D puts a copy beside them.</figcaption>
+          </figure>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">A note on a hole</span></div>
+            <video src="../tour/notes.mp4" poster="../tour/notes.webp" width="960" height="562"
+                   controls muted loop playsinline preload="none" aria-label="A note on a hole"></video>
+            <figcaption>The Note tool writes a note on a hole; point at the hole to read it along the foot of the board.</figcaption>
+          </figure>
         </section>
 
         <section id="navigation">
@@ -497,6 +567,12 @@
             same strip are joined without a wire, and the Nets panel counts the strips as
             connections.
           </p>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Cutting a strip</span></div>
+            <video src="../tour/strips-cuts.mp4" poster="../tour/strips-cuts.webp" width="960" height="562"
+                   controls muted loop playsinline preload="none" aria-label="Cutting a strip"></video>
+            <figcaption>A strip joins both leads of this resistor; the Cut tool breaks the strip between them.</figcaption>
+          </figure>
           <p>
             To separate two parts on one strip, cut it: pick the <strong>Cut</strong> tool (it
             appears in Tools on a stripboard) and click the hole where the strip should break. A cut
@@ -526,6 +602,12 @@
             can be, for example GND, VCC or OUT, with a ground or supply symbol before a rail. Each
             pin shows its part's icon from the parts list.
           </p>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">The Nets panel</span></div>
+            <video src="../tour/nets.mp4" poster="../tour/nets.webp" width="832" height="520"
+                   controls muted loop playsinline preload="none" aria-label="The Nets panel"></video>
+            <figcaption>Click a net in the Nets panel to light up its holes and wires on the board.</figcaption>
+          </figure>
           <ul>
             <li><strong>Detailed</strong> (the switch at the top of the panel) gives each pin a line
               saying what it is: <strong>D1</strong> LED · Red, cathode (K), or <strong>U1</strong>
@@ -549,6 +631,12 @@
             Perfboard Designer checks how the board is wired, not how the circuit behaves: it doesn't
             simulate your circuit.
           </p>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">A part in backwards</span></div>
+            <video src="../tour/polarity.mp4" poster="../tour/polarity.webp" width="960" height="600"
+                   controls muted loop playsinline preload="none" aria-label="A part in backwards"></video>
+            <figcaption>An LED turned the wrong way between the supply rails shows under Looks backwards; Turn round fixes it.</figcaption>
+          </figure>
         </section>
 
         <section id="solder-side">
@@ -563,6 +651,12 @@
             the holes it's soldered into, and stops short, with a gap, of any joint it only passes
             over, so you can tell at a glance which joints it belongs to.
           </p>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">The solder side</span></div>
+            <video src="../tour/solder-side.mp4" poster="../tour/solder-side.webp" width="960" height="600"
+                   controls muted loop playsinline preload="none" aria-label="The solder side"></video>
+            <figcaption>Solder side turns the board over, mirrored, with every joint to solder marked.</figcaption>
+          </figure>
           <ul>
             <li>A yellow square marks pin 1 of every chip and other part with more than two pins, so nothing goes in backwards.</li>
             <li>Each part's name sits by its joints, so you can tell which joint is which.</li>
@@ -595,6 +689,12 @@
             it, and <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes changes to it. An AI agent can write one too.
             Pins left out of every net aren't checked, and this checks connectivity, not whether the
             circuit will operate. <strong>Remove list</strong> takes it away.</p>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Required connections</span></div>
+            <video src="../tour/required-nets.mp4" poster="../tour/required-nets.webp" width="960" height="600"
+                   controls muted loop playsinline preload="none" aria-label="Required connections"></video>
+            <figcaption>Use current wiring copies the board's connections as the plan; a deleted wire leaves its net unticked.</figcaption>
+          </figure>
         </section>
         <section id="3d-view">
           <h2>Preview the board in 3D</h2>
@@ -604,6 +704,12 @@
             every jumper wire, arched over the wires it crosses. Every soldered hole shows its solder,
             on top and as a joint underneath.
           </p>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">The 3D view</span></div>
+            <video src="../tour/view3d.mp4" poster="../tour/view3d.webp" width="960" height="600"
+                   controls muted loop playsinline preload="none" aria-label="The 3D view"></video>
+            <figcaption>3D view shows the board as it will look; drag to turn it round.</figcaption>
+          </figure>
           <ul>
             <li>Drag to orbit and scroll to zoom. On a phone, drag with one finger to turn it, pinch to zoom and drag with two fingers to pan.</li>
             <li>The switch along the bottom jumps to a preset view: <strong>Angled</strong>, <strong>Top</strong> or <strong>Bottom</strong>. Bottom shows the copper side with its strips, cuts and solder joints.</li>
@@ -639,6 +745,12 @@
             board isn't changed, and nothing is uploaded. The link is a snapshot: after more edits,
             share a new one.
           </p>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Sharing a board</span></div>
+            <video src="../tour/save-share.mp4" poster="../tour/save-share.webp" width="960" height="600"
+                   controls muted loop playsinline preload="none" aria-label="Sharing a board"></video>
+            <figcaption>File › Share Link makes a link that opens a copy of the board for anyone.</figcaption>
+          </figure>
           <p>
             For a link short enough for a forum post or a chat, click <strong>Make Short
             Link</strong> and give it a name, such as <code>led-blinker</code>. That stores a copy
@@ -671,6 +783,12 @@
             you are). It opens your browser's print dialog: print it, or choose <strong>Save as PDF</strong>
             as the printer to get the PDF. Your choices are remembered for next time.
           </p>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Component list and PDF</span></div>
+            <video src="../tour/parts-list-pdf.mp4" poster="../tour/parts-list-pdf.webp" width="960" height="600"
+                   controls muted loop playsinline preload="none" aria-label="Component list and PDF"></video>
+            <figcaption>File › Component List lists every part; File › Export PDF makes one document of the project.</figcaption>
+          </figure>
           <h3 id="component-list">Component list</h3>
           <p>
             <strong>File › Component List…</strong> shows every part on the board in a table: its
