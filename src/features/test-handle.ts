@@ -83,8 +83,8 @@ function selection(): ReturnType<TestHandle["selection"]> {
 function holeToScreen(col: number, row: number) {
   const rect = Canvas.c.getBoundingClientRect();
   return {
-    x: rect.left + gridToPx(col) * rect.width / Canvas.gridWidth,
-    y: rect.top + gridToPx(row) * rect.height / Canvas.gridHeight,
+    x: rect.left + (Canvas.margin.left + gridToPx(col)) * rect.width / Canvas.drawingWidth,
+    y: rect.top + (Canvas.margin.top + gridToPx(row)) * rect.height / Canvas.drawingHeight,
   };
 }
 

@@ -1,4 +1,5 @@
 import {ProjectFile} from "../project-file/project-file";
+import {boardOverhang, NO_OVERHANG} from "./board-overhang";
 import {BoardView, PLAIN_VIEW} from "./board-view";
 import {boardSizePx, drawBoard} from "./draw-board";
 import {SvgIcons, SvgPainter} from "./painter/svg-painter";
@@ -13,11 +14,16 @@ export interface SvgRenderOptions {
   // Display size per drawing px: 1 is 50px per hole pitch.
   scale?: number;
   idPrefix?: string;
+  // Only the board's own area, cutting off what parts reach past its edges: for a picture that has
+  // to be the board's true size.
+  boardOnly?: boolean;
 }
 
 export function renderBoardSvg(project: ProjectFile, options: SvgRenderOptions = {}): string {
   const painter = new SvgPainter({icons: options.icons, idPrefix: options.idPrefix});
-  drawBoard(painter, project, options.view ?? PLAIN_VIEW);
+  const view = options.view ?? PLAIN_VIEW;
+  drawBoard(painter, project, view);
   const {width, height} = boardSizePx(project.board);
-  return painter.toSvg(width, height, options.scale ?? 1);
+  const {left, top, right, bottom} = options.boardOnly ? NO_OVERHANG : boardOverhang(project, view);
+  return painter.toSvg(width + left + right, height + top + bottom, options.scale ?? 1, -left, -top);
 }

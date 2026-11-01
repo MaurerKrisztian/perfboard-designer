@@ -1,5 +1,6 @@
 import {SavedAdvancedComponent, SavedIc, SavedStandardComponent} from "../../project-file/project-file";
 import {Painter, Point} from "../painter/painter";
+import {Rect} from "./advanced-geometry";
 
 // How each kind of placed part is drawn, from its entry in the project file. One artist per kind
 // (ic-artist.ts, standard-artist.ts, advanced-artist.ts), registered in index.ts here: a new kind
@@ -39,6 +40,9 @@ export interface PartArtist<Entry> {
   drawOverlay?(painter: Painter, entry: Entry, look: PartLook): void;
   // Absent for parts that print their own name (chips).
   label?(entry: Entry): PartLabel | undefined;
+  // The box round everything the part draws, for showing what passes the board's edge
+  // (board-overhang.ts). Undefined for a part this build doesn't know.
+  extent(entry: Entry): Rect | undefined;
 }
 
 // What a label says: the ref and value, or undefined when there's neither.

@@ -21,7 +21,7 @@
 <p align="center">
   <a href="https://perfboarddesigner.com/app/">
     <img src="docs/images/editor-perfboard.webp" width="900"
-         alt="Perfboard Designer editor showing a perfboard layout with an NE555 timer, 74HC14, 74HC595, Arduino Nano, resistors, capacitors, LEDs and colored jumper wires" />
+         alt="Perfboard Designer editor showing a stereo audio amplifier laid out on a perfboard, with two TDA2030A chips, capacitors, resistors, RCA jacks, a dual potentiometer and colored jumper wires" />
   </a>
 </p>
 
@@ -86,6 +86,9 @@ device.
   nRF24L01, HC-05 and NEO-6M modules; LM2596, MP1584, MT3608 and TP4056 power modules; A4988 and
   DRV8825 stepper drivers, a relay module and the DFPlayer Mini. More chips too: 74HC gates and
   decoders, CD40xx logic, LM324, TL074, NE5532, ULN2003A, MAX7219, MCP23017, MCP3008 and more.
+- 🔊 **Amplifier parts**: TDA2030A, TDA2050, LM1875, TDA2003 and TDA7297 power amps, a PAM8403
+  module, TO-126 driver transistors, 78xx and 79xx regulators, speakers, RCA and 6.35 mm jacks, a
+  dual potentiometer for stereo volume and a PCB transformer.
 - ✏️ **Wires the way you solder them**: jumper wires in any color and three thicknesses (thin,
   normal, thick). Straight runs of the same color merge into one wire automatically.
 - 📐 **Perfboard or stripboard, any size**: start from a common board size (2×8 cm up to
@@ -133,8 +136,8 @@ their color bands, ICs with labeled pins, LEDs, capacitors, transistors, pots, h
 jumper wire, on a perfboard or stripboard sized to match yours.
 
 <p align="center">
-  <img src="assets/images/hero-3d.webp" width="900"
-       alt="A perfboard in Perfboard Designer's 3D view with an Arduino Nano, NE555 timer, 74HC14, 74HC595, IRLZ44N MOSFET, potentiometer, LEDs, resistors and colored jumper wires" />
+  <img src="assets/images/hero-amp-3d.webp" width="900"
+       alt="A stereo audio amplifier on a perfboard in Perfboard Designer's 3D view: two TDA2030A power amplifier chips, electrolytic capacitors, RCA jacks, a dual potentiometer, a fuse holder, a DC barrel jack and screw terminals" />
 </p>
 
 - Drag to orbit, right-drag to pan and scroll to zoom, or jump to an angled, top or bottom view.
@@ -153,10 +156,10 @@ galleries: [connectors](examples/new-components-connectors.json),
 [DIP chips](examples/new-components-dip-chips.json). They show parts, not working circuits.
 
 <p align="center">
-  <img src="assets/images/hero-board.webp" width="49%"
-       alt="The same board as a 2D perfboard layout in the editor, with components and wires on the hole grid" />
+  <img src="assets/images/hero-amp-board.webp" width="49%"
+       alt="The same amplifier as a 2D perfboard layout, with components and wires on the hole grid" />
   <img src="assets/images/board-3d-detail.webp" width="49%"
-       alt="Close-up of the 3D view: a 10kΩ potentiometer, a 74HC595 with labeled pins, an Arduino Nano, a 74HC14, a BC547 transistor, LEDs and jumper wires" />
+       alt="Close-up of the 3D view of a stereo amplifier board: a red RCA jack, a dual potentiometer, TDA2030A power amplifier chips, a fuse holder, electrolytic capacitors, resistors and jumper wires" />
 </p>
 
 ## How to plan a perfboard layout

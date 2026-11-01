@@ -233,7 +233,7 @@ store, and no instances are made.
 
 | Class | Holds |
 | --- | --- |
-| `Canvas` | the board's canvas and scrolling viewport (from `attachBoard`), its 2D context, `toDrawingCoordinates(e)` |
+| `Canvas` | the board's canvas and scrolling viewport (from `attachBoard`), its 2D context, the board's size and the `margin` round it for parts past its edges, `toDrawingCoordinates(e)` |
 | `GridConfig` | grid constants (hole pitch 50 px, hit radii) |
 | `DotState`, `LineState` | every hole (`IDot`) and wire (`ILine`), plus what's hovered |
 | `PartState` | every placed part, in one list grouped by kind (section 5) |
@@ -287,6 +287,18 @@ opens.
 Phones are slow to redraw a big canvas and refuse one over about 16.7M pixels (iOS Safari), so on
 a touch screen `canvas-sizing.ts` keeps the board's canvas under 12M pixels (drawing it a little
 softer past that), and a pinch scales the board as a picture, redrawing it once when the fingers lift.
+
+**Parts past the board's edge.** A jack's barrel or a pot's shaft can reach past the board, so the
+canvas is bigger than the board by what they reach (`Canvas.margin`, from `boardOverhang()`). The
+board's top-left corner stays drawing point (0, 0): the context's transform carries the offset and
+`Canvas.toDrawingCoordinates` takes it off, so a point past the left or top edge is simply negative
+and no other code needs to know. `Canvas.gridWidth`/`gridHeight` stay the board's own size (saving,
+resizing and the clipboard count holes from them); `drawingWidth`/`drawingHeight` are the whole
+canvas. `redrawCanvas` sets the margin (`fitMarginToParts()`), keeping the board where it was on
+screen and telling `onBoardMarginChange` listeners, which is how Fit stays fitted. It waits while a
+part is being dragged, so the canvas doesn't move under the pointer, and a drop redraws. The board's
+shadow is its own element (`.board-shadow` in `BoardCanvas.tsx`), as the canvas's edge is no longer
+the board's.
 
 **Redraw.** Any change that affects the screen ends with `redrawCanvas()`
 (`src/features/draw-canvas.ts`), which redraws everything from scratch (section 10).
@@ -777,6 +789,7 @@ src/board-render/                  PURE: no DOM, no editor state
   index.ts                         the public API; code outside this folder imports only this
   draw-board.ts                    drawBoard(): the layer order, and boardSizePx()
   board-view.ts                    BoardView, BoardItem, PLAIN_VIEW
+  board-overhang.ts                boardOverhang(): how far parts reach past the board's edges
   render-svg.ts                    renderBoardSvg(project, options): a standalone SVG document
   palette.ts                       colours and sizes used by more than one file
   painter/painter.ts               the Painter interface and style types
@@ -887,12 +900,18 @@ definition's `iconFile`, else `<id>.svg`). Painters ask for icons by file name:
 | Editor board | `src/features/draw-canvas.ts` | `CanvasPainter` on the page canvas | `editorView()` |
 | PNG export | `src/features/project/save-image.ts` (`downloadAsImage`) | `CanvasPainter` on an offscreen canvas at 2× | labels as shown |
 | SVG export | `save-image.ts` (`downloadAsSvg`) | `renderBoardSvg` with fetched icons | labels as shown |
-| Project PDF | `src/features/project/project-document.ts` (`exportProjectPdf`), its board pictures from `print-board.ts` | `renderBoardSvg`, scaled to the page, or sized in mm (2.54 mm a hole) for the true-size pages | top with labels, and the solder side |
+| Project PDF | `src/features/project/project-document.ts` (`exportProjectPdf`), its board pictures from `print-board.ts` | `renderBoardSvg`, scaled to the page, or sized in mm (2.54 mm a hole) for the true-size pages, which show the board's own area only (`boardOnly`) | top with labels, and the solder side |
 | Thumbnails | `src/features/project/project-thumbnail.ts` | `CanvasPainter`, scaled to fit | `PLAIN_VIEW` |
 | Catalog chip icons | `dipIconSvg()` / `moduleIconSvg()` in `artists/ic-package/` | `SvgPainter` | n/a |
 | MCP pictures | `mcp/src/board-image.ts`, Worker `GET /render.svg` | `renderBoardSvg`, icons baked in | labels on |
 | MCP board view | `mcp/src/tools/show-board-tool.ts`, `show_board` (an MCP App) | that SVG, as a `data:` image in the client's frame | labels on |
-| MCP PNGs | `mcp/src/board-png.ts`, `render_board` with `format: "png"` and Worker `GET /render.png` | that SVG, rasterized by resvg (WebAssembly) with fonts baked in | labels on |
+| MCP PNGs | `mcp/src/board-png.ts`, `render_board` with `format: "png"` and Worker `GET /render.png` | that SVG, rasterized by resvg (WebAssembly) with fonts baked in; an `area` is cut from the board's own area (`boardOnly`) | labels on |
+
+Every picture of a board, but for true-size pages and an MCP `area`, grows by
+`boardOverhang(project, view)` (`board-overhang.ts`, adding up each artist's `extent()`), so parts
+past the board's edge show whole. It takes the view
+because the solder side is mirrored: what passes one side passes the other. The board's top-left
+corner stays at (0, 0), so an SVG's `viewBox` starts at minus the overhang.
 
 ### Rules
 
@@ -928,6 +947,7 @@ definition's `iconFile`, else `<id>.svg`). Painters ask for icons by file name:
 > **A new kind of part.** Write a `PartArtist<YourSavedEntry>`:
 > - `layer` (`"under-board"` or `"over-wires"`);
 > - `draw`;
+> - `extent`, the box round everything `draw` draws, so pictures make room for what passes the board's edge;
 > - optional `drawOverlay` (over everything) and `label` (beside the part, or on its body).
 >
 > Then add its `BoardPart` variant in `part-artist.ts`, a line in `ARTISTS` and in `boardParts()`
@@ -1045,7 +1065,8 @@ Check server changes with a throwaway script outside the repo that drives the bu
   (`ShortcutsLegend.tsx`) lists them. No ad hoc `keydown` listeners. While a dialog is open, keys
   don't reach them (`Modal` stops them).
 - **Canvas coordinates:** map mouse events with `Canvas.toDrawingCoordinates(e)`, never raw
-  `clientX`/`clientY`. It accounts for the canvas's CSS scaling.
+  `clientX`/`clientY`. It accounts for the canvas's CSS scaling and the margin for parts past the
+  board's edges.
 - **DOM:** the page is React's. The core touches only the board's canvas and viewport and the
   short-lived elements it makes itself (download links, `pick-color.ts`'s input); it never looks
   elements up by id. Give it state for the UI to read instead.

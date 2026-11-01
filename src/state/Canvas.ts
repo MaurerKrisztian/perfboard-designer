@@ -12,6 +12,18 @@ export class Canvas {
   // The board's size in drawing px (holes × pitch), whatever resolution the canvas is drawn at.
   static gridWidth = 500;
   static gridHeight = 500;
+  // How far the canvas reaches past the board on each side, in drawing px, to show parts that pass
+  // its edge (src/features/draw-canvas.ts). The board's top-left corner stays drawing point (0, 0).
+  static margin = {left: 0, top: 0, right: 0, bottom: 0};
+
+  // The whole canvas's size in drawing px: the board and its margin.
+  static get drawingWidth(): number {
+    return Canvas.gridWidth + Canvas.margin.left + Canvas.margin.right;
+  }
+
+  static get drawingHeight(): number {
+    return Canvas.gridHeight + Canvas.margin.top + Canvas.margin.bottom;
+  }
 
   static get isAttached(): boolean {
     return Canvas.c !== undefined;
@@ -33,11 +45,11 @@ export class Canvas {
     const known = mappedEvents.get(e);
     if (known) return {...known};
     const rect = Canvas.c.getBoundingClientRect();
-    const scaleX = Canvas.gridWidth / rect.width;
-    const scaleY = Canvas.gridHeight / rect.height;
+    const scaleX = Canvas.drawingWidth / rect.width;
+    const scaleY = Canvas.drawingHeight / rect.height;
     const point = {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY,
+      x: (e.clientX - rect.left) * scaleX - Canvas.margin.left,
+      y: (e.clientY - rect.top) * scaleY - Canvas.margin.top,
     };
     mappedEvents.set(e, point);
     return {...point};

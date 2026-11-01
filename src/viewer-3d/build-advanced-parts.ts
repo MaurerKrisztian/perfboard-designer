@@ -7,7 +7,7 @@ import {gridToPx, toGridPos} from "../project-file/grid";
 import {buildCatalogPart} from "./build-catalog-parts";
 import {buildHeaderPins} from "./parts/header-pins";
 import {buildPotentiometer} from "./parts/potentiometer";
-import {buildTo220} from "./parts/to220";
+import {buildTo126, buildTo220} from "./parts/to220";
 import {buildTransistor} from "./parts/transistor";
 import {buildUnknown} from "./parts/unknown";
 import {buildCustomModule} from "./parts/custom-module";
@@ -39,6 +39,13 @@ export function buildAdvancedPart(kit: SceneKit, part: ViewerAdvancedPart): Obje
     case "regulator-7805": group = buildTo220(kit, part.value || "7805"); break;
     case "regulator-lm317": group = buildTo220(kit, part.value || "LM317"); break;
     case "regulator-ld1117": group = buildTo220(kit, part.value || "1117"); break;
+    case "regulator-7809":
+    case "regulator-7812":
+    case "regulator-7815":
+    case "regulator-7905":
+    case "regulator-7912":
+    case "regulator-7915": group = buildTo220(kit, part.value || def?.fallbackLabel); break;
+    case "transistor-to126": group = buildTo126(kit, part.value); break;
     case "regulator-78l05": group = buildTransistor(kit, part.value || "78L05"); break;
     case "ds18b20": group = buildTransistor(kit, part.value || "DS18B20"); break;
     case "lm35": group = buildTransistor(kit, part.value || "LM35"); break;

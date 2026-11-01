@@ -1,7 +1,7 @@
 import {Canvas} from "../state/Canvas";
 import {ViewState} from "../state/ViewState";
 import {applyCanvasResolution} from "./canvas-sizing";
-import {redrawCanvas} from "./draw-canvas";
+import {onBoardMarginChange, redrawCanvas} from "./draw-canvas";
 
 // How big the board is shown (ViewState.zoom, 1 = 100%), and the zoom controls: the buttons,
 // Fit, the mouse wheel and pinches (board-touch.ts) all come here. Zooming changes the canvas's
@@ -83,7 +83,14 @@ function fitZoom(): number | undefined {
   const availableWidth = viewport.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - 4;
   const availableHeight = viewport.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom) - 4;
   if (availableWidth <= 0 || availableHeight <= 0) return undefined;
-  return Math.min(availableWidth / Canvas.gridWidth, availableHeight / Canvas.gridHeight) * 0.95;
+  return Math.min(availableWidth / Canvas.drawingWidth, availableHeight / Canvas.drawingHeight) * 0.95;
+}
+
+// With Fit on, the board stays fitted when a part reaches past its edge and the canvas grows.
+export function keepFitAsMarginChanges() {
+  onBoardMarginChange(() => {
+    if (ViewState.fitMode) fitToScreen(true);
+  });
 }
 
 // Mouse wheel zoom, anchored to the cursor so the point under it stays put, and coalesced to at

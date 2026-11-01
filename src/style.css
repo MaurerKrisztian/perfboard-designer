@@ -892,11 +892,18 @@ button.preset-btn:hover {
 }
 
 #canvasZoomWrapper {
+  position: relative;
   display: inline-block;
 }
 
 #myCanvas {
+  position: relative;
   display: block;
+}
+
+/* Under the canvas, on the board's part of it: parts past the board's edge cast none of it. */
+.board-shadow {
+  position: absolute;
   border-radius: 3px;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45), 0 18px 48px rgba(0, 0, 0, 0.55);
 }

@@ -1,0 +1,288 @@
+{
+  "version": 3,
+  "board": {
+    "type": "perfboard",
+    "cols": 62,
+    "rows": 43
+  },
+  "pads": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "color": "#38bdf8",
+      "note": "AUDIO: power amplifier chips, the TO-126 driver, 78xx and 79xx regulators, speakers, RCA and 6.35 mm jacks, a dual potentiometer, a PCB transformer and the PAM8403 module. A component gallery, not a working circuit. Enable Labels, then open 3D View."
+    }
+  ],
+  "wires": [],
+  "placedIcs": [],
+  "placedStandardComponents": [],
+  "placedAdvancedComponents": [
+    {
+      "instanceId": "aba098ef-c3e8-4c1c-b473-c2897eca1ce6",
+      "ref": "LS1",
+      "definitionId": "speaker-40",
+      "at": [
+        7,
+        2
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "9c10e64f-0b31-46d3-81fa-8bb76fe646ad",
+      "ref": "T1",
+      "definitionId": "transformer-ei30",
+      "at": [
+        23,
+        12
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "3c6fa6b7-f1cf-4029-ac07-a5d647e1bd19",
+      "ref": "LS2",
+      "definitionId": "speaker-28",
+      "at": [
+        41,
+        2
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "3e51783b-9b63-43a4-8807-c1595b4d023b",
+      "ref": "M1",
+      "definitionId": "pam8403-module",
+      "at": [
+        53,
+        2
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "04f22f8d-1954-46e2-8441-00415ad25693",
+      "ref": "J1",
+      "definitionId": "phone-jack-mono",
+      "at": [
+        9,
+        28
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "5f92e9cf-f8e3-45c7-9747-08cae72dabfb",
+      "ref": "J2",
+      "definitionId": "phone-jack-stereo",
+      "at": [
+        23,
+        28
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "f56d44eb-e40f-4cb1-8067-03eaad984c7f",
+      "ref": "J3",
+      "definitionId": "rca-jack-black",
+      "at": [
+        30,
+        23
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "f51abc57-ddf1-4761-be97-c985c89df6d6",
+      "ref": "J4",
+      "definitionId": "rca-jack-red",
+      "at": [
+        42,
+        23
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "165a0ad9-1e7d-4354-a5fb-2ac78c1ad3db",
+      "ref": "J5",
+      "definitionId": "rca-jack-white",
+      "at": [
+        2,
+        34
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "1db37ec5-3bb6-46be-8fda-759d1f5283d9",
+      "ref": "RV1",
+      "definitionId": "potentiometer-dual",
+      "at": [
+        15,
+        35
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "329282f6-60c1-4205-869e-6c73510eda00",
+      "ref": "U1",
+      "definitionId": "tda2030a",
+      "at": [
+        29,
+        34
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "7be491c5-2d01-471a-b553-763597664e56",
+      "ref": "U2",
+      "definitionId": "tda2050",
+      "at": [
+        38,
+        34
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "74567d8b-9b36-4f1f-a2d7-f19e82380e23",
+      "ref": "U3",
+      "definitionId": "lm1875",
+      "at": [
+        47,
+        34
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "7b46e303-20fa-471c-89dc-7b8601416680",
+      "ref": "U4",
+      "definitionId": "tda2003",
+      "at": [
+        56,
+        34
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "f73cff45-6ba9-4013-850e-5fc0fb1c5f2f",
+      "ref": "U5",
+      "definitionId": "tda7297",
+      "at": [
+        2,
+        41
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "340e8dcf-596e-422e-9c40-50f71951bf7e",
+      "ref": "Q1",
+      "definitionId": "transistor-to126",
+      "at": [
+        14,
+        40
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "e3cb91c7-cb3d-4d90-8686-01d8814c7a35",
+      "ref": "U6",
+      "definitionId": "regulator-7809",
+      "at": [
+        21,
+        40
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "49ed1891-700c-4e73-8e11-f1b11c0322ff",
+      "ref": "U7",
+      "definitionId": "regulator-7812",
+      "at": [
+        28,
+        40
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "3d92b041-09dd-4e56-9b3d-50664c5cf96a",
+      "ref": "U8",
+      "definitionId": "regulator-7815",
+      "at": [
+        35,
+        40
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "edf1974c-2652-447e-b1f6-843536ea3fbb",
+      "ref": "U9",
+      "definitionId": "regulator-7905",
+      "at": [
+        42,
+        40
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "175219c3-409a-43bd-9ba8-9196ab8c440b",
+      "ref": "U10",
+      "definitionId": "regulator-7912",
+      "at": [
+        49,
+        40
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "c0c09400-6bb1-4ed2-a579-957d20b37e6a",
+      "ref": "U11",
+      "definitionId": "regulator-7915",
+      "at": [
+        56,
+        40
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    }
+  ],
+  "customIcs": []
+}

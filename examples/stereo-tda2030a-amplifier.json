@@ -1,0 +1,1404 @@
+{
+  "version": 5,
+  "board": {
+    "type": "perfboard",
+    "cols": 62,
+    "rows": 27
+  },
+  "pads": [
+    {
+      "at": [
+        30,
+        0
+      ],
+      "note": "STEREO TDA2030A AMPLIFIER: single 12 to 24 V supply, about 14 W a channel into 4 ohms at 24 V, gain about 22. Heatsink each chip by its tab, which is tied to its pin 3 (ground here), so one heatsink can serve both. Use 35 V capacitors. Inputs: RCA, white left, red right. Speakers: J1 left, J2 right; their terminals nearer the middle of each are ground."
+    },
+    {
+      "at": [
+        23,
+        0
+      ],
+      "note": "SPK L"
+    },
+    {
+      "at": [
+        56,
+        0
+      ],
+      "note": "SPK R"
+    },
+    {
+      "at": [
+        59,
+        19
+      ],
+      "note": "12-24 V DC"
+    },
+    {
+      "at": [
+        58,
+        16
+      ],
+      "note": "GND"
+    }
+  ],
+  "wires": [
+    {
+      "from": [
+        9,
+        7
+      ],
+      "to": [
+        9,
+        8
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        8,
+        8
+      ],
+      "to": [
+        9,
+        8
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        10,
+        6
+      ],
+      "to": [
+        10,
+        9
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        10,
+        12
+      ],
+      "to": [
+        8,
+        13
+      ],
+      "via": [
+        [
+          8,
+          12
+        ]
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        12,
+        6
+      ],
+      "to": [
+        12,
+        10
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        12,
+        10
+      ],
+      "to": [
+        15,
+        10
+      ],
+      "color": "#f8fafc"
+    },
+    {
+      "from": [
+        15,
+        10
+      ],
+      "to": [
+        24,
+        10
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        11,
+        7
+      ],
+      "to": [
+        11,
+        14
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        11,
+        14
+      ],
+      "to": [
+        11,
+        16
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        13,
+        7
+      ],
+      "to": [
+        13,
+        15
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        3,
+        11
+      ],
+      "to": [
+        9,
+        11
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        16,
+        9
+      ],
+      "to": [
+        16,
+        10
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        19,
+        13
+      ],
+      "to": [
+        19,
+        14
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        13,
+        13
+      ],
+      "to": [
+        14,
+        13
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        16,
+        13
+      ],
+      "to": [
+        16,
+        14
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        16,
+        14
+      ],
+      "to": [
+        16,
+        16
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        24,
+        7
+      ],
+      "to": [
+        24,
+        5
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        24,
+        5
+      ],
+      "to": [
+        24,
+        2
+      ],
+      "color": "#f8fafc"
+    },
+    {
+      "from": [
+        22,
+        2
+      ],
+      "to": [
+        20,
+        16
+      ],
+      "via": [
+        [
+          22,
+          4
+        ],
+        [
+          20,
+          4
+        ]
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        42,
+        7
+      ],
+      "to": [
+        42,
+        8
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        41,
+        8
+      ],
+      "to": [
+        42,
+        8
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        43,
+        6
+      ],
+      "to": [
+        43,
+        9
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        43,
+        12
+      ],
+      "to": [
+        41,
+        13
+      ],
+      "via": [
+        [
+          41,
+          12
+        ]
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        45,
+        6
+      ],
+      "to": [
+        45,
+        10
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        45,
+        10
+      ],
+      "to": [
+        48,
+        10
+      ],
+      "color": "#f8fafc"
+    },
+    {
+      "from": [
+        48,
+        10
+      ],
+      "to": [
+        57,
+        10
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        44,
+        7
+      ],
+      "to": [
+        44,
+        14
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        44,
+        14
+      ],
+      "to": [
+        44,
+        16
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        46,
+        7
+      ],
+      "to": [
+        46,
+        15
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        36,
+        11
+      ],
+      "to": [
+        42,
+        11
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        49,
+        9
+      ],
+      "to": [
+        49,
+        10
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        52,
+        13
+      ],
+      "to": [
+        52,
+        14
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        46,
+        13
+      ],
+      "to": [
+        47,
+        13
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        49,
+        13
+      ],
+      "to": [
+        49,
+        14
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        49,
+        14
+      ],
+      "to": [
+        49,
+        16
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        57,
+        7
+      ],
+      "to": [
+        57,
+        5
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        57,
+        5
+      ],
+      "to": [
+        57,
+        2
+      ],
+      "color": "#f8fafc"
+    },
+    {
+      "from": [
+        55,
+        2
+      ],
+      "to": [
+        53,
+        16
+      ],
+      "via": [
+        [
+          55,
+          4
+        ],
+        [
+          53,
+          4
+        ]
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        3,
+        15
+      ],
+      "to": [
+        58,
+        15
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        3,
+        16
+      ],
+      "to": [
+        58,
+        16
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        55,
+        22
+      ],
+      "to": [
+        53,
+        19
+      ],
+      "via": [
+        [
+          53,
+          22
+        ]
+      ],
+      "color": "#ef4444"
+    },
+    {
+      "from": [
+        44,
+        19
+      ],
+      "to": [
+        45,
+        22
+      ],
+      "via": [
+        [
+          44,
+          20
+        ],
+        [
+          45,
+          20
+        ]
+      ],
+      "color": "#f97316"
+    },
+    {
+      "from": [
+        44,
+        22
+      ],
+      "to": [
+        43,
+        15
+      ],
+      "via": [
+        [
+          43,
+          22
+        ]
+      ],
+      "color": "#ef4444"
+    },
+    {
+      "from": [
+        57,
+        22
+      ],
+      "to": [
+        57,
+        16
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        32,
+        10
+      ],
+      "to": [
+        32,
+        15
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        29,
+        10
+      ],
+      "to": [
+        29,
+        14
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        29,
+        14
+      ],
+      "to": [
+        29,
+        16
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        46,
+        17
+      ],
+      "to": [
+        46,
+        15
+      ],
+      "color": "#ef4444"
+    },
+    {
+      "from": [
+        50,
+        17
+      ],
+      "to": [
+        51,
+        17
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        53,
+        17
+      ],
+      "to": [
+        53,
+        16
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        22,
+        22
+      ],
+      "to": [
+        32,
+        22
+      ],
+      "via": [
+        [
+          23,
+          22
+        ],
+        [
+          23,
+          24
+        ],
+        [
+          32,
+          24
+        ]
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        40,
+        22
+      ],
+      "to": [
+        32,
+        21
+      ],
+      "via": [
+        [
+          40,
+          21
+        ]
+      ],
+      "color": "#eab308"
+    },
+    {
+      "from": [
+        22,
+        24
+      ],
+      "to": [
+        21,
+        16
+      ],
+      "via": [
+        [
+          21,
+          24
+        ]
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        40,
+        24
+      ],
+      "to": [
+        41,
+        16
+      ],
+      "via": [
+        [
+          41,
+          24
+        ]
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        30,
+        21
+      ],
+      "to": [
+        30,
+        22
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        30,
+        21
+      ],
+      "to": [
+        30,
+        16
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        31,
+        22
+      ],
+      "to": [
+        29,
+        23
+      ],
+      "via": [
+        [
+          31,
+          23
+        ]
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        29,
+        23
+      ],
+      "to": [
+        6,
+        8
+      ],
+      "via": [
+        [
+          29,
+          18
+        ],
+        [
+          1,
+          18
+        ],
+        [
+          1,
+          8
+        ]
+      ],
+      "color": "#3b82f6"
+    },
+    {
+      "from": [
+        31,
+        21
+      ],
+      "to": [
+        39,
+        8
+      ],
+      "via": [
+        [
+          31,
+          19
+        ],
+        [
+          34,
+          19
+        ],
+        [
+          34,
+          8
+        ]
+      ],
+      "color": "#eab308"
+    }
+  ],
+  "placedIcs": [],
+  "placedStandardComponents": [
+    {
+      "instanceId": "9de442ac-8bd6-433f-a241-dcbc44dbb51c",
+      "ref": "R1",
+      "definitionId": "resistor",
+      "from": [
+        6,
+        11
+      ],
+      "to": [
+        6,
+        15
+      ],
+      "value": "100kΩ"
+    },
+    {
+      "instanceId": "0a1cabce-a3db-49e6-a2e5-f0b1840c053f",
+      "ref": "R2",
+      "definitionId": "resistor",
+      "from": [
+        5,
+        11
+      ],
+      "to": [
+        5,
+        16
+      ],
+      "value": "100kΩ"
+    },
+    {
+      "instanceId": "5918cc18-919f-48f7-8be8-997e6d6b35e1",
+      "ref": "R3",
+      "definitionId": "resistor",
+      "from": [
+        9,
+        8
+      ],
+      "to": [
+        9,
+        11
+      ],
+      "value": "100kΩ"
+    },
+    {
+      "instanceId": "4a598365-a498-4418-a069-61fc7cb75db3",
+      "ref": "R4",
+      "definitionId": "resistor",
+      "from": [
+        10,
+        8
+      ],
+      "to": [
+        12,
+        8
+      ],
+      "value": "100kΩ"
+    },
+    {
+      "instanceId": "4085942c-06eb-4d6f-8fd5-e4c5b9e6090f",
+      "ref": "R5",
+      "definitionId": "resistor",
+      "from": [
+        10,
+        9
+      ],
+      "to": [
+        10,
+        12
+      ],
+      "value": "4.7kΩ"
+    },
+    {
+      "instanceId": "523fa38a-7110-42a9-99e1-9af6638aa263",
+      "ref": "R6",
+      "definitionId": "resistor",
+      "from": [
+        19,
+        10
+      ],
+      "to": [
+        19,
+        13
+      ],
+      "value": "1Ω"
+    },
+    {
+      "instanceId": "993e5bb5-8493-4a6a-af9a-1ea286ce5e8f",
+      "ref": "C2",
+      "definitionId": "electrolytic-capacitor",
+      "from": [
+        8,
+        16
+      ],
+      "to": [
+        8,
+        13
+      ],
+      "value": "22µF"
+    },
+    {
+      "instanceId": "2d427767-9ac5-4ed2-a592-fc9b35056fcd",
+      "ref": "C3",
+      "definitionId": "electrolytic-capacitor",
+      "from": [
+        3,
+        16
+      ],
+      "to": [
+        3,
+        11
+      ],
+      "value": "22µF"
+    },
+    {
+      "instanceId": "6a4d3351-7063-444c-a6d5-112624014f3a",
+      "ref": "C4",
+      "definitionId": "electrolytic-capacitor",
+      "from": [
+        24,
+        7
+      ],
+      "to": [
+        24,
+        10
+      ],
+      "value": "2200µF"
+    },
+    {
+      "instanceId": "796827cc-83b7-4c1d-92e0-188ea60d6499",
+      "ref": "C5",
+      "definitionId": "ceramic-capacitor",
+      "from": [
+        19,
+        14
+      ],
+      "to": [
+        19,
+        16
+      ],
+      "value": "100nF"
+    },
+    {
+      "instanceId": "d9b97b28-ab5d-4d4f-8c0f-ca8fc92152a6",
+      "ref": "C6",
+      "definitionId": "ceramic-capacitor",
+      "from": [
+        11,
+        11
+      ],
+      "to": [
+        13,
+        11
+      ],
+      "value": "100nF"
+    },
+    {
+      "instanceId": "4a461123-36de-469c-9a2a-bd58dac2bacf",
+      "ref": "C7",
+      "definitionId": "electrolytic-capacitor",
+      "from": [
+        16,
+        13
+      ],
+      "to": [
+        14,
+        13
+      ],
+      "value": "100µF"
+    },
+    {
+      "instanceId": "1e8a688e-9e58-46af-be0d-5bb53361d41f",
+      "ref": "D1",
+      "definitionId": "diode",
+      "from": [
+        16,
+        9
+      ],
+      "to": [
+        13,
+        9
+      ],
+      "value": "1N4001"
+    },
+    {
+      "instanceId": "a8ce4396-486f-47df-8aac-ae00caed527b",
+      "ref": "D2",
+      "definitionId": "diode",
+      "from": [
+        17,
+        16
+      ],
+      "to": [
+        17,
+        10
+      ],
+      "value": "1N4001"
+    },
+    {
+      "instanceId": "af573b02-d465-474f-ac46-8bbbde4e3699",
+      "ref": "R11",
+      "definitionId": "resistor",
+      "from": [
+        39,
+        11
+      ],
+      "to": [
+        39,
+        15
+      ],
+      "value": "100kΩ"
+    },
+    {
+      "instanceId": "605d104f-8509-4dcd-8270-8ae51c0f3797",
+      "ref": "R12",
+      "definitionId": "resistor",
+      "from": [
+        38,
+        11
+      ],
+      "to": [
+        38,
+        16
+      ],
+      "value": "100kΩ"
+    },
+    {
+      "instanceId": "36bb8ba6-3c70-4637-8c86-bdcc795a81b6",
+      "ref": "R13",
+      "definitionId": "resistor",
+      "from": [
+        42,
+        8
+      ],
+      "to": [
+        42,
+        11
+      ],
+      "value": "100kΩ"
+    },
+    {
+      "instanceId": "afb278e3-c41d-4047-a751-622049b30932",
+      "ref": "R14",
+      "definitionId": "resistor",
+      "from": [
+        43,
+        8
+      ],
+      "to": [
+        45,
+        8
+      ],
+      "value": "100kΩ"
+    },
+    {
+      "instanceId": "a0a6697b-9983-417e-abcc-49960127b02e",
+      "ref": "R15",
+      "definitionId": "resistor",
+      "from": [
+        43,
+        9
+      ],
+      "to": [
+        43,
+        12
+      ],
+      "value": "4.7kΩ"
+    },
+    {
+      "instanceId": "c526b5ee-70f9-4587-9118-587ec0e1604e",
+      "ref": "R16",
+      "definitionId": "resistor",
+      "from": [
+        52,
+        10
+      ],
+      "to": [
+        52,
+        13
+      ],
+      "value": "1Ω"
+    },
+    {
+      "instanceId": "f9594b27-4e89-47ba-abd6-682508aa53ce",
+      "ref": "C12",
+      "definitionId": "electrolytic-capacitor",
+      "from": [
+        41,
+        16
+      ],
+      "to": [
+        41,
+        13
+      ],
+      "value": "22µF"
+    },
+    {
+      "instanceId": "5424d5aa-6197-405f-82c8-c23127899487",
+      "ref": "C13",
+      "definitionId": "electrolytic-capacitor",
+      "from": [
+        36,
+        16
+      ],
+      "to": [
+        36,
+        11
+      ],
+      "value": "22µF"
+    },
+    {
+      "instanceId": "be6960bc-5ad5-4ab3-bcff-3f1805d520ed",
+      "ref": "C14",
+      "definitionId": "electrolytic-capacitor",
+      "from": [
+        57,
+        7
+      ],
+      "to": [
+        57,
+        10
+      ],
+      "value": "2200µF"
+    },
+    {
+      "instanceId": "da420fb3-2209-4805-941c-5e6878de34ac",
+      "ref": "C15",
+      "definitionId": "ceramic-capacitor",
+      "from": [
+        52,
+        14
+      ],
+      "to": [
+        52,
+        16
+      ],
+      "value": "100nF"
+    },
+    {
+      "instanceId": "a16d2fc1-4745-420f-b57c-25532cc0df6c",
+      "ref": "C16",
+      "definitionId": "ceramic-capacitor",
+      "from": [
+        44,
+        11
+      ],
+      "to": [
+        46,
+        11
+      ],
+      "value": "100nF"
+    },
+    {
+      "instanceId": "e26df151-eb42-458f-88a2-e6d05b957d5d",
+      "ref": "C17",
+      "definitionId": "electrolytic-capacitor",
+      "from": [
+        49,
+        13
+      ],
+      "to": [
+        47,
+        13
+      ],
+      "value": "100µF"
+    },
+    {
+      "instanceId": "f8542ba6-e34a-46b0-95e9-305858ff8ae2",
+      "ref": "D11",
+      "definitionId": "diode",
+      "from": [
+        49,
+        9
+      ],
+      "to": [
+        46,
+        9
+      ],
+      "value": "1N4001"
+    },
+    {
+      "instanceId": "142da00c-1cc0-4750-bda3-7d79eea0fa30",
+      "ref": "D12",
+      "definitionId": "diode",
+      "from": [
+        50,
+        16
+      ],
+      "to": [
+        50,
+        10
+      ],
+      "value": "1N4001"
+    },
+    {
+      "instanceId": "44c23fd0-a08c-4885-8232-7c8feb9abbfe",
+      "ref": "C8",
+      "definitionId": "electrolytic-capacitor",
+      "from": [
+        29,
+        10
+      ],
+      "to": [
+        32,
+        10
+      ],
+      "value": "2200µF"
+    },
+    {
+      "instanceId": "557e466d-993d-4974-a905-4eaa1ddc79a5",
+      "ref": "R7",
+      "definitionId": "resistor",
+      "from": [
+        46,
+        17
+      ],
+      "to": [
+        50,
+        17
+      ],
+      "value": "2.2kΩ"
+    },
+    {
+      "instanceId": "8c856c52-55e0-4681-9fcd-a68475a2e3bf",
+      "ref": "D3",
+      "definitionId": "led",
+      "from": [
+        53,
+        17
+      ],
+      "to": [
+        51,
+        17
+      ],
+      "color": "green"
+    }
+  ],
+  "placedAdvancedComponents": [
+    {
+      "instanceId": "33619051-51a2-4d49-8a4a-dc56f61bd08a",
+      "ref": "U1",
+      "definitionId": "tda2030a",
+      "at": [
+        9,
+        7
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "1d39e28e-a526-47d0-bd64-9cc3476d4fc2",
+      "ref": "C1",
+      "definitionId": "film-capacitor",
+      "at": [
+        6,
+        8
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1,
+      "value": "1µF"
+    },
+    {
+      "instanceId": "4f163fee-2ddd-4c17-844b-6de51d2c6952",
+      "ref": "J1",
+      "definitionId": "screw-terminal-2",
+      "at": [
+        24,
+        2
+      ],
+      "rotation": 180,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "0a85db97-f9b7-47c9-9b1a-1dbd14ed9f61",
+      "ref": "U2",
+      "definitionId": "tda2030a",
+      "at": [
+        42,
+        7
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "e5ec4c12-0c85-4dec-ba6e-967b85435cfe",
+      "ref": "C11",
+      "definitionId": "film-capacitor",
+      "at": [
+        39,
+        8
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1,
+      "value": "1µF"
+    },
+    {
+      "instanceId": "79db59c5-4a04-412e-bdb6-e505d6578bfb",
+      "ref": "J2",
+      "definitionId": "screw-terminal-2",
+      "at": [
+        57,
+        2
+      ],
+      "rotation": 180,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "55364f1a-e655-4109-881a-2a9cf40e1b88",
+      "ref": "RV1",
+      "definitionId": "potentiometer-dual",
+      "at": [
+        30,
+        22
+      ],
+      "rotation": 90,
+      "rows": 1,
+      "cols": 1,
+      "value": "A10K"
+    },
+    {
+      "instanceId": "4db8483a-fbd0-42da-b331-019655c67474",
+      "ref": "J3",
+      "definitionId": "rca-jack-white",
+      "at": [
+        22,
+        22
+      ],
+      "rotation": 90,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "1ebadaf0-ea8b-4530-bcc7-06112393419d",
+      "ref": "J4",
+      "definitionId": "rca-jack-red",
+      "at": [
+        40,
+        22
+      ],
+      "rotation": 90,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "31286c64-054c-418c-9a75-dd28f0cd9124",
+      "ref": "J5",
+      "definitionId": "dc-barrel-jack",
+      "at": [
+        55,
+        22
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "4a4affc4-96d5-4d8c-8650-88fe23204286",
+      "ref": "F1",
+      "definitionId": "fuse-holder",
+      "at": [
+        44,
+        19
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1,
+      "value": "3A"
+    },
+    {
+      "instanceId": "70cf5b8d-8e44-4be1-bbe2-bbb3c831c817",
+      "ref": "SW1",
+      "definitionId": "slide-switch",
+      "at": [
+        44,
+        22
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    }
+  ],
+  "customIcs": []
+}

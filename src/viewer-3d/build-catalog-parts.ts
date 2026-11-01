@@ -13,6 +13,7 @@ import {buildCrystal} from "./parts/crystal";
 import {buildDcBarrelJack} from "./parts/dc-barrel-jack";
 import {buildDhtSensor} from "./parts/dht-sensor";
 import {buildDipSwitch} from "./parts/dip-switch";
+import {buildDualPot} from "./parts/dual-pot";
 import {buildElectretMic} from "./parts/electret-mic";
 import {buildFemaleHeader} from "./parts/female-header";
 import {buildFilmCapacitor} from "./parts/film-capacitor";
@@ -23,15 +24,20 @@ import {buildJumperCap} from "./parts/jumper-cap";
 import {buildLatchingSwitch} from "./parts/latching-switch";
 import {buildLdr} from "./parts/ldr";
 import {buildLedBargraph} from "./parts/led-bargraph";
+import {buildPhoneJack} from "./parts/phone-jack";
 import {buildPushButton} from "./parts/push-button";
+import {buildRcaJack} from "./parts/rca-jack";
 import {buildRelay} from "./parts/relay";
 import {buildRgbLed} from "./parts/rgb-led";
 import {buildRotaryEncoder} from "./parts/rotary-encoder";
 import {buildScrewTerminal} from "./parts/screw-terminal";
 import {buildSevenSegment} from "./parts/seven-segment";
 import {buildSlideSwitch} from "./parts/slide-switch";
+import {buildSpeaker} from "./parts/speaker";
 import {buildThermistor} from "./parts/thermistor";
+import {buildStaggeredTo220} from "./parts/to220";
 import {buildToggleSwitch} from "./parts/toggle-switch";
+import {buildTransformer} from "./parts/transformer";
 import {buildTrimmer} from "./parts/trimmer";
 
 export function buildCatalogPart(kit: SceneKit, part: ViewerAdvancedPart, definition: AdvancedComponentDefinition | undefined, offsets: PinOffset[]): Group | null {
@@ -40,6 +46,20 @@ export function buildCatalogPart(kit: SceneKit, part: ViewerAdvancedPart, defini
   switch (part.definitionId) {
     case "hc-sr04": return buildUltrasonicSensor(kit, definition);
     case "bridge-rectifier": return buildBridgeRectifier(kit, definition);
+    case "tda2030a":
+    case "tda2050":
+    case "lm1875":
+    case "tda2003":
+    case "tda7297": return buildStaggeredTo220(kit, definition, part.value || definition.fallbackLabel);
+    case "speaker-28":
+    case "speaker-40": return buildSpeaker(kit, definition);
+    case "rca-jack-black":
+    case "rca-jack-red":
+    case "rca-jack-white": return buildRcaJack(kit, definition);
+    case "phone-jack-mono":
+    case "phone-jack-stereo": return buildPhoneJack(kit, definition);
+    case "potentiometer-dual": return buildDualPot(kit, definition);
+    case "transformer-ei30": return buildTransformer(kit, definition, part.value);
     case "screw-terminal-2":
     case "screw-terminal-3":
     case "screw-terminal-254-2":

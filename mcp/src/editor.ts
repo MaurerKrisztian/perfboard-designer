@@ -26,7 +26,7 @@ export {
 } from "../../src/project-file/share-link";
 
 // The board renderer, for pictures of a board.
-export {renderBoardSvg} from "../../src/board-render";
+export {boardOverhang, renderBoardSvg} from "../../src/board-render";
 
 // The parts catalog, as the editor's Components panel lists it.
 export {COMPONENT_DEFINITIONS, type ComponentDefinition} from "../../src/parts/component-definitions";

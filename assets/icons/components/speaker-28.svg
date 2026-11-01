@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 551.18 551.18" width="551.18" height="551.18" role="img" aria-label="28 mm speaker, seen from above">
+  <circle cx="275.59" cy="275.59" r="273.59" fill="#c7ced6" stroke="#eef2f5" stroke-width="3"/>
+  <circle cx="275.59" cy="275.59" r="250.79" fill="#3a3d42"/>
+  <circle cx="275.59" cy="275.59" r="228.74" fill="#26282c"/>
+  <circle cx="275.59" cy="275.59" r="170.87" fill="#2c2f33"/>
+  <path d="M494.8 365.7L56.38 185.48" stroke="#34373c" stroke-width="2" stroke-opacity="0.55"/>
+  <path d="M366.88 494.31L184.3 56.87" stroke="#34373c" stroke-width="2" stroke-opacity="0.55"/>
+  <path d="M185.48 494.8L365.7 56.38" stroke="#34373c" stroke-width="2" stroke-opacity="0.55"/>
+  <path d="M56.87 366.88L494.31 184.3" stroke="#34373c" stroke-width="2" stroke-opacity="0.55"/>
+  <circle cx="275.59" cy="275.59" r="88.19" fill="#17181b" stroke="#44484e" stroke-width="3"/>
+  <circle cx="248.03" cy="248.03" r="22.05" fill="#3f434a"/>
+  <rect x="184.59" y="9" width="32" height="32" rx="5" fill="#d9b45b"/>
+  <rect x="334.59" y="9" width="32" height="32" rx="5" fill="#d9b45b"/>
+</svg>

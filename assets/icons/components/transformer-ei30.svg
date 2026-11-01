@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 543.3 641.7" width="543.3" height="641.7" role="img" aria-label="EI30 PCB transformer, seen from above">
+  <rect x="2" y="2" width="539.3" height="637.7" rx="10" fill="#202226" stroke="#4a5058" stroke-width="2"/>
+  <rect x="70.63" y="128.34" width="402.04" height="385.02" rx="6" fill="#c8ccd1"/>
+  <text x="271.65" y="224.59" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="54" fill="#30343a" >EI 30/23</text>
+  <text x="271.65" y="320.85" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="36" fill="#30343a" >PRI</text>
+  <text x="271.65" y="397.85" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="36" fill="#30343a" >SEC</text>
+  <path d="M108.66 462.02h325.98" stroke="#7a7f86" stroke-width="4"/>
+</svg>

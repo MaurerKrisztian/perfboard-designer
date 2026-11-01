@@ -178,3 +178,26 @@ These have bare pads rather than a header, and the pads' spacing varies, so thei
 | Bridge Rectifier | Rows 7.62 mm apart, pins 5.08 mm along them | [KiCad footprint](https://gitlab.com/kicad/libraries/kicad-footprints) for the DF-series DIP-4: `+` and `−` in one row, `~` and `~` in the other. Check the markings on yours. |
 | Screw Terminals, 2-, 3- and 4-pin | One row, 2.54 mm pitch | KF128-style blocks, about 6 mm deep. |
 | Micro USB Breakout | `VCC`, `D-`, `D+`, `ID`, `GND` | About 15 mm square; order follows the socket's own pin numbers. |
+
+## Amplifier parts
+
+The bigger amp chips run hot and need a heatsink on their tab, which isn't drawn. The tab is usually tied to the negative supply, so insulate it if the heatsink touches anything else.
+
+| Catalog part | Hole layout | Package reference and assumptions |
+| --- | --- | --- |
+| TDA2030A, TDA2050, LM1875 | Five pins, formed: odd pins in a row at 5.08 mm, even pins one row behind | TO-220-5 (Pentawatt), pinout from the [KiCad symbols](https://gitlab.com/kicad/libraries/kicad-symbols): `IN+`, `IN-`, `V-`, `OUT`, `V+`. The real leads are 1.7 mm apart, with the even ones 3.7 mm behind, so all five are bent onto the grid. |
+| TDA2003 | Same as above | Same package, for a single supply: `IN+`, `IN-`, `GND`, `OUT`, `V+`. |
+| TDA7297 | Fifteen pins, odd ones in a row at 2.54 mm, even ones two rows behind | Multiwatt-15, pinout from the KiCad symbol: `OUT1A`, `OUT1B`, `V+`, `IN1`, `NC`, `MUTE`, `STBY`, `PGND`, `SGND`, `NC`, `NC`, `IN2`, `V+`, `OUT2B`, `OUT2A`. The even leads are bent half a hole sideways. The outputs are bridged, so neither speaker lead goes to ground. The symbol doesn't say which output of a pair is non-inverting, hence A and B: check [ST's datasheet](https://www.st.com/resource/en/datasheet/tda7297.pdf) if the speakers' phase matters. |
+| Transistor (TO-126) | Three inline pins formed to 2.54 mm | BD135–BD140 and the like, `E`, `C`, `B` from the marked front, per the KiCad symbols. Their pitch is 2.28 mm, and not the TO-220's pin order. |
+| 7809, 7812, 7815 | Three inline pins, 2.54 mm pitch | TO-220: `IN`, `GND`, `OUT`, as the 7805. |
+| 7905, 7912, 7915 | Three inline pins, 2.54 mm pitch | TO-220 negative regulators: `GND`, `IN`, `OUT`, per the KiCad symbols. Not the 78xx's order, and their tab is `IN`, not ground. |
+| Speakers (28 and 40 mm) | Two pins, three or five holes apart | Representative: small speakers have solder tabs on the frame, whose spacing varies, so they're reached with stiff wire legs or mounted off the board and wired to a terminal. `+` is the marked tab. |
+| RCA Jack (black, red, white) | Two pins, two holes apart | [Same Sky RCJ-04](https://www.sameskydevices.com/product/resource/rcj-04.pdf), opening to the right. Its blades are 4.5 mm apart along the barrel, formed to 5.08 mm. The drawing doesn't say which blade is which: `TIP` as the rear one is inferred from the contact's position, so check yours with a meter. |
+| Guitar Jack (6.35 mm mono) | Rows of two, six holes apart, pins five holes apart | [Neutrik NMJ4HCD2](https://www.neutrik.com/en/product/nmj4hcd2), footprint from the [KiCad library](https://gitlab.com/kicad/libraries/kicad-footprints), opening to the right. Its rows are 16.23 mm apart, formed to 15.24 mm; the 12.7 mm between pins fits as it is. `TN` and `SN` are the switch contacts. |
+| Guitar Jack (6.35 mm stereo) | The same, with `R` and `RN` between | [Neutrik NMJ6HCD2](https://www.neutrik.com/en/product/nmj6hcd2). The ring pins are half a hole off the grid, so bent 1.27 mm onto it. |
+| Dual Potentiometer | Two columns of three, 2.54 mm pitch | [Alps RK097](https://tech.alpsalpine.com/prod/e/pdf/potentiometer/rotarypotentiometers/rk097/rk097.pdf) dual, footprint from the KiCad library, shaft to the right. Its 2.5 mm pitch is formed to 2.54 mm. `A1`, `AW`, `A3` are one gang, `B1`, `BW`, `B3` the other, each with its wiper in the middle. |
+| PCB Transformer (EI30) | Rows eight holes apart: `1 PRI`, `5 PRI` at the ends of one, `7 SEC`, `9 SEC` four holes apart on the other | [Era EI 30/23 drawing](http://www.eratransformers.com/downloads/030-7585.0.pdf), 27.6 × 32.6 mm. Labels keep the maker's pin numbers. Each pin is within 0.32 mm of a hole. **The primary is mains**: perfboard's holes are too close together for mains clearance unless the holes around those pins and traces are left empty, so keep them well away from everything else, fuse the input and enclose the board. Only build this if you know how to work safely with mains. |
+| Stereo Amplifier (PAM8403) | Nine pins along one edge, in three groups: `R-`, `R+`, `L+`, `L-`; `GND`, `VCC`; `IN L`, `IN G`, `IN R` | The module with a volume pot, per the [AZ-Delivery datasheet](https://cdn.shopify.com/s/files/1/1509/1638/files/Mini-PAM8403_datasheet.pdf): 2.5–5.5 V, 3 W × 2 into 4 Ω, no overvoltage or short-circuit protection. Pad spacing is read from its photo against the 2.54 mm pads. The pot's shaft sticks out about 13 mm past the far edge. Outputs are bridged, so neither speaker lead goes to ground. Other PAM8403 boards are laid out differently. |
+
+There's no part for a TPA3116D2 board: it's a roughly 92 × 68 mm board wired to with its own terminals, not one that sits on a perfboard, and no maker's layout was found. A custom part can stand in for one.
+

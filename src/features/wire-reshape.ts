@@ -41,7 +41,7 @@ let reshape: Reshape | undefined;
 // Drawing px per CSS px of the board as shown.
 function drawingPerCssPx(): number {
   const shown = Canvas.c.getBoundingClientRect().width;
-  return shown ? Canvas.gridWidth / shown : 1;
+  return shown ? Canvas.drawingWidth / shown : 1;
 }
 
 function distanceToLeg(x: number, y: number, [a, b]: [IDot, IDot]): number {

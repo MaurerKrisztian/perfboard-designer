@@ -1,4 +1,4 @@
-import {boardSizePx, drawBoard, iconsUsedBy, PLAIN_VIEW} from "../../board-render";
+import {boardOverhang, boardSizePx, drawBoard, iconsUsedBy, PLAIN_VIEW} from "../../board-render";
 import type {ProjectFile} from "../../project-file/project-file";
 import {CanvasPainter} from "../board-canvas/canvas-painter";
 import {browserIcons} from "../board-canvas/browser-icons";
@@ -16,9 +16,12 @@ function draw(canvas: HTMLCanvasElement, project: ProjectFile) {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
   const {width, height} = boardSizePx(project.board);
-  const scale = Math.min((WIDTH - 2 * MARGIN) / width, (HEIGHT - 2 * MARGIN) / height);
-  const left = (WIDTH - width * scale) / 2;
-  const top = (HEIGHT - height * scale) / 2;
+  const overhang = boardOverhang(project, PLAIN_VIEW);
+  const wholeWidth = width + overhang.left + overhang.right, wholeHeight = height + overhang.top + overhang.bottom;
+  const scale = Math.min((WIDTH - 2 * MARGIN) / wholeWidth, (HEIGHT - 2 * MARGIN) / wholeHeight);
+  // Where the board's corner goes, so the board and what passes its edges are centred together.
+  const left = (WIDTH - wholeWidth * scale) / 2 + overhang.left * scale;
+  const top = (HEIGHT - wholeHeight * scale) / 2 + overhang.top * scale;
 
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
   ctx.save();

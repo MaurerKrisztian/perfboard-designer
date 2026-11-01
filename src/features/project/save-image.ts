@@ -1,4 +1,4 @@
-import {boardSizePx, drawBoard, iconsUsedBy, renderBoardSvg} from "../../board-render";
+import {boardOverhang, boardSizePx, drawBoard, iconsUsedBy, renderBoardSvg} from "../../board-render";
 import type {BoardView} from "../../board-render";
 import {COMPONENT_ICON_DIR} from "../../parts/component-definitions";
 import type {ProjectFile} from "../../project-file/project-file";
@@ -29,12 +29,15 @@ export async function downloadAsImage() {
   const project = getSaveJson();
   await browserIcons.ready(iconsUsedBy(project));
   const {width, height} = boardSizePx(project.board);
+  const view = exportView();
+  // Whole, with what parts reach past the board's edges.
+  const {left, top, right, bottom} = boardOverhang(project, view);
   const canvas = document.createElement('canvas');
-  canvas.width = width * EXPORT_SCALE;
-  canvas.height = height * EXPORT_SCALE;
+  canvas.width = (width + left + right) * EXPORT_SCALE;
+  canvas.height = (height + top + bottom) * EXPORT_SCALE;
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-  ctx.setTransform(EXPORT_SCALE, 0, 0, EXPORT_SCALE, 0, 0);
-  drawBoard(new CanvasPainter(ctx), project, exportView());
+  ctx.setTransform(EXPORT_SCALE, 0, 0, EXPORT_SCALE, left * EXPORT_SCALE, top * EXPORT_SCALE);
+  drawBoard(new CanvasPainter(ctx), project, view);
   download(canvas.toDataURL(), "png");
 }
 

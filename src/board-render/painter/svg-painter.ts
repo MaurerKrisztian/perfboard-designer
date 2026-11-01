@@ -43,9 +43,10 @@ export class SvgPainter implements Painter {
   constructor(private readonly options: SvgPainterOptions = {}) {}
 
   // The finished document, `width` × `height` drawing pixels shown at `scale`.
-  toSvg(width: number, height: number, scale = 1): string {
+  // (left, top): where the picture starts, for one that shows more than the board's own area.
+  toSvg(width: number, height: number, scale = 1, left = 0, top = 0): string {
     const defs = this.defs.length ? `<defs>${this.defs.join("")}</defs>` : "";
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${num(width)} ${num(height)}" width="${num(width * scale)}" height="${num(height * scale)}">`
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${num(left)} ${num(top)} ${num(width)} ${num(height)}" width="${num(width * scale)}" height="${num(height * scale)}">`
       + `${defs}<g stroke-miterlimit="10">${this.out.join("")}</g></svg>`;
   }
 

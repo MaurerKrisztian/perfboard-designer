@@ -226,6 +226,27 @@ function padLabelSpots(left: number, right: number): PinOffset[] {
   ];
 }
 
+// A staggered TO-220 power amp names its front row's pins below them and its back row's above.
+function staggeredLabelSpots(pins: PinOffset[]): PinOffset[] {
+  return pins.map(({dy}) => dy === 0 ? LABEL_BELOW_PINS : LABEL_ABOVE_PINS);
+}
+
+// 5-lead TO-220 (Pentawatt): leads 1.7 mm apart with the even ones bent back, spread to one hole
+// apart with the even ones a row behind. Its tab is usually tied to the negative supply.
+const PENTAWATT_PINS: PinOffset[] = [{dx: 0, dy: 0}, {dx: 1, dy: -1}, {dx: 2, dy: 0}, {dx: 3, dy: -1}, {dx: 4, dy: 0}];
+function pentawattAmp(id: string, name: string, keywords: string[], pinLabels: string[]): AdvancedComponentDefinition {
+  return {
+    id, refPrefix: "U", category: "ics.analog", name: `${name} (TO-220-5, formed)`, fallbackLabel: name.split(" ")[0],
+    keywords: ["power amplifier", "audio", "pentawatt", "to-220-5", "speaker", ...keywords],
+    pinOffsets: PENTAWATT_PINS, pinLabels, pinLabelOffsets: staggeredLabelSpots(PENTAWATT_PINS),
+    ...moduleBoard(-0.1, -1.39, 4.1, 0.39),
+  };
+}
+
+// 15-lead Multiwatt: odd leads 2.54 mm apart as they come, even ones 1.27 mm along from them and two
+// rows behind, so bent half a hole sideways onto the grid.
+const MULTIWATT_PINS: PinOffset[] = Array.from({length: 15}, (_, i) => i % 2 === 0 ? {dx: i / 2, dy: 0} : {dx: (i - 1) / 2, dy: -2});
+
 export const ADVANCED_COMPONENT_DEFINITIONS: AdvancedComponentDefinition[] = [
   {
     id: "transistor", refPrefix: "Q", category: "semiconductors.transistors", name: "Transistor (TO-92)", fallbackLabel: "Q",
@@ -840,6 +861,113 @@ export const ADVANCED_COMPONENT_DEFINITIONS: AdvancedComponentDefinition[] = [
     pinOffsets: dualRowOffsets(6, 12),
     pinLabels: dualRowLabels(["TXO", "RXI", "RST", "GND", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9"], ["RAW", "GND", "RST", "VCC", "A3", "A2", "A1", "A0", "D13", "D12", "D11", "D10"]), bodyColor: "#b5302a",
     ...moduleBoard(-0.5, -1.5, 6.5, 11.5), pinLabelOffsets: dualRowLabelSpots(12)
+  },
+  pentawattAmp("tda2030a", "TDA2030A Power Amplifier", ["tda2030", "14w", "18w", "hi-fi"], ["IN+", "IN-", "V-", "OUT", "V+"]),
+  pentawattAmp("tda2050", "TDA2050 Power Amplifier", ["32w", "hi-fi"], ["IN+", "IN-", "V-", "OUT", "V+"]),
+  pentawattAmp("lm1875", "LM1875 Power Amplifier", ["lm1875t", "20w", "30w", "hi-fi", "gainclone"], ["IN+", "IN-", "V-", "OUT", "V+"]),
+  pentawattAmp("tda2003", "TDA2003 Power Amplifier", ["car radio", "10w", "12v", "single supply"], ["IN+", "IN-", "GND", "OUT", "V+"]),
+  {
+    // ST TDA7297: two bridged channels from one supply, so no output capacitors and neither speaker
+    // lead on ground. Its Multiwatt-15 is 19.6 mm wide.
+    id: "tda7297", refPrefix: "U", category: "ics.analog", name: "TDA7297 Stereo Bridge Amplifier (Multiwatt-15, formed)", fallbackLabel: "TDA7297",
+    keywords: ["power amplifier", "audio", "btl", "bridged", "stereo", "15w", "multiwatt", "speaker"],
+    pinOffsets: MULTIWATT_PINS,
+    pinLabels: ["OUT1A", "OUT1B", "V+", "IN1", "NC", "MUTE", "STBY", "PGND", "SGND", "NC", "NC", "IN2", "V+", "OUT2B", "OUT2A"],
+    pinLabelOffsets: staggeredLabelSpots(MULTIWATT_PINS),
+    ...moduleBoard(-0.36, -1.95, 7.36, -0.05)
+  },
+  {
+    // BD135-BD140 and the like, driver transistors for an amp's output stage: 2.28 mm pitch formed to
+    // 2.54 mm. Not the TO-220's pin order. Metal side to the back.
+    id: "transistor-to126", refPrefix: "Q", category: "semiconductors.transistors", name: "Transistor (TO-126, ECB, formed)", fallbackLabel: "BD",
+    keywords: ["bd139", "bd140", "bd135", "bd136", "mje340", "to-126", "npn", "pnp", "driver", "audio"],
+    pinOffsets: INLINE_3_PINS, pinLabels: ["E", "C", "B"],
+    bodyOutline: rectangularOutline(-0.575, -0.63, 2.575, 0.63), iconFillsBody: true,
+    pinLabelOffset: {dx: 0, dy: -0.95}, valueLabelOffset: {dx: 1, dy: 0.15}
+  },
+  // Fixed regulators in TO-220, for a board's main rail and for op amps' split supplies. The
+  // negative ones have their own pin order, not the 78xx's.
+  ...["7809", "7812", "7815"].map((part): AdvancedComponentDefinition => ({
+    id: `regulator-${part}`, refPrefix: "U", category: "ics.power", name: `${part} Voltage Regulator (TO-220)`, fallbackLabel: part,
+    keywords: [`lm${part}`, `${Number(part.slice(2))}v`, "linear", "power supply", "split supply"],
+    iconFile: "mosfet.svg",
+    pinOffsets: INLINE_3_PINS, pinLabels: ["IN", "GND", "OUT"],
+    bodyOutline: MOSFET_BODY_OUTLINE, iconFillsBody: true,
+    pinLabelOffset: MOSFET_PIN_LABEL_OFFSET, valueLabelOffset: MOSFET_VALUE_LABEL_OFFSET
+  })),
+  ...["7905", "7912", "7915"].map((part): AdvancedComponentDefinition => ({
+    id: `regulator-${part}`, refPrefix: "U", category: "ics.power", name: `${part} Negative Regulator (TO-220)`, fallbackLabel: part,
+    keywords: [`lm${part}`, `-${Number(part.slice(2))}v`, "negative", "linear", "power supply", "split supply", "dual supply"],
+    iconFile: "mosfet.svg",
+    pinOffsets: INLINE_3_PINS, pinLabels: ["GND", "IN", "OUT"],
+    bodyOutline: MOSFET_BODY_OUTLINE, iconFillsBody: true,
+    pinLabelOffset: MOSFET_PIN_LABEL_OFFSET, valueLabelOffset: MOSFET_VALUE_LABEL_OFFSET
+  })),
+  // Small speakers have solder tabs on their frame, not PC pins, and those tabs' spacing varies, so
+  // these are reached with stiff wire legs. The frame fills the holes it's drawn over.
+  ...[{mm: 28, span: 3, radius: 5.51}, {mm: 40, span: 5, radius: 7.87}].map(({mm, span, radius}): AdvancedComponentDefinition => ({
+    id: `speaker-${mm}`, refPrefix: "LS", category: "outputs", name: `Speaker (${mm} mm, on wire legs)`, fallbackLabel: "SPK",
+    keywords: ["loudspeaker", "audio", "sound", "8 ohm", "4 ohm", "driver", "amplifier"],
+    pinOffsets: [{dx: 0, dy: 0}, {dx: span, dy: 0}], pinLabels: ["+", "−"],
+    ...moduleBoard(span / 2 - radius, -0.5, span / 2 + radius, 2 * radius - 0.5),
+    pinLabelOffset: LABEL_BELOW_PINS, unit: "Ω", freeFormValue: true
+  })),
+  // Same Sky RCJ-04 series, opening to the right: its two blades are 4.5 mm apart along the barrel,
+  // formed to 2 holes. The rear one is the centre contact.
+  ...[["black", "#1c1f23"], ["red", "#b5302a"], ["white", "#e8eaed"]].map(([color, paint]): AdvancedComponentDefinition => ({
+    id: `rca-jack-${color}`, refPrefix: "J", category: "connectors", name: `RCA Jack (${color}, RCJ-04, formed)`, fallbackLabel: "RCA",
+    keywords: ["rca", "phono", "cinch", "audio input", "line in", "line out", "rcj-04", "stereo"],
+    pinOffsets: [{dx: 0, dy: 0}, {dx: 2, dy: 0}], pinLabels: ["TIP", "SLV"], bodyColor: paint,
+    ...moduleBoard(-0.36, -1.97, 7.28, 1.97), pinLabelOffset: LABEL_ABOVE_PINS
+  })),
+  {
+    // Neutrik NMJ4HCD2, opening to the right: rows 16.23 mm apart, formed to 6 holes. TN and SN are
+    // the switch contacts, closed to T and S until a plug goes in.
+    id: "phone-jack-mono", refPrefix: "J", category: "connectors", name: "Guitar Jack (6.35 mm mono, switched, formed)", fallbackLabel: "6.35",
+    keywords: ["6.35mm", "1/4 inch", "quarter inch", "guitar", "ts", "phone jack", "neutrik", "nmj4hcd2", "instrument"],
+    pinOffsets: [{dx: 0, dy: 0}, {dx: -5, dy: 0}, {dx: 0, dy: -6}, {dx: -5, dy: -6}], pinLabels: ["T", "S", "TN", "SN"],
+    ...moduleBoard(-7.76, -6.39, 2.69, 0.39),
+    pinLabelOffsets: [LABEL_ABOVE_PINS, LABEL_ABOVE_PINS, LABEL_BELOW_PINS, LABEL_BELOW_PINS]
+  },
+  {
+    // Neutrik NMJ6HCD2: the mono jack with a ring contact, 6.35 mm along from the tip, half a hole
+    // off the grid and bent onto it.
+    id: "phone-jack-stereo", refPrefix: "J", category: "connectors", name: "Guitar Jack (6.35 mm stereo, switched, formed)", fallbackLabel: "6.35",
+    keywords: ["6.35mm", "1/4 inch", "quarter inch", "headphones", "trs", "phone jack", "neutrik", "nmj6hcd2", "balanced"],
+    pinOffsets: [{dx: 0, dy: 0}, {dx: -3, dy: 0}, {dx: -5, dy: 0}, {dx: 0, dy: -6}, {dx: -3, dy: -6}, {dx: -5, dy: -6}],
+    pinLabels: ["T", "R", "S", "TN", "RN", "SN"],
+    ...moduleBoard(-7.76, -6.39, 2.69, 0.39),
+    pinLabelOffsets: [LABEL_ABOVE_PINS, LABEL_ABOVE_PINS, LABEL_ABOVE_PINS, LABEL_BELOW_PINS, LABEL_BELOW_PINS, LABEL_BELOW_PINS]
+  },
+  {
+    // Alps RK097 dual, shaft to the right: two rows of three at 2.5 mm, formed to 2.54 mm. A column is
+    // one gang, its middle pin the wiper, for a stereo volume control.
+    id: "potentiometer-dual", refPrefix: "RV", category: "passives.resistors", name: "Dual Potentiometer (Alps RK097, stereo, formed)", fallbackLabel: "POT2",
+    keywords: ["dual gang", "stereo pot", "volume", "balance", "rk097", "knob", "variable resistor", "a10k", "b10k"],
+    pinOffsets: [{dx: 0, dy: 0}, {dx: 0, dy: -1}, {dx: 0, dy: -2}, {dx: -1, dy: 0}, {dx: -1, dy: -1}, {dx: -1, dy: -2}],
+    pinLabels: ["A1", "AW", "A3", "B1", "BW", "B3"],
+    ...moduleBoard(-1.79, -2.85, 9.84, 0.89),
+    pinLabelOffsets: [0, 1, 2].map(() => ({dx: 0.62, dy: 0})).concat([0, 1, 2].map(() => ({dx: -0.62, dy: 0}))),
+    unit: "Ω", freeFormValue: true
+  },
+  {
+    // Era EI 30/23 PCB transformer: 27.6 × 32.6 mm, rows 20 mm apart, the secondary's pins 10 mm apart,
+    // each within 0.32 mm of a hole. Labels keep the maker's pin numbers.
+    id: "transformer-ei30", refPrefix: "T", category: "passives", name: "PCB Transformer (EI30, single secondary)", fallbackLabel: "EI30",
+    keywords: ["transformer", "mains", "230v", "power supply", "linear", "ei30", "ac", "isolation"],
+    pinOffsets: [{dx: 0, dy: 0}, {dx: 0, dy: -8}, {dx: 8, dy: -6}, {dx: 8, dy: -2}], pinLabels: ["1 PRI", "5 PRI", "7 SEC", "9 SEC"],
+    ...moduleBoard(-1.433, -10.417, 9.433, 2.417),
+    pinLabelOffsets: [{dx: 1, dy: 0}, {dx: 1, dy: 0}, {dx: -1, dy: 0}, {dx: -1, dy: 0}], freeFormValue: true
+  },
+  {
+    // The common PAM8403 board with a volume pot and on/off switch, 2.5-5.5 V, 3 W × 2 into 4 Ω: pads
+    // along one 28 mm edge in three groups. The pot's shaft sticks out past the far edge, about 13 mm.
+    // Its outputs are bridged, so neither speaker lead may go to ground.
+    id: "pam8403-module", refPrefix: "M", category: "modules.audio", name: "Stereo Amplifier (PAM8403, with volume)", fallbackLabel: "PAM8403",
+    keywords: ["pam8403", "class d", "3w", "5v", "audio amplifier", "speaker", "stereo", "module"],
+    pinOffsets: [0, 1, 2, 3, 5, 6, 8, 9, 10].map(dy => ({dx: 0, dy})),
+    pinLabels: ["R-", "R+", "L+", "L-", "GND", "VCC", "IN L", "IN G", "IN R"], bodyColor: "#1f7a3d",
+    ...moduleBoard(-0.5, -0.5, 7.4, 10.5), pinLabelOffset: {dx: 0.85, dy: 0}
   },
 ];
 

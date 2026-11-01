@@ -23,6 +23,9 @@ const PIN1_COLOR = "#38bdf8";
 const SHADED_PIN_COLOR = "rgba(148,163,184,0.35)";
 const PIN_LABEL_FONT = {family: "mono", size: 11, weight: 700} as const;
 const PIN_LABEL_COLOR = "#f8fafc";
+// How much room a pin's name takes, halo included, in its monospace font.
+const PIN_LABEL_CHAR_HALF_WIDTH = 3.6;
+const PIN_LABEL_HALF_HEIGHT = 8;
 // Local, pre-rotation offset (grid units) from a pin to where its number label is drawn.
 // Definitions whose body would sit on top of that spot override it with pinLabelOffset.
 const PIN_LABEL_OFFSET = {dx: 0, dy: -0.35};
@@ -32,6 +35,15 @@ const TILE_BODY_COLOR = "#1f1f26";
 const TILE_PAD_COLOR = "#e8d296";
 const TILE_PAD_RADIUS_RATIO = 0.13;
 const LABEL_GAP = 3;
+
+// Where a pin's name goes, in drawing px.
+function pinLabelSpot(g: AdvancedGeometry, i: number, rotation: number): Point {
+  const offset = g.def.pinLabelOffsets?.[i] ?? g.def.pinLabelOffset ?? PIN_LABEL_OFFSET;
+  const shift = rotateOffset(offset.dx, offset.dy, rotation as 0 | 90 | 180 | 270);
+  return {x: g.pins[i].x + shift.x * GRID_PITCH_PX, y: g.pins[i].y + shift.y * GRID_PITCH_PX};
+}
+
+const pinLabelText = (g: AdvancedGeometry, i: number) => g.def.pinLabels?.[i] || String(i + 1);
 
 // The body's shape: its outline, or the box around its pins.
 function drawBodyShape(painter: Painter, g: AdvancedGeometry, style: ShapeStyle) {
@@ -127,10 +139,9 @@ function drawBody(painter: Painter, g: AdvancedGeometry, rotation: number, look:
   if (skipBody && look.selected) drawBodyShape(painter, g, {stroke: {paint: SELECTION_COLOR, width: 3}});
 
   // Pin number labels, drawn last so they stay legible over the body and icon.
-  g.pins.forEach((pin, i) => {
-    const offset = def.pinLabelOffsets?.[i] ?? def.pinLabelOffset ?? PIN_LABEL_OFFSET;
-    const shift = rotateOffset(offset.dx, offset.dy, rotation as 0 | 90 | 180 | 270);
-    painter.text(def.pinLabels?.[i] || String(i + 1), pin.x + shift.x * GRID_PITCH_PX, pin.y + shift.y * GRID_PITCH_PX, {
+  g.pins.forEach((_, i) => {
+    const {x, y} = pinLabelSpot(g, i, rotation);
+    painter.text(pinLabelText(g, i), x, y, {
       font: PIN_LABEL_FONT, color: PIN_LABEL_COLOR, align: "center", baseline: "middle", halo: LABEL_HALO,
     });
   });
@@ -157,6 +168,21 @@ export const advancedArtist: PartArtist<SavedAdvancedComponent> = {
       painter.circle(pin.x, pin.y, PIN_RING_RADIUS, {stroke: {paint: SELECTION_COLOR, width: 2}});
       painter.circle(pin.x, pin.y, PIN_MARKER_RADIUS, {fill: i === 0 ? PIN1_COLOR : PIN_COLOR});
     });
+  },
+
+  // The body, and the names round its pins as far as the font reaches.
+  extent(part) {
+    const g = advancedPartGeometry(part);
+    if (!g) return undefined;
+    const {x, y, w, h} = g.bodyRect;
+    if (g.def.perPinIcon) return g.bodyRect;
+    const corners = [{x, y}, {x: x + w, y: y + h}];
+    g.pins.forEach((_, i) => {
+      const spot = pinLabelSpot(g, i, part.rotation);
+      const halfWidth = pinLabelText(g, i).length * PIN_LABEL_CHAR_HALF_WIDTH;
+      corners.push({x: spot.x - halfWidth, y: spot.y - PIN_LABEL_HALF_HEIGHT}, {x: spot.x + halfWidth, y: spot.y + PIN_LABEL_HALF_HEIGHT});
+    });
+    return boundingRect(corners);
   },
 
   // Printed on the body where the package has room for it (valueLabelOffset), else below the

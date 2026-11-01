@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 89" width="210" height="89" role="img" aria-label="TDA2030A power amplifier, seen from above">
+  <rect x="1" y="1" width="208" height="87" rx="7" fill="#2a2e33"/>
+  <rect x="1" y="1" width="208" height="26.7" rx="7" fill="#b9c2cc"/>
+  <rect x="1" y="12.02" width="208" height="14.69" rx="0" fill="#9aa5b1"/>
+  <rect x="1" y="25.7" width="208" height="3" rx="0" fill="#12151a"/>
+  <text x="105" y="57.85" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="24" fill="#c7ced6" >TDA2030A</text>
+</svg>

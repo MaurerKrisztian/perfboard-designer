@@ -41,7 +41,7 @@ const CATEGORY_LIST = [
   {id: "displays", name: "Displays", icon: "🔢", keywords: ["display", "seven segment", "digit", "indicator"]},
   {id: "sensors", name: "Sensors & Audio", icon: "🌡️", keywords: ["sensor", "temperature", "humidity", "infrared", "microphone", "audio"]},
   {id: "batteries", name: "Batteries", icon: "🔋", keywords: ["battery", "cell", "holder", "power"]},
-  {id: "outputs", name: "Relays & Buzzers", icon: "🔔", keywords: ["output", "relay", "buzzer", "sound"]},
+  {id: "outputs", name: "Relays, Buzzers & Speakers", icon: "🔔", keywords: ["output", "relay", "buzzer", "speaker", "sound"]},
 ] as const;
 
 export type CategoryId = typeof CATEGORY_LIST[number]["id"];

@@ -1,5 +1,5 @@
 import {initWasm, Resvg} from "@resvg/resvg-wasm";
-import {GRID_PITCH_PX, GridPos, ProjectFile} from "./editor";
+import {boardOverhang, GRID_PITCH_PX, GridPos, ProjectFile} from "./editor";
 import {boardSvg} from "./board-image";
 
 // Pictures of a board as PNG, for agents to look at: an agent reads an SVG as markup, but sees a
@@ -54,10 +54,13 @@ export async function boardPng(project: ProjectFile, area?: {from: GridPos; to: 
   const {cols, rows} = project.board;
   const [c0, c1] = area ? span(area.from[0], area.to[0], cols) : [0, cols - 1];
   const [r0, r1] = area ? span(area.from[1], area.to[1], rows) : [0, rows - 1];
-  const x = c0 * GRID_PITCH_PX, y = r0 * GRID_PITCH_PX;
-  const width = (c1 - c0 + 1) * GRID_PITCH_PX, height = (r1 - r0 + 1) * GRID_PITCH_PX;
-  // The whole board's SVG seen through a window onto the area.
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x} ${y} ${width} ${height}" width="${width}" height="${height}">${boardSvg(project)}</svg>`;
+  // The whole board shows what parts reach past its edges; an area shows only its holes.
+  const overhang = boardOverhang(project, {partLabels: true});
+  const x = area ? c0 * GRID_PITCH_PX : 0, y = area ? r0 * GRID_PITCH_PX : 0;
+  const width = (c1 - c0 + 1) * GRID_PITCH_PX + (area ? 0 : overhang.left + overhang.right);
+  const height = (r1 - r0 + 1) * GRID_PITCH_PX + (area ? 0 : overhang.top + overhang.bottom);
+  // The SVG seen through a window onto the area, or whole.
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x} ${y} ${width} ${height}" width="${width}" height="${height}">${boardSvg(project, !!area)}</svg>`;
   const scale = Math.min(1, MAX_SIDE_PX / Math.max(width, height));
   const resvg = new Resvg(svg, {
     fitTo: {mode: "zoom", value: scale},

@@ -4,8 +4,8 @@ import {icPins} from "../../parts/part-geometry";
 import {SavedIc} from "../../project-file/project-file";
 import {Painter, TextStyle} from "../painter/painter";
 import {SELECTION_COLOR} from "../palette";
-import {DIP_INSET, drawDip} from "./ic-package/dip-shape";
-import {drawModule} from "./ic-package/module-shape";
+import {DIP_INSET, DIP_OVERHANG, drawDip} from "./ic-package/dip-shape";
+import {drawModule, MODULE_EDGE, MODULE_END, USB_OVERHANG} from "./ic-package/module-shape";
 import {PartArtist} from "./part-artist";
 
 // Dual-row parts: DIP chips, and dev boards (Modules › Dev Boards), which get a board's look. The
@@ -51,6 +51,16 @@ function drawPinLabels(painter: Painter, chip: SavedIc) {
 
 export const icArtist: PartArtist<SavedIc> = {
   layer: "under-board",
+
+  // The package round its pins: past both ends of its rows, and a board's USB socket further still.
+  extent(chip) {
+    const left = gridToPx(chip.at[0]), top = gridToPx(chip.at[1]);
+    const right = left + GRID_PITCH_PX * (chip.widthPin - 1), bottom = top + GRID_PITCH_PX * (chip.heightPin - 1);
+    const across = isModule(chip) ? MODULE_EDGE : 0;
+    const along = isModule(chip) ? MODULE_END + USB_OVERHANG : DIP_OVERHANG;
+    const [padX, padY] = chip.rotation === 0 || chip.rotation === 180 ? [across, along] : [along, across];
+    return {x: left - padX, y: top - padY, w: right - left + 2 * padX, h: bottom - top + 2 * padY};
+  },
 
   draw(painter, chip, look) {
     const paint = {

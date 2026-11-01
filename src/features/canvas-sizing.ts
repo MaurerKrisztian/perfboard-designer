@@ -11,10 +11,10 @@ export function applyCanvasResolution(zoom: number): void {
   const dpr = window.devicePixelRatio || 1;
   let effectiveScale = dpr * zoom;
   if (touchScreen.matches) {
-    effectiveScale = Math.min(effectiveScale, Math.sqrt(MAX_TOUCH_CANVAS_PIXELS / (Canvas.gridWidth * Canvas.gridHeight)));
+    effectiveScale = Math.min(effectiveScale, Math.sqrt(MAX_TOUCH_CANVAS_PIXELS / (Canvas.drawingWidth * Canvas.drawingHeight)));
   }
-  const targetW = Math.round(Canvas.gridWidth * effectiveScale);
-  const targetH = Math.round(Canvas.gridHeight * effectiveScale);
+  const targetW = Math.round(Canvas.drawingWidth * effectiveScale);
+  const targetH = Math.round(Canvas.drawingHeight * effectiveScale);
   const shownScale = effectiveScale < dpr * zoom ? zoom * dpr / effectiveScale : 1;
 
   Canvas.c.width = targetW;
@@ -23,5 +23,6 @@ export function applyCanvasResolution(zoom: number): void {
   // 1:1 instead of resampling it (which blurs it whenever zoom x dpr is fractional, e.g. 63%).
   Canvas.c.style.width = `${targetW * shownScale / dpr}px`;
   Canvas.c.style.height = `${targetH * shownScale / dpr}px`;
-  Canvas.ctx.setTransform(targetW / Canvas.gridWidth, 0, 0, targetH / Canvas.gridHeight, 0, 0);
+  const scaleX = targetW / Canvas.drawingWidth, scaleY = targetH / Canvas.drawingHeight;
+  Canvas.ctx.setTransform(scaleX, 0, 0, scaleY, Canvas.margin.left * scaleX, Canvas.margin.top * scaleY);
 }

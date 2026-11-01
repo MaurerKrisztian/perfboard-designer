@@ -5,7 +5,7 @@ import {redrawCanvas} from "./draw-canvas";
 import {attachMouseInput} from "./select";
 import {attachTouchInput} from "./board-touch";
 import {attachHover} from "./hover";
-import {attachWheelZoom, watchDevicePixelRatio} from "./zoom";
+import {attachWheelZoom, keepFitAsMarginChanges, watchDevicePixelRatio} from "./zoom";
 import {listenForShortcuts} from "./shortcut-keys";
 import {registerEditorShortcuts} from "./keyboard-shortcuts";
 import {listenForWireDragKeys} from "./wire-drag";
@@ -44,6 +44,7 @@ export function startEditor() {
   listenForWireDragKeys();
   restorePartLabels();
   watchDevicePixelRatio();
+  keepFitAsMarginChanges();
   createDotGrid(10, 10);
   trackSolderSide();
   trackBoardNets();

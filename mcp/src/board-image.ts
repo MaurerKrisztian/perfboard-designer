@@ -7,8 +7,9 @@ import {ProjectFile, renderBoardSvg} from "./editor";
 // The hosted server's, which make_share_link points images at unless told otherwise.
 export const PUBLIC_IMAGE_URL = "https://mcp.perfboarddesigner.com/render.svg";
 
-export function boardSvg(project: ProjectFile): string {
-  return renderBoardSvg(project, {icons: icon => COMPONENT_ICONS[icon], view: {partLabels: true}});
+// `boardOnly`: without what parts reach past the board's edges, for a picture of part of the board.
+export function boardSvg(project: ProjectFile, boardOnly = false): string {
+  return renderBoardSvg(project, {icons: icon => COMPONENT_ICONS[icon], view: {partLabels: true}, boardOnly});
 }
 
 // The picture of the board a share fragment (without its #) carries, at `base`.

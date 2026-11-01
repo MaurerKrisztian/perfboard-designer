@@ -250,7 +250,11 @@ highlight. Parts are drawn by one `PartArtist` per kind (`artists/`, registered 
 from their project-file entries; a standard part's special art (resistor bands, ceramic code, LED
 colour) is a `Decoration` in `artists/standard-decorations.ts`. Placed parts don't draw themselves
 but hit-test with the same geometry as the drawing (`standardPartSpan`, `advancedPartGeometry`,
-the package extents), so clicking and drawing agree. Icons are asked for by file name
+the package extents), so clicking and drawing agree. A part may reach past the board's edges (a
+jack's barrel, a pot's shaft): each artist's `extent()` says how far, `boardOverhang(project, view)`
+(`board-overhang.ts`; mirrored on the solder side) adds them up, and every picture grows by that
+much, with the board's top-left corner still at (0, 0). `renderBoardSvg`'s `boardOnly` draws the
+board's own area instead, for the PDF's true-size pages and MCP pictures of an `area`. Icons are asked for by file name
 (`getIconFile(def)`): the canvas side loads them (`board-canvas/browser-icons.ts`, redrawing when
 one arrives; one-off drawings `await browserIcons.ready(iconsUsedBy(project))`), the SVG side is
 handed their text. **`src/board-render/` is pure** (it may import only `src/project-file/` and
@@ -558,7 +562,11 @@ instanced meshes made plain, each part's group named as the component list names
 **Canvas coordinates**: mouse events are mapped to canvas drawing-space coordinates via
 `Canvas.toDrawingCoordinates(e)`, which accounts for CSS scaling of the canvas element (its
 rendered size vs. its `width`/`height` attributes) — always go through this helper rather than
-using `clientX`/`clientY` directly.
+using `clientX`/`clientY` directly. The canvas is bigger than the board by what parts reach past its
+edges (`Canvas.margin`, set from `boardOverhang()` by `redrawCanvas`, but not during a drag). The
+board's top-left corner stays drawing point (0, 0), so a point past the left or top edge is simply
+negative. `Canvas.gridWidth`/`gridHeight` stay the board's own size, which saving, resizing and the
+clipboard count holes from; `Canvas.drawingWidth`/`drawingHeight` are the whole canvas.
 
 **Shortcuts**: keyboard shortcuts go into `ShortcutRegistry` (`src/features/shortcut-keys.ts`)
 rather than ad hoc `keydown` listeners: the editor's are listed in

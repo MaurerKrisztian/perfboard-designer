@@ -52,7 +52,9 @@ The examples, as the editor reads them (nets join two or more pins, as the Nets 
 | `new-components-switches.json` | perfboard 30×19 | 10 | 0 | 0 | 59 |
 | `new-components-modules.json` | perfboard 96×67 | 33 | 0 | 0 | 224 |
 | `new-components-boards-chips.json` | perfboard 84×57 | 41 | 0 | 0 | 782 |
+| `new-components-audio.json` | perfboard 62×43 | 22 | 0 | 0 | 95 |
 | `greenhouse-controller.json` | perfboard 60×38 | 20 | 75 | 25 | 14 |
+| `stereo-tda2030a-amplifier.json` | perfboard 62×27 | 43 | 59 | 23 | 2 |
 
 The perfboard blinker's nets: GND (C1.- C2.2 D1.K J1.2 U1.1), VCC (J1.1 R1.1 U1.4 U1.8),
 TRIG/THRESH (C1.+ R2.2 U1.2 U1.6), CTRL (C2.1 U1.5), DISCH (R1.2 R2.1 U1.7), OUT (R3.1 U1.3) and

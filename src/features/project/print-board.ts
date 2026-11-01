@@ -22,15 +22,17 @@ export function boardSizeMm(board: SavedBoard): {width: number; height: number} 
 export const mm = (value: number) => `${Math.round(value * 10) / 10}`;
 const exactMm = (value: number) => `${Number(value.toFixed(3))}mm`;
 
-// The board as an SVG; its size is set by the page's CSS (.fit or .true-size below). `idPrefix`
-// keeps the ids of several pictures in one page apart.
+// The board as an SVG, with what parts reach past its edges; its size is set by the page's CSS.
+// `idPrefix` keeps the ids of several pictures in one page apart.
 export function boardPicture(project: ProjectFile, view: BoardView, icons: SvgIcons, idPrefix: string): string {
   return renderBoardSvg(project, {icons, view, idPrefix});
 }
 
 export function trueSizePicture(project: ProjectFile, view: BoardView, icons: SvgIcons, idPrefix: string): string {
   const {width, height} = boardSizeMm(project.board);
-  return `<div class="true-size" style="--width: ${exactMm(width)}; --height: ${exactMm(height)}">${boardPicture(project, view, icons, idPrefix)}</div>`;
+  // Only the board's own area, sized to the real board: a picture to lay the real one on.
+  const picture = renderBoardSvg(project, {icons, view, idPrefix, boardOnly: true});
+  return `<div class="true-size" style="--width: ${exactMm(width)}; --height: ${exactMm(height)}">${picture}</div>`;
 }
 
 // A 50 mm bar with a tick each 10 mm: measured, it shows whether the printout is true to size.

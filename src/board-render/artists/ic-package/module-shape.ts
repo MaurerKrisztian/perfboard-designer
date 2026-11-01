@@ -22,7 +22,7 @@ const HOLE_RADIUS = 4.5;
 // A micro/mini-USB socket is about 7.5mm wide, i.e. 150px at this pitch.
 const USB_WIDTH = 150;
 const USB_ASPECT = 0.56;
-const USB_OVERHANG = 8;
+export const USB_OVERHANG = 8;
 
 const BOARD_FILL = "#184a8c";
 const BOARD_EDGE_COLOR = "#0e2d57";

@@ -2,7 +2,7 @@ import {isRouteTool, ToolState} from "../state/ToolState";
 import {DotState} from "../state/DotState";
 import {redrawCanvas} from "./draw-canvas";
 import {Canvas} from "../state/Canvas";
-import {endDrag} from "./component-drag";
+import {endDrag, isDragging} from "./component-drag";
 import {findPartAt} from "./placed-parts";
 import {SelectionState} from "../state/SelectionState";
 import {resetInteraction} from "./reset-interaction";
@@ -243,7 +243,10 @@ function onPointerUp(e: PointerEvent) {
   }
   if (wireDragFrom()) endWireDrag();
   stopPan();
+  const dropped = isDragging();
   endDrag();
+  // The canvas held still during the drag: now it makes room for what passes the board's edge.
+  if (dropped) redrawCanvas();
 }
 
 // Lets go of a wire being bent: it takes its new route.

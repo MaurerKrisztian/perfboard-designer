@@ -15,7 +15,9 @@ type Mark =
   | {kind: "box"; x: number; z: number; w: number; d: number; h: number; color: string; metal?: boolean; on?: number; turn?: number}
   | {kind: "can"; x: number; z: number; r: number; h: number; color: string; metal?: boolean; on?: number}
   | {kind: "text"; x: number; z: number; w: number; d: number; text: string; color?: string; on?: number}
-  | {kind: "screen"; x: number; z: number; w: number; d: number; paint: Paint; on: number};
+  | {kind: "screen"; x: number; z: number; w: number; d: number; paint: Paint; on: number}
+  // A cylinder lying along x, from x onward: a pot's shaft.
+  | {kind: "rod"; x: number; z: number; r: number; length: number; color: string; metal?: boolean; on: number};
 
 const CHIP = "#1c1f23";
 const METAL = "#c7ced6";
@@ -187,6 +189,13 @@ const LOOKS: Record<string, Mark[]> = {
     ...Array.from({length: 6}, (_, i) => can((i - 2.5) * PITCH, -15.2, 0.6, 0.03, BRASS, true)), label(0, 6.6, 8, 1.9, "PRO MINI"),
   ],
   "micro-usb-breakout": [metal(0, -4.7, 6.9, 5.3, 2.7), box(0, -7.4, 5.2, 0.12, 1.3, "#20242a", 0.7), ...holes(1.3, [-6, 0.1], [6, 0.1]), label(0, 2, 6, 2.2, "USB")],
+  "pam8403-module": [
+    chip(-0.8, -6.6, 7.9, 4.6, 1.6), label(-0.8, -6.6, 6.6, 1.6, "PAM8403", 1.6, "#c8d0d8"),
+    ...electrolytic(-3.4, 1.4, 3, 5.4), ...smd([5.6, -10], [5.6, -7.6], [5.6, -4.4], [4.6, 1.2], [4.6, 3]),
+    box(-1.4, 9.3, 12.4, 9.4, 9, "#1c8a78"), metal(6.1, 9.3, 2.6, 9.4, 9),
+    {kind: "rod", x: 7.4, z: 9.3, r: 3.4, length: 3.4, color: METAL, metal: true, on: 4.5},
+    {kind: "rod", x: 10.8, z: 9.3, r: 3, length: 11, color: "#dfe3e8", metal: true, on: 4.5},
+  ],
 };
 
 export function isBreakoutModule(id: string): boolean {
@@ -215,6 +224,10 @@ export function buildBreakoutModule(kit: SceneKit, id: string, def: AdvancedComp
       screen.rotation.x = -Math.PI / 2;
       screen.position.copy(at(mark.x, on + 0.02, mark.z));
       group.add(screen);
+    } else if (mark.kind === "rod") {
+      const rod = cylinder(mark.r, mark.length, materialFor(mark.color, mark.metal), at(mark.x + mark.length / 2, on, mark.z));
+      rod.rotation.z = Math.PI / 2;
+      group.add(rod);
     } else {
       addTopLabel(group, mark.text, mark.w, mark.d, at(mark.x, on + 0.02, mark.z), mark.color ?? "#eef3f8");
     }

@@ -18,7 +18,9 @@ export function buildRotaryEncoder(kit: SceneKit, definition: AdvancedComponentD
   const bushingHeight = 5, shaftHeight = 13;
   group.add(cylinder(3.5, bushingHeight, metal, new Vector3(bounds.centerX, top + bushingHeight / 2, bounds.centerZ)));
   const shaftBase = top + bushingHeight;
-  group.add(cylinder(3, shaftHeight, shaft, new Vector3(bounds.centerX, shaftBase + shaftHeight / 2, bounds.centerZ)));
+  // The plain shaft stops inside the knurl: with a top of each in one plane, the two would flicker.
+  const plainHeight = shaftHeight - 3.5;
+  group.add(cylinder(3, plainHeight, shaft, new Vector3(bounds.centerX, shaftBase + plainHeight / 2, bounds.centerZ)));
   group.add(cylinder(3.05, 7, kit.standard("encoder-knurl", {color: "#9aa3ad", metalness: 0.85, roughness: 0.6}),
     new Vector3(bounds.centerX, shaftBase + shaftHeight - 3.5, bounds.centerZ)));
   group.add(kit.box(4, 0.06, 0.5, kit.blackPlasticMaterial,

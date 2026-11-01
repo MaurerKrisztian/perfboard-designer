@@ -3,6 +3,7 @@ import {gridToPx} from "../../project-file/grid";
 import {SavedStandardComponent} from "../../project-file/project-file";
 import {Painter} from "../painter/painter";
 import {GHOST_DASH, GHOST_OPACITY, SELECTION_COLOR} from "../palette";
+import {boundingRect} from "./advanced-geometry";
 import {labelText, PartArtist} from "./part-artist";
 import {decorationsFor} from "./standard-decorations";
 import {standardPartSpan} from "./standard-geometry";
@@ -39,6 +40,20 @@ function drawStandIn(painter: Painter, bodyStart: number, bodySize: number, labe
 
 export const standardArtist: PartArtist<SavedStandardComponent> = {
   layer: "over-wires",
+
+  // Its leads, and its artwork centred between them, turned as the part is. The artwork's square
+  // is mostly empty across the leads, so that way it reaches only as far as it's drawn.
+  extent(part) {
+    const def = getComponentDefinition(part.definitionId);
+    if (!def) return undefined;
+    const {from, to} = ends(part);
+    const {angle, bodySize} = standardPartSpan(from, to, def);
+    const along = bodySize / 2, across = def.artworkHalfThickness ?? along;
+    const cos = Math.abs(Math.cos(angle)), sin = Math.abs(Math.sin(angle));
+    const reachX = along * cos + across * sin, reachY = along * sin + across * cos;
+    const center = {x: (from.x + to.x) / 2, y: (from.y + to.y) / 2};
+    return boundingRect([from, to, {x: center.x - reachX, y: center.y - reachY}, {x: center.x + reachX, y: center.y + reachY}]);
+  },
 
   draw(painter, part, look) {
     const def = getComponentDefinition(part.definitionId);
