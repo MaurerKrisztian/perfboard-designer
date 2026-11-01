@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 305 735" width="305" height="735" role="img" aria-label="HC-05 Bluetooth serial module, top view">
+  <rect x="2" y="2" width="301" height="731" rx="9" fill="#1a4fa0" stroke="#5e8fd8" stroke-width="3"/>
+  <circle cx="27.5" cy="710" r="13" fill="#d9b45b"/>
+  <circle cx="27.5" cy="710" r="6" fill="#23272c"/>
+  <circle cx="77.5" cy="710" r="13" fill="#d9b45b"/>
+  <circle cx="77.5" cy="710" r="6" fill="#23272c"/>
+  <circle cx="127.5" cy="710" r="13" fill="#d9b45b"/>
+  <circle cx="127.5" cy="710" r="6" fill="#23272c"/>
+  <circle cx="177.5" cy="710" r="13" fill="#d9b45b"/>
+  <circle cx="177.5" cy="710" r="6" fill="#23272c"/>
+  <circle cx="227.5" cy="710" r="13" fill="#d9b45b"/>
+  <circle cx="227.5" cy="710" r="6" fill="#23272c"/>
+  <circle cx="277.5" cy="710" r="13" fill="#d9b45b"/>
+  <circle cx="277.5" cy="710" r="6" fill="#23272c"/>
+  <rect x="30" y="12" width="245" height="470" rx="4" fill="#2d7d58" stroke="#7cc7a2" stroke-width="2"/>
+  <path d="M50 108v-80h25.63v80h25.63v-80h25.63v80h25.63v-80h25.63v80h25.63v-80h25.63v80h25.63" fill="none" stroke="#d9b45b" stroke-width="7" stroke-linejoin="round"/>
+  <rect x="97.5" y="155" width="110" height="110" rx="3" fill="#1c1f23"/>
+  <circle cx="105.5" cy="163" r="3" fill="#6b7480"/>
+  <text x="152.5" y="210" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="20" fill="#c8d0d8" >BC417</text>
+  <rect x="111.43" y="322" width="5" height="56" rx="1" fill="#c9cfd6"/>
+  <rect x="124.29" y="322" width="5" height="56" rx="1" fill="#c9cfd6"/>
+  <rect x="137.14" y="322" width="5" height="56" rx="1" fill="#c9cfd6"/>
+  <rect x="150" y="322" width="5" height="56" rx="1" fill="#c9cfd6"/>
+  <rect x="162.86" y="322" width="5" height="56" rx="1" fill="#c9cfd6"/>
+  <rect x="175.71" y="322" width="5" height="56" rx="1" fill="#c9cfd6"/>
+  <rect x="188.57" y="322" width="5" height="56" rx="1" fill="#c9cfd6"/>
+  <rect x="107.5" y="328" width="90" height="44" rx="3" fill="#1c1f23"/>
+  <rect x="61" y="425" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <rect x="101" y="425" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <rect x="186" y="425" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <rect x="226" y="425" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <text x="152.5" y="548" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="40" fill="#eef3f8" >HC-05</text>
+  <rect x="72.17" y="599" width="5" height="42" rx="1" fill="#c9cfd6"/>
+  <rect x="87.5" y="599" width="5" height="42" rx="1" fill="#c9cfd6"/>
+  <rect x="102.83" y="599" width="5" height="42" rx="1" fill="#c9cfd6"/>
+  <rect x="67" y="605" width="46" height="30" rx="3" fill="#1c1f23"/>
+  <rect x="181" y="596" width="56" height="46" rx="4" fill="#c7ced6" stroke="#eef2f5" stroke-width="2"/>
+</svg>

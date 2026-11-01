@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 886 285" width="886" height="285" role="img" aria-label="HC-SR04 ultrasonic sensor seen from above, standing on its pins">
+  <rect x="2" y="3" width="882" height="44" rx="4" fill="#1a4fa0" stroke="#5e8fd8" stroke-width="2"/>
+  <rect x="30" y="48" width="314" height="225" rx="4" fill="#c7ced6" stroke="#eef2f5" stroke-width="2"/>
+  <rect x="30" y="229" width="314" height="44" rx="4" fill="#3c424a" stroke="#8b949e" stroke-width="2"/>
+  <rect x="72" y="60" width="230" height="161" rx="3" fill="#dde2e8"/>
+  <text x="187" y="128" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="60" fill="#7b8794" >T</text>
+  <rect x="542" y="48" width="314" height="225" rx="4" fill="#c7ced6" stroke="#eef2f5" stroke-width="2"/>
+  <rect x="542" y="229" width="314" height="44" rx="4" fill="#3c424a" stroke="#8b949e" stroke-width="2"/>
+  <rect x="584" y="60" width="230" height="161" rx="3" fill="#dde2e8"/>
+  <text x="699" y="128" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="60" fill="#7b8794" >R</text>
+  <circle cx="368" cy="25" r="13" fill="#d9b45b"/>
+  <circle cx="368" cy="25" r="6" fill="#23272c"/>
+  <circle cx="418" cy="25" r="13" fill="#d9b45b"/>
+  <circle cx="418" cy="25" r="6" fill="#23272c"/>
+  <circle cx="468" cy="25" r="13" fill="#d9b45b"/>
+  <circle cx="468" cy="25" r="6" fill="#23272c"/>
+  <circle cx="518" cy="25" r="13" fill="#d9b45b"/>
+  <circle cx="518" cy="25" r="6" fill="#23272c"/>
+  <rect x="399" y="50" width="88" height="30" rx="8" fill="#c7ced6" stroke="#eef2f5" stroke-width="2"/>
+</svg>

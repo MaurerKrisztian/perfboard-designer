@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 125" width="150" height="125" role="img" aria-label="3-position 2.54 mm screw terminal, top view">
+  <rect x="2" y="2" width="146" height="121" rx="9" fill="#16855c" stroke="#86dcb5" stroke-width="3"/>
+  <path d="M4 76h142" stroke="#0b513e" stroke-width="3"/>
+  <circle cx="25" cy="46" r="20" fill="#c2cbd1" stroke="#35434b" stroke-width="4"/>
+  <path d="m12 33 26 26" stroke="#45515e" stroke-width="5"/>
+  <rect x="8" y="86" width="34" height="26" rx="4" fill="#122e26" stroke="#45af84" stroke-width="2"/>
+  <circle cx="75" cy="46" r="20" fill="#c2cbd1" stroke="#35434b" stroke-width="4"/>
+  <path d="m62 33 26 26" stroke="#45515e" stroke-width="5"/>
+  <rect x="58" y="86" width="34" height="26" rx="4" fill="#122e26" stroke="#45af84" stroke-width="2"/>
+  <path d="M50 4v117" stroke="#0b513e" stroke-width="3"/>
+  <circle cx="125" cy="46" r="20" fill="#c2cbd1" stroke="#35434b" stroke-width="4"/>
+  <path d="m112 33 26 26" stroke="#45515e" stroke-width="5"/>
+  <rect x="108" y="86" width="34" height="26" rx="4" fill="#122e26" stroke="#45af84" stroke-width="2"/>
+  <path d="M100 4v117" stroke="#0b513e" stroke-width="3"/>
+</svg>

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 570.85 300.2" width="570.85" height="300.2" role="img" aria-label="nRF24L01 radio module, top view, antenna on the right">
+  <rect x="2" y="2" width="566.85" height="296.2" rx="9" fill="#14241d" stroke="#4f7a64" stroke-width="3"/>
+  <path d="M450.85 276.2v-252.2h12v252.2h12v-252.2h12v252.2h12v-252.2h12v252.2h12v-252.2h12v252.2h12" fill="none" stroke="#d9b45b" stroke-width="7" stroke-linejoin="round"/>
+  <rect x="254" y="74" width="72" height="72" rx="3" fill="#1c1f23"/>
+  <circle cx="262" cy="82" r="3" fill="#6b7480"/>
+  <text x="290" y="110" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="13" fill="#c8d0d8" >nRF24</text>
+  <rect x="190" y="192" width="170" height="60" rx="28" fill="#c7ced6" stroke="#eef2f5" stroke-width="2"/>
+  <text x="275" y="224" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="22" fill="#59616b" >16.000</text>
+  <rect x="381" y="55" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <rect x="381" y="85" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <rect x="381" y="145" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <rect x="181" y="55" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <rect x="181" y="85" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <circle cx="29.5" cy="39.35" r="13" fill="#d9b45b"/>
+  <circle cx="29.5" cy="39.35" r="6" fill="#23272c"/>
+  <circle cx="79.5" cy="39.35" r="13" fill="#d9b45b"/>
+  <circle cx="79.5" cy="39.35" r="6" fill="#23272c"/>
+  <circle cx="29.5" cy="89.35" r="13" fill="#d9b45b"/>
+  <circle cx="29.5" cy="89.35" r="6" fill="#23272c"/>
+  <circle cx="79.5" cy="89.35" r="13" fill="#d9b45b"/>
+  <circle cx="79.5" cy="89.35" r="6" fill="#23272c"/>
+  <circle cx="29.5" cy="139.35" r="13" fill="#d9b45b"/>
+  <circle cx="29.5" cy="139.35" r="6" fill="#23272c"/>
+  <circle cx="79.5" cy="139.35" r="13" fill="#d9b45b"/>
+  <circle cx="79.5" cy="139.35" r="6" fill="#23272c"/>
+  <circle cx="29.5" cy="189.35" r="13" fill="#d9b45b"/>
+  <circle cx="29.5" cy="189.35" r="6" fill="#23272c"/>
+  <circle cx="79.5" cy="189.35" r="13" fill="#d9b45b"/>
+  <circle cx="79.5" cy="189.35" r="6" fill="#23272c"/>
+</svg>

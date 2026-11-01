@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 537.5 547.25" width="537.5" height="547.25" role="img" aria-label="0.96 inch OLED display, SPI, top view">
+  <rect x="2" y="2" width="533.5" height="543.25" rx="9" fill="#0f3d7a" stroke="#4d7fc0" stroke-width="3"/>
+  <circle cx="24" cy="24" r="13" fill="#0c1116" stroke="#d9b45b" stroke-width="3"/>
+  <circle cx="513.5" cy="24" r="13" fill="#0c1116" stroke="#d9b45b" stroke-width="3"/>
+  <circle cx="24" cy="523.25" r="13" fill="#0c1116" stroke="#d9b45b" stroke-width="3"/>
+  <circle cx="513.5" cy="523.25" r="13" fill="#0c1116" stroke="#d9b45b" stroke-width="3"/>
+  <circle cx="118.75" cy="25" r="13" fill="#d9b45b"/>
+  <circle cx="118.75" cy="25" r="6" fill="#23272c"/>
+  <circle cx="168.75" cy="25" r="13" fill="#d9b45b"/>
+  <circle cx="168.75" cy="25" r="6" fill="#23272c"/>
+  <circle cx="218.75" cy="25" r="13" fill="#d9b45b"/>
+  <circle cx="218.75" cy="25" r="6" fill="#23272c"/>
+  <circle cx="268.75" cy="25" r="13" fill="#d9b45b"/>
+  <circle cx="268.75" cy="25" r="6" fill="#23272c"/>
+  <circle cx="318.75" cy="25" r="13" fill="#d9b45b"/>
+  <circle cx="318.75" cy="25" r="6" fill="#23272c"/>
+  <circle cx="368.75" cy="25" r="13" fill="#d9b45b"/>
+  <circle cx="368.75" cy="25" r="6" fill="#23272c"/>
+  <circle cx="418.75" cy="25" r="13" fill="#d9b45b"/>
+  <circle cx="418.75" cy="25" r="6" fill="#23272c"/>
+  <rect x="10" y="62" width="517.5" height="429.25" rx="6" fill="#080b0f" stroke="#3a434e" stroke-width="2"/>
+  <rect x="40" y="92" width="457.5" height="361.25" rx="3" fill="#05101a"/>
+  <rect x="60" y="116" width="337.5" height="22" rx="3" fill="#f6d24b"/>
+  <rect x="60" y="190" width="417.5" height="16" rx="3" fill="#58c8ee"/>
+  <rect x="68" y="252" width="377.5" height="16" rx="3" fill="#58c8ee"/>
+  <rect x="76" y="314" width="337.5" height="16" rx="3" fill="#58c8ee"/>
+  <rect x="84" y="376" width="297.5" height="16" rx="3" fill="#58c8ee"/>
+  <rect x="198.75" y="489.25" width="140" height="40" rx="3" fill="#c98a33"/>
+  <text x="268.75" y="148" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="1" fill="#eef3f8" ></text>
+</svg>

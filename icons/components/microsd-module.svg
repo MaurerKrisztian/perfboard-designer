@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 472 827" width="472" height="827" role="img" aria-label="MicroSD card module, top view">
+  <rect x="2" y="2" width="468" height="823" rx="9" fill="#1a4fa0" stroke="#5e8fd8" stroke-width="3"/>
+  <circle cx="111" cy="802" r="13" fill="#d9b45b"/>
+  <circle cx="111" cy="802" r="6" fill="#23272c"/>
+  <circle cx="161" cy="802" r="13" fill="#d9b45b"/>
+  <circle cx="161" cy="802" r="6" fill="#23272c"/>
+  <circle cx="211" cy="802" r="13" fill="#d9b45b"/>
+  <circle cx="211" cy="802" r="6" fill="#23272c"/>
+  <circle cx="261" cy="802" r="13" fill="#d9b45b"/>
+  <circle cx="261" cy="802" r="6" fill="#23272c"/>
+  <circle cx="311" cy="802" r="13" fill="#d9b45b"/>
+  <circle cx="311" cy="802" r="6" fill="#23272c"/>
+  <circle cx="361" cy="802" r="13" fill="#d9b45b"/>
+  <circle cx="361" cy="802" r="6" fill="#23272c"/>
+  <circle cx="30" cy="30" r="16" fill="#0c1116" stroke="#d9b45b" stroke-width="3"/>
+  <circle cx="442" cy="30" r="16" fill="#0c1116" stroke="#d9b45b" stroke-width="3"/>
+  <circle cx="30" cy="731" r="16" fill="#0c1116" stroke="#d9b45b" stroke-width="3"/>
+  <circle cx="442" cy="731" r="16" fill="#0c1116" stroke="#d9b45b" stroke-width="3"/>
+  <rect x="86" y="40" width="300" height="340" rx="8" fill="#c7ced6" stroke="#eef2f5" stroke-width="2"/>
+  <rect x="126" y="72" width="220" height="210" rx="6" fill="#20242a"/>
+  <text x="236" y="178" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="34" fill="#eef3f8" >microSD</text>
+  <rect x="106" y="308" width="260" height="52" rx="4" fill="#9aa3ad"/>
+  <rect x="134.93" y="456" width="5" height="68" rx="1" fill="#c9cfd6"/>
+  <rect x="147.79" y="456" width="5" height="68" rx="1" fill="#c9cfd6"/>
+  <rect x="160.64" y="456" width="5" height="68" rx="1" fill="#c9cfd6"/>
+  <rect x="173.5" y="456" width="5" height="68" rx="1" fill="#c9cfd6"/>
+  <rect x="186.36" y="456" width="5" height="68" rx="1" fill="#c9cfd6"/>
+  <rect x="199.21" y="456" width="5" height="68" rx="1" fill="#c9cfd6"/>
+  <rect x="212.07" y="456" width="5" height="68" rx="1" fill="#c9cfd6"/>
+  <rect x="131" y="462" width="90" height="56" rx="3" fill="#1c1f23"/>
+  <circle cx="139" cy="470" r="3" fill="#6b7480"/>
+  <text x="176" y="490" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="20" fill="#c8d0d8" >125</text>
+  <rect x="299.5" y="467" width="5" height="46" rx="1" fill="#c9cfd6"/>
+  <rect x="311.5" y="467" width="5" height="46" rx="1" fill="#c9cfd6"/>
+  <rect x="323.5" y="467" width="5" height="46" rx="1" fill="#c9cfd6"/>
+  <rect x="335.5" y="467" width="5" height="46" rx="1" fill="#c9cfd6"/>
+  <rect x="347.5" y="467" width="5" height="46" rx="1" fill="#c9cfd6"/>
+  <rect x="296" y="473" width="60" height="34" rx="3" fill="#1c1f23"/>
+  <rect x="167" y="575" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <rect x="257" y="575" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <rect x="327" y="575" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <text x="236" y="670" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="38" fill="#eef3f8" >SD CARD</text>
+</svg>
