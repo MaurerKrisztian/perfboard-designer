@@ -1,0 +1,1287 @@
+{
+  "version": 5,
+  "board": {
+    "type": "perfboard",
+    "cols": 60,
+    "rows": 38
+  },
+  "pads": [
+    {
+      "at": [
+        6,
+        17
+      ],
+      "note": "+12V"
+    },
+    {
+      "at": [
+        21,
+        1
+      ],
+      "note": "GREENHOUSE CONTROLLER: 12 V in at J1, set the LM2596 (M1) to 5 V before connecting anything. U1 is a 5 V Pro Micro. J2 is the 12 V fan (A0, through Q1), M6 the pump relay (A2), J3 a 28BYJ-48 vent stepper (D6-D9), D2 a status LED (A3). M2 weather sensor, M3 clock and DS1 display share I2C, M4 logs to SD, M5 is Bluetooth serial."
+    }
+  ],
+  "wires": [
+    {
+      "from": [
+        4,
+        22
+      ],
+      "to": [
+        55,
+        22
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        14,
+        21
+      ],
+      "to": [
+        54,
+        21
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        37,
+        23
+      ],
+      "to": [
+        53,
+        23
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        38,
+        24
+      ],
+      "to": [
+        52,
+        24
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        2,
+        2
+      ],
+      "to": [
+        6,
+        17
+      ],
+      "via": [
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          17
+        ]
+      ],
+      "color": "#f97316"
+    },
+    {
+      "from": [
+        6,
+        17
+      ],
+      "to": [
+        6,
+        14
+      ],
+      "color": "#f97316"
+    },
+    {
+      "from": [
+        6,
+        17
+      ],
+      "to": [
+        6,
+        23
+      ],
+      "color": "#f97316"
+    },
+    {
+      "from": [
+        6,
+        23
+      ],
+      "to": [
+        2,
+        24
+      ],
+      "via": [
+        [
+          2,
+          23
+        ]
+      ],
+      "color": "#f97316"
+    },
+    {
+      "from": [
+        2,
+        9
+      ],
+      "to": [
+        4,
+        14
+      ],
+      "via": [
+        [
+          2,
+          10
+        ],
+        [
+          4,
+          10
+        ]
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        4,
+        14
+      ],
+      "to": [
+        4,
+        22
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        18,
+        9
+      ],
+      "to": [
+        18,
+        22
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        18,
+        2
+      ],
+      "to": [
+        19,
+        21
+      ],
+      "via": [
+        [
+          19,
+          2
+        ]
+      ],
+      "color": "#ef4444"
+    },
+    {
+      "from": [
+        10,
+        24
+      ],
+      "to": [
+        10,
+        22
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        9,
+        24
+      ],
+      "to": [
+        6,
+        25
+      ],
+      "via": [
+        [
+          9,
+          25
+        ]
+      ],
+      "color": "#f8fafc"
+    },
+    {
+      "from": [
+        6,
+        25
+      ],
+      "to": [
+        3,
+        24
+      ],
+      "via": [
+        [
+          3,
+          25
+        ]
+      ],
+      "color": "#f8fafc"
+    },
+    {
+      "from": [
+        8,
+        24
+      ],
+      "to": [
+        8,
+        23
+      ],
+      "color": "#22c55e"
+    },
+    {
+      "from": [
+        13,
+        23
+      ],
+      "to": [
+        24,
+        23
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        24,
+        23
+      ],
+      "to": [
+        30,
+        29
+      ],
+      "via": [
+        [
+          24,
+          29
+        ]
+      ],
+      "color": "#22c55e"
+    },
+    {
+      "from": [
+        36,
+        31
+      ],
+      "to": [
+        37,
+        23
+      ],
+      "via": [
+        [
+          37,
+          31
+        ]
+      ],
+      "color": "#eab308"
+    },
+    {
+      "from": [
+        36,
+        32
+      ],
+      "to": [
+        38,
+        24
+      ],
+      "via": [
+        [
+          38,
+          32
+        ]
+      ],
+      "color": "#3b82f6"
+    },
+    {
+      "from": [
+        37,
+        20
+      ],
+      "to": [
+        37,
+        23
+      ],
+      "color": "#eab308"
+    },
+    {
+      "from": [
+        38,
+        20
+      ],
+      "to": [
+        38,
+        24
+      ],
+      "color": "#3b82f6"
+    },
+    {
+      "from": [
+        46,
+        20
+      ],
+      "to": [
+        46,
+        23
+      ],
+      "color": "#eab308"
+    },
+    {
+      "from": [
+        47,
+        20
+      ],
+      "to": [
+        47,
+        24
+      ],
+      "color": "#3b82f6"
+    },
+    {
+      "from": [
+        53,
+        20
+      ],
+      "to": [
+        53,
+        23
+      ],
+      "color": "#eab308"
+    },
+    {
+      "from": [
+        52,
+        20
+      ],
+      "to": [
+        52,
+        24
+      ],
+      "color": "#3b82f6"
+    },
+    {
+      "from": [
+        39,
+        20
+      ],
+      "to": [
+        39,
+        21
+      ],
+      "color": "#ef4444"
+    },
+    {
+      "from": [
+        40,
+        20
+      ],
+      "to": [
+        40,
+        22
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        44,
+        20
+      ],
+      "to": [
+        44,
+        21
+      ],
+      "color": "#ef4444"
+    },
+    {
+      "from": [
+        45,
+        20
+      ],
+      "to": [
+        45,
+        22
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        54,
+        20
+      ],
+      "to": [
+        54,
+        21
+      ],
+      "color": "#ef4444"
+    },
+    {
+      "from": [
+        55,
+        20
+      ],
+      "to": [
+        55,
+        22
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        23,
+        20
+      ],
+      "to": [
+        23,
+        22
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        24,
+        20
+      ],
+      "to": [
+        24,
+        21
+      ],
+      "color": "#ef4444"
+    },
+    {
+      "from": [
+        29,
+        21
+      ],
+      "to": [
+        29,
+        23
+      ],
+      "color": "#ef4444"
+    },
+    {
+      "from": [
+        29,
+        23
+      ],
+      "to": [
+        29,
+        33
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        22,
+        33
+      ],
+      "to": [
+        29,
+        33
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        29,
+        33
+      ],
+      "to": [
+        30,
+        33
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        22,
+        32
+      ],
+      "to": [
+        23,
+        32
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        23,
+        32
+      ],
+      "to": [
+        23,
+        22
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        22,
+        31
+      ],
+      "to": [
+        30,
+        31
+      ],
+      "color": "#a855f7"
+    },
+    {
+      "from": [
+        30,
+        32
+      ],
+      "to": [
+        28,
+        35
+      ],
+      "via": [
+        [
+          28,
+          32
+        ]
+      ],
+      "color": "#22c55e"
+    },
+    {
+      "from": [
+        26,
+        35
+      ],
+      "to": [
+        26,
+        33
+      ],
+      "color": "#ef4444"
+    },
+    {
+      "from": [
+        27,
+        35
+      ],
+      "to": [
+        27,
+        36
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        27,
+        36
+      ],
+      "to": [
+        24,
+        36
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        24,
+        36
+      ],
+      "to": [
+        23,
+        36
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        23,
+        36
+      ],
+      "to": [
+        23,
+        32
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        30,
+        35
+      ],
+      "to": [
+        27,
+        36
+      ],
+      "via": [
+        [
+          29,
+          35
+        ],
+        [
+          29,
+          36
+        ]
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        28,
+        20
+      ],
+      "to": [
+        30,
+        25
+      ],
+      "via": [
+        [
+          28,
+          25
+        ]
+      ],
+      "color": "#a855f7"
+    },
+    {
+      "from": [
+        27,
+        20
+      ],
+      "to": [
+        30,
+        28
+      ],
+      "via": [
+        [
+          27,
+          28
+        ]
+      ],
+      "color": "#eab308"
+    },
+    {
+      "from": [
+        26,
+        20
+      ],
+      "to": [
+        30,
+        26
+      ],
+      "via": [
+        [
+          26,
+          26
+        ]
+      ],
+      "color": "#3b82f6"
+    },
+    {
+      "from": [
+        25,
+        20
+      ],
+      "to": [
+        30,
+        27
+      ],
+      "via": [
+        [
+          25,
+          27
+        ]
+      ],
+      "color": "#22c55e"
+    },
+    {
+      "from": [
+        36,
+        25
+      ],
+      "to": [
+        39,
+        25
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        36,
+        26
+      ],
+      "to": [
+        39,
+        26
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        36,
+        27
+      ],
+      "to": [
+        39,
+        27
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        36,
+        28
+      ],
+      "to": [
+        39,
+        28
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        42,
+        25
+      ],
+      "to": [
+        44,
+        25
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        42,
+        26
+      ],
+      "to": [
+        44,
+        26
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        42,
+        27
+      ],
+      "to": [
+        44,
+        27
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        42,
+        28
+      ],
+      "to": [
+        44,
+        28
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        39,
+        29
+      ],
+      "to": [
+        39,
+        32
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        36,
+        33
+      ],
+      "to": [
+        36,
+        34
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        36,
+        33
+      ],
+      "to": [
+        39,
+        33
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        39,
+        33
+      ],
+      "to": [
+        39,
+        32
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        39,
+        33
+      ],
+      "to": [
+        43,
+        33
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        43,
+        33
+      ],
+      "to": [
+        44,
+        33
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        43,
+        33
+      ],
+      "to": [
+        43,
+        22
+      ],
+      "color": "#1f2937"
+    },
+    {
+      "from": [
+        36,
+        35
+      ],
+      "to": [
+        44,
+        34
+      ],
+      "via": [
+        [
+          37,
+          35
+        ],
+        [
+          37,
+          34
+        ]
+      ],
+      "color": "#a855f7"
+    },
+    {
+      "from": [
+        36,
+        36
+      ],
+      "to": [
+        37,
+        36
+      ],
+      "color": "#f8fafc"
+    },
+    {
+      "from": [
+        41,
+        36
+      ],
+      "to": [
+        43,
+        35
+      ],
+      "via": [
+        [
+          43,
+          36
+        ]
+      ],
+      "color": "#f8fafc"
+    },
+    {
+      "from": [
+        43,
+        35
+      ],
+      "to": [
+        44,
+        35
+      ],
+      "color": "#f8fafc"
+    },
+    {
+      "from": [
+        42,
+        32
+      ],
+      "to": [
+        44,
+        32
+      ],
+      "kind": "solder"
+    },
+    {
+      "from": [
+        48,
+        21
+      ],
+      "to": [
+        45,
+        29
+      ],
+      "via": [
+        [
+          48,
+          29
+        ]
+      ],
+      "color": "#ef4444"
+    },
+    {
+      "from": [
+        45,
+        29
+      ],
+      "to": [
+        44,
+        29
+      ],
+      "color": "#ef4444"
+    },
+    {
+      "from": [
+        45,
+        29
+      ],
+      "to": [
+        44,
+        32
+      ],
+      "via": [
+        [
+          45,
+          32
+        ]
+      ],
+      "color": "#ef4444"
+    }
+  ],
+  "placedIcs": [
+    {
+      "instanceId": "5133c716-6af0-47ac-9147-dd9965b103bf",
+      "ref": "U1",
+      "name": "Arduino Pro Micro",
+      "widthPin": 7,
+      "heightPin": 12,
+      "rotation": 180,
+      "pinDescription": {
+        "1": "TX",
+        "2": "RX",
+        "3": "GND",
+        "4": "GND",
+        "5": "D2/SDA",
+        "6": "D3/SCL",
+        "7": "D4",
+        "8": "D5",
+        "9": "D6",
+        "10": "D7",
+        "11": "D8",
+        "12": "D9",
+        "13": "D10",
+        "14": "D16",
+        "15": "D14",
+        "16": "D15",
+        "17": "A0",
+        "18": "A1",
+        "19": "A2",
+        "20": "A3",
+        "21": "VCC",
+        "22": "RST",
+        "23": "GND",
+        "24": "RAW"
+      },
+      "at": [
+        30,
+        25
+      ],
+      "category": "modules.dev-boards"
+    },
+    {
+      "instanceId": "00353a98-83df-4fa8-8bb9-27b7e31d4099",
+      "ref": "U2",
+      "name": "ULN2003A Darlington Driver",
+      "widthPin": 4,
+      "heightPin": 8,
+      "rotation": 0,
+      "pinDescription": {
+        "1": "1B",
+        "2": "2B",
+        "3": "3B",
+        "4": "4B",
+        "5": "5B",
+        "6": "6B",
+        "7": "7B",
+        "8": "GND",
+        "9": "COM",
+        "10": "7C",
+        "11": "6C",
+        "12": "5C",
+        "13": "4C",
+        "14": "3C",
+        "15": "2C",
+        "16": "1C"
+      },
+      "at": [
+        39,
+        25
+      ],
+      "category": "ics.drivers"
+    }
+  ],
+  "placedStandardComponents": [
+    {
+      "instanceId": "1f36580e-ebb6-44b0-a456-9eb7bc569479",
+      "ref": "D1",
+      "definitionId": "diode",
+      "from": [
+        6,
+        25
+      ],
+      "to": [
+        6,
+        23
+      ],
+      "value": "1N4007"
+    },
+    {
+      "instanceId": "a4f5c71b-e25a-413d-833e-e9fcadd332ac",
+      "ref": "R1",
+      "definitionId": "resistor",
+      "from": [
+        37,
+        36
+      ],
+      "to": [
+        41,
+        36
+      ],
+      "value": "1kΩ"
+    },
+    {
+      "instanceId": "e2927646-7a6f-4cbb-ad3c-d935a5e4cdd3",
+      "ref": "R2",
+      "definitionId": "resistor",
+      "from": [
+        43,
+        35
+      ],
+      "to": [
+        43,
+        33
+      ],
+      "value": "2kΩ"
+    },
+    {
+      "instanceId": "840bcc33-5715-4091-ab4d-f621f362a8f3",
+      "ref": "R3",
+      "definitionId": "resistor",
+      "from": [
+        13,
+        23
+      ],
+      "to": [
+        8,
+        23
+      ],
+      "value": "1kΩ"
+    },
+    {
+      "instanceId": "5cc67e29-0089-45d6-8fb0-2025099ae783",
+      "ref": "C1",
+      "definitionId": "ceramic-capacitor",
+      "from": [
+        24,
+        33
+      ],
+      "to": [
+        24,
+        36
+      ],
+      "value": "100nF"
+    },
+    {
+      "instanceId": "74351bb7-ff36-45eb-bc3e-58491272ac65",
+      "ref": "C2",
+      "definitionId": "electrolytic-capacitor",
+      "from": [
+        16,
+        22
+      ],
+      "to": [
+        16,
+        21
+      ],
+      "value": "470µF"
+    }
+  ],
+  "placedAdvancedComponents": [
+    {
+      "instanceId": "c79d8eb9-1f45-4515-9e22-e01d461fb09e",
+      "ref": "M1",
+      "definitionId": "lm2596-module",
+      "at": [
+        2,
+        2
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "2899d46d-1a09-4ee0-a569-b34989d6d21f",
+      "ref": "M2",
+      "definitionId": "bme280-i2c",
+      "at": [
+        44,
+        20
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "9328a7f0-12e5-422b-b89c-5add45a7e337",
+      "ref": "M3",
+      "definitionId": "ds3231-module",
+      "at": [
+        35,
+        20
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "35a0ca10-efa8-4437-976c-f038d64dd4b4",
+      "ref": "M4",
+      "definitionId": "microsd-module",
+      "at": [
+        23,
+        20
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "4b603e89-8f9e-4174-a9f4-f4d35a5fc736",
+      "ref": "M5",
+      "definitionId": "hc-05",
+      "at": [
+        44,
+        31
+      ],
+      "rotation": 90,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "f8b03e26-4853-44e5-bc2f-d6bc7893e9c6",
+      "ref": "M6",
+      "definitionId": "relay-module",
+      "at": [
+        22,
+        33
+      ],
+      "rotation": 270,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "9d4b16ec-011f-40f3-abe1-9231e6877b11",
+      "ref": "DS1",
+      "definitionId": "oled-ssd1306-i2c",
+      "at": [
+        55,
+        20
+      ],
+      "rotation": 180,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "aa1f5ee5-152a-484e-86f4-5a39e43b7a96",
+      "ref": "Q1",
+      "definitionId": "power-transistor",
+      "at": [
+        8,
+        24
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1,
+      "value": "TIP120"
+    },
+    {
+      "instanceId": "5cbbb76e-c67b-43f6-b880-ebc875dd4bd3",
+      "ref": "D2",
+      "definitionId": "ws2812d-f5",
+      "at": [
+        25,
+        35
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "3d70d1bc-f311-4672-af02-6fab97d0e046",
+      "ref": "J1",
+      "definitionId": "dc-barrel-jack",
+      "at": [
+        6,
+        14
+      ],
+      "rotation": 180,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "f4a32ed7-29bb-420a-8638-d2463d9207f8",
+      "ref": "J2",
+      "definitionId": "screw-terminal-254-2",
+      "at": [
+        2,
+        24
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "131349d6-40f5-4797-84d7-add879e47110",
+      "ref": "J3",
+      "definitionId": "header-pins",
+      "at": [
+        44,
+        25
+      ],
+      "rotation": 0,
+      "rows": 5,
+      "cols": 1
+    }
+  ],
+  "customIcs": []
+}

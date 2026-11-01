@@ -50,6 +50,9 @@ The examples, as the editor reads them (nets join two or more pins, as the Nets 
 | `new-components-displays-leds.json` | perfboard 37×23 | 9 | 0 | 0 | 76 |
 | `new-components-passives-sensors.json` | perfboard 33×18 | 13 | 0 | 0 | 40 |
 | `new-components-switches.json` | perfboard 30×19 | 10 | 0 | 0 | 59 |
+| `new-components-modules.json` | perfboard 96×67 | 33 | 0 | 0 | 224 |
+| `new-components-boards-chips.json` | perfboard 84×57 | 41 | 0 | 0 | 782 |
+| `greenhouse-controller.json` | perfboard 60×38 | 20 | 75 | 25 | 14 |
 
 The perfboard blinker's nets: GND (C1.- C2.2 D1.K J1.2 U1.1), VCC (J1.1 R1.1 U1.4 U1.8),
 TRIG/THRESH (C1.+ R2.2 U1.2 U1.6), CTRL (C2.1 U1.5), DISCH (R1.2 R2.1 U1.7), OUT (R3.1 U1.3) and
@@ -107,6 +110,9 @@ on the canvas: the board listens to pointer events.
   from a hole to draw a wire, or long press a part for its menu. The wire's L bends the way the
   finger first went; a second finger's tap flips it. With CDP, a `touchMove` that leaves a finger out
   lifts that finger, while `touchEnd` lifts them all.
+- **Dropping files**: send real drags with CDP `Input.dispatchDragEvent` (`dragEnter`, `dragOver`, then
+  `drop`, with `data: {items: [], files: [paths], dragOperationsMask: 1}`). Its `dragCancel` sends the
+  page no `dragleave`: move the mouse afterwards, as the page takes a mouse move to mean a drag is over.
 - **Dialogs**: the editor's dialogs are ordinary page elements, never the browser's `alert()` or
   `confirm()`. `__perfboard.dialog()` says which question or notice is showing; Escape or its
   buttons answer it.

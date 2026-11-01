@@ -2011,6 +2011,45 @@ body.fullscreen-active .right-sidebar {
   backdrop-filter: blur(3px);
 }
 
+/* A file being dragged over the page: over everything, dialogs too, and letting the drag through. */
+.file-drop {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(4, 9, 7, 0.72);
+  pointer-events: none;
+}
+
+.file-drop-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 26rem;
+  padding: 2rem 2.5rem;
+  text-align: center;
+  color: var(--silk-dim);
+  background-color: var(--ink-1);
+  border: 2px dashed var(--copper);
+  border-radius: var(--radius-l);
+}
+
+.file-drop-card strong {
+  font-size: 1.1rem;
+  color: var(--silk);
+}
+
+.file-drop-icon {
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0.25rem;
+  color: var(--copper-hi);
+}
+
 .modal-card {
   display: flex;
   flex-direction: column;

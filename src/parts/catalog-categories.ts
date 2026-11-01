@@ -23,10 +23,17 @@ const CATEGORY_LIST = [
   {id: "ics.power", parentId: "ics", name: "Voltage Regulators", keywords: ["power", "supply", "linear"]},
   {id: "ics.drivers", parentId: "ics", name: "Drivers", keywords: ["darlington", "motor"]},
   {id: "ics.opto", parentId: "ics", name: "Optocouplers", keywords: ["isolator", "opto"]},
+  {id: "ics.interface", parentId: "ics", name: "Interface & Memory", keywords: ["i2c", "spi", "expander", "adc", "eeprom", "rtc", "serial"]},
   {id: "ics.custom", parentId: "ics", name: "Custom"},
 
   {id: "modules", name: "Modules", icon: "📟", keywords: ["module", "board", "breakout"]},
   {id: "modules.dev-boards", parentId: "modules", name: "Dev Boards", keywords: ["development board", "microcontroller", "mcu"]},
+  {id: "modules.sensors", parentId: "modules", name: "Sensors", keywords: ["sensor", "i2c", "measure"]},
+  {id: "modules.wireless", parentId: "modules", name: "Wireless", keywords: ["radio", "rf", "bluetooth", "gps"]},
+  {id: "modules.storage", parentId: "modules", name: "Clocks & Storage", keywords: ["rtc", "real time clock", "sd card", "logger"]},
+  {id: "modules.power", parentId: "modules", name: "Power", keywords: ["buck", "boost", "charger", "dc-dc", "step down", "step up", "converter"]},
+  {id: "modules.motor", parentId: "modules", name: "Motor Drivers & Relays", keywords: ["stepper", "motor", "relay"]},
+  {id: "modules.audio", parentId: "modules", name: "Audio", keywords: ["mp3", "sound", "speaker"]},
   {id: "modules.custom", parentId: "modules", name: "Custom"},
 
   {id: "connectors", name: "Connectors", icon: "🔌", keywords: ["connector", "header"]},

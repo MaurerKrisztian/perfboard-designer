@@ -3,6 +3,8 @@ import {AdvancedComponentDefinition, PinOffset} from "../parts/advanced-componen
 import {ViewerAdvancedPart} from "./project-data";
 import {SceneKit} from "./scene-kit";
 import {buildAudioJack} from "./parts/audio-jack";
+import {buildBreakoutModule, buildUltrasonicSensor, isBreakoutModule} from "./parts/breakout-module";
+import {buildBridgeRectifier} from "./parts/bridge-rectifier";
 import {buildBuzzer} from "./parts/buzzer";
 import {buildCellHolder} from "./parts/cell-holder";
 import {buildCeramicResonator} from "./parts/ceramic-resonator";
@@ -34,9 +36,15 @@ import {buildTrimmer} from "./parts/trimmer";
 
 export function buildCatalogPart(kit: SceneKit, part: ViewerAdvancedPart, definition: AdvancedComponentDefinition | undefined, offsets: PinOffset[]): Group | null {
   if (!definition) return null;
+  if (isBreakoutModule(part.definitionId)) return buildBreakoutModule(kit, part.definitionId, definition);
   switch (part.definitionId) {
+    case "hc-sr04": return buildUltrasonicSensor(kit, definition);
+    case "bridge-rectifier": return buildBridgeRectifier(kit, definition);
     case "screw-terminal-2":
-    case "screw-terminal-3": return buildScrewTerminal(kit, definition);
+    case "screw-terminal-3":
+    case "screw-terminal-254-2":
+    case "screw-terminal-254-3":
+    case "screw-terminal-254-4": return buildScrewTerminal(kit, definition);
     case "push-button": return buildPushButton(kit, definition);
     case "slide-switch": return buildSlideSwitch(kit, definition);
     case "trimmer": return buildTrimmer(kit, definition, part.value);
@@ -45,7 +53,8 @@ export function buildCatalogPart(kit: SceneKit, part: ViewerAdvancedPart, defini
     case "buzzer": return buildBuzzer(kit, definition);
     case "relay-dpdt": return buildRelay(kit, definition, part.value);
     case "rgb-led-cathode":
-    case "rgb-led-anode": return buildRgbLed(kit, definition);
+    case "rgb-led-anode":
+    case "ws2812d-f5": return buildRgbLed(kit, definition);
     case "crystal-hc49": return buildCrystal(kit, definition, part.value);
     case "ceramic-resonator": return buildCeramicResonator(kit, definition, part.value);
     case "ldr": return buildLdr(kit, definition);

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 283.45 486.25" width="283.45" height="486.25" role="img" aria-label="ESP-01 Wi-Fi module, top view, antenna at the top">
+  <rect x="2" y="2" width="279.45" height="482.25" rx="9" fill="#15181c" stroke="#4a5059" stroke-width="3"/>
+  <path d="M30 114h150v-12h-150v-12h150v-12h-150v-12h150v-12h-150v-12h150v-12h-150v-12" fill="none" stroke="#d9b45b" stroke-width="7" stroke-linejoin="round"/>
+  <rect x="97.72" y="168" width="88" height="88" rx="3" fill="#1c1f23"/>
+  <circle cx="105.72" cy="176" r="3" fill="#6b7480"/>
+  <text x="141.725" y="212" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="18" fill="#c8d0d8" >8266</text>
+  <rect x="133.22" y="301" width="5" height="42" rx="1" fill="#c9cfd6"/>
+  <rect x="145.22" y="301" width="5" height="42" rx="1" fill="#c9cfd6"/>
+  <rect x="157.22" y="301" width="5" height="42" rx="1" fill="#c9cfd6"/>
+  <rect x="169.22" y="301" width="5" height="42" rx="1" fill="#c9cfd6"/>
+  <rect x="181.22" y="301" width="5" height="42" rx="1" fill="#c9cfd6"/>
+  <rect x="129.72" y="307" width="60" height="30" rx="3" fill="#1c1f23"/>
+  <rect x="38" y="180" width="34" height="50" rx="6" fill="#c7ced6" stroke="#eef2f5" stroke-width="2"/>
+  <circle cx="68.9" cy="406.7" r="13" fill="#d9b45b"/>
+  <circle cx="68.9" cy="406.7" r="6" fill="#23272c"/>
+  <circle cx="118.9" cy="406.7" r="13" fill="#d9b45b"/>
+  <circle cx="118.9" cy="406.7" r="6" fill="#23272c"/>
+  <circle cx="168.9" cy="406.7" r="13" fill="#d9b45b"/>
+  <circle cx="168.9" cy="406.7" r="6" fill="#23272c"/>
+  <circle cx="218.9" cy="406.7" r="13" fill="#d9b45b"/>
+  <circle cx="218.9" cy="406.7" r="6" fill="#23272c"/>
+  <circle cx="68.9" cy="456.7" r="13" fill="#d9b45b"/>
+  <circle cx="68.9" cy="456.7" r="6" fill="#23272c"/>
+  <circle cx="118.9" cy="456.7" r="13" fill="#d9b45b"/>
+  <circle cx="118.9" cy="456.7" r="6" fill="#23272c"/>
+  <circle cx="168.9" cy="456.7" r="13" fill="#d9b45b"/>
+  <circle cx="168.9" cy="456.7" r="6" fill="#23272c"/>
+  <circle cx="218.9" cy="456.7" r="13" fill="#d9b45b"/>
+  <circle cx="218.9" cy="456.7" r="6" fill="#23272c"/>
+</svg>

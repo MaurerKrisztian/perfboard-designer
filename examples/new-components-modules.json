@@ -1,0 +1,420 @@
+{
+  "version": 3,
+  "board": {
+    "type": "perfboard",
+    "cols": 96,
+    "rows": 67
+  },
+  "pads": [
+    {
+      "at": [
+        1,
+        0
+      ],
+      "color": "#38bdf8",
+      "note": "MODULES: breakout modules, displays, power modules, stepper drivers and other fixed-pin parts. A component gallery, not a working circuit. Enable Labels, then open 3D View."
+    }
+  ],
+  "wires": [],
+  "placedIcs": [],
+  "placedStandardComponents": [],
+  "placedAdvancedComponents": [
+    {
+      "instanceId": "a5dc4d52-954b-46ef-9028-63b0bf3af663",
+      "ref": "M1",
+      "definitionId": "relay-module",
+      "at": [
+        6,
+        21
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "6ad30f9e-15ff-4125-b593-32665fbd5c08",
+      "ref": "M2",
+      "definitionId": "microsd-module",
+      "at": [
+        19,
+        18
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "6448109e-85cb-478c-ab8b-7efd5bc0f1a2",
+      "ref": "M3",
+      "definitionId": "hc-05",
+      "at": [
+        31,
+        16
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "5205ead8-5af2-42f6-a88c-401e35d5e8f1",
+      "ref": "M4",
+      "definitionId": "ds3231-module",
+      "at": [
+        42,
+        16
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "85bb7ded-22b4-4329-a8a7-42e6b75ccb8e",
+      "ref": "DS1",
+      "definitionId": "lcd-1602",
+      "at": [
+        56,
+        2
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "37961bb1-857c-402a-a3b7-35712f2eb9c7",
+      "ref": "M5",
+      "definitionId": "gps-neo6m",
+      "at": [
+        5,
+        38
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "3d9bbd3d-e74b-4409-b991-6e699630de78",
+      "ref": "U1",
+      "definitionId": "arduino-pro-mini",
+      "at": [
+        16,
+        26
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "7eae3302-8d71-41cc-a224-26b881b847af",
+      "ref": "DS2",
+      "definitionId": "oled-ssd1306-i2c",
+      "at": [
+        30,
+        25
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "028ab286-6058-475f-93c1-9c4244161c45",
+      "ref": "DS3",
+      "definitionId": "oled-ssd1306-spi",
+      "at": [
+        43,
+        25
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "9638c090-a7c7-4b77-9427-ae09e8ed483d",
+      "ref": "M6",
+      "definitionId": "esp-01",
+      "at": [
+        57,
+        33
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "539e975d-bcce-4a4a-b521-5f1d82c5d3cd",
+      "ref": "M7",
+      "definitionId": "lm2596-module",
+      "at": [
+        66,
+        25
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "fc0c7351-8559-4fa5-b1da-f68d79abdf0d",
+      "ref": "M8",
+      "definitionId": "a4988",
+      "at": [
+        87,
+        25
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "5cf3ce1c-714e-4f90-b136-daf1fc49d6c2",
+      "ref": "M9",
+      "definitionId": "drv8825",
+      "at": [
+        2,
+        42
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "ad07edd0-4802-4610-a4f6-056f9c36b736",
+      "ref": "M10",
+      "definitionId": "dfplayer-mini",
+      "at": [
+        12,
+        42
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "d28f689a-d9ba-476f-9d14-7c7df3daf05d",
+      "ref": "M11",
+      "definitionId": "ads1115-module",
+      "at": [
+        25,
+        48
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "85f22624-aff2-46d5-b153-6f14d8f21a8e",
+      "ref": "J1",
+      "definitionId": "micro-usb-breakout",
+      "at": [
+        40,
+        47
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "e0440e2c-6df5-4224-a2d1-75d9a23a0cde",
+      "ref": "M12",
+      "definitionId": "hc-sr04",
+      "at": [
+        56,
+        42
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "536015ac-c180-477b-a025-dd06c66907b1",
+      "ref": "M13",
+      "definitionId": "mpu6050-gy521",
+      "at": [
+        71,
+        47
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "eced0570-d71c-4872-b5d4-13d38d1ecc5d",
+      "ref": "M14",
+      "definitionId": "bme280-i2c",
+      "at": [
+        83,
+        47
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "1488087b-7d6a-4eb3-9f41-de63a70a2f5f",
+      "ref": "M15",
+      "definitionId": "nrf24l01",
+      "at": [
+        2,
+        53
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "31ee7b42-6473-4ac2-bee8-dc3de5bd581a",
+      "ref": "M16",
+      "definitionId": "mp1584-module",
+      "at": [
+        17,
+        53
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "1c8d2bbf-eb03-4a39-aa5b-0eaa9cb0cd9b",
+      "ref": "M17",
+      "definitionId": "mt3608-module",
+      "at": [
+        30,
+        53
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "91441b10-cc8f-4a30-8964-73f8e3613358",
+      "ref": "M18",
+      "definitionId": "tp4056-module",
+      "at": [
+        48,
+        53
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "e18c48da-71c4-4532-b0c0-fca094a0aff4",
+      "ref": "M19",
+      "definitionId": "bmp280-6pin",
+      "at": [
+        62,
+        57
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "f89a3ecb-0383-4d28-8cd8-f05ebe8ef2f2",
+      "ref": "D1",
+      "definitionId": "ws2812d-f5",
+      "at": [
+        72,
+        54
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "6906baac-1335-42eb-a29f-9d7cb34e892b",
+      "ref": "D2",
+      "definitionId": "bridge-rectifier",
+      "at": [
+        79,
+        53
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "f554665a-cb07-41f3-8e9c-87914eab3bca",
+      "ref": "J2",
+      "definitionId": "screw-terminal-254-2",
+      "at": [
+        86,
+        54
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "d10e7b4a-53ab-4122-95f3-96eec42b986e",
+      "ref": "J3",
+      "definitionId": "screw-terminal-254-3",
+      "at": [
+        92,
+        54
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "ac3fdf1f-1216-4a2c-a005-620849b038a7",
+      "ref": "J4",
+      "definitionId": "screw-terminal-254-4",
+      "at": [
+        2,
+        63
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "a38c63d0-a06f-4063-997b-42faacf6a2f5",
+      "ref": "U2",
+      "definitionId": "regulator-ld1117",
+      "at": [
+        10,
+        62
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "368f998d-6276-41f5-ac99-fd9003bbb5ef",
+      "ref": "U3",
+      "definitionId": "regulator-78l05",
+      "at": [
+        17,
+        62
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "9097bc6b-dd36-4f35-9ca8-b0d3bfe83678",
+      "ref": "Q1",
+      "definitionId": "power-transistor",
+      "at": [
+        24,
+        62
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    },
+    {
+      "instanceId": "08bd6f37-92f4-4e11-8e14-a6bd1321eae5",
+      "ref": "U4",
+      "definitionId": "lm35",
+      "at": [
+        31,
+        62
+      ],
+      "rotation": 0,
+      "rows": 1,
+      "cols": 1
+    }
+  ],
+  "customIcs": []
+}

@@ -40,6 +40,9 @@ export interface AdvancedComponentDefinition {
   // negative dy = above the pin row). Needed for parts whose body covers the default spot
   // just above the pin - the numbers get pushed clear of the body instead of onto it.
   pinLabelOffset?: PinOffset;
+  // One spot per pin instead, for pins whose names have to read away from each other: a module's
+  // two rows, each naming its pins inward.
+  pinLabelOffsets?: PinOffset[];
   // Where to center the value label on the part itself (grid units, unrotated, relative to
   // pins[0]), for packages with a spot that reads like silkscreen (e.g. a MOSFET's black
   // body). Parts without it get their value label next to the body instead.
@@ -181,6 +184,46 @@ const FOUR_DIGIT_LABELS = ["E", "D", "DP", "C", "G", "DG4", "B", "DG3", "DG2", "
 // A single row of pins one hole apart.
 function inlinePins(count: number): PinOffset[] {
   return Array.from({length: count}, (_, i) => ({dx: i, dy: 0}));
+}
+
+// Two rows of pins `across` holes apart, numbered like a DIP chip: down the left row, then back up
+// the right.
+function dualRowOffsets(across: number, perRow: number): PinOffset[] {
+  return [
+    ...Array.from({length: perRow}, (_, i) => ({dx: 0, dy: i})),
+    ...Array.from({length: perRow}, (_, i) => ({dx: across, dy: perRow - 1 - i})),
+  ];
+}
+function dualRowLabels(leftTopToBottom: string[], rightTopToBottom: string[]): string[] {
+  return [...leftTopToBottom, ...[...rightTopToBottom].reverse()];
+}
+
+// A breakout module's board, as a box (grid units) round its first pin, which its artwork fills.
+// Its holes aren't covered: a module stands on its header pins, so wires can run below it.
+function moduleBoard(left: number, top: number, right: number, bottom: number): Pick<AdvancedComponentDefinition, "bodyOutline" | "iconOffset" | "iconFillsBody"> {
+  return {
+    bodyOutline: rectangularOutline(left, top, right, bottom),
+    iconOffset: {dx: (left + right) / 2, dy: (top + bottom) / 2},
+    iconFillsBody: true,
+  };
+}
+
+// Where a module's pin names sit: on the board beside a header along its edge.
+const LABEL_ABOVE_PINS: PinOffset = {dx: 0, dy: -0.62};
+const LABEL_BELOW_PINS: PinOffset = {dx: 0, dy: 0.62};
+// Each of two rows of pins naming its pins inward, over the board.
+function dualRowLabelSpots(perRow: number, inset = 0.72): PinOffset[] {
+  return [
+    ...Array.from({length: perRow}, () => ({dx: inset, dy: 0})),
+    ...Array.from({length: perRow}, () => ({dx: -inset, dy: 0})),
+  ];
+}
+// A power module's pads, by which end of the board each is at: `left` of them name themselves inward.
+function padLabelSpots(left: number, right: number): PinOffset[] {
+  return [
+    ...Array.from({length: left}, () => ({dx: 0.8, dy: 0})),
+    ...Array.from({length: right}, () => ({dx: -0.8, dy: 0})),
+  ];
 }
 
 export const ADVANCED_COMPONENT_DEFINITIONS: AdvancedComponentDefinition[] = [
@@ -544,6 +587,259 @@ export const ADVANCED_COMPONENT_DEFINITIONS: AdvancedComponentDefinition[] = [
     pinOffsets: [{dx: 0, dy: 0}, {dx: 28, dy: 0}], pinLabels: ["+", "−"],
     bodyOutline: rectangularOutline(-1.18, -4.075, 29.18, 4.075), iconFillsBody: true,
     pinLabelOffset: {dx: 0, dy: 0}
+  },
+  {
+    // TI LM1117T / ST LD1117V in TO-220, in any fixed voltage (3.3 V is the usual one) or adjustable.
+    id: "regulator-ld1117", refPrefix: "U", category: "ics.power", name: "LM1117 / LD1117 LDO Regulator (TO-220)", fallbackLabel: "1117",
+    keywords: ["ams1117", "3.3v", "3v3", "low dropout", "ldo", "voltage regulator", "linear", "power supply"],
+    iconFile: "mosfet.svg",
+    pinOffsets: INLINE_3_PINS, pinLabels: ["GND", "OUT", "IN"],
+    bodyOutline: MOSFET_BODY_OUTLINE, iconFillsBody: true,
+    pinLabelOffset: MOSFET_PIN_LABEL_OFFSET, valueLabelOffset: MOSFET_VALUE_LABEL_OFFSET
+  },
+  {
+    // 100 mA regulator in TO-92, flat face toward the viewer.
+    id: "regulator-78l05", refPrefix: "U", category: "ics.power", name: "78L05 Voltage Regulator (TO-92)", fallbackLabel: "78L05",
+    keywords: ["lm78l05", "mc78l05", "5v", "linear", "small", "power supply"],
+    iconFile: "transistor.svg",
+    pinOffsets: INLINE_3_PINS, pinLabels: ["OUT", "GND", "IN"],
+    bodyOutline: TRANSISTOR_BODY_OUTLINE, iconFillsBody: true,
+    pinLabelOffset: TRANSISTOR_PIN_LABEL_OFFSET
+  },
+  {
+    // BJTs and Darlingtons in the usual TO-220 order, seen from the marked front.
+    id: "power-transistor", refPrefix: "Q", category: "semiconductors.transistors", name: "Power Transistor (TO-220, BCE)", fallbackLabel: "BJT",
+    keywords: ["tip120", "tip122", "tip31", "tip41", "darlington", "npn", "pnp", "bjt", "to-220"],
+    iconFile: "mosfet.svg",
+    pinOffsets: INLINE_3_PINS, pinLabels: ["B", "C", "E"],
+    bodyOutline: MOSFET_BODY_OUTLINE, iconFillsBody: true,
+    pinLabelOffset: MOSFET_PIN_LABEL_OFFSET, valueLabelOffset: MOSFET_VALUE_LABEL_OFFSET
+  },
+  {
+    // TI LM35 in TO-92, flat face toward the viewer.
+    id: "lm35", refPrefix: "U", category: "sensors", name: "LM35 Temperature Sensor (TO-92)", fallbackLabel: "LM35",
+    keywords: ["temperature", "thermometer", "analog", "lm35dz", "tmp36"],
+    iconFile: "transistor.svg",
+    pinOffsets: INLINE_3_PINS, pinLabels: ["VS", "OUT", "GND"],
+    bodyOutline: TRANSISTOR_BODY_OUTLINE, iconFillsBody: true,
+    pinLabelOffset: TRANSISTOR_PIN_LABEL_OFFSET
+  },
+  {
+    // Worldsemi WS2812D-F5: 5 mm LED with leads 1.27 mm apart, spread to 2.54 mm. DOUT is beside the
+    // flat, and VDD is the longest lead.
+    id: "ws2812d-f5", refPrefix: "D", category: "semiconductors.diodes", name: "Addressable RGB LED (WS2812D-F5, formed 2.54 mm)", fallbackLabel: "WS2812",
+    keywords: ["neopixel", "ws2812", "ws2812b", "pl9823", "smart led", "digital led", "5mm"],
+    iconFile: "rgb-led.svg",
+    pinOffsets: RGB_LED_PINS, pinLabels: ["DOUT", "VDD", "GND", "DIN"],
+    bodyOutline: RGB_LED_OUTLINE, iconFillsBody: true, pinLabelOffset: {dx: 0, dy: -1.45}
+  },
+  {
+    // DIP-4 bridge (DF10M, DB107): rows 7.62 mm apart and pins 5.08 mm along them, + and − in one row.
+    id: "bridge-rectifier", refPrefix: "D", category: "semiconductors.diodes", name: "Bridge Rectifier (DIP-4, DF10M / DB107)", fallbackLabel: "BR",
+    keywords: ["rectifier", "full wave", "ac to dc", "df10m", "db107", "db-1", "graetz"],
+    pinOffsets: [{dx: 0, dy: 0}, {dx: 0, dy: 2}, {dx: 3, dy: 2}, {dx: 3, dy: 0}], pinLabels: ["+", "−", "~", "~"],
+    bodyOutline: rectangularOutline(0.25, -0.71, 2.75, 2.6),
+    iconOffset: {dx: 1.5, dy: 0.945}, iconFillsBody: true,
+    pinLabelOffsets: [{dx: -0.45, dy: 0}, {dx: -0.45, dy: 0}, {dx: 0.45, dy: 0}, {dx: 0.45, dy: 0}]
+  },
+  // KF128-style blocks whose pins fit the grid as they come. The 5.08 mm ones are further up.
+  ...[2, 3, 4].map((count): AdvancedComponentDefinition => ({
+    id: `screw-terminal-254-${count}`, refPrefix: "J", category: "connectors", name: `Screw Terminal (${count}-pin, 2.54 mm)`, fallbackLabel: `TB${count}`,
+    keywords: ["terminal block", "kf128", "power input", "connector", "wire", "2.54mm"],
+    pinOffsets: inlinePins(count),
+    bodyOutline: rectangularOutline(-0.5, -1.25, count - 0.5, 1.25),
+    iconOffset: {dx: (count - 1) / 2, dy: 0}, iconFillsBody: true,
+    pinLabelOffset: {dx: 0, dy: -1.55}
+  })),
+  {
+    // Micro-B breakout (SparkFun BOB-12035, Adafruit 1833), socket at the top, pins in the socket's own order.
+    id: "micro-usb-breakout", refPrefix: "J", category: "connectors", name: "Micro USB Breakout (5-pin)", fallbackLabel: "USB",
+    keywords: ["usb", "micro usb", "micro-b", "power input", "5v", "module"],
+    pinOffsets: inlinePins(5), pinLabels: ["VCC", "D-", "D+", "ID", "GND"], bodyColor: "#4d2a7c",
+    ...moduleBoard(-1, -5.5, 5, 0.5), pinLabelOffset: LABEL_ABOVE_PINS
+  },
+  {
+    // 0.96" module, 27.3 × 27.8 mm, header centred along the top edge. Some makers swap VCC and GND.
+    id: "oled-ssd1306-i2c", refPrefix: "DS", category: "displays", name: "OLED Display (0.96\", SSD1306, I2C 4-pin)", fallbackLabel: "OLED",
+    keywords: ["oled", "ssd1306", "sh1106", "128x64", "i2c", "screen", "module"],
+    pinOffsets: inlinePins(4), pinLabels: ["GND", "VCC", "SCL", "SDA"], bodyColor: "#0f3d7a",
+    ...moduleBoard(-3.875, -0.5, 6.875, 10.445), pinLabelOffset: LABEL_BELOW_PINS
+  },
+  {
+    // The same 0.96" module wired for SPI: D0 is the clock, D1 the data.
+    id: "oled-ssd1306-spi", refPrefix: "DS", category: "displays", name: "OLED Display (0.96\", SSD1306, SPI 7-pin)", fallbackLabel: "OLED",
+    keywords: ["oled", "ssd1306", "128x64", "spi", "screen", "module"],
+    pinOffsets: inlinePins(7), pinLabels: ["GND", "VCC", "D0", "D1", "RES", "DC", "CS"], bodyColor: "#0f3d7a",
+    ...moduleBoard(-2.375, -0.5, 8.375, 10.445), pinLabelOffset: LABEL_BELOW_PINS
+  },
+  {
+    // Wincom WC1602A and its many clones: 80 × 36 mm, 16 pins along the top edge, pin 1 8 mm in.
+    id: "lcd-1602", refPrefix: "DS", category: "displays", name: "Character LCD (16×2, HD44780)", fallbackLabel: "LCD",
+    keywords: ["lcd", "1602", "16x2", "hd44780", "character display", "text", "screen", "module"],
+    pinOffsets: inlinePins(16),
+    pinLabels: ["VSS", "VDD", "VO", "RS", "RW", "E", "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "A", "K"], bodyColor: "#1f6f43",
+    ...moduleBoard(-3.15, -0.984, 28.346, 13.189), pinLabelOffset: LABEL_BELOW_PINS
+  },
+  {
+    // 45 × 20 mm board standing on its right-angle pins, so what's seen from above is its edge and
+    // the two transducers, 12 mm deep, facing the board's bottom edge.
+    id: "hc-sr04", refPrefix: "M", category: "modules.sensors", name: "Ultrasonic Sensor (HC-SR04)", fallbackLabel: "SR04",
+    keywords: ["ultrasonic", "distance", "range finder", "sonar", "hc-sr04", "module"],
+    pinOffsets: inlinePins(4), pinLabels: ["VCC", "TRIG", "ECHO", "GND"], bodyColor: "#1a4fa0",
+    ...moduleBoard(-7.36, -0.5, 10.36, 5.2), pinLabelOffset: LABEL_ABOVE_PINS
+  },
+  {
+    // GY-521 breakout, about 21 × 16 mm, header along a long edge.
+    id: "mpu6050-gy521", refPrefix: "M", category: "modules.sensors", name: "Accelerometer & Gyro (MPU6050, GY-521)", fallbackLabel: "6050",
+    keywords: ["mpu6050", "gy-521", "imu", "gyroscope", "accelerometer", "i2c", "motion", "module"],
+    pinOffsets: inlinePins(8), pinLabels: ["VCC", "GND", "SCL", "SDA", "XDA", "XCL", "AD0", "INT"], bodyColor: "#1a3f8a",
+    ...moduleBoard(-0.63, -5.8, 7.63, 0.5), pinLabelOffset: LABEL_ABOVE_PINS
+  },
+  {
+    // GY-BME280 I2C breakout, about 11.5 × 15 mm, with its own 3.3 V regulator.
+    id: "bme280-i2c", refPrefix: "M", category: "modules.sensors", name: "Weather Sensor (BME280, I2C 4-pin)", fallbackLabel: "BME280",
+    keywords: ["bme280", "temperature", "humidity", "pressure", "barometer", "i2c", "module"],
+    pinOffsets: inlinePins(4), pinLabels: ["VIN", "GND", "SCL", "SDA"], bodyColor: "#56308f",
+    ...moduleBoard(-0.76, -5.4, 3.76, 0.5), pinLabelOffset: LABEL_ABOVE_PINS
+  },
+  {
+    // GY-BMP280 breakout, about 15 × 11.5 mm, for I2C or SPI. 3.3 V only unless yours has a regulator.
+    id: "bmp280-6pin", refPrefix: "M", category: "modules.sensors", name: "Pressure Sensor (BMP280, 6-pin)", fallbackLabel: "BMP280",
+    keywords: ["bmp280", "temperature", "pressure", "barometer", "i2c", "spi", "module"],
+    pinOffsets: inlinePins(6), pinLabels: ["VCC", "GND", "SCL", "SDA", "CSB", "SDO"], bodyColor: "#56308f",
+    ...moduleBoard(-0.45, -4.03, 5.45, 0.5), pinLabelOffset: LABEL_ABOVE_PINS
+  },
+  {
+    // ADS1115 breakout, about 28 × 18 mm, header along a long edge.
+    id: "ads1115-module", refPrefix: "M", category: "modules.sensors", name: "16-bit ADC (ADS1115)", fallbackLabel: "ADS1115",
+    keywords: ["ads1115", "adc", "analog to digital", "i2c", "16 bit", "module"],
+    pinOffsets: inlinePins(10), pinLabels: ["VDD", "GND", "SCL", "SDA", "ADDR", "ALRT", "A0", "A1", "A2", "A3"], bodyColor: "#1f4fa3",
+    ...moduleBoard(-1.01, -6.5, 10.01, 0.5), pinLabelOffset: LABEL_ABOVE_PINS
+  },
+  {
+    // Ai-Thinker ESP-01: 14.4 × 24.7 mm, the 2 × 4 header at the end away from the antenna.
+    id: "esp-01", refPrefix: "M", category: "modules.wireless", name: "ESP-01 Wi-Fi Module (ESP8266)", fallbackLabel: "ESP-01",
+    keywords: ["esp01", "esp-01s", "esp8266", "wifi", "ai-thinker", "module"],
+    pinOffsets: [...inlinePins(4), ...inlinePins(4).map(({dx}) => ({dx, dy: 1}))],
+    pinLabels: ["GND", "IO2", "IO0", "RX", "TX", "EN", "RST", "3V3"], bodyColor: "#15181c",
+    ...moduleBoard(-1.378, -8.134, 4.291, 1.591),
+    pinLabelOffsets: [...inlinePins(4).map(() => LABEL_ABOVE_PINS), ...inlinePins(4).map(() => LABEL_BELOW_PINS)]
+  },
+  {
+    // nRF24L01+ breakout: 29 × 15.25 mm, the 2 × 4 header at the end away from the antenna. Its pins
+    // are numbered row by row. VCC is 3.3 V, though the signal pins take 5 V.
+    id: "nrf24l01", refPrefix: "M", category: "modules.wireless", name: "2.4 GHz Radio (nRF24L01)", fallbackLabel: "nRF24",
+    keywords: ["nrf24", "nrf24l01+", "2.4ghz", "rf", "transceiver", "spi", "module"],
+    pinOffsets: [0, 1, 2, 3].flatMap(dy => [{dx: 0, dy}, {dx: 1, dy}]),
+    pinLabels: ["GND", "VCC", "CE", "CSN", "SCK", "MOSI", "MISO", "IRQ"], bodyColor: "#14241d",
+    ...moduleBoard(-0.59, -0.787, 10.827, 5.217),
+    pinLabelOffsets: [0, 1, 2, 3].flatMap(() => [{dx: -0.72, dy: 0}, {dx: 0.8, dy: 0}])
+  },
+  {
+    // HC-05 on its usual carrier, about 15.5 × 37 mm, header on a short edge. RXD is 3.3 V logic.
+    id: "hc-05", refPrefix: "M", category: "modules.wireless", name: "Bluetooth Serial (HC-05)", fallbackLabel: "HC-05",
+    keywords: ["bluetooth", "hc-06", "serial", "uart", "wireless", "module"],
+    pinOffsets: inlinePins(6), pinLabels: ["EN", "VCC", "GND", "TXD", "RXD", "STATE"], bodyColor: "#1a4fa0",
+    ...moduleBoard(-0.55, -14.2, 5.55, 0.5), pinLabelOffset: LABEL_ABOVE_PINS
+  },
+  {
+    // GY-NEO6MV2, about 25 × 35 mm. Its antenna hangs from a lead on the U.FL socket.
+    id: "gps-neo6m", refPrefix: "M", category: "modules.wireless", name: "GPS Receiver (NEO-6M, GY-NEO6MV2)", fallbackLabel: "GPS",
+    keywords: ["gps", "gnss", "neo-6m", "ublox", "uart", "location", "module"],
+    pinOffsets: inlinePins(4), pinLabels: ["VCC", "RX", "TX", "GND"], bodyColor: "#1a4fa0",
+    ...moduleBoard(-3.42, -13.28, 6.42, 0.5), pinLabelOffset: LABEL_ABOVE_PINS
+  },
+  {
+    // ZS-042 module, 38 × 22 mm, drawn lying flat. Its right-angle pins stand it up instead unless
+    // they're swapped for straight ones.
+    id: "ds3231-module", refPrefix: "M", category: "modules.storage", name: "Real-Time Clock (DS3231, ZS-042)", fallbackLabel: "DS3231",
+    keywords: ["rtc", "clock", "ds3231", "zs-042", "i2c", "timekeeping", "module"],
+    pinOffsets: inlinePins(6), pinLabels: ["32K", "SQW", "SCL", "SDA", "VCC", "GND"], bodyColor: "#15509c",
+    ...moduleBoard(-1.83, -14.46, 6.83, 0.5), pinLabelOffset: LABEL_ABOVE_PINS
+  },
+  {
+    // Catalex-style card socket board, 42 × 24 mm, header on a short edge, runs from 5 V.
+    id: "microsd-module", refPrefix: "M", category: "modules.storage", name: "MicroSD Card Module (SPI)", fallbackLabel: "SD",
+    keywords: ["sd card", "microsd", "tf card", "storage", "logger", "spi", "catalex", "module"],
+    pinOffsets: inlinePins(6), pinLabels: ["GND", "VCC", "MISO", "MOSI", "SCK", "CS"], bodyColor: "#1a4fa0",
+    ...moduleBoard(-2.22, -16.04, 7.22, 0.5), pinLabelOffset: LABEL_ABOVE_PINS
+  },
+  // Power modules have bare pads, not a header, and their spacing varies by maker: these spans are
+  // the nearest holes, for stiff wire legs or header pins bent to fit.
+  {
+    // 43 × 21 mm step-down board: pads about 40 × 17.8 mm apart, input at one end, output at the other.
+    id: "lm2596-module", refPrefix: "M", category: "modules.power", name: "Buck Converter (LM2596, 16 × 7 holes)", fallbackLabel: "LM2596",
+    keywords: ["lm2596", "buck", "step down", "dc-dc", "converter", "regulator", "module"],
+    pinOffsets: [{dx: 0, dy: 0}, {dx: 0, dy: 7}, {dx: 16, dy: 0}, {dx: 16, dy: 7}],
+    pinLabels: ["IN+", "IN-", "OUT+", "OUT-"], bodyColor: "#1c4f9c",
+    ...moduleBoard(-0.46, -0.63, 16.46, 7.63), pinLabelOffsets: padLabelSpots(2, 2)
+  },
+  {
+    // 22 × 17 mm miniature step-down board.
+    id: "mp1584-module", refPrefix: "M", category: "modules.power", name: "Mini Buck Converter (MP1584, 8 × 5 holes)", fallbackLabel: "MP1584",
+    keywords: ["mp1584", "mp1584en", "buck", "step down", "dc-dc", "converter", "regulator", "module"],
+    pinOffsets: [{dx: 0, dy: 0}, {dx: 0, dy: 5}, {dx: 8, dy: 0}, {dx: 8, dy: 5}],
+    pinLabels: ["IN+", "IN-", "OUT+", "OUT-"], bodyColor: "#1f6a4f",
+    ...moduleBoard(-0.33, -0.85, 8.33, 5.85), pinLabelOffsets: padLabelSpots(2, 2)
+  },
+  {
+    // 36 × 17 mm step-up board.
+    id: "mt3608-module", refPrefix: "M", category: "modules.power", name: "Boost Converter (MT3608, 13 × 5 holes)", fallbackLabel: "MT3608",
+    keywords: ["mt3608", "boost", "step up", "dc-dc", "converter", "regulator", "module"],
+    pinOffsets: [{dx: 0, dy: 0}, {dx: 0, dy: 5}, {dx: 13, dy: 0}, {dx: 13, dy: 5}],
+    pinLabels: ["IN+", "IN-", "OUT+", "OUT-"], bodyColor: "#1c4f9c",
+    ...moduleBoard(-0.586, -0.85, 13.586, 5.85), pinLabelOffsets: padLabelSpots(2, 2)
+  },
+  {
+    // 03962A board, 26 × 17 mm, with cell protection: supply pads beside the USB socket, the cell
+    // (B+, B-) and the protected output (OUT+, OUT-) at the far end.
+    id: "tp4056-module", refPrefix: "M", category: "modules.power", name: "Li-ion Charger (TP4056, with protection)", fallbackLabel: "TP4056",
+    keywords: ["tp4056", "03962a", "lithium", "li-ion", "18650", "battery charger", "usb", "module"],
+    pinOffsets: [{dx: 0, dy: 0}, {dx: 0, dy: 5}, {dx: 9, dy: 0}, {dx: 9, dy: 1}, {dx: 9, dy: 4}, {dx: 9, dy: 5}],
+    pinLabels: ["IN+", "IN-", "OUT+", "B+", "B-", "OUT-"], bodyColor: "#1c4f9c",
+    ...moduleBoard(-0.62, -0.85, 9.62, 5.85), pinLabelOffsets: padLabelSpots(2, 4)
+  },
+  {
+    // Pololu A4988 carrier and clones: 15.2 × 20.3 mm, rows 12.7 mm apart.
+    id: "a4988", refPrefix: "M", category: "modules.motor", name: "Stepper Driver (A4988)", fallbackLabel: "A4988",
+    keywords: ["a4988", "stepper", "pololu", "stepstick", "motor driver", "cnc", "3d printer", "module"],
+    pinOffsets: dualRowOffsets(5, 8),
+    pinLabels: dualRowLabels(["EN", "MS1", "MS2", "MS3", "RST", "SLP", "STEP", "DIR"], ["VMOT", "GND", "2B", "2A", "1A", "1B", "VDD", "GND"]), bodyColor: "#a8322a",
+    ...moduleBoard(-0.5, -0.5, 5.5, 7.5), pinLabelOffsets: dualRowLabelSpots(8)
+  },
+  {
+    // Pololu DRV8825 carrier and clones: the A4988's board and pins, with FLT where it has VDD.
+    id: "drv8825", refPrefix: "M", category: "modules.motor", name: "Stepper Driver (DRV8825)", fallbackLabel: "DRV8825",
+    keywords: ["drv8825", "stepper", "pololu", "stepstick", "motor driver", "cnc", "3d printer", "module"],
+    pinOffsets: dualRowOffsets(5, 8),
+    pinLabels: dualRowLabels(["EN", "M0", "M1", "M2", "RST", "SLP", "STEP", "DIR"], ["VMOT", "GND", "B2", "B1", "A1", "A2", "FLT", "GND"]), bodyColor: "#3f2a80",
+    ...moduleBoard(-0.5, -0.5, 5.5, 7.5), pinLabelOffsets: dualRowLabelSpots(8)
+  },
+  {
+    // One-channel relay board, about 26 × 50 mm: control header at one end, screw terminals for the
+    // switched load at the other. Pin order varies by maker.
+    id: "relay-module", refPrefix: "M", category: "modules.motor", name: "Relay Module (1-channel)", fallbackLabel: "RELAY",
+    keywords: ["relay", "srd-05vdc", "5v relay", "switch", "mains", "module"],
+    pinOffsets: inlinePins(3), pinLabels: ["VCC", "GND", "IN"], bodyColor: "#1a4fa0",
+    ...moduleBoard(-4.12, -19.2, 6.12, 0.5), pinLabelOffset: LABEL_ABOVE_PINS
+  },
+  {
+    // DFRobot DFR0299: 20.7 mm square, rows about 17.78 mm apart, card socket at the top. It's
+    // numbered like a DIP chip.
+    id: "dfplayer-mini", refPrefix: "M", category: "modules.audio", name: "MP3 Player (DFPlayer Mini)", fallbackLabel: "MP3",
+    keywords: ["dfplayer", "dfr0299", "mp3", "audio", "sound", "speaker", "microsd", "module"],
+    pinOffsets: dualRowOffsets(7, 8),
+    pinLabels: dualRowLabels(["VCC", "RX", "TX", "DAC_R", "DAC_L", "SPK1", "GND", "SPK2"], ["BUSY", "USB-", "USB+", "ADKEY2", "ADKEY1", "IO2", "GND", "IO1"]), bodyColor: "#142a55",
+    ...moduleBoard(-0.575, -0.575, 7.575, 7.575), pinLabelOffsets: dualRowLabelSpots(8, 0.85)
+  },
+  {
+    // SparkFun Arduino Pro Mini and clones: 18 × 33 mm, rows 0.6" apart. The serial header across the
+    // top end faces away from the board, so it isn't one of its pins here.
+    id: "arduino-pro-mini", refPrefix: "U", category: "modules.dev-boards", name: "Arduino Pro Mini", fallbackLabel: "MINI",
+    keywords: ["pro mini", "sparkfun", "atmega328p", "avr", "ftdi", "3.3v", "module"],
+    pinOffsets: dualRowOffsets(6, 12),
+    pinLabels: dualRowLabels(["TXO", "RXI", "RST", "GND", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9"], ["RAW", "GND", "RST", "VCC", "A3", "A2", "A1", "A0", "D13", "D12", "D11", "D10"]), bodyColor: "#b5302a",
+    ...moduleBoard(-0.5, -1.5, 6.5, 11.5), pinLabelOffsets: dualRowLabelSpots(12)
   },
 ];
 

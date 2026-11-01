@@ -166,8 +166,7 @@ class Viewer3d {
     fileInput.addEventListener("change", () => {
       const file = fileInput.files?.[0];
       fileInput.value = "";
-      if (!file) return;
-      file.text().then(text => this.load(JSON.parse(text))).catch(() => this.showError("Couldn't read that file as a project."));
+      if (file) this.openFile(file);
     });
     actions.appendChild(fileInput);
     button("Open file…", ICONS.folder, () => fileInput.click());
@@ -192,8 +191,29 @@ class Viewer3d {
     dock.append(views, hint);
     this.host.appendChild(dock);
     this.overlay.append(toolbar, this.host);
+    this.acceptFileDrops();
     document.body.appendChild(this.overlay);
     document.body.style.overflow = "hidden";
+  }
+
+  private openFile(file: File) {
+    file.text().then(text => this.load(JSON.parse(text))).catch(() => this.showError("Couldn't read that file as a project."));
+  }
+
+  // A project file dropped on the view opens here, as Open file… does. It goes no further, or the
+  // page behind would open it too, unseen.
+  private acceptFileDrops() {
+    const claim = (e: DragEvent) => {
+      if (!e.dataTransfer?.types.includes("Files")) return false;
+      e.preventDefault();
+      e.stopPropagation();
+      return true;
+    };
+    for (const type of ["dragenter", "dragover", "dragleave"] as const) this.overlay.addEventListener(type, claim);
+    this.overlay.addEventListener("drop", e => {
+      const file = claim(e) ? e.dataTransfer?.files[0] : undefined;
+      if (file) this.openFile(file);
+    });
   }
 
   load(raw: unknown) {

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 125 165.5" width="125" height="165.5" role="img" aria-label="DIP-4 bridge rectifier, top view">
+  <rect x="2" y="2" width="121" height="161.5" rx="9" fill="#20242a" stroke="#59616b" stroke-width="3"/>
+  <text x="62.5" y="52" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="21" fill="#c8d0d8" >DF10M</text>
+  <path d="M62.5 80l28 36-28 36-28-36z" fill="none" stroke="#8b949e" stroke-width="4"/>
+</svg>

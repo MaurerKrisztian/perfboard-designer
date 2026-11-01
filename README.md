@@ -80,6 +80,12 @@ device.
   6N137 DIP presets; 6×6 mm tactile, latching and toggle switches; 3 mm LEDs; 10-segment bar
   graphs and 4-digit seven-segment displays; DS18B20, DHT11/DHT22, IR receiver and electret
   microphone; 3.5 mm audio jacks, JST XH connectors, and CR2032, 2×AA and 18650 battery holders.
+- 📟 **Dev boards and breakout modules**: Arduino Micro, Pro Micro, Pro Mini and Nano 33 IoT, STM32
+  Blue and Black Pill, Teensy 4.0, Seeed XIAO, NodeMCU, ESP32-S3 and ESP32-C3 DevKits, ESP-01;
+  SSD1306 OLEDs and 16×2 LCDs; HC-SR04, MPU6050, BME280, BMP280, ADS1115, DS3231, microSD,
+  nRF24L01, HC-05 and NEO-6M modules; LM2596, MP1584, MT3608 and TP4056 power modules; A4988 and
+  DRV8825 stepper drivers, a relay module and the DFPlayer Mini. More chips too: 74HC gates and
+  decoders, CD40xx logic, LM324, TL074, NE5532, ULN2003A, MAX7219, MCP23017, MCP3008 and more.
 - ✏️ **Wires the way you solder them**: jumper wires in any color and three thicknesses (thin,
   normal, thick). Straight runs of the same color merge into one wire automatically.
 - 📐 **Perfboard or stripboard, any size**: start from a common board size (2×8 cm up to
@@ -200,8 +206,8 @@ No. It runs in any modern web browser, and works best on a desktop or laptop wit
 
 On your own device. Your projects are saved in this browser automatically as you edit: open,
 rename, duplicate or delete them from **File → Open Project**. **Save Project to File** downloads a
-project file you can import again or share, and **Share** makes a link with the board inside
-the link itself. Nothing is uploaded to a server, unless you ask **Share** for a short link: then
+project file you can import again (or just drag onto the editor) or share, and **Share** makes a
+link with the board inside the link itself. Nothing is uploaded to a server, unless you ask **Share** for a short link: then
 a copy of that board is stored at `projects.perfboarddesigner.com` so the short link can open
 it, and deleted after a year unopened. If you accept analytics cookies, Google Analytics counts
 which pages are visited, never what's on your boards; **Cookie settings** (in the site's footer, or

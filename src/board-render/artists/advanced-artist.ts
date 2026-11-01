@@ -127,9 +127,9 @@ function drawBody(painter: Painter, g: AdvancedGeometry, rotation: number, look:
   if (skipBody && look.selected) drawBodyShape(painter, g, {stroke: {paint: SELECTION_COLOR, width: 3}});
 
   // Pin number labels, drawn last so they stay legible over the body and icon.
-  const offset = def.pinLabelOffset ?? PIN_LABEL_OFFSET;
-  const shift = rotateOffset(offset.dx, offset.dy, rotation as 0 | 90 | 180 | 270);
   g.pins.forEach((pin, i) => {
+    const offset = def.pinLabelOffsets?.[i] ?? def.pinLabelOffset ?? PIN_LABEL_OFFSET;
+    const shift = rotateOffset(offset.dx, offset.dy, rotation as 0 | 90 | 180 | 270);
     painter.text(def.pinLabels?.[i] || String(i + 1), pin.x + shift.x * GRID_PITCH_PX, pin.y + shift.y * GRID_PITCH_PX, {
       font: PIN_LABEL_FONT, color: PIN_LABEL_COLOR, align: "center", baseline: "middle", halo: LABEL_HALO,
     });

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 433 335" width="433" height="335" role="img" aria-label="MP1584 miniature buck converter module, top view">
+  <rect x="2" y="2" width="429" height="331" rx="9" fill="#1f6a4f" stroke="#63b590" stroke-width="3"/>
+  <rect x="236" y="95.5" width="124" height="124" rx="6" fill="#2b2e33" stroke="#585e66" stroke-width="2"/>
+  <circle cx="298" cy="157.5" r="44.64" fill="none" stroke="#b6793d" stroke-width="11.16"/>
+  <circle cx="298" cy="157.5" r="24.8" fill="#3b3f45"/>
+  <rect x="119.5" y="80" width="5" height="60" rx="1" fill="#c9cfd6"/>
+  <rect x="133.5" y="80" width="5" height="60" rx="1" fill="#c9cfd6"/>
+  <rect x="147.5" y="80" width="5" height="60" rx="1" fill="#c9cfd6"/>
+  <rect x="161.5" y="80" width="5" height="60" rx="1" fill="#c9cfd6"/>
+  <rect x="175.5" y="80" width="5" height="60" rx="1" fill="#c9cfd6"/>
+  <rect x="115" y="86" width="70" height="48" rx="3" fill="#1c1f23"/>
+  <circle cx="123" cy="94" r="3" fill="#6b7480"/>
+  <text x="150" y="110" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="15" fill="#c8d0d8" >1584</text>
+  <rect x="92" y="192" width="56" height="56" rx="3" fill="#2a5fbf" stroke="#6d97e0" stroke-width="2"/>
+  <circle cx="120" cy="220" r="15.68" fill="#d9b45b"/>
+  <path d="M108.8 220h22.4" stroke="#5c4716" stroke-width="3"/>
+  <rect x="211" y="210" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <rect x="211" y="240" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <circle cx="16.5" cy="42.5" r="13" fill="#d9b45b"/>
+  <circle cx="16.5" cy="42.5" r="6" fill="#23272c"/>
+  <circle cx="16.5" cy="292.5" r="13" fill="#d9b45b"/>
+  <circle cx="16.5" cy="292.5" r="6" fill="#23272c"/>
+  <circle cx="416.5" cy="42.5" r="13" fill="#d9b45b"/>
+  <circle cx="416.5" cy="42.5" r="6" fill="#23272c"/>
+  <circle cx="416.5" cy="292.5" r="13" fill="#d9b45b"/>
+  <circle cx="416.5" cy="292.5" r="6" fill="#23272c"/>
+</svg>

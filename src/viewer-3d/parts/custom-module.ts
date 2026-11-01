@@ -9,8 +9,10 @@ import {addTopLabel, bodyBounds} from "./part-geometry";
 const DEFAULT_BOARD_COLOR = "#1f2937";
 const HOUSING_HEIGHT = 2.5;
 const BOARD_THICKNESS = 1.6;
+export const MODULE_BOARD_TOP = HOUSING_HEIGHT + BOARD_THICKNESS;
 
-export function buildCustomModule(kit: SceneKit, def: AdvancedComponentDefinition): Group {
+// `label` is what's printed on the board: its name, unless the caller has its own markings.
+export function buildCustomModule(kit: SceneKit, def: AdvancedComponentDefinition, label = def.name): Group {
   const group = new Group();
   const plastic = kit.blackPlasticMaterial;
   const gold = kit.standard("gold-pin", {color: "#e0b54a", metalness: 1, roughness: 0.28});
@@ -18,7 +20,7 @@ export function buildCustomModule(kit: SceneKit, def: AdvancedComponentDefinitio
   const color = def.bodyColor ?? DEFAULT_BOARD_COLOR;
   const board = kit.standard(`custom-board:${color}`, {color, roughness: 0.45});
   const boardBottom = HOUSING_HEIGHT;
-  const boardTop = boardBottom + BOARD_THICKNESS;
+  const boardTop = MODULE_BOARD_TOP;
 
   for (const {dx, dy} of def.pinOffsets) {
     const x = dx * PITCH, z = dy * PITCH;
@@ -32,6 +34,6 @@ export function buildCustomModule(kit: SceneKit, def: AdvancedComponentDefinitio
   const bounds = bodyBounds(def);
   group.add(kit.box(bounds.width, BOARD_THICKNESS, bounds.depth, board, new Vector3(bounds.centerX, boardBottom + BOARD_THICKNESS / 2, bounds.centerZ)));
   const labelWidth = Math.max(2, bounds.width * 0.8);
-  addTopLabel(group, def.name, labelWidth, Math.min(2.4, bounds.depth * 0.5), new Vector3(bounds.centerX, boardTop + 0.01, bounds.centerZ), "#f1f5f9");
+  if (label) addTopLabel(group, label, labelWidth, Math.min(2.4, bounds.depth * 0.5), new Vector3(bounds.centerX, boardTop + 0.01, bounds.centerZ), "#f1f5f9");
   return group;
 }

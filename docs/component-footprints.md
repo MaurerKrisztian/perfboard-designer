@@ -94,3 +94,87 @@ The 7805 and LM317 use three inline pins at 2.54 mm pitch and share the existing
 | LM317 | ADJ | OUT | IN | [Texas Instruments LM317 datasheet](https://www.ti.com/lit/ds/symlink/lm317.pdf), NDE TO-220 pin configuration |
 
 Their pin assignments differ even though the bodies look alike. The models represent upright packages without a heatsink.
+
+## More DIP chips
+
+Each has 2.54 mm pin pitch and 7.62 mm between its rows. Pinouts were checked against the [KiCad symbol library](https://gitlab.com/kicad/libraries/kicad-symbols). It leaves single gates' pins unnamed, so for the 74HC gates, the CD4093 and the op amps it confirms the supply pins and which pins are outputs, and the input names follow the usual datasheet order.
+
+| Group | Catalog parts |
+| --- | --- |
+| Gates and logic | 74HC00, 74HC02, 74HC04, 74HC08, 74HC32, 74HC86, 74HC74, 74HC138, 74HC165, CD4013, CD4051, CD4060, CD4093, CD4511 |
+| Op amps and comparators | LM324, TL074, NE5532, MCP6002, LM741, LM339 |
+| Drivers | ULN2003A, MAX7219 |
+| Interface and memory | MCP23017, PCF8574, MCP3008, 24LC256, DS1307, MAX232 |
+| Microcontrollers | ATtiny84, ATtiny2313 |
+
+The ATmega328P now has all 28 pins named, by port with the Arduino name where it says more (`PC4/SDA`, `PB5/SCK`). Port D's `PD0`–`PD7` are Arduino D0–D7 and port B's `PB0`–`PB5` are D8–D13.
+
+On the CD4060, `RS`, `RTC` and `CTC` are the oscillator pins (11, 10 and 9). On the CD4051, `COM` is the common input/output (TI's COM OUT/IN).
+
+## More dev boards
+
+Listed with the USB end, or for Wi-Fi boards the antenna end, at the top. Clones can differ: check yours. Where no reference is named, the pinout is the board's usual published one and wasn't checked against a drawing.
+
+| Catalog part | Pins per side, row spacing | Reference |
+| --- | --- | --- |
+| Arduino Micro | 17, 15.24 mm | [Arduino pinout](https://docs.arduino.cc/resources/pinouts/A000053-full-pinout.pdf). Its `MISO` and `SCK` are D14 and D15, `SS` and `MOSI` D17 and D16. |
+| Arduino Pro Micro | 12, 15.24 mm | [SparkFun hookup guide](https://learn.sparkfun.com/tutorials/pro-micro--fio-v3-hookup-guide/hardware-overview-pro-micro) |
+| Arduino Pro Mini | 12, 15.24 mm | SparkFun DEV-11113 and clones. A fixed-pin part, with no USB socket: its serial header faces away from the board, so isn't a pin here. Clones move A4–A7, which aren't included. |
+| Arduino Nano 33 IoT | 15, 15.24 mm | Same footprint as the Nano, at 3.3 V logic. `VUSB` needs its solder jumper closed to carry USB power. |
+| STM32 Blue Pill | 20, 15.24 mm | [stm32-base](https://stm32-base.org/boards/STM32F103C8T6-Blue-Pill) and a photo of the silkscreen. No maker's drawing gives the row spacing: measure yours. |
+| STM32 Black Pill | 20, 15.24 mm | [WeAct pinout diagram](https://github.com/WeActStudio/WeActStudio.MiniSTM32F4x1). Its right row differs from the Blue Pill's. |
+| Teensy 4.0 | 14, 15.24 mm | [PJRC pin card](https://www.pjrc.com/teensy/pinout.html), outer pins only. |
+| Seeed XIAO | 7, 15.24 mm | [Seeed wiki](https://wiki.seeedstudio.com/Seeeduino-XIAO/). Every XIAO shares this layout. |
+| NodeMCU ESP8266 (Amica) | 15, 22.86 mm | NodeMCU DevKit v1.0. |
+| NodeMCU ESP8266 (LoLin V3) | 15, 27.94 mm | The Amica's pinout on a wider board; `VU` is USB power. |
+| ESP32-S3 DevKitC-1 | 22, 22.86 mm | [Espressif user guide](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32s3/esp32-s3-devkitc-1/user_guide_v1.1.html), spacing from [Espressif's KiCad footprint](https://github.com/espressif/kicad-libraries). |
+| ESP32-C3 DevKitM-1 | 15, 22.86 mm | [Espressif user guide](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32c3/esp32-c3-devkitm-1/user_guide.html), spacing from the same footprint library. |
+
+## Breakout modules
+
+These stand on header pins, drawn top view. Their holes aren't covered: wires can run below a module, but a part under it needs the room. Cheap modules vary between makers, in pin order as well as size, so read your module's silkscreen before soldering. The pin order and board size come from the references below where one is named, and otherwise from common listings and are representative.
+
+| Catalog part | Pins | Board | Notes |
+| --- | --- | --- | --- |
+| OLED (SSD1306, I2C) | `GND`, `VCC`, `SCL`, `SDA` | 27.3 × 27.8 mm | Some makers swap `VCC` and `GND`. |
+| OLED (SSD1306, SPI) | `GND`, `VCC`, `D0`, `D1`, `RES`, `DC`, `CS` | 27.3 × 27.8 mm | `D0` is the clock, `D1` the data. |
+| Character LCD (16×2) | 16 in one row | 80 × 36 mm | [KiCad WC1602A footprint](https://gitlab.com/kicad/libraries/kicad-footprints). `A` and `K` are the backlight. |
+| HC-SR04 | `VCC`, `TRIG`, `ECHO`, `GND` | 45 × 20 mm | Stands on its pins, so the drawing is its edge and transducers from above; the transducers face the part's bottom edge. |
+| MPU6050 (GY-521) | `VCC`, `GND`, `SCL`, `SDA`, `XDA`, `XCL`, `AD0`, `INT` | about 21 × 16 mm | |
+| BME280 (4-pin) | `VIN`, `GND`, `SCL`, `SDA` | about 11.5 × 15 mm | With its own 3.3 V regulator. |
+| BMP280 (6-pin) | `VCC`, `GND`, `SCL`, `SDA`, `CSB`, `SDO` | about 15 × 11.5 mm | 3.3 V only unless yours has a regulator. |
+| ADS1115 | `VDD`, `GND`, `SCL`, `SDA`, `ADDR`, `ALRT`, `A0`–`A3` | about 28 × 18 mm | |
+| ESP-01 | Two rows of four: `GND`, `IO2`, `IO0`, `RX` and `TX`, `EN`, `RST`, `3V3` | 14.4 × 24.7 mm | [KiCad footprint](https://gitlab.com/kicad/libraries/kicad-footprints), [pinout](https://mischianti.org/esp-01-esp8266-high-resolution-pinout-and-specs/). 3.3 V only. |
+| nRF24L01 | Two rows of four, numbered row by row: `GND`, `VCC`, `CE`, `CSN`, `SCK`, `MOSI`, `MISO`, `IRQ` | 29 × 15.25 mm | [KiCad footprint](https://gitlab.com/kicad/libraries/kicad-footprints), [pinout](https://components101.com/wireless/nrf24l01-pinout-features-datasheet). `VCC` is 3.3 V; the signal pins take 5 V. |
+| HC-05 | `EN`, `VCC`, `GND`, `TXD`, `RXD`, `STATE` | about 15.5 × 37 mm | `RXD` is 3.3 V logic: divide a 5 V signal down. |
+| NEO-6M | `VCC`, `RX`, `TX`, `GND` | about 25 × 35 mm | The antenna hangs from the U.FL socket on a lead. |
+| DS3231 (ZS-042) | `32K`, `SQW`, `SCL`, `SDA`, `VCC`, `GND` | 38 × 22 mm | Drawn lying flat, so its right-angle pins need swapping for straight ones. It charges its cell: with a non-rechargeable CR2032, remove the charging resistor. |
+| MicroSD card | `GND`, `VCC`, `MISO`, `MOSI`, `SCK`, `CS` | 42 × 24 mm | The Catalex-style board, which runs from 5 V. |
+| A4988 | `EN`, `MS1`, `MS2`, `MS3`, `RST`, `SLP`, `STEP`, `DIR`; `VMOT`, `GND`, `2B`, `2A`, `1A`, `1B`, `VDD`, `GND` | 15.2 × 20.3 mm | [KiCad symbol and footprint](https://gitlab.com/kicad/libraries/kicad-footprints), rows 12.7 mm apart. `RST` and `SLP` are usually tied together. |
+| DRV8825 | `EN`, `M0`, `M1`, `M2`, `RST`, `SLP`, `STEP`, `DIR`; `VMOT`, `GND`, `B2`, `B1`, `A1`, `A2`, `FLT`, `GND` | 15.2 × 20.3 mm | The same board, with `FLT` where the A4988 has `VDD`: don't feed logic power to it. |
+| Relay module | `VCC`, `GND`, `IN` | about 26 × 50 mm | Order varies by maker. The switched load goes to the module's own screw terminals. |
+| DFPlayer Mini | `VCC`, `RX`, `TX`, `DAC_R`, `DAC_L`, `SPK1`, `GND`, `SPK2`; `BUSY`, `USB-`, `USB+`, `ADKEY2`, `ADKEY1`, `IO2`, `GND`, `IO1` | 20.7 × 20.7 mm | Rows about 17.78 mm apart: no maker's drawing was found, so measure yours. |
+
+### Power modules
+
+These have bare pads rather than a header, and the pads' spacing varies, so their footprints are the nearest holes, reached with stiff wire legs or bent header pins. Set a buck or boost module's output with its trimmer before connecting anything to it.
+
+| Catalog part | Pads, in holes | Board | Notes |
+| --- | --- | --- | --- |
+| LM2596 buck | `IN+`, `IN-`; `OUT+`, `OUT-`, 16 × 7 | 43 × 21 mm | One measured board has pads 40 × 17.8 mm apart. |
+| MP1584 mini buck | `IN+`, `IN-`; `OUT+`, `OUT-`, 8 × 5 | 22 × 17 mm | Representative. |
+| MT3608 boost | `IN+`, `IN-`; `OUT+`, `OUT-`, 13 × 5 | 36 × 17 mm | Representative. |
+| TP4056 charger | `IN+`, `IN-` by the USB socket; `OUT+`, `B+`, `B-`, `OUT-` at the far end | 26 × 17 mm | The 03962A board with cell protection. Representative. |
+
+## Other additions
+
+| Catalog part | Hole layout | Package reference and assumptions |
+| --- | --- | --- |
+| LM1117 / LD1117 regulator | Three inline pins, 2.54 mm pitch | TO-220: `GND` (or adjust), `OUT`, `IN`, from the marked front. Not the 7805's order. |
+| 78L05 regulator | Three inline pins, 2.54 mm pitch | TO-92: `OUT`, `GND`, `IN`, flat face toward you. |
+| Power Transistor | Three inline pins, 2.54 mm pitch | TO-220: `B`, `C`, `E`, from the marked front. TIP120, TIP31, TIP41 and the like. |
+| LM35 | Three inline pins, 2.54 mm pitch | TO-92: `VS`, `OUT`, `GND`, flat face toward you. |
+| Addressable RGB LED | Four inline pins formed to 2.54 mm | [Worldsemi WS2812D-F5](https://learn.watterott.com/kb/ws281x/WS2812D-F5_LED.pdf): `DOUT` beside the flat, then `VDD` (the longest lead), `GND`, `DIN`. Its leads are 1.27 mm apart. Other makers' 5 mm LEDs may differ. |
+| Bridge Rectifier | Rows 7.62 mm apart, pins 5.08 mm along them | [KiCad footprint](https://gitlab.com/kicad/libraries/kicad-footprints) for the DF-series DIP-4: `+` and `−` in one row, `~` and `~` in the other. Check the markings on yours. |
+| Screw Terminals, 2-, 3- and 4-pin | One row, 2.54 mm pitch | KF128-style blocks, about 6 mm deep. |
+| Micro USB Breakout | `VCC`, `D-`, `D+`, `ID`, `GND` | About 15 mm square; order follows the socket's own pin numbers. |

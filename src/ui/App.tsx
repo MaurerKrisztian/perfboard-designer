@@ -12,6 +12,7 @@ import {MobileNav} from "./mobile/MobileNav";
 import {Dialogs} from "./dialogs/Dialogs";
 import {showTourOnFirstVisit} from "./dialogs/TourDialog";
 import {layoutStore, setFocusMode, setSheet, toggleFocusMode} from "./layout/layout-store";
+import {ProjectFileDrop} from "./layout/ProjectFileDrop";
 import {useStore} from "./lib/store";
 import {useEditor} from "./hooks/use-editor";
 import {usePhoneLayout} from "./hooks/use-media-query";
@@ -42,6 +43,7 @@ export function App() {
       <MobileNav/>
       <BoardMenus/>
       <Dialogs/>
+      <ProjectFileDrop/>
     </>
   );
 }

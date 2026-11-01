@@ -138,6 +138,22 @@ export function importProjectFile(text: string, fileName: string) {
   importProject(() => JSON.parse(text), fileName.replace(/\.json$/i, "").trim() || DEFAULT_PROJECT_NAME, fileName);
 }
 
+// Opens files dropped on the page, in turn, each as a new stored project: the last one stays open.
+// A dropped folder is a File too, one that can't be read.
+export async function importProjectFiles(files: File[]) {
+  for (const file of files) {
+    let text: string;
+    try {
+      text = await file.text();
+    } catch (err) {
+      console.error(err);
+      void tell(`Couldn't open "${file.name}"`, "It couldn't be read. Drop a project file, not a folder.");
+      continue;
+    }
+    importProjectFile(text, file.name);
+  }
+}
+
 // Opens a project from a share link as a new stored project: the receiver gets a copy, and the
 // project they had open stays as it was. `raw` is the project file the link carried, unchecked.
 export function importSharedProject(raw: unknown, name: string | undefined) {

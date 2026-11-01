@@ -488,7 +488,8 @@ category tree. It only decides where parts are *listed*.
 > the right system's definitions file, and its icon to `assets/icons/components/<id>.svg` (or set
 > `iconFile`). That's all: the catalog, the board, exports, thumbnails and the MCP server pick it
 > up. Optional extras:
-> - a 3D model: a builder in `src/viewer-3d/parts/`, wired in `build-catalog-parts.ts`;
+> - a 3D model: a builder in `src/viewer-3d/parts/`, wired in `build-catalog-parts.ts`; a breakout
+>   module needs only a line in `LOOKS` (`parts/breakout-module.ts`), what stands on its board;
 > - special 2D art for a standard part: a decoration (section 10);
 > - `leadLabels` / `pinLabels`, so the MCP server can name pins.
 >
@@ -584,7 +585,8 @@ MCP server.
   tab is hidden.
 - The UI is the File menu (`src/ui/header/AppHeader.tsx`), the header's project name and the
   Projects dialog (`src/ui/dialogs/ProjectsDialog.tsx`, a `ProjectCard` per project, with a
-  thumbnail from `project-thumbnail.ts`, section 10).
+  thumbnail from `project-thumbnail.ts`, section 10). A project file dropped anywhere on the page
+  imports too (`src/ui/layout/ProjectFileDrop.tsx`), or into the 3D view when it's the one showing.
 - A new project starts on the board its card sets up (`NewProjectCard`: name, then
   `src/ui/components/BoardSetupFields.tsx` for type, strips and size, beside a thumbnail of the
   empty board). `src/features/project/new-board.ts` holds that `NewBoard`: it starts as the one

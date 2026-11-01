@@ -381,7 +381,8 @@ different projects never write the same key), `current-project.ts` tracks which 
 after any redraw that changed it (via `onRedraw()` in `draw-canvas.ts` — every board change ends
 in a redraw) and when the tab is hidden or closed. Its UI is the File menu
 (`src/ui/header/AppHeader.tsx`), the header's project name and the Projects dialog
-(`src/ui/dialogs/ProjectsDialog.tsx`, a `ProjectCard` per project). **Share links** carry a whole project in the editor URL's
+(`src/ui/dialogs/ProjectsDialog.tsx`, a `ProjectCard` per project); a project file dropped anywhere on the
+page imports too (`src/ui/layout/ProjectFileDrop.tsx`), or into the 3D view when it's the one showing. **Share links** carry a whole project in the editor URL's
 fragment (`#name=…&z=…`, or `json=`/`src=` for links written by people and programs such as AI
 agents): the format is the pure `src/project-file/share-link.ts`, documented for outside writers in
 `docs/share-links.md` (keep the two in step). `src/ui/dialogs/ShareDialog.tsx` is the Share dialog;

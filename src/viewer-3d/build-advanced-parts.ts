@@ -35,9 +35,13 @@ export function buildAdvancedPart(kit: SceneKit, part: ViewerAdvancedPart): Obje
   switch (modelId) {
     case "transistor": group = buildTransistor(kit, part.value); break;
     case "mosfet": group = buildTo220(kit, part.value); break;
+    case "power-transistor": group = buildTo220(kit, part.value); break;
     case "regulator-7805": group = buildTo220(kit, part.value || "7805"); break;
     case "regulator-lm317": group = buildTo220(kit, part.value || "LM317"); break;
+    case "regulator-ld1117": group = buildTo220(kit, part.value || "1117"); break;
+    case "regulator-78l05": group = buildTransistor(kit, part.value || "78L05"); break;
     case "ds18b20": group = buildTransistor(kit, part.value || "DS18B20"); break;
+    case "lm35": group = buildTransistor(kit, part.value || "LM35"); break;
     case "potentiometer": group = buildPotentiometer(kit, part.value); break;
     case "header-pins": group = buildHeaderPins(kit, part.rows, part.cols); break;
     default: group = modelId === CUSTOM_PART_ID && def

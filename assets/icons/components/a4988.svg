@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" width="300" height="400" role="img" aria-label="A4988 stepper driver carrier, top view">
+  <rect x="2" y="2" width="296" height="396" rx="9" fill="#a8322a" stroke="#e27b72" stroke-width="3"/>
+  <rect x="102" y="112" width="96" height="96" rx="3" fill="#1c1f23"/>
+  <circle cx="110" cy="120" r="3" fill="#6b7480"/>
+  <text x="150" y="160" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="17" fill="#c8d0d8" >A4988</text>
+  <rect x="119" y="293" width="62" height="62" rx="3" fill="#2a5fbf" stroke="#6d97e0" stroke-width="2"/>
+  <circle cx="150" cy="324" r="17.36" fill="#d9b45b"/>
+  <path d="M137.6 324h24.8" stroke="#5c4716" stroke-width="3"/>
+  <rect x="87" y="55" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <rect x="141" y="55" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <rect x="195" y="55" width="18" height="10" rx="2" fill="#c7a27a"/>
+  <circle cx="25" cy="25" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="25" r="6" fill="#23272c"/>
+  <circle cx="25" cy="75" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="75" r="6" fill="#23272c"/>
+  <circle cx="25" cy="125" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="125" r="6" fill="#23272c"/>
+  <circle cx="25" cy="175" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="175" r="6" fill="#23272c"/>
+  <circle cx="25" cy="225" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="225" r="6" fill="#23272c"/>
+  <circle cx="25" cy="275" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="275" r="6" fill="#23272c"/>
+  <circle cx="25" cy="325" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="325" r="6" fill="#23272c"/>
+  <circle cx="25" cy="375" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="375" r="6" fill="#23272c"/>
+  <circle cx="275" cy="25" r="13" fill="#d9b45b"/>
+  <circle cx="275" cy="25" r="6" fill="#23272c"/>
+  <circle cx="275" cy="75" r="13" fill="#d9b45b"/>
+  <circle cx="275" cy="75" r="6" fill="#23272c"/>
+  <circle cx="275" cy="125" r="13" fill="#d9b45b"/>
+  <circle cx="275" cy="125" r="6" fill="#23272c"/>
+  <circle cx="275" cy="175" r="13" fill="#d9b45b"/>
+  <circle cx="275" cy="175" r="6" fill="#23272c"/>
+  <circle cx="275" cy="225" r="13" fill="#d9b45b"/>
+  <circle cx="275" cy="225" r="6" fill="#23272c"/>
+  <circle cx="275" cy="275" r="13" fill="#d9b45b"/>
+  <circle cx="275" cy="275" r="6" fill="#23272c"/>
+  <circle cx="275" cy="325" r="13" fill="#d9b45b"/>
+  <circle cx="275" cy="325" r="6" fill="#23272c"/>
+  <circle cx="275" cy="375" r="13" fill="#d9b45b"/>
+  <circle cx="275" cy="375" r="6" fill="#23272c"/>
+</svg>

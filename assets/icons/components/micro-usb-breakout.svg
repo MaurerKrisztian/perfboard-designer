@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300" role="img" aria-label="Micro USB breakout board, top view, socket at the top">
+  <rect x="2" y="2" width="296" height="296" rx="9" fill="#4d2a7c" stroke="#9672d0" stroke-width="3"/>
+  <rect x="82" y="6" width="136" height="104" rx="3" fill="#c9cfd6" stroke="#eef2f5" stroke-width="2"/>
+  <rect x="101.04" y="37.2" width="97.92" height="41.6" rx="2" fill="#50565e"/>
+  <circle cx="32" cy="150" r="16" fill="#0c1116" stroke="#d9b45b" stroke-width="3"/>
+  <circle cx="268" cy="150" r="16" fill="#0c1116" stroke="#d9b45b" stroke-width="3"/>
+  <text x="150" y="180" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="38" fill="#eef3f8" >USB</text>
+  <circle cx="50" cy="275" r="13" fill="#d9b45b"/>
+  <circle cx="50" cy="275" r="6" fill="#23272c"/>
+  <circle cx="100" cy="275" r="13" fill="#d9b45b"/>
+  <circle cx="100" cy="275" r="6" fill="#23272c"/>
+  <circle cx="150" cy="275" r="13" fill="#d9b45b"/>
+  <circle cx="150" cy="275" r="6" fill="#23272c"/>
+  <circle cx="200" cy="275" r="13" fill="#d9b45b"/>
+  <circle cx="200" cy="275" r="6" fill="#23272c"/>
+  <circle cx="250" cy="275" r="13" fill="#d9b45b"/>
+  <circle cx="250" cy="275" r="6" fill="#23272c"/>
+</svg>
