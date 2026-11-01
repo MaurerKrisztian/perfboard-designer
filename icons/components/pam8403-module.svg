@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 395 550" width="395" height="550" role="img" aria-label="PAM8403 stereo amplifier module with volume pot, seen from above">
+  <rect x="2" y="2" width="391" height="546" rx="8" fill="#1f7a3d" stroke="#63b590" stroke-width="2"/>
+  <circle cx="25" cy="25" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="25" r="6" fill="#23272c"/>
+  <circle cx="25" cy="75" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="75" r="6" fill="#23272c"/>
+  <circle cx="25" cy="125" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="125" r="6" fill="#23272c"/>
+  <circle cx="25" cy="175" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="175" r="6" fill="#23272c"/>
+  <circle cx="25" cy="275" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="275" r="6" fill="#23272c"/>
+  <circle cx="25" cy="325" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="325" r="6" fill="#23272c"/>
+  <circle cx="25" cy="425" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="425" r="6" fill="#23272c"/>
+  <circle cx="25" cy="475" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="475" r="6" fill="#23272c"/>
+  <circle cx="25" cy="525" r="13" fill="#d9b45b"/>
+  <circle cx="25" cy="525" r="6" fill="#23272c"/>
+  <rect x="106" y="85" width="8" height="12" rx="1" fill="#c9cfd6"/>
+  <rect x="106" y="185" width="8" height="12" rx="1" fill="#c9cfd6"/>
+  <rect x="126" y="85" width="8" height="12" rx="1" fill="#c9cfd6"/>
+  <rect x="126" y="185" width="8" height="12" rx="1" fill="#c9cfd6"/>
+  <rect x="146" y="85" width="8" height="12" rx="1" fill="#c9cfd6"/>
+  <rect x="146" y="185" width="8" height="12" rx="1" fill="#c9cfd6"/>
+  <rect x="166" y="85" width="8" height="12" rx="1" fill="#c9cfd6"/>
+  <rect x="166" y="185" width="8" height="12" rx="1" fill="#c9cfd6"/>
+  <rect x="186" y="85" width="8" height="12" rx="1" fill="#c9cfd6"/>
+  <rect x="186" y="185" width="8" height="12" rx="1" fill="#c9cfd6"/>
+  <rect x="206" y="85" width="8" height="12" rx="1" fill="#c9cfd6"/>
+  <rect x="206" y="185" width="8" height="12" rx="1" fill="#c9cfd6"/>
+  <rect x="226" y="85" width="8" height="12" rx="1" fill="#c9cfd6"/>
+  <rect x="226" y="185" width="8" height="12" rx="1" fill="#c9cfd6"/>
+  <rect x="246" y="85" width="8" height="12" rx="1" fill="#c9cfd6"/>
+  <rect x="246" y="185" width="8" height="12" rx="1" fill="#c9cfd6"/>
+  <rect x="102.5" y="97.5" width="166" height="92" rx="3" fill="#1c1f23"/>
+  <text x="185" y="145" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="22" fill="#c8d0d8" >PAM8403</text>
+  <circle cx="147.5" cy="300" r="75" fill="#c6ccd3" stroke="#eef2f5" stroke-width="3"/>
+  <path d="M95.5 248A75 75 0 0 1 199.5 248Z" fill="#1c1f23"/>
+  <text x="147.5" y="305" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="34" fill="#59616b" >470</text>
+  <rect x="314" y="13" width="32" height="22" rx="3" fill="#b98a5f"/>
+  <rect x="314" y="73" width="32" height="22" rx="3" fill="#b98a5f"/>
+  <rect x="314" y="173" width="32" height="22" rx="3" fill="#b98a5f"/>
+  <rect x="284" y="283" width="32" height="22" rx="3" fill="#1c1f23"/>
+  <rect x="62.5" y="377.5" width="248" height="168.5" rx="4" fill="#1c8a78" stroke="#49b8a5" stroke-width="2"/>
+  <rect x="310" y="377.5" width="81" height="168.5" rx="3" fill="#c7ced6" stroke="#eef2f5" stroke-width="2"/>
+  <text x="185" y="460" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="26" fill="#d6f2ed" >VOLUME</text>
+</svg>

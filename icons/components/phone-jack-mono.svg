@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 522.5 339" width="522.5" height="339" role="img" aria-label="6.35 mm mono jack, seen from above, opening to the right">
+  <rect x="1" y="57.3" width="63.06" height="224.41" rx="4" fill="#16181b" stroke="#3f454d" stroke-width="2"/>
+  <rect x="59.06" y="1" width="405.96" height="337" rx="7" fill="#1f2226" stroke="#4a5058" stroke-width="2"/>
+  <rect x="75.06" y="16" width="373.96" height="307" rx="5" fill="#272b30"/>
+  <text x="262.04" y="157.5" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="56" fill="#7f8a96" >6.35</text>
+  <text x="262.04" y="205.5" text-anchor="middle" dominant-baseline="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="26" fill="#7f8a96" >MONO</text>
+  <rect x="465.02" y="83.87" width="56.48" height="171.26" rx="6" fill="#dfe3e8" stroke="#ffffff" stroke-width="2"/>
+  <rect x="457.02" y="66.74" width="12" height="205.51" rx="3" fill="#b8bfc7"/>
+</svg>
