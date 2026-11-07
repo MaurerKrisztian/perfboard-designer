@@ -17,9 +17,14 @@ export function isDragging(): boolean {
   return DragState.parts.length > 0 || DragState.lines.length > 0;
 }
 
+// Parts that can move: those pinned to holes (every placed part is).
+export function movableParts(parts: Part[]): Part[] {
+  return parts.filter(part => part.getAnchorDots().length);
+}
+
 // Picks up `parts` and `lines` at (x, y). `pressed` is the one item of several that was pressed.
 export function beginDrag(parts: Part[], lines: ILine[], x: number, y: number, pressed?: Selection) {
-  const movable = parts.filter(part => part.getAnchorDots().length);
+  const movable = movableParts(parts);
   if (!movable.length && !lines.length) return;
   const grabDot = findNearestDot(x, y);
   if (!grabDot) return;
@@ -46,10 +51,20 @@ export function updateDrag(x: number, y: number): boolean {
   const deltaY = nearestDot.y - grabDot.y;
   if (deltaX === 0 && deltaY === 0) return false;
 
-  // Reject the whole step if a hole anything covers would fall off the grid, leaving grabDot
-  // where it was so the drag picks the cursor back up once it's inside the board again. Holes
-  // that are *already* off the grid are exempt: placement never checked that a part fits, so a
-  // part placed overhanging an edge would otherwise be impossible to drag anywhere at all.
+  // A refused step leaves grabDot where it was, so the drag picks the cursor back up once it's
+  // inside the board again.
+  if (!shiftItems(parts, lines, deltaX, deltaY, dotIndex)) return false;
+  DragState.grabDot = nearestDot;
+  DragState.moved = true;
+  return true;
+}
+
+// Moves `parts` and `lines` by (deltaX, deltaY) drawing pixels, a whole number of holes, onto
+// the holes there: a drag's step, or an arrow key's (nudge-selection.ts). Refuses the whole step,
+// changing nothing and returning false, if a hole anything covers would fall off the grid.
+export function shiftItems(parts: Part[], lines: ILine[], deltaX: number, deltaY: number, dotIndex: Map<string, IDot>): boolean {
+  // Holes that are *already* off the grid are exempt: placement never checked that a part fits,
+  // so a part placed overhanging an edge would otherwise be impossible to move anywhere at all.
   const isOnGrid = (point: Point) => dotIndex.has(dotPositionKey(point.x, point.y));
   for (const part of parts) {
     for (const position of part.getOccupiedPositions()) {
@@ -69,9 +84,17 @@ export function updateDrag(x: number, y: number): boolean {
 
   parts.forEach((part, i) => part.setAnchorDots(partMoves[i] as IDot[]));
   lines.forEach((line, i) => setLinePoints(line, lineMoves[i] as IDot[]));
-  DragState.grabDot = nearestDot;
-  DragState.moved = true;
   return true;
+}
+
+// The history entry for moving `parts` and `lines` from where they were (each part's anchor
+// dots, each wire's points) to where they are now: one `move`, or a `batch` of them.
+export function moveChange(parts: Part[], partOrigins: IDot[][], lines: ILine[], lineOrigins: IDot[][]): IChange {
+  const changes: IChange[] = [
+    ...parts.map((part, i): IChange => ({type: 'move', kind: 'part', part, from: partOrigins[i], to: part.getAnchorDots()})),
+    ...lines.map((line, i): IChange => ({type: 'move', kind: 'line', line, from: lineOrigins[i], to: linePoints(line)})),
+  ];
+  return changes.length === 1 ? changes[0] : {type: 'batch', kind: 'batch', changes};
 }
 
 function clearDrag() {
@@ -93,11 +116,7 @@ function clearDrag() {
 export function endDrag() {
   const {parts, lines, partOrigins, lineOrigins, moved, pressed} = DragState;
   if (moved) {
-    const changes: IChange[] = [
-      ...parts.map((part, i): IChange => ({type: 'move', kind: 'part', part, from: partOrigins[i], to: part.getAnchorDots()})),
-      ...lines.map((line, i): IChange => ({type: 'move', kind: 'line', line, from: lineOrigins[i], to: linePoints(line)})),
-    ];
-    HistoryState.record(changes.length === 1 ? changes[0] : {type: 'batch', kind: 'batch', changes});
+    HistoryState.record(moveChange(parts, partOrigins, lines, lineOrigins));
   } else if (pressed && isDragging()) {
     SelectionState.current = pressed;
   }

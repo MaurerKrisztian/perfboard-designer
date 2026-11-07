@@ -10,6 +10,7 @@ import {downloadAsImage} from "./project/save-image";
 import {canCopy, copySelection, cutSelection, duplicateSelection, hasCopy, pasteClipboard} from "./clipboard";
 import {selectEverything} from "./board-selection";
 import {setActiveTool} from "./active-tool";
+import {canNudge, nudgeSelection} from "./nudge-selection";
 import {ToolState} from "../state/ToolState";
 import {ViewState} from "../state/ViewState";
 
@@ -35,6 +36,12 @@ export function registerEditorShortcuts() {
   add("s", "Toggle the solder path tool.", () => toggleRouteTool("solder"));
   add("r", "Rotate the selected part, or the one being placed.", rotateSelectedIc);
   add("Delete", "Delete the selected part, wire or note.", deleteSelection);
+  // One description for the four: the legend lists them on one line.
+  const nudge = "Move the selected parts and wires one hole.";
+  add("ArrowUp", nudge, () => nudgeSelection(0, -1), {when: canNudge});
+  add("ArrowDown", nudge, () => nudgeSelection(0, 1), {when: canNudge});
+  add("ArrowLeft", nudge, () => nudgeSelection(-1, 0), {when: canNudge});
+  add("ArrowRight", nudge, () => nudgeSelection(1, 0), {when: canNudge});
   add("c", "Change the selected wire's color.", changeSelectedColor);
   add("d", "Add a note to the selected hole.", () => void addDescriptionToDot());
   add("d", "Remove the selected hole's note.", removeNoteFromSelectedHole, {shift: true});

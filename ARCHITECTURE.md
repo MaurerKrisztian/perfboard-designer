@@ -389,7 +389,9 @@ tool, Escape and Deselect turn it off. <kbd>Ctrl</kbd>+<kbd>A</kbd> selects ever
 A press on one of several selected parts (or between the holes of one of their wires,
 `selectedLineAt()`) picks them all up: `component-drag.ts` moves every part and wire in
 `DragState` by the same step, refusing a step that would push anything off the board, and records
-one `batch` of `move`s (a wire's `move` holds its points before and after). Let go without moving,
+one `batch` of `move`s (a wire's `move` holds its points before and after); the arrow keys take the
+same step one hole at a time (`nudge-selection.ts`, through `shiftItems()`/`moveChange()`, one undo
+step a press, in Select mode). Let go without moving,
 just that item stays selected, as a click on it would leave it. Wires that aren't selected stay
 where they are, as with one part. Delete takes them all off as one `batch`
 (`deleteItems()` in `delete-selection.ts`). `src/features/clipboard.ts` copies, cuts, pastes and

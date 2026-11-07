@@ -212,7 +212,8 @@ part or wire, and a Shift-drag draws a box (`box-select.ts`) adding everything w
 encloses, live; the selection bar's Select more (`SelectionState.adding`) does the same without
 Shift, for a finger; Ctrl+A selects all. A press on one of several selected parts or wires drags
 them all (`component-drag.ts`, one `batch` of `move`s; let go unmoved, only that one stays
-selected); Delete removes them in one `batch`. `clipboard.ts` copies (Ctrl+C), cuts, pastes (at
+selected), and the arrow keys move the selection one hole the same way (`nudge-selection.ts`);
+Delete removes them in one `batch`. `clipboard.ts` copies (Ctrl+C), cuts, pastes (at
 the pointer's hole) and duplicates (Ctrl+D, beside the original) as project-file entries, rebuilt
 by `project/board-entries.ts` (shared with loading) and placed by `placeItems()` with new refs and
 identities. A shortcut's optional `when` lets the key do its usual thing otherwise (Ctrl+C with page
