@@ -8,6 +8,7 @@ import {importSharedProject} from "../../features/project/current-project";
 import {changeOpenBoard, NewBoard} from "../../features/project/new-board";
 import {boardSize} from "../../features/project/resize-grid";
 import {fitToScreen} from "../../features/zoom";
+import {reportUsage} from "../../features/analytics";
 import blinker from "../../../examples/perfboard-555-blinker.json";
 import {BoardSetupFields, boardSpan, describeBoard} from "../components/BoardSetupFields";
 import {useEditor} from "../hooks/use-editor";
@@ -23,6 +24,7 @@ import {Icon} from "../components/Icon";
 const isBoardEmpty = () => !PartState.parts.length && !LineState.lines.length && !DotState.dots.some(dot => dot.description);
 
 function openExample() {
+  reportUsage({name: "empty_board_choice", start_choice: "example"});
   importSharedProject(blinker, "555 blinker");
   fitToScreen(true);
 }
@@ -45,6 +47,7 @@ export function EmptyBoardHint() {
   // Starting from scratch puts the card away and, beside the board, puts the cursor in the parts
   // list's search box (ComponentsSection) to find the first part.
   const startFromScratch = () => {
+    reportUsage({name: "empty_board_choice", start_choice: "scratch"});
     setDismissedOn({id: projectId});
     if (!phone) document.getElementById("catalogSearch")?.focus();
   };
@@ -80,7 +83,8 @@ export function EmptyBoardHint() {
               <span>A 555 LED blinker, finished and wired, to look around in.</span>
             </span>
           </button>
-          <a className="empty-board-choice" href="../mcp-server/" target="_blank" rel="noopener">
+          <a className="empty-board-choice" href="../mcp-server/" target="_blank" rel="noopener"
+            onClick={() => reportUsage({name: "empty_board_choice", start_choice: "ai"})}>
             <Icon name="sparkle" className="icon empty-board-choice-icon"/>
             <span className="empty-board-choice-text">
               <strong>Design it with AI <Icon name="external" className="icon empty-board-external"/></strong>

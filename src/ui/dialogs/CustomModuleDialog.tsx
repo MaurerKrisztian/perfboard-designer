@@ -2,6 +2,7 @@ import {useEffect, useRef, useState} from "react";
 import {CUSTOM_PART_ID, CUSTOM_REF_PREFIX, CustomPartPin, CustomPartSpec, MAX_CUSTOM_PART_SIDE} from "../../parts/custom-parts";
 import {CustomParts} from "../../features/custom-parts";
 import {setActiveTool} from "../../features/active-tool";
+import {reportUsage} from "../../features/analytics";
 import {Modal} from "../components/Modal";
 import {NumberField} from "../components/NumberField";
 import {cx} from "../lib/class-names";
@@ -98,10 +99,12 @@ export function CustomModuleDialog({editing, onBack, onClose}: {editing?: Custom
     onClose();
     if (editing?.id) {
       CustomParts.update(editing.id, spec);
+      reportUsage({name: "edit_custom_part", part_kind: "module"});
       return;
     }
     // Ready to place straight away.
     const part = CustomParts.add(spec);
+    reportUsage({name: "create_custom_part", part_kind: "module"});
     setActiveTool({kind: "advanced-component", definitionId: CUSTOM_PART_ID, rotation: 0, custom: part});
   };
 

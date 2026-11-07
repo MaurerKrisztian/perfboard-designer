@@ -5,6 +5,7 @@ import {CUSTOM_PART_ID, CUSTOM_PART_SHAPES, customPartShape, CustomPartSpec, sha
 import {CustomParts} from "../../features/custom-parts";
 import {drawCustomPartPreview} from "../../features/custom-part-preview";
 import {setActiveTool} from "../../features/active-tool";
+import {reportUsage} from "../../features/analytics";
 import {Modal} from "../components/Modal";
 
 // A custom part in a built-in part's package: a transistor missing from the catalog is a TO-92 (or
@@ -78,10 +79,12 @@ export function CustomShapeDialog({editing, onBack, onClose}: {editing?: CustomP
     onClose();
     if (editing?.id) {
       CustomParts.update(editing.id, spec);
+      reportUsage({name: "edit_custom_part", part_kind: "package"});
       return;
     }
     // Ready to place straight away.
     const part = CustomParts.add(spec);
+    reportUsage({name: "create_custom_part", part_kind: "package"});
     setActiveTool({kind: "advanced-component", definitionId: CUSTOM_PART_ID, rotation: 0, custom: part});
   };
 

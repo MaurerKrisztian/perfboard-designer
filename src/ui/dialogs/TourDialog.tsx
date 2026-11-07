@@ -4,6 +4,7 @@ import {usePhoneLayout} from "../hooks/use-media-query";
 import {readStored, writeStored} from "../lib/local-storage";
 import {cx} from "../lib/class-names";
 import {openDialog} from "./dialog-store";
+import {reportUsage} from "../../features/analytics";
 
 // The tour: three chapters of slides, each a short looping clip of the editor and a line or two on
 // what it shows, stepped through with Next. "The basics" opens by itself on a visitor's first visit
@@ -196,10 +197,16 @@ const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce
 
 // Opens the tour once, on the first visit to the editor.
 export function showTourOnFirstVisit() {
-  if (!readStored(SEEN_KEY, false)) openDialog({kind: "tour", chapter: "basics"});
+  if (!readStored(SEEN_KEY, false)) openDialog({kind: "tour", chapter: "basics", firstVisit: true});
 }
 
-export function TourDialog({chapter: firstChapter, onClose}: {chapter: TourChapterId; onClose: () => void}) {
+interface TourProps {
+  chapter: TourChapterId;
+  firstVisit?: boolean;
+  onClose: () => void;
+}
+
+export function TourDialog({chapter: firstChapter, firstVisit = false, onClose}: TourProps) {
   const [place, setPlace] = useState({chapter: Math.max(0, CHAPTERS.findIndex(c => c.id === firstChapter)), index: 0});
   const phone = usePhoneLayout();
   const next = useRef<HTMLButtonElement>(null);
@@ -212,6 +219,19 @@ export function TourDialog({chapter: firstChapter, onClose}: {chapter: TourChapt
   // Shown once is seen: it doesn't open by itself again, however it's closed.
   useEffect(() => writeStored(SEEN_KEY, true), []);
   useEffect(() => next.current?.focus(), [place]);
+  // Counted once each time it's opened, and each chapter watched to its last slide as finished.
+  const opened = useRef(false);
+  useEffect(() => {
+    if (opened.current) return;
+    opened.current = true;
+    reportUsage({name: "tour_open", tour_chapter: firstChapter, opened_by: firstVisit ? "first_visit" : "help"});
+  }, [firstChapter, firstVisit]);
+  const finished = useRef(new Set<TourChapterId>());
+  useEffect(() => {
+    if (!lastSlide || finished.current.has(chapter.id)) return;
+    finished.current.add(chapter.id);
+    reportUsage({name: "tour_finish", tour_chapter: chapter.id});
+  }, [lastSlide, chapter.id]);
 
   const go = (index: number) => setPlace({...place, index: Math.max(0, Math.min(chapter.slides.length - 1, index))});
   const openChapter = (i: number) => setPlace({chapter: i, index: 0});

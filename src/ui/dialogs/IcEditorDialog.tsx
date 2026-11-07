@@ -1,5 +1,6 @@
 import {useState} from "react";
 import {Ic, saveCustomIc} from "../../features/ic";
+import {reportUsage} from "../../features/analytics";
 import {CategoryId} from "../../parts/catalog-categories";
 import {Modal} from "../components/Modal";
 import {CustomIcType} from "./dialog-store";
@@ -54,6 +55,7 @@ export function IcEditorDialog({type: initialType, editing, onBack, onClose}: Ic
       pinDescription,
       category: CUSTOM_CATEGORY[type],
     }, editing);
+    reportUsage({name: editing ? "edit_custom_part" : "create_custom_part", part_kind: type === "module" ? "dev_board" : "ic"});
     onClose();
   };
 

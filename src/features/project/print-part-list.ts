@@ -3,6 +3,7 @@ import {PartListGroup, PartListRow, TYPE_SEPARATOR} from "../../project-file/par
 import type {SavedBoard} from "../../project-file/project-file";
 import {escapeHtml, printInFrame} from "./print-frame";
 import {facts, iconTile, PAPERS, plural, PRINT_STYLE, regionalPaper, tag, today} from "./print-style";
+import {reportUsage} from "../analytics";
 
 // The Component List's tables for paper: each part, or grouped by part and value as a shopping list
 // with a box to tick for each, every part with its catalog icon (`iconFor`, which the editor's UI
@@ -96,4 +97,5 @@ export function printPartList({projectName, view, rows, groups, board, iconFor}:
   <footer><span>${plural(rows.length, "part")} in ${plural(groups.length, "kind")}</span><span>Made with Perfboard Designer · perfboarddesigner.com</span></footer>
 </body>
 </html>`);
+  reportUsage({name: "export", export_format: "parts_print"});
 }

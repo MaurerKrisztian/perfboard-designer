@@ -8,6 +8,7 @@ import {SelectionState} from "../state/SelectionState";
 import {BoardRefs, refPrefixFor} from "../project-file/part-refs";
 import {RequirementsState} from "../state/RequirementsState";
 import {includeRequiredComponents} from "../project-file/requirements";
+import {reportUsage} from "./analytics";
 
 // Stacking group of each kind within PartState.parts.
 const KIND_ORDER: Record<Part["kind"], number> = {"ic": 0, "standard-component": 1, "advanced-component": 2};
@@ -57,7 +58,12 @@ export function placePart(part: Part) {
   const required = requireParts([part]);
   const added: IChange = {type: "add", kind: "part", part};
   HistoryState.record(required ? {type: "batch", kind: "batch", changes: [added, required]} : added);
+  reportUsage({name: "place_part", part_id: catalogId(part)});
 }
+
+// Which catalog entry a part was placed from, by its definition's id; a custom chip's id is made up
+// in this browser, so all of them are "custom_ic".
+const catalogId = (part: Part) => part.kind === "ic" ? part.definitionId ?? "custom_ic" : part.definitionId;
 
 // Places new parts and wires (a paste) as one undoable step, each part with the lowest free ref
 // for its kind, and selects them all.

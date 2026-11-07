@@ -4,6 +4,7 @@ import {onRedraw, redrawCanvas} from "./draw-canvas";
 import {getSaveJson} from "./project/save-project";
 import {resetInteraction} from "./reset-interaction";
 import {onToolPicked} from "./active-tool";
+import {reportUsage} from "./analytics";
 
 // The solder side view: the board from below, mirrored, with every joint to solder marked (drawn
 // by the board renderer, view.solderSide). It's for looking at, so while it's on the board only
@@ -16,6 +17,7 @@ export function setSolderSide(on: boolean) {
   if (on) {
     resetInteraction();
     countJoints();
+    reportUsage({name: "view_solder_side"});
   }
   redrawCanvas();
 }

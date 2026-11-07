@@ -3,6 +3,7 @@ import {CustomParts} from "../custom-parts";
 import {askConfirm} from "../ask-dialog";
 import {partsLibrary, readPartsLibrary} from "../../project-file/parts-library";
 import {ProjectFileError} from "../../project-file/read-project-file";
+import {reportUsage} from "../analytics";
 
 // File → Export / Import Custom Parts: the user's own ICs, dev boards and modules as one parts
 // library file (src/project-file/parts-library.ts), to keep a copy or move them to another
@@ -24,6 +25,7 @@ export async function exportCustomParts() {
   link.href = url;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 10000);
+  reportUsage({name: "export", export_format: "custom_parts"});
 }
 
 export async function importCustomParts(file: File) {
@@ -35,6 +37,7 @@ export async function importCustomParts(file: File) {
     await askConfirm("Couldn't import parts", `${file.name}: ${reason}`, "OK");
     return;
   }
+  reportUsage({name: "import_custom_parts"});
   const ics = Ic.addCustomIcs(library.customIcs);
   if (ics) Ic.saveCustomIcsToLocalStorage();
   const modules = CustomParts.merge(library.customParts);

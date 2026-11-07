@@ -22,7 +22,7 @@ export function Dialogs() {
       {open?.kind === "share" && <ShareDialog onClose={closeDialog}/>}
       {open?.kind === "part-list" && <PartListDialog onClose={closeDialog}/>}
       {open?.kind === "export-pdf" && <ExportPdfDialog onClose={closeDialog}/>}
-      {open?.kind === "tour" && <TourDialog chapter={open.chapter} onClose={closeDialog}/>}
+      {open?.kind === "tour" && <TourDialog chapter={open.chapter} firstVisit={open.firstVisit} onClose={closeDialog}/>}
       {open?.kind === "custom-part" && <CustomPartDialog onClose={closeDialog}/>}
       {open?.kind === "ic-editor" && <IcEditorDialog type={open.type} editing={open.editing} onBack={back} onClose={closeDialog}/>}
       {open?.kind === "custom-module" && <CustomModuleDialog editing={open.editing} onBack={back} onClose={closeDialog}/>}

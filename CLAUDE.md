@@ -92,7 +92,11 @@ Keep all in-site URLs relative — never `/...` — so it also works under the g
   cookies, only after the visitor accepts; the choice is localStorage `analytics_consent`;
   anything with `data-consent-settings` (the footers' Cookie settings, the editor's Help ›
   Cookie Settings via `src/ui/lib/consent-settings.ts`) reopens the banner. It reports pages
-  without their #fragment, where share links carry a board. A new page loads it too.
+  without their #fragment, where share links carry a board. A new page loads it too. The editor
+  counts feature use through it with `reportUsage()` (`src/features/analytics.ts`, which lists
+  every event): sent only while the visitor allows it, logged to the console instead on a dev
+  server (localhost), and never saying what's on the board (no names, values, notes or links). A
+  new event goes in that list; its parameters need registering in GA4 as custom dimensions.
 - `assets/404.html` — GitHub Pages' not-found page, copied as-is (not a Vite input). It's served at
   whatever missing URL was requested, so it's fully self-contained (inline CSS/SVG) and is the one
   page that uses root-based links (`/app/`, `/`).

@@ -12,11 +12,14 @@ import {downloadAsImage, downloadAsSvg} from "../../features/project/save-image"
 import {importProjectFile} from "../../features/project/current-project";
 import {exportCustomParts, importCustomParts} from "../../features/project/custom-parts-library";
 import {hasConsentSettings, openConsentSettings} from "../lib/consent-settings";
+import {reportUsage} from "../../features/analytics";
 
 // Picks a project file and opens it as a new project, named after the file.
 export async function importProjectFromFile() {
   const file = await pickFile();
-  if (file) importProjectFile(await file.text(), file.name);
+  if (!file) return;
+  reportUsage({name: "import_project", import_from: "picker"});
+  importProjectFile(await file.text(), file.name);
 }
 
 async function importPartsFromFile() {

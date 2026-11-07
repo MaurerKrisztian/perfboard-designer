@@ -4,6 +4,7 @@ import {decodeEmbeddedProject, MAX_SHARED_PROJECT_BYTES, readShareFragment, Shar
 import {importSharedProject} from "./current-project";
 import {fetchStoredProject} from "./project-storage";
 import {fitToScreen} from "../zoom";
+import {reportUsage} from "../analytics";
 
 // Opening a share link (src/project-file/share-link.ts): the project it carries or points at is
 // added to the receiver's projects as a new one. The Share dialog that makes links is in the UI
@@ -63,6 +64,9 @@ function linkedProject(link: ShareLink): Promise<unknown> {
   return decodeEmbeddedProject(link);
 }
 
+// The link's kind as its fragment says it, for counting (analytics.ts).
+const linkType = (link: ShareLink) => link.kind === 'embedded' ? link.format : link.kind === 'hosted' ? 'src' : 'p';
+
 // Opens the project in the address bar's fragment, if it holds a share link.
 async function openLinkedProject() {
   const link = readShareFragment(location.hash);
@@ -78,6 +82,7 @@ async function openLinkedProject() {
     return;
   }
   if (raw === undefined) return;
+  reportUsage({name: "open_shared_link", link_type: linkType(link)});
   importSharedProject(raw, linkedProjectName(link));
   // Someone else's board may not fit the view at the zoom it was left at: show all of it.
   fitToScreen(true);

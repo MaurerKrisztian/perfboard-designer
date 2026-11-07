@@ -6,6 +6,7 @@ import {ViewState} from "../../state/ViewState";
 import {CanvasPainter} from "../board-canvas/canvas-painter";
 import {browserIcons} from "../board-canvas/browser-icons";
 import {downloadFileName, getSaveJson} from "./save-project";
+import {reportUsage} from "../analytics";
 
 // The board as a picture, drawn by the board renderer from the project file: a PNG, or an SVG
 // that stays sharp at any size. Only the board itself, as part labels show it right now; no
@@ -39,6 +40,7 @@ export async function downloadAsImage() {
   ctx.setTransform(EXPORT_SCALE, 0, 0, EXPORT_SCALE, left * EXPORT_SCALE, top * EXPORT_SCALE);
   drawBoard(new CanvasPainter(ctx), project, view);
   download(canvas.toDataURL(), "png");
+  reportUsage({name: "export", export_format: "png"});
 }
 
 // The part icons `project` uses, as SVG source for an SVG to carry inside it, so it shows the same
@@ -62,4 +64,5 @@ export async function downloadAsSvg() {
   const url = URL.createObjectURL(new Blob([svg], {type: "image/svg+xml"}));
   download(url, "svg");
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  reportUsage({name: "export", export_format: "svg"});
 }

@@ -2,6 +2,7 @@ import {BoardSetup, BoardState} from "../state/BoardState";
 import {HistoryState} from "../state/HistoryState";
 import {ToolState} from "../state/ToolState";
 import {redrawCanvas} from "./draw-canvas";
+import {reportUsage} from "./analytics";
 
 // Perfboard or stripboard, and a stripboard's strip direction. Switching only changes how the
 // board is drawn and saved: wires, parts, marked holes and strip cuts all stay where they are.
@@ -22,4 +23,5 @@ export function switchBoard(change: Partial<BoardSetup>) {
   setBoardSetup(to);
   HistoryState.record({type: "set", kind: "board", from, to});
   redrawCanvas();
+  if (to.type !== from.type) reportUsage({name: "switch_board", board_type: to.type});
 }

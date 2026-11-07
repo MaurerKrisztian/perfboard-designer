@@ -3,6 +3,7 @@ import {ProjectState} from "../../state/ProjectState";
 import {makeShareFragment, makeStoredShareFragment} from "../../project-file/share-link";
 import {getSaveJson} from "../../features/project/save-project";
 import {SHORT_LINKS, storedPictures, storeProject} from "../../features/project/project-storage";
+import {reportUsage} from "../../features/analytics";
 import {Modal} from "../components/Modal";
 import {cx} from "../lib/class-names";
 
@@ -72,8 +73,10 @@ export function ShareDialog({onClose}: {onClose: () => void}) {
   }, [link]);
 
   const copy = async () => {
-    if (await copyLink(linkInput.current)) setCopied(true);
-    else setInfo({text: "Copying was blocked. Select the link and copy it yourself."});
+    if (await copyLink(linkInput.current)) {
+      setCopied(true);
+      reportUsage({name: "share", method: "full_link"});
+    } else setInfo({text: "Copying was blocked. Select the link and copy it yourself."});
   };
 
   return (
@@ -120,6 +123,7 @@ function ShortLink() {
     setInfo({text: "Storing a copy of the board..."});
     try {
       const id = await storeProject(getSaveJson(), {...(wanted ? {id: wanted} : {}), ...(projectName ? {name: projectName} : {})});
+      reportUsage({name: "share", method: "short_link"});
       if (!mounted.current) return;
       setLinks({link: editorLink(makeStoredShareFragment(id, projectName)), ...storedPictures(id)});
       setInfo({text: `Stored as "${id}". The stored copy doesn't change: after changing the board, make a new link.`});

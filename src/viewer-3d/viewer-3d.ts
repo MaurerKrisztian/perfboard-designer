@@ -291,6 +291,7 @@ class Viewer3d {
     link.download = "perfboard-3d.png";
     link.href = this.renderer.domElement.toDataURL("image/png");
     link.click();
+    hooks.onDownload?.("screenshot");
   }
 
   // The board as a .glb file, for other 3D programs (export-model.ts).
@@ -303,6 +304,7 @@ class Viewer3d {
       link.href = url;
       link.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
+      hooks.onDownload?.("model");
     } catch (e) {
       console.error(e);
       this.showError("Couldn't export the 3D model.");
@@ -367,9 +369,17 @@ class Viewer3d {
 
 let active: Viewer3d | undefined;
 
+/** What the viewer tells whoever opened it: a download of the model (.glb) or a screenshot. */
+export interface ViewerHooks {
+  onDownload?: (what: "model" | "screenshot") => void;
+}
+
+let hooks: ViewerHooks = {};
+
 /** Opens the viewer on a project (the parsed JSON of a project file), or shows that project
  *  in the viewer if it's already open. */
-export function openViewer3d(project: unknown) {
+export function openViewer3d(project: unknown, viewerHooks: ViewerHooks = {}) {
+  hooks = viewerHooks;
   if (!active) active = new Viewer3d(() => { active = undefined; });
   active.load(project);
 }

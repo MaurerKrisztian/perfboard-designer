@@ -12,6 +12,7 @@ import {escapeHtml, printInFrame} from "./print-frame";
 import {componentTable, IconFor, shoppingTable} from "./print-part-list";
 import {facts, iconTile, Paper, PAPERS, plural, PRINT_STYLE, tag, today} from "./print-style";
 import {embeddedIcons} from "./save-image";
+import {reportUsage} from "../analytics";
 
 // File › Export PDF: one document about the project, its sections picked in the Export PDF dialog.
 // An overview (the board, its figures and how its checks came out), the board from both sides, the
@@ -42,6 +43,7 @@ export interface ProjectPdf {
 
 export async function exportProjectPdf(pdf: ProjectPdf) {
   printInFrame(projectDocument(pdf, await embeddedIcons(pdf.project)));
+  reportUsage({name: "export", export_format: "pdf"});
 }
 
 // The page margins (mm), and what's left of a sheet inside them, portrait.

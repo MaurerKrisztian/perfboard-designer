@@ -7,6 +7,7 @@ import {groupedPartListCsv, groupPartList, partList, partListCsv, TYPE_SEPARATOR
 import {redrawCanvas} from "../../features/draw-canvas";
 import {downloadFileName, getSaveJson} from "../../features/project/save-project";
 import {PartListView, printPartList} from "../../features/project/print-part-list";
+import {reportUsage} from "../../features/analytics";
 import {Modal} from "../components/Modal";
 import {SegmentedControl} from "../components/SegmentedControl";
 import {useTouchScreen} from "../hooks/use-media-query";
@@ -36,6 +37,7 @@ function downloadCsv(text: string, view: View) {
   link.href = url;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 10000);
+  reportUsage({name: "export", export_format: "parts_csv"});
 }
 
 export function PartListDialog({onClose}: {onClose: () => void}) {

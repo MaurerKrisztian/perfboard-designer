@@ -1,6 +1,7 @@
 import {onRedraw} from "../draw-canvas";
 import {notifyEditorChanged} from "../editor-events";
 import {tell} from "../ask-dialog";
+import {reportUsage} from "../analytics";
 import {getSaveJson} from "./save-project";
 import {loadProject} from "./load-project";
 import {ProjectState} from "../../state/ProjectState";
@@ -150,6 +151,7 @@ export async function importProjectFiles(files: File[]) {
       void tell(`Couldn't open "${file.name}"`, "It couldn't be read. Drop a project file, not a folder.");
       continue;
     }
+    reportUsage({name: "import_project", import_from: "drop"});
     importProjectFile(text, file.name);
   }
 }

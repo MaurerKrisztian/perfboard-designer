@@ -2,6 +2,7 @@ import {FormEvent, useEffect, useRef, useState} from "react";
 import {ProjectState} from "../../state/ProjectState";
 import {listStoredProjects, unusedProjectName} from "../../features/project/project-store";
 import {DEFAULT_PROJECT_NAME, newProject, saveNow} from "../../features/project/current-project";
+import {reportUsage} from "../../features/analytics";
 import {useEditor} from "../hooks/use-editor";
 import {Modal} from "../components/Modal";
 import {importProjectFromFile} from "../header/AppHeader";
@@ -75,6 +76,7 @@ export function ProjectsDialog({startNew, onClose}: {startNew: boolean; onClose:
           <NewProjectCard creating={mode.kind === "new"} onStart={() => setMode({kind: "new"})} onCancel={() => setMode({kind: "list"})}
             onCreate={(name, board) => {
               newProject(name || unusedProjectName(DEFAULT_PROJECT_NAME), board);
+              reportUsage({name: "new_project", board_type: board.type});
               onClose();
             }}/>
           {shown.map(project => (

@@ -13,8 +13,8 @@ export type OpenDialog =
   | {kind: "share"}
   | {kind: "part-list"}
   | {kind: "export-pdf"}
-  // The tour (TourDialog.tsx), open at a chapter.
-  | {kind: "tour"; chapter: TourChapterId}
+  // The tour (TourDialog.tsx), open at a chapter; `firstVisit`: opened by itself, not from Help.
+  | {kind: "tour"; chapter: TourChapterId; firstVisit?: boolean}
   // The parts list's one way to make a part of your own: pick what kind, then its editor below.
   | {kind: "custom-part"}
   // A new chip of `type`, or a custom one being edited. `fromChooser`: opened from custom-part,

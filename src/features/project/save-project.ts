@@ -11,6 +11,7 @@ import {BoardState} from "../../state/BoardState";
 import {ProjectState} from "../../state/ProjectState";
 import {RequirementsState} from "../../state/RequirementsState";
 import type {ILine} from "../../interfaces/line.interface";
+import {reportUsage} from "../analytics";
 
 // Downloads are named after the project (the open one by default), minus characters file systems
 // don't allow.
@@ -26,6 +27,7 @@ export function downloadProjectFile(json: string, projectName?: string) {
   document.body.appendChild(downloadAnchorNode); // required for firefox
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
+  reportUsage({name: "export", export_format: "project"});
 }
 
 // File → Save Project to File: the board as a project file, named after the project.

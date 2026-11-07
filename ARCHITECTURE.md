@@ -87,6 +87,18 @@ attribute reopens the banner: the footers' Cookie settings, and the editor's Hel
 Settings (`src/ui/lib/consent-settings.ts`). It reports each page without its `#fragment`, where
 the editor's share links carry a whole board. A new page loads it too.
 
+The editor counts which features get used (exports, sharing, custom parts, parts placed, the
+tour…) as GA4 events, through the banner's `window.perfboardConsent.event()`: call
+`reportUsage()` from `src/features/analytics.ts`, which lists every event and its parameters.
+An event is sent only while the visitor allows analytics, so nothing done before accepting or
+after declining is ever sent; on a dev server (localhost, `*.localhost`, `*.test`) nothing loads
+from Google and events are logged to the console instead, to check what a change sends. Events
+say which feature, never what's on the board: no project, part or file names, values, notes or
+links, as the banner promises. To add one, add it to `UsageEvent` and call `reportUsage()` where
+the action happens; to see a new parameter in GA4's reports, register it there as an
+event-scoped custom dimension of the same name. The 3D viewer doesn't import the editor, so it
+reports its downloads through the `onDownload` hook `openViewer3d()` is given.
+
 `assets/` is Vite's publicDir: served from the site root, so from the editor the part icons are
 `../icons/components/…`. **Keep in-site URLs relative** (never `/…`), so the site also works under
 the github.io subfolder `/perfboard-designer/`. Only SEO tags (canonical, og:*, sitemap) and the

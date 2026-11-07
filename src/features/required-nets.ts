@@ -1,4 +1,5 @@
 import {askConfirm} from "./ask-dialog";
+import {reportUsage} from "./analytics";
 import {setActiveTool} from "./active-tool";
 import {redrawCanvas} from "./draw-canvas";
 import {cancelPlacement, finishActiveTool} from "./select";
@@ -28,6 +29,7 @@ export function pickRequiredNet(netId?: string) {
   const net = netId ? RequirementsState.current?.nets.find(n => n.id === netId) : undefined;
   SelectionState.clear();
   setActiveTool({kind: "required-net", ...(net ? {netId: net.id} : {}), picked: net ? pickedPinsFor(net.pins) : []});
+  reportUsage({name: "edit_required_nets", required_action: net ? "edit_net" : "add_net"});
 }
 
 // Saves the net being picked (as Enter does) or drops it (as Escape does).
@@ -42,6 +44,7 @@ export function cancelRequiredNet() {
 // Starts the required connections from the board's wiring as it is: every net it has now.
 export function requireCurrentWiring() {
   change(createRequirements(getSaveJson(), true));
+  reportUsage({name: "edit_required_nets", required_action: "copy_wiring"});
 }
 
 export function deleteRequiredNet(netId: string) {
