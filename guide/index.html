@@ -511,6 +511,7 @@
             <li><kbd>Delete</kbd> removes the selected part or wire.</li>
             <li><strong>Select several at once</strong>: hold <kbd>Shift</kbd> and click parts and wires to add them to the selection (Shift-click one again to take it out), or hold <kbd>Shift</kbd> and drag a box: everything that lies wholly inside it is selected. <kbd>Ctrl</kbd>+<kbd>A</kbd> selects every part and wire. Or click <strong>Select more</strong> in the bar along the bottom of the board, and plain clicks and drags do the same until you click it again.</li>
             <li>Drag any of the selected parts, or one of the selected wires, and they all move together; wires you didn't select stay where they are. A click on one of them, without dragging, selects just that one. <kbd>Delete</kbd> removes them all, and <strong>Undo</strong> brings them all back in one go.</li>
+            <li><strong>Move one hole at a time</strong>: the arrow keys move whatever parts and wires are selected one hole up, down, left or right, as a drag would. Nothing moves if any of it would go off the board, and each press is one step to undo.</li>
             <li><strong>Copy and paste</strong>: <kbd>Ctrl</kbd>+<kbd>C</kbd> copies the selected parts and wires, <kbd>Ctrl</kbd>+<kbd>X</kbd> cuts them, and <kbd>Ctrl</kbd>+<kbd>V</kbd> pastes them with their top-left corner at the hole under the pointer, into this project or another one. <strong>Duplicate</strong> in the bar (or <kbd>Ctrl</kbd>+<kbd>D</kbd>) puts a copy beside the original, where there's room. Copies are new parts, numbered on from the board's own (a copy of R3 might be R7), with the same values.</li>
             <li><strong>Eraser</strong>: click a part or wire to remove it, or a hole to clear its note.</li>
             <li><strong>Note</strong>: click a hole to write a note on it, such as "to 9V battery" or "solder last". Notes show in the bar below the board when you point at the hole. With a hole selected, <kbd>D</kbd> adds a note and <kbd>Shift</kbd>+<kbd>D</kbd> removes it.</li>
@@ -835,6 +836,7 @@
                 <tr><td><kbd>/</kbd> while dragging a wire</td><td>Flip its L</td></tr>
                 <tr><td><kbd>Shift</kbd> while dragging a wire</td><td>Draw it straight (with the Select tool, press it once the wire is on its way: held as you press, it draws a selection box)</td></tr>
                 <tr><td><kbd>Delete</kbd></td><td>Delete the selected parts and wires</td></tr>
+                <tr><td><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd></td><td>Move the selected parts and wires one hole</td></tr>
                 <tr><td><kbd>Shift</kbd> + click</td><td>Add a part or wire to the selection, or take it out</td></tr>
                 <tr><td><kbd>Shift</kbd> + drag</td><td>Select everything inside a box</td></tr>
                 <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>Select every part and wire</td></tr>

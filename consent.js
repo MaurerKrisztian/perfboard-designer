@@ -6,6 +6,11 @@
 // window.perfboardConsent.open(). Declining after accepting turns analytics off and deletes its
 // cookies.
 //
+// The editor counts what gets used through window.perfboardConsent.event(name, params) (the events
+// are listed in src/features/analytics.ts): sent only while the visitor's choice is to allow it, so
+// nothing done before accepting, or after declining, is ever sent. On a dev server (localhost and
+// the like) nothing is loaded from Google: events are logged to the console instead.
+//
 // Served as is from assets/ (Vite's publicDir), not bundled, so pages load it with a plain script
 // tag; it imports nothing and has no build step.
 (() => {
@@ -13,8 +18,12 @@
   const STORAGE_KEY = "analytics_consent";
   const GRANTED = "granted";
   const DENIED = "denied";
+  // Where the site is being worked on, not visited: it stays out of the real figures.
+  const DEV_HOST = /^(localhost|127\.0\.0\.1|\[::1\])$|\.(localhost|test)$/.test(location.hostname);
 
   let analyticsLoaded = false;
+  // The choice as it stands on this page, even when storage is blocked and it can't be kept.
+  let choice;
   let banner;
 
   function readChoice() {
@@ -48,6 +57,10 @@
       return;
     }
     analyticsLoaded = true;
+    if (DEV_HOST) {
+      console.info("[analytics] allowed: on this dev server events are logged here, not sent");
+      return;
+    }
     // As Google's consent mode guide has it: everything denied by default, then the choice as an
     // update, both before config. Analytics only: nothing for ads.
     gtag("consent", "default", {analytics_storage: DENIED, ad_storage: DENIED, ad_user_data: DENIED, ad_personalization: DENIED});
@@ -77,11 +90,20 @@
     document.cookie = `${name}=; Max-Age=0; path=/`;
   }
 
-  function choose(choice) {
-    saveChoice(choice);
-    if (choice === GRANTED) startAnalytics();
+  function choose(chosen) {
+    choice = chosen;
+    saveChoice(chosen);
+    if (chosen === GRANTED) startAnalytics();
     else stopAnalytics();
     closeBanner();
+  }
+
+  // One use of the editor, as a GA4 event: only while allowed. Its parameters say which feature,
+  // never what's on the board.
+  function sendEvent(name, params = {}) {
+    if (choice !== GRANTED || !analyticsLoaded) return;
+    if (DEV_HOST) console.info("[analytics]", name, params);
+    else gtag("event", name, params);
   }
 
   const STYLE = `
@@ -206,7 +228,7 @@
     openBanner()?.focus();
   }
 
-  window.perfboardConsent = {open: openSettings};
+  window.perfboardConsent = {open: openSettings, event: sendEvent};
 
   document.addEventListener("click", event => {
     const opener = event.target instanceof Element && event.target.closest("[data-consent-settings]");
@@ -215,7 +237,7 @@
     openSettings();
   });
 
-  const choice = readChoice();
+  choice = readChoice();
   if (choice === GRANTED) startAnalytics();
   if (choice !== GRANTED && choice !== DENIED) {
     if (document.body) openBanner();
