@@ -763,6 +763,46 @@
             plus links to a picture of the board as SVG and PNG, ready to post. Anyone with the link
             can open it, and the stored copy never changes.
           </p>
+          <p>
+            You won't lose it: the Share dialog keeps listing the short links you've made for a project.
+            They're kept in this browser with the project, not in its file, so clearing your site data
+            or deleting the project removes the list, though not the links themselves. Since a stored
+            copy never changes, a link is marked <strong>Board has changed since</strong> once you've
+            edited the board: it still shows the board as it was, so make a new one to share your latest
+            version. <strong>Forget</strong> takes a link off the list.
+          </p>
+          <h3 id="description">Describe your board, and share a page about it</h3>
+          <p>
+            <strong>Add description</strong> at the top of the editor (or <strong>File ›
+            Description…</strong>) is where you write what the board is, how it works and what someone
+            building it should know. It's saved with the project and goes along in its files and share
+            links. On a board that has one, the button says <strong>Description</strong>, in copper, so
+            whoever opens the board sees there's something to read. Keep it plain text, or use a
+            little Markdown: <code># Heading</code>, <code>- list</code>, <code>**bold**</code>,
+            <code>*italic*</code>, <code>`code`</code> and <code>[a link](https://…)</code>. However
+            you close the dialog, what you typed is kept, and <kbd>Ctrl</kbd>+<kbd>Z</kbd> takes back
+            the change.
+          </p>
+          <p>
+            Name a part as the board does, like <code>R1</code>, or a pin, like <code>U1.8</code> or
+            <code>D1.K</code>, and the name becomes a way to find it. Clicking it in the dialog selects
+            that part on the board.
+          </p>
+          <p>
+            In the Share dialog, <strong>Opens a page to read</strong> makes a link to a page about
+            the board instead of the editor: its name and size, a picture of it, your description,
+            its parts with their icons and its nets, with buttons that open a copy in the editor,
+            download the project PDF and show it in 3D. <strong>Preview</strong>, beside the link,
+            opens that page in a new tab, as the people you send it to will see it. The picture
+            switches between the top and the
+            <strong>Solder side</strong>, and <strong>Full screen</strong> (or a click on it) shows it
+            up close, to zoom with the wheel or a pinch and drag around. Pointing at a part's name in
+            your text, a part in the list, a net or a pin lights it up on the picture, and clicking
+            or tapping it keeps it lit and brings the picture into view if it has scrolled away. On a
+            wide screen it stays beside the rest. It's the one to post on a forum or send to a
+            friend. It starts on this choice when the board has a description.
+            Like every full link, it carries the board inside it, and nothing is uploaded.
+          </p>
           <h3>Images for printing and documentation</h3>
           <p>
             <strong>File › Download Image</strong> (or <kbd>P</kbd>) saves the board as a PNG, and
@@ -777,6 +817,7 @@
           </p>
           <ul>
             <li><strong>Overview:</strong> the name, the board's size, its figures (parts, nets, wires, joints), the board itself, and whether its checks found anything.</li>
+            <li><strong>Description:</strong> what you wrote about the board, when it has a <a href="#description">description</a>.</li>
             <li><strong>Board pictures:</strong> the top with each part's ref, and the solder side as you'll hold it to solder.</li>
             <li><strong>Components</strong> and the <strong>Shopping list</strong>, each part with its icon, the shopping list with a box to tick for each.</li>
             <li><strong>Nets:</strong> which pins each net joins, to check the finished board with a meter.</li>
