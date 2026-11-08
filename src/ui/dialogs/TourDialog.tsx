@@ -70,8 +70,8 @@ const CHAPTERS: {id: TourChapterId; name: string; slides: Slide[]}[] = [
       {
         title: "Save and share",
         clip: "save-share",
-        text: "Your boards save themselves in this browser. Share makes a link that opens a copy for anyone, "
-          + "and the File menu saves the project, an image or a PDF.",
+        text: "Your boards save themselves in this browser. Share makes a link that opens a copy for anyone, or a page "
+          + "about the board, and the File menu saves the project, an image or a PDF.",
       },
     ],
   },

@@ -1,7 +1,7 @@
 import {
   BoardRefs, boardPins, CUSTOM_PART_ID, customPartDefinition, customPartShape, type CustomPartSpec, fileVersionFor, GridPos,
-  isSolderPath, isValidRef, MAX_CUSTOM_PART_SIDE, partPins, pinName, ProjectFile, readCustomPart, SavedCustomIc, SavedWire,
-  shapedPartSpec,
+  isSolderPath, isValidRef, MAX_CUSTOM_PART_SIDE, MAX_DESCRIPTION_LENGTH, partPins, pinName, ProjectFile, readCustomPart, readDescription,
+  SavedCustomIc, SavedWire, shapedPartSpec,
 } from "./editor";
 import {findPart, icEntry, noSuchPart} from "./parts";
 import {findPin, pinsByRef} from "./expected-nets";
@@ -62,6 +62,7 @@ function applyOne(project: ProjectFile, op: EditOp, placed: Set<string>): string
     case "add_cuts": return addCuts(project, op);
     case "remove_cuts": return removeCuts(project, op);
     case "set_pad": return setPad(project, op);
+    case "set_description": return setDescription(project, op);
   }
 }
 
@@ -593,6 +594,17 @@ function setPad(project: ProjectFile, op: Op<"set_pad">): string {
   if (!op.note) return `Removed the note on hole ${showHole(op.at)}.`;
   project.pads.push({at: toGridPos(op.at), note: op.note});
   return `Noted "${op.note}" on hole ${showHole(op.at)}.`;
+}
+
+function setDescription(project: ProjectFile, op: Op<"set_description">): string {
+  if (op.text.length > MAX_DESCRIPTION_LENGTH) throw new OpError(`It's ${op.text.length} characters long, past the limit of ${MAX_DESCRIPTION_LENGTH}.`);
+  const description = readDescription(op.text);
+  if (!description) {
+    delete project.description;
+    return "Removed the description.";
+  }
+  project.description = description;
+  return `Set the description (${plural(description.length, "character")}).`;
 }
 
 function checkOnBoard(project: ProjectFile, at: readonly number[], what: string) {

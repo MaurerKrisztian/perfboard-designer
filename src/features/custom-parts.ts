@@ -103,15 +103,4 @@ export function isArmed(id: string | undefined): boolean {
   return active.kind === "advanced-component" && !!active.custom && active.custom.id === id;
 }
 
-// A small picture of the part for the catalog: its body in its colour, a dot on each pin.
-export function customPartIconSvg(spec: CustomPartSpec): string {
-  const pitch = 10;
-  const width = spec.cols * pitch, height = spec.rows * pitch;
-  const fill = /^#[0-9a-f]{3,8}$/i.test(spec.color ?? "") ? spec.color : "#1f2937";
-  const pins = spec.pins.map(({at: [col, row]}, i) =>
-    `<circle cx="${col * pitch + pitch / 2}" cy="${row * pitch + pitch / 2}" r="2.6" fill="${i === 0 ? "#38bdf8" : "#e8d296"}"/>`).join("");
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 ${width + 2} ${height + 2}" width="${width + 2}" height="${height + 2}">`
-    + `<rect width="${width}" height="${height}" rx="2" fill="${fill}" stroke="#94a3b8" stroke-width="1"/>${pins}</svg>`;
-}
-
 CustomParts.load();

@@ -26,14 +26,15 @@ const config = ({command}: ConfigEnv): UserConfig => ({
   build: {
     rollupOptions: {
       // Multi-page build: the landing page at the root, the designer at /app/ and the
-      // standalone user guide (/guide/), contributors (/contributors/) and MCP server
-      // (/mcp-server/) pages.
+      // standalone user guide (/guide/), contributors (/contributors/), MCP server
+      // (/mcp-server/) and shared board (/view/) pages.
       input: {
         main: "index.html",
         app: "app/index.html",
         guide: "guide/index.html",
         contributors: "contributors/index.html",
         mcpServer: "mcp-server/index.html",
+        view: "view/index.html",
       },
     },
   },

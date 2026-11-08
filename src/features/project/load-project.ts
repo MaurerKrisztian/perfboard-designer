@@ -12,6 +12,7 @@ import {readProjectFile} from "../../project-file/read-project-file";
 import {setBoardSetup} from "../board-type";
 import {lineFromWire, partFromEntry} from "./board-entries";
 import {CustomParts} from "../custom-parts";
+import {DescriptionState} from "../../state/DescriptionState";
 import {RequirementsState} from "../../state/RequirementsState";
 
 // Replaces the board with a project file's (any version). The file is read and checked in full
@@ -22,6 +23,7 @@ export function loadProject(raw: unknown): {skipped: number} {
 
   resetForNewBoard();
   RequirementsState.current = project.requirements;
+  DescriptionState.current = project.description;
   const {board} = project;
   setBoardSetup({type: board.type, strips: board.type === "stripboard" ? board.strips : "horizontal"});
   createDotGrid(board.cols, board.rows);

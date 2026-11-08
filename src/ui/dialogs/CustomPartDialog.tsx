@@ -1,6 +1,5 @@
 import {useEffect, useRef} from "react";
-import {dipIconSvg, moduleIconSvg} from "../../board-render";
-import {customPartIconSvg} from "../../features/custom-parts";
+import {customPartIconSvg, dipIconSvg, moduleIconSvg} from "../../board-render";
 import {getAdvancedIconPath} from "../../parts/advanced-component-definitions";
 import {CUSTOM_PART_SHAPES, customPartShape} from "../../parts/custom-parts";
 import {Modal} from "../components/Modal";

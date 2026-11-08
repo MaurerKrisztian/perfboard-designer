@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <!-- Google Analytics, only once the visitor accepts it: consent.js -->
+    <script src="../consent.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- What this page shows is in its link's fragment, which never reaches a server or a crawler. -->
+    <meta name="robots" content="noindex" />
+    <title>A shared board | Perfboard Designer</title>
+    <meta name="description" content="A perfboard or stripboard layout shared from Perfboard Designer: the board, what it does, its parts and its connections." />
+    <meta name="theme-color" content="#0b1220" />
+    <link rel="icon" type="image/png" href="../favicon.png" />
+
+    <!-- Link previews (Facebook, LinkedIn, Discord, Slack, X...) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Perfboard Designer" />
+    <meta property="og:title" content="A board shared from Perfboard Designer" />
+    <meta property="og:description" content="See the board, what it does, its parts and its connections, and open your own copy in the free online designer." />
+    <meta property="og:image" content="https://perfboarddesigner.com/images/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="A stereo audio amplifier on a perfboard in Perfboard Designer's 3D view, with two TDA2030A chips, RCA jacks and a dual potentiometer" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="/src/landing/landing.css" />
+    <link rel="stylesheet" href="/src/view-page/view-page.css" />
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="brand" href="../" aria-label="Perfboard Designer home">
+      <span class="brand-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <circle cx="6" cy="6" r="2" />
+          <circle cx="18" cy="6" r="2" />
+          <circle cx="6" cy="18" r="2" />
+          <circle cx="18" cy="18" r="2" />
+          <path d="M8 6h8M6 8v8M18 8v8M8 18h8" />
+        </svg>
+      </span>
+      <span class="brand-title">Perfboard Designer</span>
+    </a>
+    <a class="button button-small" href="../app/">Open the designer</a>
+  </header>
+
+  <main id="viewPage" class="view-page">
+    <p class="view-loading">Loading the board…</p>
+    <noscript><p class="view-loading">This page needs JavaScript to show the board.</p></noscript>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Made with Perfboard Designer, free and open source, by
+      <a href="https://github.com/MaurerKrisztian" target="_blank" rel="noopener">@MaurerKrisztian</a>
+      and <a href="../contributors/">contributors</a>.
+    </p>
+    <nav aria-label="Footer">
+      <a href="../">Home</a>
+      <a href="../app/">Designer</a>
+      <a href="../guide/">Guide</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer/issues" target="_blank" rel="noopener">Report a bug</a>
+      <a href="#cookie-settings" data-consent-settings>Cookie settings</a>
+    </nav>
+  </footer>
+
+  <script type="module" src="/src/view-page/view-page.ts"></script>
+</body>
+</html>

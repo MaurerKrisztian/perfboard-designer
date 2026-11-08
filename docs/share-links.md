@@ -22,6 +22,22 @@ and makes the link for it.
 - The project is checked like an imported file. Entries that can't be read are left out, and the
   user is told how many. A link that can't be read at all leaves everything untouched and says why.
 
+## A page to read instead
+
+The same link with `view/` in place of `app/` opens a read-only page about the board, for sending
+to someone who wants to see it before (or instead of) opening it:
+
+```
+https://perfboarddesigner.com/view/#<fragment>
+```
+
+It shows the project's name, a picture of the board (from either side, and full screen to zoom
+into), its description, its parts and its nets, with buttons that open a copy in the editor, print
+the project PDF and show it in 3D. Part names in the description, and the parts and nets listed,
+light up on the picture. It takes every form of the fragment below. It keeps
+nothing and changes nothing: the receiver's projects stay as they are, and the link stays in the
+address bar. A `src` project is downloaded only once the reader agrees, as in the editor.
+
 ## Format
 
 ```
@@ -148,6 +164,14 @@ https://perfboarddesigner.com/app/#name=LED%20blinker&p=led-blinker
 
 ## The project file
 
+Version 10 adds an optional `description`: what the board is and how it works, for whoever opens
+it, up to 20,000 characters. It's written in a small part of Markdown (`#` headings, `-` and `1.`
+lists, `**bold**`, `*italic*`, `` `code` ``, `[links](https://...)` and bare `https://` addresses),
+without raw HTML or images, and a line break stays a line break. A part's `ref` written exactly as
+the board has it, with or without a pin (`R1`, `U1.8`, `U1.VCC`, `D1.K`), finds that part: on the
+page to read it lights up on the board, and in the editor a click selects it. Older readers skip
+the description, so it doesn't need a newer version on its own.
+
 Version 8 adds optional `requirements`: independent intended `nets` containing
 `{componentId, pin}` terminals, an explicit `unused` terminal list, component/pin snapshots
 (`components`) and an opt-in `validate` flag.
@@ -203,7 +227,7 @@ editors open too. It's documented field by field in
   automatically.
 
 The reader is forgiving: empty lists can be left out, a file without `version` that has a `board`
-is read as version 9, and board entries it can't read are skipped (and counted) instead of failing the
+is read as version 10, and board entries it can't read are skipped (and counted) instead of failing the
 whole project.
 
 The `definitionId`s, with each part's pins, are in

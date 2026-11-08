@@ -25,7 +25,7 @@ export function boardSizePx(board: SavedBoard): {width: number; height: number} 
 
 export function drawBoard(painter: Painter, project: ProjectFile, view: BoardView = PLAIN_VIEW) {
   if (view.solderSide) {
-    drawSolderSide(painter, project, !!view.holeLabels);
+    drawSolderSide(painter, project, !!view.holeLabels, view.highlight);
     return;
   }
   const {width, height} = boardSizePx(project.board);
@@ -83,8 +83,9 @@ const GHOST_BOTTOM_WIRES = 0.35;
 // The board from below, for soldering: mirrored left to right, copper side up (a stripboard's
 // strips and cuts and the solder paths at full strength), the component side faded behind it,
 // every joint marked and each chip's pin 1 boxed. A wire stops short of each joint it only passes
-// over, so it's plain which joints it's soldered into.
-function drawSolderSide(painter: Painter, project: ProjectFile, holeLabels: boolean) {
+// over, so it's plain which joints it's soldered into. A lit net (`highlight`) is lit from below too,
+// where its joints are.
+function drawSolderSide(painter: Painter, project: ProjectFile, holeLabels: boolean, highlight: BoardView["highlight"]) {
   const {width, height} = boardSizePx(project.board);
   const look = boardLookFor(project.board.type);
   const parts = boardParts(project);
@@ -118,6 +119,7 @@ function drawSolderSide(painter: Painter, project: ProjectFile, holeLabels: bool
   if (project.board.type === "stripboard") drawCutMarks(painter, project.board.cuts, width);
   drawSolderJoints(painter, project, width);
   drawSolderRefs(painter, project, width);
+  if (highlight) painter.group({flipX: width}, () => drawNetHighlight(painter, highlight));
 }
 
 // Holes under a chip's body that aren't its pins, by "col,row".

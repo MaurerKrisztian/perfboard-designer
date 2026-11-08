@@ -11,6 +11,8 @@ export type CustomIcType = "ic" | "module";
 export type OpenDialog =
   | {kind: "projects"; startNew: boolean}
   | {kind: "share"}
+  // The project's description; `fromShare`: opened from the Share dialog, so it goes back there.
+  | {kind: "description"; fromShare?: boolean}
   | {kind: "part-list"}
   | {kind: "export-pdf"}
   // The tour (TourDialog.tsx), open at a chapter; `firstVisit`: opened by itself, not from Help.

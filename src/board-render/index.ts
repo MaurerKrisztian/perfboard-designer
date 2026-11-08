@@ -30,6 +30,8 @@ export {MODULE_EDGE, MODULE_END} from "./artists/ic-package/module-shape";
 // Catalog artwork for chips and dev boards.
 export {dipIconSvg} from "./artists/ic-package/dip-shape";
 export {moduleIconSvg} from "./artists/ic-package/module-shape";
+// Each placed part's catalog artwork, and a custom module's.
+export {customPartIconSvg, partIcons, svgDataUri} from "./part-icons";
 
 // Colours and sizes the editor needs too.
 export {DEFAULT_WIRE_WIDTH, SELECTION_COLOR, SOLDER_COLOR, SOLDER_EDGE, SOLDER_PATH_WIDTH} from "./palette";

@@ -5,6 +5,7 @@ import {IChange} from "../../interfaces/change.interface";
 import {ILine} from "../../interfaces/line.interface";
 import {addToBoard, takeOffBoard} from "../placed-parts";
 import {setBoardSetup} from "../board-type";
+import {DescriptionState} from "../../state/DescriptionState";
 import {RequirementsState} from "../../state/RequirementsState";
 import {SelectionState} from "../../state/SelectionState";
 import {PartState} from "../../state/PartState";
@@ -30,6 +31,10 @@ function applyChange(change: IChange, direction: "apply" | "revert") {
   }
   if (change.kind === "requirements") {
     RequirementsState.current = direction === "apply" ? change.to : change.from;
+    return;
+  }
+  if (change.kind === "description") {
+    DescriptionState.current = direction === "apply" ? change.to : change.from;
     return;
   }
   if (change.kind === "board") {

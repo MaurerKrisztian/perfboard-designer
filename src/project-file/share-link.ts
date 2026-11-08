@@ -74,6 +74,27 @@ export function makeStoredShareFragment(id: string, name?: string): string {
   return `${name?.trim() ? `name=${encodeURIComponent(name.trim())}&` : ""}p=${id}`;
 }
 
+// The address of the page that shows a shared board for reading (view/, beside the editor), for an
+// editor at `editorUrl`. The same fragment works on both.
+export const readingPageUrl = (editorUrl: string) => new URL("../view/", editorUrl).href;
+
+// A hosted project without a `name` is named after its file.
+function hostedFileName(url: string): string | undefined {
+  try {
+    const file = decodeURIComponent(new URL(url).pathname.split("/").pop() ?? "");
+    return file.replace(/\.json$/i, "").trim() || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+// What a link's project is called: its `name`, else a hosted file's name or a stored project's id.
+export function linkedProjectName(link: ShareLink): string | undefined {
+  if (link.name) return link.name;
+  if (link.kind === "hosted") return hostedFileName(link.url);
+  return link.kind === "stored" ? link.id : undefined;
+}
+
 // The project file an embedded link carries, parsed but not yet checked: pass it to
 // readProjectFile. Throws ProjectFileError when it can't be unpacked or isn't JSON.
 export async function decodeEmbeddedProject(link: Extract<ShareLink, {kind: "embedded"}>): Promise<unknown> {

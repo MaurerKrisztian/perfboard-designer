@@ -112,11 +112,12 @@ async function record(browser, scenePath, out, baseUrl, opts) {
       ...["-movflags", "+faststart", out],
     ]);
     // A still of the clip's last frame, the result it shows, beside it: a page shows it before the
-    // clip plays (the user guide's <video poster>).
+    // clip plays (the user guide's <video poster>). image2, as older ffmpegs' own WebP writer ignores
+    // -update and makes an animation of every frame it's given, ten times the size.
     const poster = out.replace(/\.mp4$/, ".webp");
     execFileSync("ffmpeg", [
       ...["-loglevel", "error", "-y", "-sseof", "-0.5", "-i", out],
-      ...["-update", "1", "-c:v", "libwebp", "-quality", "70", poster],
+      ...["-update", "1", "-f", "image2", "-c:v", "libwebp", "-quality", "70", poster],
     ]);
     console.log(`Wrote ${out} and its poster`);
     return true;

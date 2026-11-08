@@ -1,7 +1,7 @@
 import {useEffect, useRef} from "react";
 import {ProjectFile} from "../../project-file/project-file";
 import {readProjectFile} from "../../project-file/read-project-file";
-import {readStoredProjectFile, StoredProject} from "../../features/project/project-store";
+import {readShortLinks, readStoredProjectFile, StoredProject} from "../../features/project/project-store";
 import {deleteProject, duplicateProject, openProject, renameProject, saveNow} from "../../features/project/current-project";
 import {downloadProjectFile} from "../../features/project/save-project";
 import {drawProjectThumbnail} from "../../features/project/project-thumbnail";
@@ -123,7 +123,7 @@ export function ProjectCard({project, isOpen, mode, setMode, menuOpen, onToggleM
         <CardMenuItem icon="🗑" label="Delete" className="is-danger" onClick={fromMenu(() => setMode({kind: "confirm-delete", id: project.id}))}/>
       </div>
       {confirmingDelete && (
-        <DeleteConfirmation name={project.name} onCancel={() => setMode({kind: "list"})} onDelete={() => {
+        <DeleteConfirmation name={project.name} hasShortLinks={readShortLinks(project.id).length > 0} onCancel={() => setMode({kind: "list"})} onDelete={() => {
           deleteProject(project.id);
           setMode({kind: "list"});
           onChanged();
@@ -176,13 +176,16 @@ function RenameField({name, onDone, onCancel}: {name: string; onDone: (name: str
 }
 
 // Asks before deleting, over the card itself.
-function DeleteConfirmation({name, onCancel, onDelete}: {name: string; onCancel: () => void; onDelete: () => void}) {
+function DeleteConfirmation({name, hasShortLinks, onCancel, onDelete}: {name: string; hasShortLinks: boolean; onCancel: () => void; onDelete: () => void}) {
   const cancel = useRef<HTMLButtonElement>(null);
   useEffect(() => cancel.current?.focus(), []);
   return (
     <div className="project-confirm">
       <strong>Delete "{name}"?</strong>
-      <span className="project-confirm-note">It will be removed from this browser for good.</span>
+      <span className="project-confirm-note">
+        It will be removed from this browser for good.
+        {hasShortLinks && " Its short links keep working, but this browser's list of them goes too: copy any you still need first."}
+      </span>
       <div className="project-confirm-actions">
         <button ref={cancel} className="btn" onClick={onCancel}>Cancel</button>
         <button className="btn-danger" onClick={onDelete}>Delete</button>

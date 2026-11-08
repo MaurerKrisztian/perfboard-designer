@@ -27,8 +27,11 @@ export type CustomPartKind = "ic" | "dev_board" | "module" | "package";
 
 export type UsageEvent =
   | {name: "export"; export_format: ExportFormat}
-  // The Share dialog: the full link copied, or a short link made.
-  | {name: "share"; method: "full_link" | "short_link"}
+  // The Share dialog: the full link copied (opening the editor, or the page to read), or a short
+  // link made.
+  | {name: "share"; method: "full_link" | "page_link" | "short_link"}
+  // The project's description changed. Says only that it did, never what it says.
+  | {name: "edit_description"}
   // A share link opened in the editor, by the kind of link: z= / json= (the board in the link),
   // src= (a file elsewhere) or p= (a short link).
   | {name: "open_shared_link"; link_type: "z" | "json" | "src" | "p"}

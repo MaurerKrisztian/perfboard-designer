@@ -2,11 +2,7 @@ import type {ProjectFile} from "../../project-file/project-file";
 import {boardPins, NetPin} from "../../project-file/nets";
 import {RequiredPin, requiredPinKey} from "../../project-file/requirements";
 import {partList} from "../../project-file/part-list";
-import {getComponentDefinition, getIconPath} from "../../parts/component-definitions";
-import {getAdvancedComponentDefinition, getAdvancedIconPath} from "../../parts/advanced-component-definitions";
-import {customPartShape} from "../../parts/custom-parts";
-import {dipIconSvg, moduleIconSvg} from "../../board-render";
-import {customPartIconSvg} from "../../features/custom-parts";
+import {partIcons} from "../../board-render";
 import {createStore} from "../lib/store";
 import {readStored, writeStored} from "../lib/local-storage";
 
@@ -23,36 +19,13 @@ export interface PartInfo {
   icon?: string;
 }
 
-const svgDataUri = (svg: string) => `data:image/svg+xml,${encodeURIComponent(svg)}`;
-
-function iconsByRef(project: ProjectFile): Map<string, string> {
-  const icons = new Map<string, string>();
-  for (const entry of project.placedStandardComponents) {
-    const def = getComponentDefinition(entry.definitionId);
-    if (def) icons.set(entry.ref, getIconPath(def));
-  }
-  for (const entry of project.placedAdvancedComponents) {
-    if (entry.custom) {
-      const shape = customPartShape(entry.custom.shape);
-      icons.set(entry.ref, shape ? getAdvancedIconPath(shape) : svgDataUri(customPartIconSvg(entry.custom)));
-      continue;
-    }
-    const def = getAdvancedComponentDefinition(entry.definitionId);
-    if (def && !def.noIcon) icons.set(entry.ref, getAdvancedIconPath(def));
-  }
-  const dip = svgDataUri(dipIconSvg());
-  const board = svgDataUri(moduleIconSvg());
-  for (const ic of project.placedIcs) icons.set(ic.ref, ic.category?.startsWith("modules") ? board : dip);
-  return icons;
-}
-
 // Each part by ref, worked out once per project file (the panel gets a new one after each change).
 const cache = new WeakMap<ProjectFile, Map<string, PartInfo>>();
 
 export function partInfo(project: ProjectFile): Map<string, PartInfo> {
   let parts = cache.get(project);
   if (!parts) {
-    const icons = iconsByRef(project);
+    const icons = partIcons(project);
     parts = new Map(partList(project).map(row => [row.ref, {
       name: row.part,
       ...(row.value ? {value: row.value} : {}),

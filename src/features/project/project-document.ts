@@ -1,5 +1,6 @@
 import {solderJoints} from "../../board-render";
 import type {SvgIcons} from "../../board-render";
+import {descriptionHtml} from "../../project-file/description";
 import {computeNets, isPowerNet, Net, Netlist, pinName} from "../../project-file/nets";
 import {groupPartList, partList} from "../../project-file/part-list";
 import {polarityWarnings} from "../../project-file/polarity";
@@ -11,20 +12,21 @@ import {BOARD_PRINT_STYLE, boardPicture, boardSizeMm, checkBar, mm, SOLDER_VIEW,
 import {escapeHtml, printInFrame} from "./print-frame";
 import {componentTable, IconFor, shoppingTable} from "./print-part-list";
 import {facts, iconTile, Paper, PAPERS, plural, PRINT_STYLE, tag, today} from "./print-style";
-import {embeddedIcons} from "./save-image";
+import {embeddedIcons} from "./embedded-icons";
 import {reportUsage} from "../analytics";
 
 // File › Export PDF: one document about the project, its sections picked in the Export PDF dialog.
-// An overview (the board, its figures and how its checks came out), the board from both sides, the
-// components and the shopping list, the nets, the checks, and the board at true size to work
-// from. Everything comes from the project file, as the editor and the MCP server read it. It prints
+// An overview (the board, its figures and how its checks came out), its description, the board from
+// both sides, the components and the shopping list, the nets, the checks, and the board at true size
+// to work from. Everything comes from the project file, as the editor and the MCP server read it. It prints
 // through the browser's own dialog (print-frame.ts), where "Save as PDF" makes the PDF.
 
-export type PdfSection = "overview" | "board" | "components" | "shopping" | "nets" | "checks" | "true-size";
+export type PdfSection = "overview" | "description" | "board" | "components" | "shopping" | "nets" | "checks" | "true-size";
 
 // In the order they're printed, with what the dialog says about each.
 export const PDF_SECTIONS: {id: PdfSection; label: string; description: string}[] = [
   {id: "overview", label: "Overview", description: "Name, size and figures, the board, and how its checks came out"},
+  {id: "description", label: "Description", description: "What you wrote about this board"},
   {id: "board", label: "Board pictures", description: "The top and the solder side, scaled to the page"},
   {id: "components", label: "Components", description: "Every part with its icon, value and hole"},
   {id: "shopping", label: "Shopping list", description: "Parts grouped by value, with a box to tick for each"},
@@ -172,7 +174,8 @@ function trueSizePages(project: ProjectFile, icons: SvgIcons, paper: Paper): {ht
 }
 
 export function projectDocument({project, name, sections, paper, iconFor}: ProjectPdf, icons: SvgIcons): string {
-  const wanted = new Set(sections);
+  // A board without a description has no such section, however it was picked last time.
+  const wanted = new Set(sections.filter(section => section !== "description" || project.description));
   const netlist = computeNets(project);
   const checks = runChecks(project, netlist);
   const rows = partList(project);
@@ -207,6 +210,12 @@ export function projectDocument({project, name, sections, paper, iconFor}: Proje
       ])}
       <figure class="frame hero">${boardPicture(project, TOP_VIEW, icons, "c-")}</figure>
       ${contents ? `<ol class="contents">${contents}</ol>` : ""}
+    </section>`);
+  }
+  if (wanted.has("description")) {
+    parts.push(`<section class="section">
+      ${sectionHead(numberOf("description"), "Description", "What this board is and how it works.")}
+      <div class="description">${descriptionHtml(project.description ?? "")}</div>
     </section>`);
   }
   if (wanted.has("board")) {
@@ -288,6 +297,17 @@ export function projectDocument({project, name, sections, paper, iconFor}: Proje
   .section-head .num { color: #d08c4c; font-size: 28pt; font-weight: 700; line-height: 1; }
   .section-head h2 { margin: 0; font-size: 20pt; line-height: 1.2; }
   .section-head p { margin: 1mm 0 0; font-size: 11pt; }
+
+  .description { font-size: 11.5pt; line-height: 1.5; overflow-wrap: anywhere; }
+  .description > :first-child { margin-top: 0; }
+  .description h2, .description h3, .description h4 { margin: 5mm 0 1.5mm; line-height: 1.25; break-after: avoid; }
+  .description h2 { font-size: 15pt; }
+  .description h3 { font-size: 13pt; }
+  .description h4 { font-size: 11.5pt; }
+  .description p, .description ul, .description ol { margin: 0 0 2.5mm; }
+  .description ul, .description ol { padding-left: 6mm; }
+  .description code { padding: 0.2mm 1mm; border-radius: 1mm; background: #f4f1ec; font: 600 9.5pt/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .description a { color: #7a4518; }
 
   .nets .net-name { width: 36mm; vertical-align: top; font-size: 11pt; }
   .nets .net-name strong { display: block; }

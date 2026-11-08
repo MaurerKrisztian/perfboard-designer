@@ -1,4 +1,5 @@
-// Tour clip: the File menu's ways to keep and share a board, then the Share dialog.
+// Tour clip: the File menu's ways to keep and share a board, then the Share dialog and its two kinds
+// of link.
 module.exports = async (d) => {
   await d.open("555 blinker", "examples/perfboard-555-blinker.json");
   await d.glideTo(500, 400, 1);
@@ -9,7 +10,9 @@ module.exports = async (d) => {
   await d.click(
     d.page.locator(".menu-panel button", { hasText: "Share Link" })
   );
-  await d.wait(3000);
+  await d.wait(2200);
+  await d.click(d.page.locator("#shareTarget button", { hasText: "page to read" }));
+  await d.wait(2200);
   await d.key("Escape", 800);
 };
 module.exports.options = { size: "1280x800", width: 960, crf: 28 };

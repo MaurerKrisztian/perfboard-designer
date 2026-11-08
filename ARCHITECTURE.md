@@ -77,6 +77,7 @@ at https://perfboarddesigner.com.
 | `/guide/` | `guide/index.html`, `src/guide/` | Static user guide (SEO), JS-free but for the consent banner: how to use the editor, feature by feature. Reuses the landing's styles. Keep it in step with the editor when a feature changes how it's used. Linked from the editor's Help menu. |
 | `/contributors/` | `contributors/index.html`, `src/contributors/` | Contributors, live from the GitHub API. Imports nothing from the editor. |
 | `/mcp-server/` | `mcp-server/index.html`, `src/mcp-page/` | How to connect AI agents to the hosted MCP server. Keep its steps in step with `mcp/README.md`. |
+| `/view/` | `view/index.html`, `src/view-page/` | A shared board for reading: a share link's board with its description, parts and nets, and a way into the editor for a copy. Takes the same fragment as the editor. `noindex`, as what it shows is in the fragment. |
 | 404 | `assets/404.html` | GitHub Pages' not-found page, fully self-contained. |
 
 Every page loads `assets/consent.js` with a plain script tag at the top of its head (`/consent.js`
@@ -137,7 +138,7 @@ src/
   project-file/        PURE: the project file format, its reader, pins, nets, rails and polarity, crossings, share links
   board-render/        PURE: draws a board from a project file onto any Painter
   viewer-3d/           read-only three.js view of a project file (lazy-loaded)
-  landing/, contributors/, mcp-page/   the other pages' own code
+  landing/, contributors/, mcp-page/, view-page/   the other pages' own code
 mcp/                   separate npm package: the MCP server (stdio and Cloudflare Worker)
 docs/                  share-links.md (the link format for outside writers), component-footprints.md
 examples/              project files; double as compatibility fixtures and MCP examples
@@ -564,7 +565,7 @@ Every undoable mutation calls `HistoryState.record(change)` with an `IChange`
   (`lineThrough()` in `line-path.ts`));
 - `add`/`remove`/`move` of a part;
 - `move` of a wire, its points before and after (a wire moved with other selected things);
-- `set` of a strip cut, of the board setup or of the circuit requirements;
+- `set` of a strip cut, of the board setup, of the circuit requirements or of the description;
 - `batch` of several, replayed in order and taken back in reverse: placing a part that joins the
   requirements, and moving, deleting or pasting several things at once.
 
@@ -580,16 +581,30 @@ redraw. History is cleared whenever the board is replaced (load, reset, resize) 
 **The format** lives in `src/project-file/`, pure code shared by the editor, the 3D viewer and the
 MCP server.
 
-- `project-file.ts` defines version 9 (a jumper's optional `side`), with its shared types in `requirements.ts`. It holds grid
+- `project-file.ts` defines version 10 (an optional `description`), with its shared types in `requirements.ts`. It holds grid
   `[col, row]` positions, the board type with a stripboard's strips and cuts, only holes with notes,
   wires with the corners they bend at (`via`) and what they are (`kind`: absent for a jumper,
   whose corners are bends and never joints, `"solder"` for a solder path), per-kind part arrays
   with refs (a custom module with its whole spec), and the user's custom ICs. It's written to be
   read by people and programs: facts only, nothing derivable (no nets, strip segments or resolved
   pin positions).
-- A file says the oldest version that holds it (`fileVersionFor()`): 8 with requirements, else 6
-  with a custom module, else 5 with a solder path, else 4 if a wire bends, else 3. So a board
-  without them still opens in editors and MCP servers from before.
+- A file says the oldest version that holds it (`fileVersionFor()`): 9 with a wire on the solder
+  side, else 8 with requirements, else 6 with a custom module, else 5 with a solder path, else 4 if
+  a wire bends, else 3. So a board without them still opens in editors and MCP servers from before.
+  The description doesn't raise it (nor do part identities): older readers skip the field, and the
+  board is the same without it.
+- `description.ts` owns the description: what the board is and how it works, in its maker's words,
+  in a small part of Markdown. Its `descriptionHtml()` is the one place that text becomes HTML, for
+  the editor's dialog (`src/ui/dialogs/DescriptionDialog.tsx`), the project PDF and the shared
+  board's page. Share links mean the text can be from anyone, so it escapes everything, makes no
+  images (they'd tell other sites who's reading) and only http(s) links. Given a `FindMention`
+  (`part-mentions.ts`, from the project file), it marks the board's part names in the text as `part-ref`
+  buttons: a ref exactly as written on the board, or a pin (`U1.8`, `D1.K`). The editor's dialog
+  selects the part (`selectPartByRef()`) and the shared board's page lights it up; the PDF passes
+  none, so it's plain text there. The editor holds it in
+  `DescriptionState`, and `setDescription()` (`src/features/project-description.ts`) makes each
+  change one undoable `set`. The dialog keeps what was typed however it's closed. The header's
+  Description button is always there: Add description without one, Description in copper with one.
 - `wire-path.ts` gives a wire's points (`from`, each corner, `to`), the straight legs between
   them and the holes each leg runs over (`holesAlong()`), for everything that walks a wire, and
   every hole a solder path covers (`solderPathHoles()`).
@@ -604,8 +619,8 @@ MCP server.
 
 **Projects in the browser:**
 
-- `project-store.ts` is the `localStorage` layout: two keys per project, its file and
-  `{name, updatedAt}`, so tabs on different projects never write the same key.
+- `project-store.ts` is the `localStorage` layout: keys per project, its file, `{name, updatedAt}`
+  and the short links made for it, so tabs on different projects never write the same key.
 - `current-project.ts` tracks the open one (`ProjectState.current`), opens, creates, imports and
   deletes projects, and autosaves shortly after any redraw that changed the board, and when the
   tab is hidden.
@@ -640,7 +655,31 @@ names a copy stored on Perfboard Designer's project storage instead.
 - The format is `src/project-file/share-link.ts`, documented for outside writers in
   `docs/share-links.md`. Keep the two in step.
 - `src/ui/dialogs/ShareDialog.tsx` is the Share dialog. It always makes the full link, and on
-  request a short one.
+  request a short one. Either opens the editor or a page to read (`readingPageUrl()`, with a Preview
+  beside the full link that opens it in a new tab), starting on
+  the page for a board with a description. The short links made for a project stay listed there
+  (`src/features/project/short-links.ts`, `project-links:<id>` in `project-store.ts`): kept beside
+  the project rather than in its file, as a share link shouldn't pass them on. Each holds a
+  fingerprint of the board it copied (the file without `customIcs`, which is this browser's catalog),
+  as a stored copy never changes, so the dialog can say when the board has moved on from it.
+- `src/view-page/view-page.ts` is that page: the same fragment on `/view/`, read by the same
+  `share-link.ts` and `readProjectFile`, drawn by `renderBoardSvg`: the board's figures, its
+  description, its parts with their catalog icons (`partIcons()`, as the Nets panel and the PDF
+  show them) and its nets with their pins and rails, plus the editor's project PDF (Download PDF,
+  `exportProjectPdf()`) and the 3D view. It stores nothing and leaves the link in the address bar.
+  It takes no editor state (`.eslintrc.cjs` allows it five leaf modules: `embedded-icons.ts`,
+  `hosted-project.ts`, `project-storage.ts`, `project-document.ts` and `print-style.ts`), and the 3D
+  viewer loads when it's asked for. What a link says goes in as text; the picture is an `<img>`, in
+  which an SVG can't run anything, and the description comes from `descriptionHtml()`.
+  `board-picture.ts`'s `BoardPicture` shows the board from either side (`side-switch.ts`) and lights
+  up whatever the page names (a part or pin in the text or the parts list, a net or a pin in the
+  nets) by drawing the board again with `view.selected` and a `view.highlight` (drawn from below too,
+  mirrored, on the solder side) and changing every `<img>` it feeds once the new picture is decoded,
+  so no renderer code knows about it. Its drawings are kept for the next time, the least recently
+  shown going past a couple of dozen. `board-zoom.ts` shows it up close in a full-screen `<dialog>`:
+  zoomed by sizing the `<img>` (so the SVG stays sharp, up to about 48 million device pixels) and
+  moved by scrolling, with drag, wheel and pinch. On a wide screen the picture stays in sight beside
+  the rest; on a narrow one a click brings it back.
 - `src/features/project/open-shared-link.ts` opens an incoming link as a new stored project (at
   startup, after the last project is reopened, and on `hashchange`), then clears the fragment.
 - `project-storage.ts` talks to the project storage (`STORED_PROJECTS_URL`,
@@ -682,7 +721,8 @@ always agree.
 - Each pin shows its part's catalog icon. The panel's Short / Detailed switch (UI-only, kept in
   localStorage as `nets_view`) shows pins as chips ("D1.K") or a line each: ref, part name and
   value, and what the pin is ("cathode (K)", "pin 8 · VCC"). `src/ui/nets/part-info.ts` works
-  that out from `partList()` and the definitions' icons; `PinList.tsx` draws both views, for the
+  that out from `partList()` and each part's icon (`partIcons()` in `src/board-render/part-icons.ts`,
+  shared with the PDF and the shared board's page); `PinList.tsx` draws both views, for the
   nets and for Required connections. A rail's net has a ground or supply icon.
 
 **Supply rails and polarity** (`src/project-file/rails.ts`, `src/project-file/polarity.ts`): which
@@ -915,6 +955,7 @@ definition's `iconFile`, else `<id>.svg`). Painters ask for icons by file name:
 | PNG export | `src/features/project/save-image.ts` (`downloadAsImage`) | `CanvasPainter` on an offscreen canvas at 2× | labels as shown |
 | SVG export | `save-image.ts` (`downloadAsSvg`) | `renderBoardSvg` with fetched icons | labels as shown |
 | Project PDF | `src/features/project/project-document.ts` (`exportProjectPdf`), its board pictures from `print-board.ts` | `renderBoardSvg`, scaled to the page, or sized in mm (2.54 mm a hole) for the true-size pages, which show the board's own area only (`boardOnly`) | top with labels, and the solder side |
+| Shared board's page | `src/view-page/board-picture.ts` | `renderBoardSvg` with fetched icons, shown as an `<img>` (and full screen, `board-zoom.ts`) | labels and hole labels on, or the solder side; what the page lights up as `selected` and `highlight` |
 | Thumbnails | `src/features/project/project-thumbnail.ts` | `CanvasPainter`, scaled to fit | `PLAIN_VIEW` |
 | Catalog chip icons | `dipIconSvg()` / `moduleIconSvg()` in `artists/ic-package/` | `SvgPainter` | n/a |
 | MCP pictures | `mcp/src/board-image.ts`, Worker `GET /render.svg` | `renderBoardSvg`, icons baked in | labels on |
@@ -1037,7 +1078,7 @@ dependency is listed in one place.
 | `tools/catalog-tools.ts` | `list_parts`, `get_part` |
 | `tools/project-tools.ts` | `new_project`, `edit_project`, `get_project` |
 | `tools/board-tools.ts` | `validate_project`, `get_nets`, `get_pin_positions`, `render_board` (text or PNG) |
-| `tools/share-link-tools.ts` | `make_share_link` (link + `image` URL, optionally stored too), `read_share_link` |
+| `tools/share-link-tools.ts` | `make_share_link` (link + `image` URL, `page` for a project with a description, optionally stored too), `read_share_link` |
 | `tools/show-board-tool.ts`, `board-view/` | `show_board`: an MCP App (`ui://perfboard/board-view.html`) showing the user the board in the chat; the picture goes in the result's `_meta`, for the page only, and `view.ts` (bundled for the browser into `view.html`) speaks the MCP Apps messages itself |
 | `board-image.ts` | SVG pictures via the board renderer |
 | `board-png.ts` | PNG pictures: that SVG rasterized by resvg-wasm, which each entry point hands over (`setResvgWasm`) |

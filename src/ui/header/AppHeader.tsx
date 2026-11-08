@@ -4,6 +4,7 @@ import {ProjectNameButton} from "./ProjectNameButton";
 import {openDialog} from "../dialogs/dialog-store";
 import {openProjectsDialog} from "../dialogs/ProjectsDialog";
 import {layoutStore, toggleFocusMode, toggleSidebar} from "../layout/layout-store";
+import {cx} from "../lib/class-names";
 import {useStore} from "../lib/store";
 import {pickFile} from "../lib/pick-file";
 import {open3dView} from "../../features/open-3d-view";
@@ -13,6 +14,8 @@ import {importProjectFile} from "../../features/project/current-project";
 import {exportCustomParts, importCustomParts} from "../../features/project/custom-parts-library";
 import {hasConsentSettings, openConsentSettings} from "../lib/consent-settings";
 import {reportUsage} from "../../features/analytics";
+import {DescriptionState} from "../../state/DescriptionState";
+import {useEditor} from "../hooks/use-editor";
 
 // Picks a project file and opens it as a new project, named after the file.
 export async function importProjectFromFile() {
@@ -50,6 +53,7 @@ export function AppHeader() {
               <MenuDivider/>
               <MenuItem onClick={saveProjectToFile}>Save Project to File...</MenuItem>
               <MenuItem onClick={() => openDialog({kind: "share"})}>Share Link...</MenuItem>
+              <MenuItem onClick={() => openDialog({kind: "description"})}>Description...</MenuItem>
               <MenuDivider/>
               <MenuItem onClick={() => void downloadAsImage()}>Download Image</MenuItem>
               <MenuItem onClick={() => void downloadAsSvg()}>Download SVG</MenuItem>
@@ -77,6 +81,7 @@ export function AppHeader() {
       </MenuBar>
 
       <div className="header-actions">
+        <DescriptionButton/>
         <button className="btn btn-quiet" title="Copy a link that opens a copy of this board" onClick={() => openDialog({kind: "share"})}>
           <Icon name="link"/><span className="btn-label">Share</span>
         </button>
@@ -88,10 +93,23 @@ export function AppHeader() {
   );
 }
 
+// Always there, as the way to write one. On a board that has one it says so, in copper, so whoever
+// opens one sent to them sees there's something to read: on a phone, the icon's colour is all it has.
+function DescriptionButton() {
+  const hasDescription = useEditor(() => !!DescriptionState.current);
+  return (
+    <button id="descriptionBtn" className={cx("btn btn-quiet", hasDescription && "has-description")}
+      title={hasDescription ? "What this board is and how it works" : "Say what this board is and how it works"}
+      onClick={() => openDialog({kind: "description"})}>
+      <Icon name="note"/><span className="btn-label">{hasDescription ? "Description" : "Add description"}</span>
+    </button>
+  );
+}
+
 function ViewMenu({control}: {control: MenuControl}) {
   const {sidebars, focusMode} = useStore(layoutStore, layout => layout);
   return (
-    <Menu label="View" control={control}>
+    <Menu label="View" control={control} className="menu view-menu">
       <MenuItem id="toggleFullscreenBtn" onClick={toggleFocusMode}>{focusMode ? "Exit Fullscreen" : "Fullscreen"}</MenuItem>
       <MenuItem onClick={() => void open3dView()}>3D View</MenuItem>
       <MenuDivider/>

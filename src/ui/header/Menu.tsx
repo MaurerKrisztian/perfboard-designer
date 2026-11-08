@@ -32,13 +32,13 @@ export interface MenuControl {
   close(): void;
 }
 
-export function Menu({label, control, children}: {label: string; control: MenuControl; children: ReactNode}) {
+export function Menu({label, control, className = "menu", children}: {label: string; control: MenuControl; className?: string; children: ReactNode}) {
   const open = control.isOpen(label);
   const closeOnChoice = (e: MouseEvent) => {
     if (!(e.target as HTMLElement).closest('[role="menuitemcheckbox"]')) control.close();
   };
   return (
-    <div className="menu">
+    <div className={className}>
       <button className="menu-trigger" aria-haspopup="true" aria-expanded={open} onClick={() => control.toggle(label)}>
         {label}
       </button>

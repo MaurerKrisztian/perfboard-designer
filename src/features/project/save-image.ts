@@ -1,10 +1,9 @@
 import {boardOverhang, boardSizePx, drawBoard, iconsUsedBy, renderBoardSvg} from "../../board-render";
 import type {BoardView} from "../../board-render";
-import {COMPONENT_ICON_DIR} from "../../parts/component-definitions";
-import type {ProjectFile} from "../../project-file/project-file";
 import {ViewState} from "../../state/ViewState";
 import {CanvasPainter} from "../board-canvas/canvas-painter";
 import {browserIcons} from "../board-canvas/browser-icons";
+import {embeddedIcons} from "./embedded-icons";
 import {downloadFileName, getSaveJson} from "./save-project";
 import {reportUsage} from "../analytics";
 
@@ -41,21 +40,6 @@ export async function downloadAsImage() {
   drawBoard(new CanvasPainter(ctx), project, view);
   download(canvas.toDataURL(), "png");
   reportUsage({name: "export", export_format: "png"});
-}
-
-// The part icons `project` uses, as SVG source for an SVG to carry inside it, so it shows the same
-// anywhere it's opened. One that won't load is left out: its part gets its stand-in box.
-export async function embeddedIcons(project: ProjectFile): Promise<(icon: string) => string | undefined> {
-  const icons = new Map<string, string>();
-  await Promise.all(iconsUsedBy(project).map(async icon => {
-    try {
-      const response = await fetch(`${COMPONENT_ICON_DIR}${icon}`);
-      if (response.ok) icons.set(icon, await response.text());
-    } catch {
-      // Left out.
-    }
-  }));
-  return icon => icons.get(icon);
 }
 
 export async function downloadAsSvg() {

@@ -57,5 +57,22 @@ module.exports = {
     {files: ["src/features/**", "src/state/**", "src/interfaces/**", "src/utils/**"], rules: {"no-restricted-imports": imports(UI)}},
     // The 3D viewer reads project files only, never the editor's state.
     {files: ["src/viewer-3d/**"], rules: {"no-restricted-imports": imports({...EDITOR, message: "The 3D viewer must not import the editor: it reads project files only."})}},
+    // The shared board's page shows a project file, without the editor: only these leaf modules of
+    // it, which hold no editor state. (As in .gitignore, a later "!" lets a path through, but only
+    // once its folder is let through.)
+    {files: ["src/view-page/**"], rules: {"no-restricted-imports": imports({
+      group: [
+        ...EDITOR.group,
+        "!**/features/project",
+        "**/features/project/*",
+        "!**/features/project/embedded-icons",
+        "!**/features/project/hosted-project",
+        "!**/features/project/project-storage",
+        // The project PDF, made from a project file alone and printed from a frame of its own.
+        "!**/features/project/project-document",
+        "!**/features/project/print-style",
+      ],
+      message: "The shared board's page must not import the editor: move what it needs to a module without editor state.",
+    })}},
   ],
 };

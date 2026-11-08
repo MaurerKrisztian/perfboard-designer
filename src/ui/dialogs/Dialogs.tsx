@@ -3,6 +3,7 @@ import {closeDialog, dialogStore, openDialog} from "./dialog-store";
 import {AskDialog} from "./AskDialog";
 import {ProjectsDialog} from "./ProjectsDialog";
 import {ShareDialog} from "./ShareDialog";
+import {DescriptionDialog} from "./DescriptionDialog";
 import {PartListDialog} from "./PartListDialog";
 import {ExportPdfDialog} from "./ExportPdfDialog";
 import {IcEditorDialog} from "./IcEditorDialog";
@@ -20,6 +21,7 @@ export function Dialogs() {
     <>
       {open?.kind === "projects" && <ProjectsDialog startNew={open.startNew} onClose={closeDialog}/>}
       {open?.kind === "share" && <ShareDialog onClose={closeDialog}/>}
+      {open?.kind === "description" && <DescriptionDialog onClose={open.fromShare ? () => openDialog({kind: "share"}) : closeDialog}/>}
       {open?.kind === "part-list" && <PartListDialog onClose={closeDialog}/>}
       {open?.kind === "export-pdf" && <ExportPdfDialog onClose={closeDialog}/>}
       {open?.kind === "tour" && <TourDialog chapter={open.chapter} firstVisit={open.firstVisit} onClose={closeDialog}/>}

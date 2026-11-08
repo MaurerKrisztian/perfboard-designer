@@ -1,4 +1,5 @@
 import {useState} from "react";
+import {DescriptionState} from "../../state/DescriptionState";
 import {ProjectState} from "../../state/ProjectState";
 import {getSaveJson} from "../../features/project/save-project";
 import {exportProjectPdf, PDF_SECTIONS, PdfSection} from "../../features/project/project-document";
@@ -19,7 +20,7 @@ function storedPaper(): Paper {
   const stored = readStored<unknown>(PAPER_KEY, regionalPaper());
   return stored === "a4" || stored === "letter" ? stored : regionalPaper();
 }
-const DEFAULT_SECTIONS: PdfSection[] = ["overview", "board", "components", "shopping", "nets", "checks"];
+const DEFAULT_SECTIONS: PdfSection[] = ["overview", "description", "board", "components", "shopping", "nets", "checks"];
 
 const isSection = (value: unknown): value is PdfSection => PDF_SECTIONS.some(section => section.id === value);
 
@@ -32,6 +33,8 @@ export function ExportPdfDialog({onClose}: {onClose: () => void}) {
   const [chosen, setChosen] = useState(() => new Set(storedSections()));
   const [paper, setPaper] = useState(storedPaper);
   const [busy, setBusy] = useState(false);
+  // The description's section is offered only on a board that has one. Its tick is still remembered.
+  const offered = PDF_SECTIONS.filter(section => section.id !== "description" || DescriptionState.current);
 
   const toggle = (id: PdfSection) => setChosen(current => {
     const next = new Set(current);
@@ -65,7 +68,7 @@ export function ExportPdfDialog({onClose}: {onClose: () => void}) {
       <div className="modal-body">
         <p className="share-note">One document about the project, for the bench, a friend or your notes. Pick what goes in it:</p>
         <div className="pdf-sections" role="group" aria-label="What the PDF holds">
-          {PDF_SECTIONS.map(section => (
+          {offered.map(section => (
             <label key={section.id} className={chosen.has(section.id) ? "pdf-section is-on" : "pdf-section"}>
               <input type="checkbox" checked={chosen.has(section.id)} onChange={() => toggle(section.id)}/>
               <span className="pdf-section-text">
@@ -83,7 +86,7 @@ export function ExportPdfDialog({onClose}: {onClose: () => void}) {
       <div className="modal-footer projects-footer">
         <span className="projects-footer-hint">Opens your browser's print dialog: choose <strong>Save as PDF</strong> as the printer.</span>
         <button className="btn" onClick={onClose}>Cancel</button>
-        <button className="btn-primary" disabled={!chosen.size || busy} onClick={() => void exportPdf()}>Export PDF</button>
+        <button className="btn-primary" disabled={!offered.some(section => chosen.has(section.id)) || busy} onClick={() => void exportPdf()}>Export PDF</button>
       </div>
     </Modal>
   );

@@ -9,6 +9,7 @@ import {fileVersionFor, ProjectFile, SavedBoard, SavedPad, SavedWire} from "../.
 import {holesAlong, toGridPos} from "../../project-file/grid";
 import {BoardState} from "../../state/BoardState";
 import {ProjectState} from "../../state/ProjectState";
+import {DescriptionState} from "../../state/DescriptionState";
 import {RequirementsState} from "../../state/RequirementsState";
 import type {ILine} from "../../interfaces/line.interface";
 import {reportUsage} from "../analytics";
@@ -79,9 +80,11 @@ export function getSaveJson(): ProjectFile {
   const placedStandardComponents = parts
     .filter((p): p is PlacedStandardComponent => p.kind === "standard-component").map(p => p.serialize());
   const requirements = RequirementsState.current;
+  const description = DescriptionState.current;
   return {
     version: fileVersionFor({wires, placedAdvancedComponents, requirements}),
     ...(requirements ? {requirements} : {}),
+    ...(description ? {description} : {}),
     board: savedBoard(),
     pads: savedPads(),
     wires,

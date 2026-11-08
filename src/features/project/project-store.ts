@@ -1,9 +1,12 @@
-// Projects kept in this browser's localStorage. Each has two keys of its own, so tabs working on
+// Projects kept in this browser's localStorage. Each has keys of its own, so tabs working on
 // different projects never write the same key:
-//   project:<id>       its project file, as Save Project to File would write it
-//   project-meta:<id>  {name, updatedAt}
+//   project:<id>        its project file, as Save Project to File would write it
+//   project-meta:<id>   {name, updatedAt}
+//   project-links:<id>  the short links made for it, newest first (only once there are some)
 // "current-project" holds the id of the project open last, to reopen on the next visit.
 // Storage only, no editor state. Writes throw when storage is turned off or full.
+
+import {STORED_ID} from "../../project-file/share-link";
 
 export interface StoredProject {
   id: string;
@@ -14,9 +17,23 @@ export interface StoredProject {
 
 const DATA_PREFIX = "project:";
 const META_PREFIX = "project-meta:";
+const LINKS_PREFIX = "project-links:";
 const LAST_OPEN_KEY = "current-project";
 // Where the one board was kept before there were projects.
 const LEGACY_SAVE_KEY = "save";
+
+// A short link made for a project (short-links.ts). Kept beside the project rather than in its file,
+// as they're this browser's notes on it: a share link or a saved file shouldn't pass them on.
+export interface SavedShortLink {
+  // The stored project's id, which the link names.
+  id: string;
+  // The project's name the link opens it as.
+  name?: string;
+  // When it was made, in ms since the epoch.
+  madeAt: number;
+  // A fingerprint of the board it's a copy of (boardFingerprint), to tell when that board has changed.
+  board: string;
+}
 
 function readMeta(id: string): StoredProject | undefined {
   const raw = localStorage.getItem(META_PREFIX + id);
@@ -84,6 +101,30 @@ export function renameStoredProject(id: string, name: string) {
 export function deleteStoredProject(id: string) {
   localStorage.removeItem(META_PREFIX + id);
   localStorage.removeItem(DATA_PREFIX + id);
+  localStorage.removeItem(LINKS_PREFIX + id);
+}
+
+// A project's short links, newest first. Whatever can't be read as one is left out, and storage
+// being turned off means none.
+export function readShortLinks(projectId: string): SavedShortLink[] {
+  try {
+    const links: unknown = JSON.parse(localStorage.getItem(LINKS_PREFIX + projectId) ?? "[]");
+    return Array.isArray(links) ? links.filter(isShortLink) : [];
+  } catch (e) {
+    console.error("Can't read the project's short links from local storage.", e);
+    return [];
+  }
+}
+
+function isShortLink(value: unknown): value is SavedShortLink {
+  const link = value as Partial<SavedShortLink> | null;
+  return typeof link?.id === "string" && STORED_ID.test(link.id) && typeof link.madeAt === "number" && typeof link.board === "string"
+    && (link.name === undefined || typeof link.name === "string");
+}
+
+export function writeShortLinks(projectId: string, links: SavedShortLink[]) {
+  if (links.length) localStorage.setItem(LINKS_PREFIX + projectId, JSON.stringify(links));
+  else localStorage.removeItem(LINKS_PREFIX + projectId);
 }
 
 export function getLastOpenProjectId(): string | null {

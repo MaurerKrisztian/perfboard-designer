@@ -110,6 +110,10 @@ export const editOp = z.discriminatedUnion("op", [
     at: hole,
     note: z.string().optional().describe('A label on the hole, such as "+9V", "GND" or "to battery". Left out (or "") removes it.'),
   }),
+  z.object({
+    op: z.literal("set_description"),
+    text: z.string().describe('What the board is and how it works, for whoever opens it, saved in the project. A small part of Markdown, no raw HTML or images: # headings, - and 1. lists, **bold**, *italic*, `code`, [links](https://...). Write parts by their refs, as "R1" or "U1.8": readers can then find them on the board. "" removes it.'),
+  }),
 ]);
 
 export type EditOp = z.infer<typeof editOp>;

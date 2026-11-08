@@ -8,6 +8,7 @@ import type {CircuitRequirements} from "../project-file/requirements";
 // from/to shape covers every kind of part.
 export type IChange =
   | {type: "set"; kind: "requirements"; from?: CircuitRequirements; to?: CircuitRequirements}
+  | {type: "set"; kind: "description"; from?: string; to?: string}
   | {type: "batch"; kind: "batch"; changes: IChange[]}
   | { type: "add" | "remove"; kind: "line"; line: ILine }
   // Placing a wire changed others too: it split the wires it ends on (so it joins them), or folded

@@ -2,13 +2,13 @@ import {COMPONENT_DEFINITIONS, getIconPath} from "../../parts/component-definiti
 import {ADVANCED_COMPONENT_DEFINITIONS, getAdvancedIconPath} from "../../parts/advanced-component-definitions";
 import {deleteCustomIc, Ic, selectIc} from "../../features/ic";
 import {getIcDefinition} from "../../parts/ic-definitions";
-import {dipIconSvg, moduleIconSvg} from "../../board-render";
+import {customPartIconSvg, dipIconSvg, moduleIconSvg} from "../../board-render";
 import {ToolState} from "../../state/ToolState";
 import {setActiveTool} from "../../features/active-tool";
 import {CategoryId} from "../../parts/catalog-categories";
 import {advancedKey, customPartKey, icKey, standardKey} from "../../features/catalog/catalog-keys";
 import {CUSTOM_PART_ID, customPartShape} from "../../parts/custom-parts";
-import {CustomParts, customPartIconSvg, isArmed as isCustomPartArmed} from "../../features/custom-parts";
+import {CustomParts, isArmed as isCustomPartArmed} from "../../features/custom-parts";
 import {openDialog} from "../dialogs/dialog-store";
 import {catalogVersion} from "../../features/catalog/catalog-events";
 

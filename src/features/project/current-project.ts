@@ -115,7 +115,7 @@ export function newProject(name: string, setup?: NewBoard): boolean {
   if (setup) rememberNewBoard(setup);
   const board = setup ? savedBoardFor(setup) : current.board.type === "stripboard" ? {...current.board, cuts: []} : current.board;
   return createAndOpen(name, {
-    ...current, requirements: undefined, board, pads: [], wires: [], placedIcs: [], placedStandardComponents: [], placedAdvancedComponents: [],
+    ...current, requirements: undefined, description: undefined, board, pads: [], wires: [], placedIcs: [], placedStandardComponents: [], placedAdvancedComponents: [],
   });
 }
 

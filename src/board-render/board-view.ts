@@ -27,7 +27,7 @@ export interface BoardView {
   // A net lit up: its holes and wires.
   highlight?: {holes: GridPos[]; wires: SavedWire[]};
   // The board from below, for soldering: mirrored, the component side faded, every joint marked.
-  // Nothing else in the view applies to it but holeLabels.
+  // Nothing else in the view applies to it but holeLabels and highlight (lit from below, mirrored).
   solderSide?: boolean;
 }
 

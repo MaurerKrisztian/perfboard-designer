@@ -17,7 +17,7 @@ The full guide, with more on all this and on changing a board the user shares (r
 
 export const GUIDE = `# Designing a board with Perfboard Designer
 
-Perfboard Designer (https://perfboarddesigner.com) is a browser editor for perfboard and stripboard layouts. With these tools you design a board as a project file (JSON through version 9) and give the user a link that opens it in the editor. Parts may carry an instanceId; version 8 adds optional requirements (independent intended nets, unused pins, component snapshots and a validate flag). Preserve these when editing. Requirement connections never derive from the board's wiring. When requirements.validate is true, validation also reports missing components/pins, missing or unexpected connections, and incomplete pin coverage. Unspecified pins are unchecked, not assumed disconnected; this differs from the existing complete-list expectNets contract. New parts join the requirement inventory unconnected; board changes must never overwrite intended nets. The goal is a board that's electrically right, looks neat and is easy to solder by hand: the user will build it.
+Perfboard Designer (https://perfboarddesigner.com) is a browser editor for perfboard and stripboard layouts. With these tools you design a board as a project file (JSON through version 10) and give the user a link that opens it in the editor. Parts may carry an instanceId; version 8 adds optional requirements (independent intended nets, unused pins, component snapshots and a validate flag). Preserve these when editing. Requirement connections never derive from the board's wiring. When requirements.validate is true, validation also reports missing components/pins, missing or unexpected connections, and incomplete pin coverage. Unspecified pins are unchecked, not assumed disconnected; this differs from the existing complete-list expectNets contract. New parts join the requirement inventory unconnected; board changes must never overwrite intended nets. The goal is a board that's electrically right, looks neat and is easy to solder by hand: the user will build it.
 
 ## Workflow
 
@@ -70,6 +70,10 @@ When list_parts has nothing for a part, make it with add_part, then place more o
 - A dual-row chip or dev board: \`chip\` with \`pinsPerSide\`, \`width\` (columns from one pin row to the other, both included: 4 for a narrow DIP), \`pins\` (names in DIP order: down the left row from pin 1 at the top left, then up the right row) and \`board: true\` for a dev board. add_part's \`at\` is its top-left pin.
 
 Name pins: wires and expectNets can then use the names ("M1.VCC", "Q1.B"), and get_nets shows them. The project file keeps each custom part whole in its placed part's "custom" (version 6) and each chip in "customIcs", so the user's editor adds them to its parts list when they open the board. A name already in the catalog is refused: use the catalog's part.
+
+## Describing the board
+
+edit_project's set_description op saves a description in the project: what the board does, how it works and anything a builder should know, such as the supply voltage, a part to substitute or what to check first. Keep it short and true to the board, and refer to parts by their refs, exactly as the board has them, and to pins as you'd wire them ("R1 and C1 set the blink rate", "U1.8"): readers can then find each one on the board. It takes a small part of Markdown, with no raw HTML or images: # headings, - and 1. lists, **bold**, *italic*, \`code\`, [links](https://...). A board the user shares may have one already: keep it, and change it only when the board's change makes it wrong or they ask. With a description, make_share_link also returns "page", the same link opening a page to read with the board, its description, parts and nets: the one for the user to send to others.
 
 ## More
 

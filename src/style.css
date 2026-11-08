@@ -531,6 +531,12 @@ button.btn-quiet:hover {
   color: var(--silk);
 }
 
+/* The header's Description button, on a board that has one: there's something to read. */
+button.has-description,
+button.has-description:hover {
+  color: var(--copper-hi);
+}
+
 button.btn-accent,
 button.btn-primary,
 button.btn-success {
@@ -2602,6 +2608,150 @@ input.share-link-input {
   font-size: 0.8rem;
 }
 
+/* A sentence's link to another dialog ("Add a description"). */
+button.share-text-btn {
+  display: inline;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--copper-hi);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+button.share-text-btn:hover {
+  background: none;
+  color: var(--silk);
+}
+
+/* The project's description: the box it's written in, and the text as it's read. */
+.description-card {
+  max-width: 640px;
+}
+
+.description-card #descriptionMode {
+  align-self: flex-start;
+}
+
+.description-card .share-note code {
+  font-size: 0.8rem;
+  color: var(--silk);
+}
+
+textarea.description-input {
+  width: 100%;
+  min-height: 14rem;
+  padding: 0.6rem 0.7rem;
+  background-color: var(--ink-0);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-s);
+  color: var(--silk);
+  font-family: inherit;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  outline: none;
+  resize: vertical;
+}
+
+textarea.description-input:focus {
+  border-color: var(--copper);
+  box-shadow: 0 0 0 3px var(--copper-wash);
+}
+
+textarea.description-input::placeholder {
+  color: var(--silk-faint);
+}
+
+.description-text {
+  max-height: 55vh;
+  overflow-y: auto;
+  color: var(--silk);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.description-text > :first-child {
+  margin-top: 0;
+}
+
+.description-text > :last-child {
+  margin-bottom: 0;
+}
+
+.description-text h2,
+.description-text h3,
+.description-text h4 {
+  margin: 1.1em 0 0.4em;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.description-text h2 {
+  font-size: 1.25rem;
+}
+
+.description-text h3 {
+  font-size: 1.08rem;
+}
+
+.description-text h4 {
+  font-size: 0.98rem;
+}
+
+.description-text p {
+  margin: 0 0 0.7em;
+}
+
+.description-text ul,
+.description-text ol {
+  margin: 0 0 0.7em;
+  padding-left: 1.4em;
+}
+
+.description-text ul {
+  list-style: disc;
+}
+
+.description-text ol {
+  list-style: decimal;
+}
+
+.description-text strong {
+  font-weight: 600;
+}
+
+.description-text em {
+  font-style: italic;
+}
+
+.description-text code {
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background-color: var(--ink-3);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.86em;
+}
+
+.description-text a {
+  color: var(--copper-hi);
+  text-decoration: underline;
+}
+
+/* A part's name in the text: a click finds it on the board. */
+.part-ref {
+  text-decoration: underline dotted var(--silk-dim);
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.part-ref:hover,
+.part-ref:focus-visible {
+  color: var(--copper-hi);
+  text-decoration-color: var(--copper-hi);
+}
+
 /* The short link: below the full one, set apart */
 .share-short {
   display: flex;
@@ -2626,8 +2776,70 @@ input.share-link-input {
   min-width: 0;
 }
 
-.share-row button {
+.share-row button,
+.share-row a.btn {
   flex-shrink: 0;
+}
+
+.share-row a.btn {
+  text-decoration: none;
+}
+
+/* The short links made for this project: each its link to copy, its pictures folded away. */
+.share-saved {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.share-saved ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.share-saved-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.share-saved-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.6rem;
+  color: var(--silk-dim);
+  font-size: 0.8rem;
+}
+
+.share-saved-head strong {
+  color: var(--silk);
+  font-size: 0.85rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.share-saved-changed {
+  color: var(--warn);
+}
+
+button.share-forget {
+  margin-left: auto;
+  color: var(--silk-dim);
+}
+
+.share-pictures summary {
+  color: var(--silk-dim);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.share-pictures .share-row {
+  margin-top: 0.4rem;
 }
 
 /* What a short link's row holds: the link, or a picture of the board. */
@@ -3517,8 +3729,9 @@ button.ask-chip:hover {
   }
 
   /* The tool rail is the bottom toolbar here; showing or hiding the panels and focus mode mean
-     nothing; and fingers zoom. */
+     nothing, which leaves the View menu only its 3D View, the button beside it; and fingers zoom. */
   .tool-rail,
+  .view-menu,
   #toggleFullscreenBtn,
   #toggleSidebarBtn,
   #toggleShortcutsBtn,

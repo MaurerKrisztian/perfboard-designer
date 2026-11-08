@@ -33,7 +33,8 @@ const url = `http://localhost:3000/app/#name=Blinker&json=${encodeURIComponent(J
 ```
 
 A fresh browser profile starts with empty storage, and so with an empty untitled board. Link
-formats in full: docs/share-links.md.
+formats in full: docs/share-links.md. The same fragment on `/view/` opens the page that shows a
+shared board for reading (`src/view-page/`); it has no `window.__perfboard`, so read its text.
 
 The examples, as the editor reads them (nets join two or more pins, as the Nets panel counts them;
 "unconnected" counts lone pins):
@@ -126,8 +127,8 @@ board's foot), `.rail-btn.is-active` (the tool rail's active tool),
 `#contextMenu`, `#selectionBar .selection-bar-label`, `#zoomLevelText`, `#mobileNav .active-mode`,
 `#open3dViewBtn`, and the 3D view's `.viewer3d-canvas-host canvas`.
 
-Storage: `current-project` holds the open project's id, `project:<id>` its file and
-`project-meta:<id>` its name.
+Storage: `current-project` holds the open project's id, `project:<id>` its file,
+`project-meta:<id>` its name and `project-links:<id>` the short links made for it.
 
 ## Check a board with the MCP server
 
