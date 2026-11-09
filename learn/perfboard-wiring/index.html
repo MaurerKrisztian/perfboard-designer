@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <!-- Google Analytics, only once the visitor accepts it: consent.js -->
+    <script src="../../consent.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How to Wire Perfboard: Solder Bridges, Bus Wire, Jumpers</title>
+    <meta name="description" content="Every way to connect parts on perfboard: bent leads, solder bridges, bus wire, jumpers, wire-wrap and enameled wire, and which wire gauge to use." />
+    <link rel="canonical" href="https://perfboarddesigner.com/learn/perfboard-wiring/" />
+    <meta name="theme-color" content="#0b1220" />
+    <link rel="icon" type="image/png" href="../../favicon.png" />
+
+    <!-- Link previews (Facebook, LinkedIn, Discord, Slack, X...) -->
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Perfboard Designer" />
+    <meta property="og:title" content="How to wire a perfboard: solder bridges, bus wire and jumpers" />
+    <meta property="og:description" content="Bent leads, solder bridges, bus wire, jumpers, wire-wrap and enameled wire: when to use each, and which wire gauge." />
+    <meta property="og:url" content="https://perfboarddesigner.com/learn/perfboard-wiring/" />
+    <meta property="og:image" content="https://perfboarddesigner.com/images/learn/og/perfboard-wiring.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="How to wire a perfboard: solder bridges, bus wire and jumpers, with six ways to wire a perfboard" />
+    <meta property="article:published_time" content="2026-11-09" />
+    <meta property="article:modified_time" content="2026-11-09" />
+    <meta name="author" content="Krisztian Maurer" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    
+    
+    
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "TechArticle",
+          "headline": "How to wire a perfboard: solder bridges, bus wire and jumpers",
+          "description": "Every way to connect parts on perfboard: bent leads, solder bridges, bus wire, jumpers, wire-wrap and enameled wire, and which wire gauge to use.",
+          "url": "https://perfboarddesigner.com/learn/perfboard-wiring/",
+          "mainEntityOfPage": "https://perfboarddesigner.com/learn/perfboard-wiring/",
+          "image": "https://perfboarddesigner.com/images/learn/og/perfboard-wiring.jpg",
+          "datePublished": "2026-11-09",
+          "dateModified": "2026-11-09",
+          "inLanguage": "en",
+          "proficiencyLevel": "Beginner",
+          "keywords": "perfboard wiring, how to connect perfboard, solder bridge perfboard, bus wire, jumper wire perfboard, wire wrap wire, perfboard wire gauge",
+          "author": {
+            "@type": "Person",
+            "name": "Krisztian Maurer",
+            "url": "https://github.com/MaurerKrisztian"
+          },
+          "isPartOf": {
+            "@type": "CollectionPage",
+            "name": "Learn: perfboard layout, wiring, soldering and testing",
+            "url": "https://perfboarddesigner.com/learn/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://perfboarddesigner.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Learn",
+              "item": "https://perfboarddesigner.com/learn/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Wire a perfboard",
+              "item": "https://perfboarddesigner.com/learn/perfboard-wiring/"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Can I connect perfboard pads with just solder?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "For neighboring pads, yes: a solder bridge is quick and reliable. For longer runs, lay a bare wire or a lead offcut along the pads and solder over it; a long trail of solder alone is brittle and hard to make without lifting pads."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Should I use solid or stranded wire on perfboard?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Solid-core wire for anything on the board: it holds its shape and goes through holes cleanly, while stranded wire frays and stray strands cause shorts. Use stranded wire for flying leads off the board, with the ends twisted and tinned."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What gauge wire should I use for perfboard?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "22 to 24 AWG solid wire suits most connections and power rails. 30 AWG wire-wrap wire is great for dense signal wiring but should stay under about half an amp. Heavy currents need thicker wire."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+  <link rel="stylesheet" href="../../assets/landing.0837469d.css">
+  <link rel="stylesheet" href="../../assets/guide.b8903659.css">
+  <link rel="stylesheet" href="../../assets/learn.7cff3415.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../../" aria-label="Perfboard Designer home">
+      <span class="brand-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <circle cx="6" cy="6" r="2" />
+          <circle cx="18" cy="6" r="2" />
+          <circle cx="6" cy="18" r="2" />
+          <circle cx="18" cy="18" r="2" />
+          <path d="M8 6h8M6 8v8M18 8v8M8 18h8" />
+        </svg>
+      </span>
+      <span class="brand-title">Perfboard Designer</span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="../">Learn</a>
+      <a href="../../guide/">Guide</a>
+      <a href="../../mcp-server/">AI agents</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <a class="button button-small" href="../../app/">Open the designer</a>
+  </header>
+
+  <main>
+    <div class="learn-band">
+      <div class="guide-hero">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <ol>
+            <li><a href="../../">Home</a></li>
+            <li><a href="../">Learn</a></li>
+            <li aria-current="page">Wire a perfboard</li>
+          </ol>
+        </nav>
+        <p class="eyebrow">Part 3 of 7 · Wiring</p>
+        <h1>How to wire a perfboard: solder bridges, bus wire and jumpers</h1>
+        <p class="lead">On perfboard, nothing is connected until you connect it. There are half a dozen ways to do that, and each has a job it does best. Learn them all and your boards get neater, quicker to build and easier to fix.</p>
+        <p class="guide-meta byline">By <a href="https://github.com/MaurerKrisztian" rel="author">Krisztian Maurer</a>, maker of Perfboard Designer · Updated <time datetime="2026-11-09">November 9, 2026</time></p>
+        <p class="guide-meta">About 9 minutes to read · Written for beginners · New words? See the <a href="../glossary/">glossary</a></p>
+      </div>
+    </div>
+
+    <div class="guide-layout">
+      <nav class="guide-toc learn-toc" aria-labelledby="toc-title">
+        <h2 id="toc-title">On this page</h2>
+        <ol>
+          <li><a href="#two-sides">Two sides, six methods</a></li>
+          <li><a href="#leads">1. Bent component leads</a></li>
+          <li><a href="#bridges">2. Solder bridges</a></li>
+          <li><a href="#bus-wire">3. Bare bus wire</a></li>
+          <li><a href="#jumpers">4. Insulated jumpers</a></li>
+          <li><a href="#wire-wrap">5. Wire-wrap wire</a></li>
+          <li><a href="#enameled">6. Enameled wire</a></li>
+          <li><a href="#compare">Which method where</a></li>
+          <li><a href="#gauge">Which wire for which job</a></li>
+          <li><a href="#off-board">Wires that leave the board</a></li>
+          <li><a href="#neat">Tips for a neat board</a></li>
+          <li><a href="#example">Worked example: wiring the 555 blinker</a></li>
+          <li><a href="#faq">Frequently asked questions</a></li>
+          <li><a href="#sources">Further reading</a></li>
+        </ol>
+      </nav>
+
+      <article class="guide-article learn-article">
+        <section id="two-sides">
+          <h2>Two sides, six methods</h2>
+          <p>
+            A perfboard has two faces: the <strong>component side</strong>, where the parts sit, and
+            the <strong>copper side</strong> (the solder side), with the pads, where the leads poke
+            through and get soldered. What decides where a connection can go is whether it's bare or
+            insulated:
+          </p>
+          <ul>
+            <li><strong>Bare connections</strong> (bent leads, solder bridges and bare wire) lie flat on the copper side. They're quick and tidy, but they can't cross anything.</li>
+            <li><strong>Insulated wire</strong> can cross whatever it likes. Jumpers usually go on the component side, through a hole at each end like a part; thin wire-wrap and enameled wire run straight from pad to pad on the copper side.</li>
+          </ul>
+          <p>Most good boards use several methods. Here they are, simplest first.</p>
+          <div class="tile-grid tile-grid-3">
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/perfboard-bent-lead.svg" width="168" height="96" loading="lazy" decoding="async" alt="Copper side: a component lead bent flat along a row of pads to another pad, soldered at both ends" />
+              <figcaption><strong>1. Bent leads</strong> A part's own lead, folded flat to the next pad in the connection.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/perfboard-solder-bridges.svg" width="168" height="96" loading="lazy" decoding="async" alt="Copper side: two neighboring pads joined by a blob of solder, and a longer solder trail over a wire across four pads" />
+              <figcaption><strong>2. Solder bridges</strong> Neighboring pads joined with solder; a wire inside for longer runs.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/perfboard-bus-wire.svg" width="168" height="96" loading="lazy" decoding="async" alt="Copper side: two straight bare wires along the top and bottom rows as power rails, with a part&#x27;s leads bent to reach each" />
+              <figcaption><strong>3. Bare bus wire</strong> Tinned wire along a row: the power and ground rails.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/perfboard-insulated-jumpers.svg" width="168" height="96" loading="lazy" decoding="async" alt="Component side: a red insulated jumper along a row and a yellow one crossing over it" />
+              <figcaption><strong>4. Insulated jumpers</strong> On the component side, hopping over other connections.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/perfboard-wire-wrap-wire.svg" width="168" height="96" loading="lazy" decoding="async" alt="Copper side: two thin insulated wires running straight from pad to pad, one crossing the other" />
+              <figcaption><strong>5. Wire-wrap wire</strong> Thin insulated wire, point to point, for dense signal wiring.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/perfboard-enameled-wire.svg" width="168" height="96" loading="lazy" decoding="async" alt="Copper side: a fine enameled copper wire curving from one pad to another" />
+              <figcaption><strong>6. Enameled wire</strong> Fine varnished wire whose enamel burns off as you solder it.</figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <section id="leads">
+          <h2>1. Bent component leads</h2>
+          <p>
+            Most parts come with far more lead than they need. Instead of snipping it off, bend it
+            flat against the copper side, run it to the next pad in the connection, and solder it
+            there. It's free, strong and neat for hops of a few holes.
+          </p>
+          <ul>
+            <li>Press the lead tight against the board with pliers, so it can't spring up and touch something else.</li>
+            <li>The lead touches every pad it passes over. Keep those holes empty, or let them join the connection only if they belong to it.</li>
+            <li>The catch: a part whose leads are woven into the wiring is hard to take out later. For parts you might swap, use separate wire.</li>
+          </ul>
+          <div class="tip">
+            <p><strong>Tip:</strong> keep your offcuts. Snipped resistor leads make perfect short links and solder-bridge cores.</p>
+          </div>
+        </section>
+
+        <section id="bridges">
+          <h2>2. Solder bridges</h2>
+          <p>
+            Two neighboring pads can be joined with solder alone. Tin both pads, then add a little
+            more solder and draw it from one pad toward the other with the tip, so the two blobs meet
+            and flow together. Bridges are perfect for joining a lead to the pad right next door.
+          </p>
+          <p>
+            For anything longer than two or three holes, lay a bare wire or a lead offcut along the
+            pads and solder over it. A long trail of pure solder is brittle, carries current poorly,
+            and is hard to make on single-sided boards, whose pads lift if you keep heating them.
+          </p>
+          <div class="warning">
+            <span class="callout-label">Watch out</span>
+            <p>
+              The skill that makes a bridge on purpose makes one by accident, too. After soldering,
+              check the gaps between neighboring pads that should <em>not</em> be joined, against a
+              bright light.
+            </p>
+          </div>
+        </section>
+
+        <section id="bus-wire">
+          <h2>3. Bare bus wire</h2>
+          <p>
+            Bare tinned copper wire is the backbone of most perfboard builds: the power and ground
+            rails, and any long straight run. Lay it along a row of pads on the copper side and
+            solder it at both ends, at every pad where something connects, and every few holes in
+            between to hold it down.
+          </p>
+          <ul>
+            <li>Use <strong>solid tinned wire, around 0.5 to 0.65 mm (24 to 22 AWG)</strong>, or thicker for heavy currents.</li>
+            <li><strong>Straighten it first:</strong> clamp one end and pull the other firmly with pliers. It stretches a little and comes out dead straight and stiff.</li>
+            <li>Bare wire can't cross anything. Plan the bus routes so they don't need to, and leave a free row between parallel buses.</li>
+          </ul>
+        </section>
+
+        <section id="jumpers">
+          <h2>4. Insulated jumpers</h2>
+          <p>
+            When a connection must cross another, it goes over the top: an insulated wire on the
+            component side, through a hole at each end, soldered underneath like a component. Use
+            <strong>solid-core wire</strong> (22 to 24 AWG): it bends to shape and stays there.
+            Stranded wire frays as it goes through a hole, and a single stray strand can short to
+            the next pad.
+          </p>
+          <ul>
+            <li>Cut each jumper to length so it lies flat on the board, not in loops.</li>
+            <li>Strip only enough to go through the board (3 to 4 mm), so no bare wire shows on top.</li>
+            <li>Color-code: red for positive, black for ground, other colors for signals.</li>
+          </ul>
+        </section>
+
+        <section id="wire-wrap">
+          <h2>5. Wire-wrap wire</h2>
+          <p>
+            Thin 30 AWG wire-wrap wire (often called Kynar wire, after its insulation) is the secret
+            weapon for dense digital boards. It's thin enough to run point to point on the copper
+            side, from pad to pad, without fighting the parts, and its insulation doesn't melt back
+            when you solder next to it.
+          </p>
+          <ul>
+            <li>Strip about 5 mm with a wire-wrap stripper or a sharp blade, tin the end, and tack it to the pad.</li>
+            <li>It's for signals: keep it under about half an amp, and use thicker wire for power.</li>
+          </ul>
+        </section>
+
+        <section id="enameled">
+          <h2>6. Enameled wire</h2>
+          <p>
+            Magnet wire, the varnished copper wire inside transformers and coils, also works for fine
+            point-to-point wiring and repairs. Solderable kinds have an enamel that burns off on a hot
+            iron, so you can tin the end without stripping it. Not every enamel does, so try a piece
+            first, and check each run with a meter afterwards: you can't see whether the enamel at the
+            joint has really gone.
+          </p>
+        </section>
+
+        <section id="compare">
+          <h2>Which method where</h2>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Method</th><th>Best for</th><th>Can cross?</th><th>Watch out for</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Bent leads</td><td>Short hops next to a part</td><td>No</td><td>Hard to take the part out later</td></tr>
+                <tr><td>Solder bridge</td><td>Joining neighboring pads</td><td>No</td><td>Accidental bridges; brittle over long runs</td></tr>
+                <tr><td>Bare bus wire</td><td>Power and ground rails, long straight runs</td><td>No</td><td>Keep other wires a hole away</td></tr>
+                <tr><td>Insulated jumper</td><td>Connections that must cross</td><td>Yes</td><td>Use solid core, strip neatly</td></tr>
+                <tr><td>Wire-wrap wire</td><td>Dense signal wiring</td><td>Yes</td><td>Signals only: it's thin</td></tr>
+                <tr><td>Enameled wire</td><td>Fine wiring and repairs</td><td>Yes</td><td>Check the enamel solders, and test each run</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="gauge">
+          <h2>Which wire for which job</h2>
+          <div class="key-numbers">
+            <div class="key-number"><strong>22–24 AWG</strong><span>Solid core: jumpers, buses and most connections</span></div>
+            <div class="key-number"><strong>30 AWG</strong><span>Wire-wrap wire: dense signal wiring, under about 0.5 A</span></div>
+            <div class="key-number"><strong>20 AWG +</strong><span>Power runs carrying amps: motors, relays, LED strips</span></div>
+            <div class="key-number"><strong>Stranded</strong><span>Only for flying leads off the board, to jacks, pots and switches</span></div>
+          </div>
+          <p>
+            AWG numbers go <em>down</em> as wire gets thicker: 22 AWG is about 0.64 mm across, 24 AWG
+            about 0.51 mm, and 30 AWG about 0.25 mm.
+          </p>
+        </section>
+
+        <section id="off-board">
+          <h2>Wires that leave the board</h2>
+          <p>
+            Pots, jacks, switches, speakers and batteries usually sit off the board, on a panel or in
+            the box, joined to it by flying leads. Those are the wires that break, so give them some
+            care:
+          </p>
+          <ul class="checklist">
+            <li><strong>Stranded wire,</strong> which survives being flexed where solid wire would snap. Twist the strands and tin the ends before soldering them.</li>
+            <li><strong>A connector</strong> where you can: screw terminals, or pin headers and plugs, so the board comes out without a soldering iron.</li>
+            <li><strong>Strain relief:</strong> anchor each wire before it reaches its joint, with a dab of hot glue or through a hole drilled big enough to thread it, so a tug pulls on the board and not on the solder.</li>
+            <li><strong>Heat-shrink</strong> over every joint on a pot, jack or switch. Slide it onto the wire before you solder.</li>
+            <li><strong>Twisted pairs:</strong> twist wires that belong together, such as a supply and its ground. It's tidier, and the pair picks up less hum.</li>
+            <li><strong>A little slack,</strong> so the board can come out of the box for repairs.</li>
+          </ul>
+        </section>
+
+        <section id="neat">
+          <h2>Tips for a neat board</h2>
+          <ul class="checklist">
+            <li>Plan every wire before you cut any. A neat board is a planned board.</li>
+            <li>Run wires along the grid, horizontally and vertically, never diagonally across pads.</li>
+            <li>Build the copper side in layers: rails first, then short links, then the rest.</li>
+            <li>Keep the component side for crossings, with the jumpers lying flat.</li>
+            <li>Leave a free hole between different connections.</li>
+            <li>Trim every tail flush after soldering. A stray offcut is a short waiting to happen.</li>
+            <li>Check each connection with a meter as you finish it, not only at the end.</li>
+          </ul>
+          <div class="pd-note">
+            <span class="callout-label">In Perfboard Designer</span>
+            <p>
+              Wires are insulated jumpers: they connect only the holes at their two ends, so they can
+              cross anything. Solder paths (the Solder Path tool, <kbd>S</kbd>) are solder bridges
+              and bare wire on the copper side: they join every hole they run over. A wire can also be
+              moved to the solder side, and the Nets panel shows exactly what each one connects.
+            </p>
+          </div>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Solder paths</span></div>
+            <video src="../../tour/solder-paths.mp4" poster="../../tour/solder-paths.webp" width="832" height="520" controls muted loop playsinline preload="none" aria-label="Drawing solder paths in Perfboard Designer"></video>
+            <figcaption>A solder path joins every hole it runs over, like a solder trail on the copper side.</figcaption>
+          </figure>
+        </section>
+
+        <section id="example">
+          <h2>Worked example: wiring the 555 blinker</h2>
+          <p>
+            The <a href="../perfboard-layout/#example">555 blinker</a> from the layout guide uses four of
+            the six methods, and every one of them where it does its job best:
+          </p>
+          <ul>
+            <li><strong>Solder bridges</strong> wherever two parts sit in neighboring holes: D2 to C3, R3 to the LED, and the chip's pin 5 to C2.</li>
+            <li><strong>A bent lead</strong> for the two-hole hop from the terminal's + to D2.</li>
+            <li><strong>Bare bus wire</strong> for the rest of the copper side: +9 V along the top, ground along the bottom and across to the chip, and the short runs from the chip's pins to R1, R2, C1 and R3.</li>
+            <li><strong>Two insulated jumpers,</strong> one on each face. The red one, on the component side, takes reset (pin 4) up to +9 V, across the copper-side wiring below it. The yellow one, under the socket on the copper side, joins pins 2 and 6.</li>
+          </ul>
+          <p>
+            The bare wiring never has to cross itself, and only one wire goes over the top: the sign
+            of a layout that's quick to wire. In the editor, all the copper side's bridges and bare
+            wire are solder paths.
+          </p>
+          <p>For the schematic and the whole build, see <a href="../555-led-blinker/">the 555 LED blinker project</a>.</p>
+          <p>
+            <a class="button button-small" href="../../view/#name=555%20blinker&amp;z=hVfbUuM4EP2Vrt6HBUYEK3FI4jc2MLNMza3C5YXhQcidRIMjeSUZiqL4oP2A_YH9gP2mLVk2MRDgKXZaffqcI3Uruccbsk4ZjdmE4ZURNsfsHv1dSZhhSXYev2MoTeEw6ycMrbl1mPHhA8OcnLSq9DUAHmj4djQcDsGrFVmYF8ItyYEASzl8OToEcWUqD0ZLAgGOpNE5zK1ZgYAJnMOV8J7sHYNCqBzCUr8kuBV39ecXElbDolI5OXDVYkHOZ7D0vnTZ3t4j1ZycWmiyPWlWe0XI2fupf-qdnR_mliwo3dvZgdMltdV-d1CQyB0sDCjtTV3LSUu34MmulBYFfOZgdB0oaO6B8gUx-AAiEvSm7MFhH7b4tzRJ-DaU1niS3tVRqayslG91NlVBGq1JesqjRmv0olZqTaVzBkLnMB3AFk8S-Pefj9vgPIlcUcR0VVkWd2DVYunhdkmWQHmQZkUuCIx6Z0IVLoj9Q1gCr7SmHG6VpVaLM0VOFpzKCaSwNqB_CPsgisCmkVZTWdS0OoEr471ZRZ6iDV9VDmylXdT6mUMpnA8yvIEz3uMNsWB-fUICuTMOTvlAu8ZdqTwviIVXoWG8WyoNzshr8gxulV_CNI2m6I_bjX4hrXEOAkjjS6m0CwXHNb26cr3j4Rj-qlYlWfBB7BnvpbBlyZHfDhyD-B4cgFsa66FQ-hoqHSyKbkUWL81j8Ms0FfuN1P1WqlopvQg6Zxy2OFz_9_c2g1kftvbH9Uvc6BBr95nioXIlUZ41HZP00jG4UDosT3rpKLzN5z2Y9uvU4MY1UVmTGMJflSLfUPhe-bLy0ereAIrgmYNDDn5pTbVYwmwAW-kogZqa8E1JnsDqoIH4airtGx3Bx7mpLEhjNVkH4XBdU-lBhmaDubHwdRAbyPWQYSlyh9nFPQqP2QVn_JKhNj6Ml68DfGBtYPxqhPHB6zmvhVh_HfgwOe9GxutIco4PlwxDV0SS4eTWi9JLht5gdjGoH6-VzjHDuOs12OPK_XYlT9jwkuGNEphdhLf9y7cyB53Mfcb769RBeHsrdVQXiqlD1skcsfcSH3VFjNd1DWrcWCNSfX1twibt2kmXzoRNAh1pCmMxw99onqZp-ix11Ckz7vjHQyR8jJ9gzIWUfIgMQ-thhnESPcMct5hjxpM15jhivSokjavrzJRx_o5Bo84m7HeYD9nozTKN0Met553cNITCB-fvYUw6xtW8ny2-ZFgWQlJ-LOPhtjTHDM84MtRiFcyL1_VpGMYY2iD3yx9KY5YyXFKYFO2bNV7EWz5hWCp92L3475Fjhp--HSLDPmZ4Ojv-hAwHmOH3s1NkmGKGs6OTo_A8xAynp7MvyHA_rP1zdnTyJzIcYYaHxyfT8DzGDM-nU3xgTc8mtb9SeFoYe4cZKul69R3iOjpPvNC5sPnUrEqjSfuu7MM-ht8rc6VVYH0cnMqVyQnZuiM73REeb0RRBZvixV7bH8Gmg5dgVJD01hR3XsldKUohlTd2jT5a93vsvUf0JKm62OlLbElWrDbDNlOnPQjPgHUHeMZfAltyyj3FG3YavznXLd51F22DnxvRul0Sj3oDtz_u4k03sHvP0nZuPu2kR_VPXN1A9y1XB51RwAfNeH5EfmLrhrPw0ojx09GSdODSUdKBO9zgQ0H5GintaG6GVDscLeWddjjIb4SWtLkdPm8oU1_au-2v3t3gWHNlhmZYj4DJ-k9A-7-Ah7Kyct6s4rS5fPgf">See this board up close</a>
+          </p>
+        </section>
+
+        <section id="faq">
+          <h2>Frequently asked questions</h2>
+          <div class="faq">
+            <details>
+              <summary>Can I connect perfboard pads with just solder?</summary>
+              <p>For neighboring pads, yes: a solder bridge is quick and reliable. For longer runs, lay a bare wire or a lead offcut along the pads and solder over it; a long trail of solder alone is brittle and hard to make without lifting pads.</p>
+            </details>
+            <details>
+              <summary>Should I use solid or stranded wire on perfboard?</summary>
+              <p>Solid-core wire for anything on the board: it holds its shape and goes through holes cleanly, while stranded wire frays and stray strands cause shorts. Use stranded wire for flying leads off the board, with the ends twisted and tinned.</p>
+            </details>
+            <details>
+              <summary>What gauge wire should I use for perfboard?</summary>
+              <p>22 to 24 AWG solid wire suits most connections and power rails. 30 AWG wire-wrap wire is great for dense signal wiring but should stay under about half an amp. Heavy currents need thicker wire.</p>
+            </details>
+          </div>
+        </section>
+
+        <section id="sources">
+          <h2>Further reading</h2>
+          <p>The sources behind this guide, and good places to go deeper:</p>
+          <ul class="sources">
+            <li><a href="https://en.wikipedia.org/wiki/Perfboard" rel="noopener">Perfboard</a> (Wikipedia)</li>
+            <li><a href="https://www.digikey.com/en/maker/blogs/2022/start-building-cleaner-perfboard-projects-using-these-simple-tips" rel="noopener">Start building cleaner perfboard projects using these simple tips</a> (Digi-Key Maker.io)</li>
+            <li><a href="https://gammaelectronics.xyz/p-e_elec-exp-hb-1980a_perf.html" rel="noopener">Perf board wiring techniques for experimenters</a> (a classic magazine article)</li>
+            <li><a href="https://www.instructables.com/Using-Perfboard/" rel="noopener">Using Perfboard</a> (Instructables)</li>
+            <li><a href="https://learn.adafruit.com/collins-lab-breadboards-and-perfboards" rel="noopener">Collin&#x27;s Lab: Breadboards &amp; Perfboards</a> (Adafruit)</li>
+          </ul>
+        </section>
+
+        <div class="learn-cta">
+          <div>
+            <h2>Plan your next board in Perfboard Designer</h2>
+            <p>Free, in your browser, no sign-up: lay out perfboard or stripboard, check every connection, flip to the solder side and print it at true size.</p>
+          </div>
+          <a class="button" href="../../app/">Open the designer</a>
+        </div>
+
+        <nav class="article-pager" aria-label="More guides in this series">
+          <a class="pager-prev" href="../perfboard-layout/"><span>← Previous</span><strong>Plan a perfboard layout</strong></a>
+          <a class="pager-next" href="../stripboard-layout/"><span>Next →</span><strong>Stripboard (Veroboard) layout</strong></a>
+        </nav>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Perfboard Designer is open source, made by
+      <a href="https://github.com/MaurerKrisztian" target="_blank" rel="noopener">@MaurerKrisztian</a>
+      and <a href="../../contributors/">contributors</a>.
+    </p>
+    <nav aria-label="Footer">
+      <a href="../../">Home</a>
+      <a href="../../app/">Designer</a>
+      <a href="../">Learn</a>
+      <a href="../../guide/">Guide</a>
+      <a href="../../mcp-server/">MCP server</a>
+      <a href="../../contributors/">Contributors</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer/issues" target="_blank" rel="noopener">Report a bug</a>
+      <a href="#cookie-settings" data-consent-settings>Cookie settings</a>
+    </nav>
+  </footer>
+</body>
+</html>

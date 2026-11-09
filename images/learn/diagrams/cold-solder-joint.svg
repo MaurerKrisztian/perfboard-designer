@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120" font-family="Inter, Arial, sans-serif">
+  <title>A cold joint: a rough, lumpy, dull gray mound of solder</title>
+  <rect width="200" height="120" fill="#0a101b" />
+  <rect x="8" y="84" width="88" height="16" fill="#2b6a43" />
+  <rect x="104" y="84" width="88" height="16" fill="#2b6a43" />
+  <rect x="62" y="80" width="34" height="4" fill="#c98545" />
+  <rect x="104" y="80" width="34" height="4" fill="#c98545" />
+  <rect x="98" y="14" width="4" height="106" fill="#aab3bd" />
+  <path d="M64 80 C58 72 70 72 72 65 C74 57 84 62 87 55 C90 48 96 47 98 52 L102 52 C104 47 110 48 113 55 C116 62 126 58 128 65 C130 72 142 72 136 80 Z" fill="#8f99a5" />
+  <g fill="#6b7480"><circle cx="78" cy="70" r="1.6" /><circle cx="88" cy="64" r="1.4" /><circle cx="112" cy="66" r="1.6" /><circle cx="124" cy="73" r="1.4" /><circle cx="94" cy="72" r="1.2" /></g>
+</svg>

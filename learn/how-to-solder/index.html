@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <!-- Google Analytics, only once the visitor accepts it: consent.js -->
+    <script src="../../consent.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How to Solder Through-Hole Parts (and Fix Bad Solder Joints)</title>
+    <meta name="description" content="Learn to solder through-hole parts: the five-step joint, what a good joint looks like, bad joints and their fixes, heat, static and desoldering." />
+    <link rel="canonical" href="https://perfboarddesigner.com/learn/how-to-solder/" />
+    <meta name="theme-color" content="#0b1220" />
+    <link rel="icon" type="image/png" href="../../favicon.png" />
+
+    <!-- Link previews (Facebook, LinkedIn, Discord, Slack, X...) -->
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Perfboard Designer" />
+    <meta property="og:title" content="How to solder through-hole parts, and fix bad joints" />
+    <meta property="og:description" content="The five-step joint, what good looks like, a gallery of bad joints with their fixes, and how to desolder." />
+    <meta property="og:url" content="https://perfboarddesigner.com/learn/how-to-solder/" />
+    <meta property="og:image" content="https://perfboarddesigner.com/images/learn/og/how-to-solder.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="How to solder through-hole parts, and fix bad joints, with the four stages of a solder joint" />
+    <meta property="article:published_time" content="2026-11-09" />
+    <meta property="article:modified_time" content="2026-11-09" />
+    <meta name="author" content="Krisztian Maurer" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    
+    
+    
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "TechArticle",
+          "headline": "How to solder through-hole parts, and fix bad joints",
+          "description": "Learn to solder through-hole parts: the five-step joint, what a good joint looks like, bad joints and their fixes, heat, static and desoldering.",
+          "url": "https://perfboarddesigner.com/learn/how-to-solder/",
+          "mainEntityOfPage": "https://perfboarddesigner.com/learn/how-to-solder/",
+          "image": "https://perfboarddesigner.com/images/learn/og/how-to-solder.jpg",
+          "datePublished": "2026-11-09",
+          "dateModified": "2026-11-09",
+          "inLanguage": "en",
+          "proficiencyLevel": "Beginner",
+          "keywords": "how to solder, through-hole soldering, good solder joint, cold solder joint, solder bridge, desoldering, soldering for beginners",
+          "author": {
+            "@type": "Person",
+            "name": "Krisztian Maurer",
+            "url": "https://github.com/MaurerKrisztian"
+          },
+          "isPartOf": {
+            "@type": "CollectionPage",
+            "name": "Learn: perfboard layout, wiring, soldering and testing",
+            "url": "https://perfboarddesigner.com/learn/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://perfboarddesigner.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Learn",
+              "item": "https://perfboarddesigner.com/learn/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "How to solder (and fix bad joints)",
+              "item": "https://perfboarddesigner.com/learn/how-to-solder/"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "How long should I hold the soldering iron on a joint?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "About two to three seconds in total for an ordinary through-hole joint: a second to heat the pad and lead, then feed solder until it forms a smooth cone. If it takes much longer, the tip is dirty, too small, or not touching both parts."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Why won't the solder stick to the pad?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The pad isn't hot enough or isn't clean. Make sure the tip touches the pad as well as the lead, clean tarnished copper, and add a little flux."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Why does my solder form a ball?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Solder balls up on metal it can't wet: a cold or dirty surface, or solder whose flux has burnt away because it sat on the tip. Heat the pad and lead together and feed fresh solder into the joint."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Do I need extra flux?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Not for ordinary joints with flux-core solder. Extra flux helps a lot when reworking joints, clearing bridges, desoldering and soldering tarnished parts."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+  <link rel="stylesheet" href="../../assets/landing.0837469d.css">
+  <link rel="stylesheet" href="../../assets/guide.b8903659.css">
+  <link rel="stylesheet" href="../../assets/learn.7cff3415.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../../" aria-label="Perfboard Designer home">
+      <span class="brand-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <circle cx="6" cy="6" r="2" />
+          <circle cx="18" cy="6" r="2" />
+          <circle cx="6" cy="18" r="2" />
+          <circle cx="18" cy="18" r="2" />
+          <path d="M8 6h8M6 8v8M18 8v8M8 18h8" />
+        </svg>
+      </span>
+      <span class="brand-title">Perfboard Designer</span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="../">Learn</a>
+      <a href="../../guide/">Guide</a>
+      <a href="../../mcp-server/">AI agents</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <a class="button button-small" href="../../app/">Open the designer</a>
+  </header>
+
+  <main>
+    <div class="learn-band">
+      <div class="guide-hero">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <ol>
+            <li><a href="../../">Home</a></li>
+            <li><a href="../">Learn</a></li>
+            <li aria-current="page">How to solder (and fix bad joints)</li>
+          </ol>
+        </nav>
+        <p class="eyebrow">Part 6 of 7 · Soldering</p>
+        <h1>How to solder through-hole parts, and fix bad joints</h1>
+        <p class="lead">Soldering looks like magic until you see the trick: heat the metal, not the solder, and let the solder flow to the heat. Here&#x27;s the technique, what a good joint looks like, and how to rescue the bad ones.</p>
+        <p class="guide-meta byline">By <a href="https://github.com/MaurerKrisztian" rel="author">Krisztian Maurer</a>, maker of Perfboard Designer · Updated <time datetime="2026-11-09">November 9, 2026</time></p>
+        <p class="guide-meta">About 11 minutes to read · Written for beginners · New words? See the <a href="../glossary/">glossary</a></p>
+      </div>
+    </div>
+
+    <div class="guide-layout">
+      <nav class="guide-toc learn-toc" aria-labelledby="toc-title">
+        <h2 id="toc-title">On this page</h2>
+        <ol>
+          <li><a href="#how-it-works">How soldering works</a></li>
+          <li><a href="#prepare">Get ready</a></li>
+          <li><a href="#five-steps">A perfect joint in five steps</a></li>
+          <li><a href="#good-joint">What a good joint looks like</a></li>
+          <li><a href="#joint-doctor">Bad joints and fixes</a></li>
+          <li><a href="#order">Which parts first</a></li>
+          <li><a href="#example">Worked example: soldering the 555 blinker</a></li>
+          <li><a href="#wires">Soldering wires</a></li>
+          <li><a href="#heat">Delicate parts: heat and static</a></li>
+          <li><a href="#desoldering">Desoldering and fixing mistakes</a></li>
+          <li><a href="#practice">Practice makes joints</a></li>
+          <li><a href="#faq">Frequently asked questions</a></li>
+          <li><a href="#sources">Further reading</a></li>
+        </ol>
+      </nav>
+
+      <article class="guide-article learn-article">
+        <section id="how-it-works">
+          <h2>How soldering works</h2>
+          <p>
+            Solder isn't glue. When molten solder touches clean copper that's hot enough, it
+            <em>wets</em> it: it spreads over the surface and bonds with the metal itself, the way water
+            spreads over clean glass but beads up on a greasy one. Which gives the golden rule:
+          </p>
+          <p class="big-rule">Heat the joint, not the solder.</p>
+          <p>
+            Both pieces of metal, the pad and the lead, have to reach soldering temperature. Then the
+            solder flows onto them by itself. Melt solder onto a cold part and it just sits on top: a
+            blob that looks connected but isn't.
+          </p>
+        </section>
+
+        <section id="prepare">
+          <h2>Get ready</h2>
+          <ul class="checklist">
+            <li><strong>Clean metal.</strong> Old perfboard and component leads tarnish. If the copper looks dull or dark, rub it bright with a fiberglass pen or a pencil eraser, then wipe it with isopropyl alcohol.</li>
+            <li><strong>A tinned tip.</strong> Wipe the hot tip on brass wool and melt a little solder onto it, so it's bright silver.</li>
+            <li><strong>A steady board,</strong> held in a vise or PCB holder at a comfortable angle.</li>
+            <li><strong>The part in place.</strong> Push its leads through the holes and bend them out a little on the copper side, so the part can't drop out when you turn the board over.</li>
+          </ul>
+        </section>
+
+        <section id="five-steps">
+          <h2>A perfect joint in five steps</h2>
+          <div class="tile-grid tile-grid-4">
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/solder-joint-step-1-heat.svg" width="200" height="150" loading="lazy" decoding="async" alt="The iron&#x27;s tip touching the copper pad and the component lead together, with heat glowing at the joint" />
+              <figcaption><strong>1 · Heat</strong> The tip touches the pad and the lead together, for about a second.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/solder-joint-step-2-feed.svg" width="200" height="150" loading="lazy" decoding="async" alt="Solder wire touching the joint on the side opposite the iron and starting to melt" />
+              <figcaption><strong>2 · Feed</strong> Solder goes in on the far side of the joint, not onto the tip.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/solder-joint-step-3-flow.svg" width="200" height="150" loading="lazy" decoding="async" alt="Solder flowed into a cone around the lead, with the solder wire pulled back and the iron still touching" />
+              <figcaption><strong>3–4 · Flow</strong> It melts and runs round the lead. Take the solder away, then the iron.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/solder-joint-step-5-done.svg" width="200" height="150" loading="lazy" decoding="async" alt="The finished joint: a smooth concave cone of solder covering the pad and climbing the lead" />
+              <figcaption><strong>5 · Done</strong> A smooth, concave cone. Keep it still while it sets.</figcaption>
+            </figure>
+          </div>
+          <ol class="steps">
+            <li>
+              <h3>Touch the tip to the pad and the lead</h3>
+              <p>Lay the flat of the tip against both at once, where the lead comes out of the pad, and hold it there for about a second to bring both up to temperature.</p>
+            </li>
+            <li>
+              <h3>Feed solder into the joint</h3>
+              <p>Touch the solder wire to the pad and lead on the side <em>opposite</em> the tip, not to the tip itself. If the metal is hot enough, the solder melts at once and flows round the lead.</p>
+            </li>
+            <li>
+              <h3>Stop at a little volcano</h3>
+              <p>Feed just enough to cover the pad and climb the lead in a smooth cone: usually a few millimeters of 0.8 mm solder. Then take the solder away.</p>
+            </li>
+            <li>
+              <h3>Take the iron away</h3>
+              <p>Solder first, then the iron, a moment later. The whole joint should take two to three seconds.</p>
+            </li>
+            <li>
+              <h3>Keep still, then trim</h3>
+              <p>Hold everything still for a couple of seconds while the solder sets. Then snip the lead just above the top of the joint with flush cutters.</p>
+            </li>
+          </ol>
+          <div class="tip">
+            <p>
+              <strong>Why not melt solder on the tip and dab it on?</strong> The flux in the solder
+              burns off the hot tip within a second or two, so by the time the blob reaches the
+              joint there's nothing left to clean the metal, and you get a dull lump sitting on the
+              surface. A <em>tiny</em> bit of solder on the tip is good, though: it helps the heat
+              flow into the joint.
+            </p>
+          </div>
+          <div class="tip">
+            <p>
+              <strong>Watch it done.</strong> Soldering is easier to see than to read about. The
+              <a href="https://www.eevblog.com/2011/07/02/eevblog-183-soldering-tutorial-part-2/" rel="noopener">EEVblog
+              through-hole soldering tutorial</a> shows every step up close, on video, and SparkFun's
+              <a href="https://learn.sparkfun.com/tutorials/how-to-solder-through-hole-soldering" rel="noopener">How
+              to Solder: Through-Hole Soldering</a> has photos of each stage.
+            </p>
+          </div>
+        </section>
+
+        <section id="good-joint">
+          <h2>What a good joint looks like</h2>
+          <p>A good through-hole joint is a smooth, concave cone (people call it a volcano) that:</p>
+          <ul class="checklist">
+            <li>covers the whole pad, right to its edges;</li>
+            <li>climbs the lead, with the lead's outline still visible under the solder;</li>
+            <li>curves inward, meeting the pad and the lead at a shallow angle;</li>
+            <li>is smooth and shiny with leaded solder, or smooth and satin-gray with lead-free, which never shines as much;</li>
+            <li>has no cracks, holes or lumps, and touches nothing it shouldn't.</li>
+          </ul>
+          <p>
+            The shallow angle where the solder meets the metal is the giveaway: it shows the solder
+            wetted the surface. A blob with a steep edge, like a drop of water on a waxed car, didn't.
+          </p>
+        </section>
+
+        <section id="joint-doctor">
+          <h2>The joint doctor: bad joints and how to fix them</h2>
+          <p>
+            Every solderer makes all of these. Recognizing them is the skill, and fixing them is
+            usually just heat, a touch of flux and a few seconds. The pictures are cross-sections
+            through the board, with the copper side up.
+          </p>
+          <div class="tile-grid">
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/good-solder-joint.svg" width="200" height="120" loading="lazy" decoding="async" alt="A good joint: a smooth concave cone of solder covering the pad and climbing the lead" />
+              <figcaption><strong>Good joint <span class="verdict verdict-good">Looks right</span></strong> A smooth, concave, shiny cone that covers the whole pad and climbs the lead. Nothing to fix.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/too-much-solder.svg" width="200" height="120" loading="lazy" decoding="async" alt="Too much solder: a round ball of solder covering the lead and the pad" />
+              <figcaption><strong>Too much solder <span class="verdict verdict-meh">Check it</span></strong> A round ball that hides the pad's edge. It may be fine inside, or hiding a joint that never wetted, and it's one step from a bridge. <em>Fix:</em> heat it and draw the extra off with a clean tip or braid.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/too-little-solder.svg" width="200" height="120" loading="lazy" decoding="async" alt="Too little solder: a thin ring of solder around the lead, with bare pad showing" />
+              <figcaption><strong>Too little solder <span class="verdict verdict-meh">Check it</span></strong> Bare pad showing and a thin ring round the lead: weak, and it may crack later. <em>Fix:</em> reheat and add a little more solder.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/cold-solder-joint.svg" width="200" height="120" loading="lazy" decoding="async" alt="A cold joint: a rough, lumpy, dull gray mound of solder" />
+              <figcaption><strong>Cold joint <span class="verdict verdict-bad">Fix it</span></strong> Rough, lumpy and dull: the solder never fully melted, or the metal wasn't hot enough. Unreliable. <em>Fix:</em> reheat with a clean, hot tip and a touch of flux until it flows smooth.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/disturbed-solder-joint.svg" width="200" height="120" loading="lazy" decoding="async" alt="A disturbed joint: a frosty, grainy cone of solder with fine cracks" />
+              <figcaption><strong>Disturbed joint <span class="verdict verdict-bad">Fix it</span></strong> Frosty, grainy or cracked: something moved while the solder was setting. <em>Fix:</em> reheat and hold everything still while it sets; clamp the work.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/overheated-solder-joint.svg" width="200" height="120" loading="lazy" decoding="async" alt="An overheated joint: dull solder with burnt brown flux around it and darkened pads" />
+              <figcaption><strong>Overheated <span class="verdict verdict-bad">Fix it</span></strong> Dull, with burnt brown flux around it, and the pad may be starting to lift. <em>Fix:</em> clean the burnt flux off with isopropyl alcohol, add fresh flux and reheat quickly.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/solder-pad-not-wetted.svg" width="200" height="120" loading="lazy" decoding="async" alt="Pad not wetted: a ball of solder stuck on the lead, not touching the pad" />
+              <figcaption><strong>Pad not wetted <span class="verdict verdict-bad">Fix it</span></strong> Solder clings to the lead in a ball but never reaches the pad: the pad wasn't heated, or wasn't clean. <em>Fix:</em> hold the tip on the pad too, with flux, until the solder flows over it.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/solder-lead-not-wetted.svg" width="200" height="120" loading="lazy" decoding="async" alt="Lead not wetted: solder on the pad with a gap all round the lead" />
+              <figcaption><strong>Lead not wetted <span class="verdict verdict-bad">Fix it</span></strong> Solder on the pad, but a dark ring round the lead: the lead wasn't heated, or was tarnished. <em>Fix:</em> reheat with the tip touching the lead, plus flux, until solder climbs it.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/solder-bridge.svg" width="200" height="120" loading="lazy" decoding="async" alt="A solder bridge: one blob of solder joining two neighboring pins" />
+              <figcaption><strong>Solder bridge <span class="verdict verdict-bad">Fix it</span></strong> Solder joining two pads that should be apart: a short circuit. <em>Fix:</em> drag it apart with a clean tip and a touch of flux, or soak it up with braid.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/lifted-pad.svg" width="200" height="120" loading="lazy" decoding="async" alt="A lifted pad: the copper ring on one side has peeled up away from the board" />
+              <figcaption><strong>Lifted pad <span class="verdict verdict-bad">Work around it</span></strong> The copper ring has come away from the board, from too much heat or force. <em>Fix:</em> stop heating it. If the part is held, leave it; if not, glue it down and solder a wire straight from the lead to where it connects.</figcaption>
+            </figure>
+          </div>
+          <div class="tip">
+            <p>
+              <strong>Also:</strong> trim long leads. Untrimmed leads can bend over and touch their
+              neighbors, and they hide the joint you're trying to inspect.
+            </p>
+          </div>
+        </section>
+
+        <section id="order">
+          <h2>Which parts first</h2>
+          <p>
+            Solder the lowest parts first and work up to the tallest. When you turn the board over to
+            solder, it then rests on the parts you're soldering and holds them flat against the board.
+          </p>
+          <ol>
+            <li>Wire links and jumpers that lie flat</li>
+            <li>Resistors and diodes</li>
+            <li>IC sockets and pin headers</li>
+            <li>Small ceramic and film capacitors, transistors</li>
+            <li>Electrolytic capacitors, regulators, trimmers</li>
+            <li>Connectors, switches, and anything tall or heavy</li>
+          </ol>
+          <div class="tip">
+            <p>
+              <strong>Tip:</strong> solder just one lead of a part first, check that it sits flat and
+              straight, and reheat that joint to nudge it if not. Only then solder the rest. On a
+              socket or header, tack two opposite corner pins first.
+            </p>
+          </div>
+        </section>
+
+        <section id="example">
+          <h2>Worked example: soldering the 555 blinker</h2>
+          <p>
+            On the <a href="../perfboard-layout/#example">555 blinker</a> from the layout guide, lowest
+            first works out like this. Solder from a print of its solder side, so every joint is where
+            your eyes expect it.
+          </p>
+          <ol>
+            <li><strong>The red jumper,</strong> flat on the component side.</li>
+            <li><strong>R1, R2, R3 and D2,</strong> lying flat, with D2's band away from the terminal.</li>
+            <li><strong>The 8-pin socket,</strong> notch at the top, tacked by two opposite corners first. Then the yellow link on the copper side, tacked to the joints of pins 2 and 6.</li>
+            <li><strong>C2 and C4,</strong> the small ceramic capacitors.</li>
+            <li><strong>The LED D1 and the electrolytics C1 and C3,</strong> with the LED's flat side and the stripes toward ground.</li>
+            <li><strong>The terminal J1,</strong> the tallest part.</li>
+            <li><strong>The copper side's wiring:</strong> the bridges between neighboring pads, then the bare wire, rails first.</li>
+          </ol>
+          <p>
+            Leave the 555 itself out until you've <a href="../testing-your-board/#example">tested the
+            board</a>. The parts list and the rest of the build are on <a href="../555-led-blinker/">the 555 LED blinker
+            project page</a>.
+          </p>
+        </section>
+
+        <section id="wires">
+          <h2>Soldering wires</h2>
+          <ol>
+            <li>Strip 3 to 5 mm of insulation.</li>
+            <li>On stranded wire, twist the strands together tightly so none stray.</li>
+            <li><strong>Tin the wire:</strong> heat it and let solder soak into it. Tin the pad or terminal the same way.</li>
+            <li>Hold the two together and touch the iron to them. The solder on both melts and fuses; add a touch of fresh solder if it needs it.</li>
+          </ol>
+          <p>
+            Tinning both sides first is what makes wire joints quick and clean. For wires leaving the
+            board, slide heat-shrink tubing on <em>before</em> you solder, then shrink it over the joint.
+          </p>
+        </section>
+
+        <section id="heat">
+          <h2>Delicate parts: heat and static</h2>
+          <p>
+            Semiconductors, LEDs and plastic-bodied parts (switches, sockets, connectors) don't like
+            being cooked. Datasheets typically allow only a few seconds at soldering-iron temperatures.
+          </p>
+          <ul>
+            <li><strong>Be quick:</strong> two to three seconds per joint, then move on.</li>
+            <li><strong>Spread the heat:</strong> on chips and headers, solder pins in a scattered order (1, then 5, then 2…) instead of working along one side.</li>
+            <li><strong>Heat-sink the lead:</strong> grip a delicate part's lead with pliers or a crocodile clip, between the joint and the body, so the heat goes into the metal instead of the part.</li>
+            <li><strong>Socket your chips:</strong> solder the socket, then plug the chip in cold.</li>
+          </ul>
+          <p>
+            <strong>Static</strong> is the other danger. CMOS chips (the 4000 series, many
+            microcontrollers) and MOSFETs can be damaged by a spark too small to feel. Keep them in
+            their foam or tube until you need them, touch something grounded, such as a metal
+            radiator, before you pick one up (or wear an anti-static wrist strap), and don't work on
+            carpet in a wool sweater. A socket helps here too: the chip goes in last.
+          </p>
+        </section>
+
+        <section id="desoldering">
+          <h2>Desoldering and fixing mistakes</h2>
+          <p>Everyone desolders. Two tools do nearly all of it:</p>
+          <ul>
+            <li><strong>Desoldering braid (wick):</strong> fine copper braid, usually soaked in flux. Lay it on the joint and press the iron on top: the molten solder soaks into the braid. Snip off the used end. Best for clearing bridges and cleaning pads.</li>
+            <li><strong>Solder sucker (pump):</strong> cock it, melt the joint, put the nozzle right on the molten solder and press the button. Best for emptying a hole so a lead can come out.</li>
+          </ul>
+          <p>Three tricks make it easier:</p>
+          <ul>
+            <li><strong>Add solder to remove solder.</strong> Old joints, and lead-free ones, often melt reluctantly. Melt a little fresh solder, with its fresh flux, into the joint first, and it comes away far more easily.</li>
+            <li><strong>Add flux.</strong> It's what makes solder flow, off the joint as well as on.</li>
+            <li><strong>Don't pull too soon.</strong> Pulling a lead before its solder has fully melted rips the pad off. Heat, wait, then pull gently.</li>
+          </ul>
+          <p>
+            A chip soldered in without a socket is the hardest thing to remove. If you can spare the
+            chip, clip each pin at the body and take the pins out one by one.
+          </p>
+        </section>
+
+        <section id="practice">
+          <h2>Practice makes joints</h2>
+          <p>
+            The first twenty joints are the hardest. Before your real project, take a scrap of
+            perfboard and a handful of cheap resistors and solder them in and out again. Try a solder
+            bridge, a length of bus wire and a jumper, and compare each joint with the pictures above.
+            By fifty joints you'll have stopped thinking about it, and the
+            <a href="../#build-along">555 blinker</a> these guides follow makes a satisfying first
+            build.
+          </p>
+          <p>
+            When you sit down to solder for real, print the <a href="../bench-card/">bench card</a>:
+            the temperatures, the five steps and the quick fixes, on one page beside the iron.
+          </p>
+        </section>
+
+        <section id="faq">
+          <h2>Frequently asked questions</h2>
+          <div class="faq">
+            <details>
+              <summary>How long should I hold the soldering iron on a joint?</summary>
+              <p>About two to three seconds in total for an ordinary through-hole joint: a second to heat the pad and lead, then feed solder until it forms a smooth cone. If it takes much longer, the tip is dirty, too small, or not touching both parts.</p>
+            </details>
+            <details>
+              <summary>Why won&#x27;t the solder stick to the pad?</summary>
+              <p>The pad isn&#x27;t hot enough or isn&#x27;t clean. Make sure the tip touches the pad as well as the lead, clean tarnished copper, and add a little flux.</p>
+            </details>
+            <details>
+              <summary>Why does my solder form a ball?</summary>
+              <p>Solder balls up on metal it can&#x27;t wet: a cold or dirty surface, or solder whose flux has burnt away because it sat on the tip. Heat the pad and lead together and feed fresh solder into the joint.</p>
+            </details>
+            <details>
+              <summary>Do I need extra flux?</summary>
+              <p>Not for ordinary joints with flux-core solder. Extra flux helps a lot when reworking joints, clearing bridges, desoldering and soldering tarnished parts.</p>
+            </details>
+          </div>
+        </section>
+
+        <section id="sources">
+          <h2>Further reading</h2>
+          <p>The sources behind this guide, and good places to go deeper:</p>
+          <ul class="sources">
+            <li><a href="https://learn.adafruit.com/adafruit-guide-excellent-soldering/common-problems" rel="noopener">Common soldering problems</a> (Adafruit Guide to Excellent Soldering)</li>
+            <li><a href="https://www.eevblog.com/2011/07/02/eevblog-183-soldering-tutorial-part-2/" rel="noopener">Soldering tutorial part 2: through-hole (video)</a> (EEVblog)</li>
+            <li><a href="https://learn.sparkfun.com/tutorials/how-to-solder-through-hole-soldering" rel="noopener">How to Solder: Through-Hole Soldering</a> (SparkFun)</li>
+            <li><a href="https://www.instructables.com/How-to-Solder-Through-Hole-Parts" rel="noopener">How to solder through-hole parts</a> (Instructables)</li>
+            <li><a href="https://hackaday.com/2021/07/24/learning-to-desolder-gracefully/" rel="noopener">Learning to desolder gracefully</a> (Hackaday)</li>
+            <li><a href="https://www.electronicdesign.com/markets/automation/article/21126406/common-pcb-soldering-problems-to-avoid" rel="noopener">Common PCB soldering problems to avoid</a> (Electronic Design)</li>
+            <li><a href="https://en.wikipedia.org/wiki/Soldering" rel="noopener">Soldering</a> (Wikipedia)</li>
+          </ul>
+        </section>
+
+        <div class="learn-cta">
+          <div>
+            <h2>Plan your next board in Perfboard Designer</h2>
+            <p>Free, in your browser, no sign-up: lay out perfboard or stripboard, check every connection, flip to the solder side and print it at true size.</p>
+          </div>
+          <a class="button" href="../../app/">Open the designer</a>
+        </div>
+
+        <nav class="article-pager" aria-label="More guides in this series">
+          <a class="pager-prev" href="../soldering-tools-and-safety/"><span>← Previous</span><strong>Soldering tools and safety</strong></a>
+          <a class="pager-next" href="../testing-your-board/"><span>Next →</span><strong>Test and debug your board</strong></a>
+        </nav>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Perfboard Designer is open source, made by
+      <a href="https://github.com/MaurerKrisztian" target="_blank" rel="noopener">@MaurerKrisztian</a>
+      and <a href="../../contributors/">contributors</a>.
+    </p>
+    <nav aria-label="Footer">
+      <a href="../../">Home</a>
+      <a href="../../app/">Designer</a>
+      <a href="../">Learn</a>
+      <a href="../../guide/">Guide</a>
+      <a href="../../mcp-server/">MCP server</a>
+      <a href="../../contributors/">Contributors</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer/issues" target="_blank" rel="noopener">Report a bug</a>
+      <a href="#cookie-settings" data-consent-settings>Cookie settings</a>
+    </nav>
+  </footer>
+</body>
+</html>

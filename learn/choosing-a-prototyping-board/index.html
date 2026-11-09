@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <!-- Google Analytics, only once the visitor accepts it: consent.js -->
+    <script src="../../consent.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perfboard vs Stripboard vs Breadboard: Which Board to Use?</title>
+    <meta name="description" content="Breadboard, perfboard, stripboard (Veroboard) or breadboard-style protoboard: what each one is, FR-2 vs FR-4, hole spacing, and which to choose." />
+    <link rel="canonical" href="https://perfboarddesigner.com/learn/choosing-a-prototyping-board/" />
+    <meta name="theme-color" content="#0b1220" />
+    <link rel="icon" type="image/png" href="../../favicon.png" />
+
+    <!-- Link previews (Facebook, LinkedIn, Discord, Slack, X...) -->
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Perfboard Designer" />
+    <meta property="og:title" content="Perfboard, stripboard or breadboard? How to pick a board" />
+    <meta property="og:description" content="Breadboard, perfboard, stripboard or a breadboard-style protoboard? What each one is, what it&#x27;s made of, and which to buy." />
+    <meta property="og:url" content="https://perfboarddesigner.com/learn/choosing-a-prototyping-board/" />
+    <meta property="og:image" content="https://perfboarddesigner.com/images/learn/og/choosing-a-prototyping-board.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Perfboard, stripboard or breadboard? How to pick a board, with the four kinds of board: breadboard, perfboard, stripboard and breadboard-style protoboard" />
+    <meta property="article:published_time" content="2026-11-09" />
+    <meta property="article:modified_time" content="2026-11-09" />
+    <meta name="author" content="Krisztian Maurer" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    
+    
+    
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "TechArticle",
+          "headline": "Perfboard, stripboard or breadboard? How to pick a board",
+          "description": "Breadboard, perfboard, stripboard (Veroboard) or breadboard-style protoboard: what each one is, FR-2 vs FR-4, hole spacing, and which to choose.",
+          "url": "https://perfboarddesigner.com/learn/choosing-a-prototyping-board/",
+          "mainEntityOfPage": "https://perfboarddesigner.com/learn/choosing-a-prototyping-board/",
+          "image": "https://perfboarddesigner.com/images/learn/og/choosing-a-prototyping-board.jpg",
+          "datePublished": "2026-11-09",
+          "dateModified": "2026-11-09",
+          "inLanguage": "en",
+          "proficiencyLevel": "Beginner",
+          "keywords": "perfboard vs stripboard, perfboard vs breadboard, what is perfboard, what is stripboard, Veroboard, protoboard, FR-2 vs FR-4, prototyping board",
+          "author": {
+            "@type": "Person",
+            "name": "Krisztian Maurer",
+            "url": "https://github.com/MaurerKrisztian"
+          },
+          "isPartOf": {
+            "@type": "CollectionPage",
+            "name": "Learn: perfboard layout, wiring, soldering and testing",
+            "url": "https://perfboarddesigner.com/learn/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://perfboarddesigner.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Learn",
+              "item": "https://perfboarddesigner.com/learn/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Perfboard, stripboard or breadboard?",
+              "item": "https://perfboarddesigner.com/learn/choosing-a-prototyping-board/"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Is perfboard the same as protoboard?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Mostly, yes. Protoboard is a loose name for any solderable prototyping board, and plain perfboard with a pad round each hole is the most common kind. Shops also use the name for breadboard-style boards, and sometimes even for solderless breadboards."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What is the difference between perfboard and stripboard?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "On perfboard every hole has its own pad and nothing is connected, so you make every connection yourself. On stripboard the copper runs in strips that already connect whole rows of holes, and you cut the strips where a connection has to end."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Why does my brown board smell when I solder it?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Cheap brown boards are FR-2, paper bonded with phenolic resin, which smells when heated. That's normal, but don't keep the iron on longer than you need: its pads also lift more easily than on glass-fiber FR-4 board."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What hole spacing do I need?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "2.54 mm (0.1 inch), the standard for through-hole parts, DIP chips, pin headers and breadboards. A few modules use other spacings, so check any unusual part before you plan the layout."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+  <link rel="stylesheet" href="../../assets/landing.0837469d.css">
+  <link rel="stylesheet" href="../../assets/guide.b8903659.css">
+  <link rel="stylesheet" href="../../assets/learn.7cff3415.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../../" aria-label="Perfboard Designer home">
+      <span class="brand-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <circle cx="6" cy="6" r="2" />
+          <circle cx="18" cy="6" r="2" />
+          <circle cx="6" cy="18" r="2" />
+          <circle cx="18" cy="18" r="2" />
+          <path d="M8 6h8M6 8v8M18 8v8M8 18h8" />
+        </svg>
+      </span>
+      <span class="brand-title">Perfboard Designer</span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="../">Learn</a>
+      <a href="../../guide/">Guide</a>
+      <a href="../../mcp-server/">AI agents</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <a class="button button-small" href="../../app/">Open the designer</a>
+  </header>
+
+  <main>
+    <div class="learn-band">
+      <div class="guide-hero">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <ol>
+            <li><a href="../../">Home</a></li>
+            <li><a href="../">Learn</a></li>
+            <li aria-current="page">Perfboard, stripboard or breadboard?</li>
+          </ol>
+        </nav>
+        <p class="eyebrow">Part 1 of 7 · Boards</p>
+        <h1>Perfboard, stripboard or breadboard? How to pick a board</h1>
+        <p class="lead">Every circuit you build by hand starts on one of a handful of boards. Here&#x27;s what each one is, where it shines, what it&#x27;s made of, and how to pick the right one for your next project.</p>
+        <p class="guide-meta byline">By <a href="https://github.com/MaurerKrisztian" rel="author">Krisztian Maurer</a>, maker of Perfboard Designer · Updated <time datetime="2026-11-09">November 9, 2026</time></p>
+        <p class="guide-meta">About 8 minutes to read · Written for beginners · New words? See the <a href="../glossary/">glossary</a></p>
+      </div>
+    </div>
+
+    <div class="guide-layout">
+      <nav class="guide-toc learn-toc" aria-labelledby="toc-title">
+        <h2 id="toc-title">On this page</h2>
+        <ol>
+          <li><a href="#short-answer">The short answer</a></li>
+          <li><a href="#four-boards">Four boards at a glance</a></li>
+          <li><a href="#breadboard">Breadboard: the sketchpad</a></li>
+          <li><a href="#perfboard">Perfboard: a blank page</a></li>
+          <li><a href="#stripboard">Stripboard: wires included</a></li>
+          <li><a href="#protoboard">Breadboard-style protoboard: the easy copy</a></li>
+          <li><a href="#materials">What the board is made of</a></li>
+          <li><a href="#size">Hole spacing and board size</a></li>
+          <li><a href="#compare">Side by side</a></li>
+          <li><a href="#choose">Which one should you pick?</a></li>
+          <li><a href="#faq">Frequently asked questions</a></li>
+          <li><a href="#sources">Further reading</a></li>
+        </ol>
+      </nav>
+
+      <article class="guide-article learn-article">
+        <section id="short-answer">
+          <h2>The short answer</h2>
+          <div class="short-answer">
+            <span class="callout-label">In one minute</span>
+            <ul>
+              <li><strong>Still experimenting?</strong> Use a <strong>breadboard</strong>. Nothing is soldered, so swapping a part takes a second.</li>
+              <li><strong>Building something to keep?</strong> Use <strong>perfboard</strong>. It's a blank page: any circuit, as compact as you can make it.</li>
+              <li><strong>One chip and a handful of parts?</strong> <strong>Stripboard</strong> does half the wiring for you.</li>
+              <li><strong>Want an exact copy of your breadboard?</strong> A <strong>breadboard-style protoboard</strong> has the same pattern, so parts move across one for one.</li>
+              <li><strong>Making five or more, or a board full of surface-mount chips?</strong> That's when to order a real <strong>PCB</strong>.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="four-boards">
+          <h2>Four boards at a glance</h2>
+          <p>
+            All four have holes on the same 2.54 mm (0.1 inch) grid, so the same parts fit all of
+            them. What changes is how much is already connected for you.
+          </p>
+          <div class="tile-grid tile-grid-4">
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/breadboard.svg" width="168" height="120" loading="lazy" decoding="async" alt="A breadboard: plastic with rows of holes, one row of five highlighted, and a power rail along the top" />
+              <figcaption>
+                <strong>Breadboard</strong>
+                No soldering. Spring clips join each short row of holes (highlighted), and long rails carry power.
+              </figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/perfboard.svg" width="168" height="120" loading="lazy" decoding="async" alt="A perfboard: a copper pad around every hole, none of them joined" />
+              <figcaption>
+                <strong>Perfboard</strong>
+                A copper pad round every hole, and nothing joined until you join it.
+              </figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/stripboard.svg" width="168" height="120" loading="lazy" decoding="async" alt="A stripboard: copper strips along each row of holes, with one strip cut at a hole" />
+              <figcaption>
+                <strong>Stripboard</strong>
+                Copper strips join every hole in a row. You cut them where a connection must end (circled).
+              </figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/breadboard-style-protoboard.svg" width="168" height="120" loading="lazy" decoding="async" alt="A breadboard-style protoboard: pads joined in columns like a breadboard, with a rail along the top" />
+              <figcaption>
+                <strong>Breadboard-style protoboard</strong>
+                Pads joined in a breadboard's pattern, so a breadboard circuit moves across as it is.
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <section id="breadboard">
+          <h2>Breadboard: the sketchpad</h2>
+          <p>
+            A solderless breadboard is a plastic block full of spring clips. Push a lead into a hole
+            and a clip grips it, along with the other holes in its row (usually five). Long rails
+            down the sides carry power and ground. Nothing is soldered, so trying a different
+            resistor takes seconds.
+          </p>
+          <p>
+            That's also why it's no home for a finished circuit. Leads work loose, jumper wires snag,
+            the clips wear out, and the long metal strips add stray capacitance that can upset fast or
+            sensitive circuits. Use a breadboard to <em>prove</em> a circuit, then move it to
+            something soldered.
+          </p>
+          <div class="tip">
+            <p>
+              <strong>Fun fact:</strong> the name is literal. Early radio builders mounted their parts
+              on wooden boards, sometimes the kitchen's bread board, with nails or thumbtacks for
+              terminals. The plastic version kept the name.
+            </p>
+          </div>
+        </section>
+
+        <section id="perfboard">
+          <h2>Perfboard: a blank page</h2>
+          <p>
+            Perfboard (short for <em>perforated board</em>) is also sold as protoboard, prototype
+            PCB, dot board or, in some places, zero PCB. It's a sheet with a grid of holes, each with its own copper
+            pad, and no two holes connected. You make every connection yourself: by bending a
+            component's lead over to its neighbor, bridging pads with solder, or running wire.
+          </p>
+          <p>
+            That freedom is the point. Any circuit fits, parts sit exactly where they make sense, and
+            a careful layout can be remarkably compact. The price is wiring time, and a messy layout
+            gets messy fast. That's why it pays to <a href="../perfboard-layout/">plan it first</a>.
+          </p>
+        </section>
+
+        <section id="stripboard">
+          <h2>Stripboard: wires included</h2>
+          <p>
+            Stripboard has the same holes, but its copper runs in long parallel strips, so every hole
+            along a strip is already connected. You build by placing parts <em>across</em> the strips
+            and cutting a strip wherever a connection has to stop. The best-known brand is
+            Veroboard, made by the British company Vero since the early 1960s, which is why many
+            people still call any stripboard "Vero".
+          </p>
+          <p>
+            For circuits that flow in a line, like audio effects, small power supplies or a chip with
+            a few parts around it, stripboard is fast: there's little wiring, mostly a few short
+            links. It's less happy with dense digital circuits, where you end up cutting more copper
+            than you keep. More in <a href="../stripboard-layout/">Stripboard layout</a>.
+          </p>
+        </section>
+
+        <section id="protoboard">
+          <h2>Breadboard-style protoboard: the easy copy</h2>
+          <p>
+            These are solderable boards printed with a breadboard's pattern: rows of pads joined in
+            groups, with power rails along the edges (Adafruit's Perma-Proto is a well-known example).
+            If your circuit works on a breadboard, you can move it across part by part into the same
+            holes, with no layout work at all.
+          </p>
+          <p>
+            The trade-off is that they cost more, and they're no more compact than the breadboard you
+            started from. You'll also meet in-between patterns, such as boards with pads joined in
+            twos or threes, which sit somewhere between perfboard and stripboard.
+          </p>
+        </section>
+
+        <section id="materials">
+          <h2>What the board is made of</h2>
+          <p>
+            The cheapest boards are <strong>FR-2</strong>: paper soaked in phenolic resin, usually
+            brown, with copper on one side only. They work, but their thin pads lift off easily if you
+            overheat them or rework a joint, and they give off a distinctive smell when hot.
+          </p>
+          <p>
+            Better boards are <strong>FR-4</strong>, woven glass fiber in epoxy, the same material as
+            most real circuit boards. They're stronger, cope far better with heat and rework, and are
+            usually <strong>double-sided with plated-through holes</strong>: copper lines each hole
+            and joins the pads on both faces, so solder flows right through and grips the lead along
+            its whole length.
+          </p>
+          <div class="tile-grid tile-grid-2">
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/single-sided-board-solder-joint.svg" width="240" height="130" loading="lazy" decoding="async" alt="Cross-section of a single-sided board: a pad on the underside only, with solder holding the lead there" />
+              <figcaption>
+                <strong>Single-sided (often FR-2)</strong>
+                Copper on one face. The joint holds on to a thin pad alone.
+              </figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/plated-through-hole-solder-joint.svg" width="240" height="130" loading="lazy" decoding="async" alt="Cross-section of a plated-through hole: copper lines the hole and both faces, and solder fills it" />
+              <figcaption>
+                <strong>Double-sided, plated-through (usually FR-4)</strong>
+                Copper lines the hole, solder fills it, and the joint is far stronger.
+              </figcaption>
+            </figure>
+          </div>
+          <div class="tip">
+            <p>
+              <strong>Beginner's tip:</strong> a little extra for double-sided FR-4 board buys you
+              forgiveness. You will rework joints while you learn, and plated holes survive it.
+            </p>
+          </div>
+        </section>
+
+        <section id="size">
+          <h2>Hole spacing and board size</h2>
+          <p>
+            Almost every board uses a <strong>2.54 mm (0.1 inch)</strong> pitch: the spacing of DIP
+            chips, pin headers and breadboards, so through-hole parts drop straight in. Boards are
+            sold by their size in centimeters, and the number of holes follows from that: a common
+            5 × 7 cm board has 18 × 24 holes, and a 7 × 9 cm one has 24 × 30.
+          </p>
+          <ul>
+            <li><strong>Count holes, not millimeters.</strong> Plan the layout first, then pick a board with a couple of spare rows all round for mounting holes and second thoughts.</li>
+            <li><strong>Cut a big board down</strong> by scoring along a row of holes several times, on both sides, with a sharp knife against a steel ruler, then snapping it over a table edge. File the edge smooth.</li>
+            <li><strong>Mind the dust.</strong> Sawing or sanding FR-4 makes fine glass-fiber dust. Score and snap instead, and if you must sand, wear a proper mask.</li>
+          </ul>
+        </section>
+
+        <section id="compare">
+          <h2>Side by side</h2>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th></th><th>Breadboard</th><th>Perfboard</th><th>Stripboard</th><th>Breadboard-style</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Soldered</td><td>No</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+                <tr><td>Already connected</td><td>Short rows and rails</td><td>Nothing</td><td>Whole strips</td><td>Short rows and rails</td></tr>
+                <tr><td>Layout freedom</td><td>Low</td><td>Total</td><td>Medium</td><td>Low</td></tr>
+                <tr><td>Wiring work</td><td>Least</td><td>Most</td><td>Little</td><td>Little</td></tr>
+                <tr><td>How compact</td><td>Not very</td><td>Very</td><td>Fairly</td><td>Not very</td></tr>
+                <tr><td>Best for</td><td>Trying ideas</td><td>Anything permanent and compact</td><td>Simple circuits that flow in a line</td><td>Copying a breadboard</td></tr>
+                <tr><td>Watch out for</td><td>Loose contacts</td><td>Messy wiring</td><td>Bridges between strips, forgotten cuts</td><td>Size and price</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="choose">
+          <h2>Which one should you pick?</h2>
+          <ol>
+            <li><strong>Still changing values or chasing a bug?</strong> Stay on the breadboard until it works.</li>
+            <li><strong>One chip and a handful of parts, with the signal flowing one way?</strong> Stripboard will be quickest.</li>
+            <li><strong>Several chips, plug-in modules, or a tight space</strong> such as an enclosure or a pedal box? Perfboard.</li>
+            <li><strong>No time for layout, and room to spare?</strong> A breadboard-style protoboard.</li>
+            <li><strong>Making five or more, or a board full of surface-mount parts?</strong> Design a PCB. Ordering a handful has become cheap, and a perfboard prototype is the perfect test run for it.</li>
+          </ol>
+          <p>
+            One or two surface-mount chips don't rule perfboard out. Solder each to a small adapter
+            board (sold as SOIC-to-DIP or breakout boards), which gives it pins on the 0.1 inch grid.
+            Many sensors and modules come on boards like that already.
+          </p>
+          <div class="pd-note">
+            <span class="callout-label">In Perfboard Designer</span>
+            <p>
+              You can switch a layout between perfboard and stripboard at any time and your parts
+              stay where they are, so it's easy to try both before you buy. A board's size is just
+              the number of holes across and down.
+            </p>
+          </div>
+        </section>
+
+        <section id="faq">
+          <h2>Frequently asked questions</h2>
+          <div class="faq">
+            <details>
+              <summary>Is perfboard the same as protoboard?</summary>
+              <p>Mostly, yes. Protoboard is a loose name for any solderable prototyping board, and plain perfboard with a pad round each hole is the most common kind. Shops also use the name for breadboard-style boards, and sometimes even for solderless breadboards.</p>
+            </details>
+            <details>
+              <summary>What is the difference between perfboard and stripboard?</summary>
+              <p>On perfboard every hole has its own pad and nothing is connected, so you make every connection yourself. On stripboard the copper runs in strips that already connect whole rows of holes, and you cut the strips where a connection has to end.</p>
+            </details>
+            <details>
+              <summary>Why does my brown board smell when I solder it?</summary>
+              <p>Cheap brown boards are FR-2, paper bonded with phenolic resin, which smells when heated. That&#x27;s normal, but don&#x27;t keep the iron on longer than you need: its pads also lift more easily than on glass-fiber FR-4 board.</p>
+            </details>
+            <details>
+              <summary>What hole spacing do I need?</summary>
+              <p>2.54 mm (0.1 inch), the standard for through-hole parts, DIP chips, pin headers and breadboards. A few modules use other spacings, so check any unusual part before you plan the layout.</p>
+            </details>
+          </div>
+        </section>
+
+        <section id="sources">
+          <h2>Further reading</h2>
+          <p>The sources behind this guide, and good places to go deeper:</p>
+          <ul class="sources">
+            <li><a href="https://en.wikipedia.org/wiki/Perfboard" rel="noopener">Perfboard</a> (Wikipedia)</li>
+            <li><a href="https://en.wikipedia.org/wiki/Stripboard" rel="noopener">Stripboard</a> (Wikipedia)</li>
+            <li><a href="https://en.wikipedia.org/wiki/Breadboard" rel="noopener">Breadboard</a> (Wikipedia)</li>
+            <li><a href="https://learn.adafruit.com/collins-lab-breadboards-and-perfboards" rel="noopener">Collin&#x27;s Lab: Breadboards &amp; Perfboards</a> (Adafruit)</li>
+            <li><a href="https://makezine.com/2015/10/15/how-and-when-to-use-protoboard" rel="noopener">How and when to use protoboard</a> (Make:)</li>
+            <li><a href="https://hackaday.com/2016/06/16/evaluating-the-unusual-and-innovative-perf-protoboard" rel="noopener">Evaluating the unusual and innovative Perf+ protoboard</a> (Hackaday)</li>
+          </ul>
+        </section>
+
+        <div class="learn-cta">
+          <div>
+            <h2>Plan your next board in Perfboard Designer</h2>
+            <p>Free, in your browser, no sign-up: lay out perfboard or stripboard, check every connection, flip to the solder side and print it at true size.</p>
+          </div>
+          <a class="button" href="../../app/">Open the designer</a>
+        </div>
+
+        <nav class="article-pager" aria-label="More guides in this series">
+          <a class="pager-next" href="../perfboard-layout/"><span>Next →</span><strong>Plan a perfboard layout</strong></a>
+        </nav>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Perfboard Designer is open source, made by
+      <a href="https://github.com/MaurerKrisztian" target="_blank" rel="noopener">@MaurerKrisztian</a>
+      and <a href="../../contributors/">contributors</a>.
+    </p>
+    <nav aria-label="Footer">
+      <a href="../../">Home</a>
+      <a href="../../app/">Designer</a>
+      <a href="../">Learn</a>
+      <a href="../../guide/">Guide</a>
+      <a href="../../mcp-server/">MCP server</a>
+      <a href="../../contributors/">Contributors</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer/issues" target="_blank" rel="noopener">Report a bug</a>
+      <a href="#cookie-settings" data-consent-settings>Cookie settings</a>
+    </nav>
+  </footer>
+</body>
+</html>

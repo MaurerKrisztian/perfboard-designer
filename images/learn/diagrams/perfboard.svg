@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 120" width="168" height="120" font-family="Inter, Arial, sans-serif">
+  <title>A perfboard: a copper pad around every hole, none of them joined</title>
+  <defs>
+    <pattern id="lp-pads" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="7.5" fill="#c98545" />
+      <circle cx="12" cy="12" r="3.2" fill="#070b12" />
+    </pattern>
+  </defs>
+  <rect width="168" height="120" fill="#0a101b" />
+  <rect width="168" height="120" fill="#166534" />
+  <rect width="168" height="120" fill="url(#lp-pads)" />
+</svg>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120" font-family="Inter, Arial, sans-serif">
+  <title>Pad not wetted: a ball of solder stuck on the lead, not touching the pad</title>
+  <defs>
+    <linearGradient id="lp-solder" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc" />
+      <stop offset="0.55" stop-color="#cbd5e1" />
+      <stop offset="1" stop-color="#8b98a7" />
+    </linearGradient>
+  </defs>
+  <rect width="200" height="120" fill="#0a101b" />
+  <rect x="8" y="84" width="88" height="16" fill="#2b6a43" />
+  <rect x="104" y="84" width="88" height="16" fill="#2b6a43" />
+  <rect x="62" y="80" width="34" height="4" fill="#c98545" />
+  <rect x="104" y="80" width="34" height="4" fill="#c98545" />
+  <rect x="98" y="14" width="4" height="106" fill="#aab3bd" />
+  <ellipse cx="100" cy="58" rx="16" ry="13" fill="url(#lp-solder)" />
+  <ellipse cx="94" cy="52" rx="5" ry="3" fill="#ffffff" fill-opacity="0.5" />
+</svg>

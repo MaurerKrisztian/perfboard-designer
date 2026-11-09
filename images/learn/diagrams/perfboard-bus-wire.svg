@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 96" width="168" height="96" font-family="Inter, Arial, sans-serif">
+  <title>Copper side: two straight bare wires along the top and bottom rows as power rails, with a part&#x27;s leads bent to reach each</title>
+  <defs>
+    <pattern id="lp-pads" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="7.5" fill="#c98545" />
+      <circle cx="12" cy="12" r="3.2" fill="#070b12" />
+    </pattern>
+    <radialGradient id="lp-solder-dot" cx="0.38" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="0.5" stop-color="#d4dbe3" />
+      <stop offset="1" stop-color="#8b98a7" />
+    </radialGradient>
+  </defs>
+  <rect width="168" height="96" fill="#0a101b" />
+  <rect width="168" height="96" fill="#166534" />
+  <rect width="168" height="96" fill="url(#lp-pads)" />
+  <line x1="12" y1="12" x2="156" y2="12" stroke="#dbe2e8" stroke-width="3" />
+  <line x1="12" y1="84" x2="156" y2="84" stroke="#dbe2e8" stroke-width="3" />
+  <path d="M84 36 V12 M84 60 V84" stroke="#b8c0c8" stroke-width="3" stroke-linecap="round" />
+  <g fill="url(#lp-solder-dot)">
+    <circle cx="12" cy="12" r="7" /><circle cx="84" cy="12" r="7" /><circle cx="156" cy="12" r="7" />
+    <circle cx="12" cy="84" r="7" /><circle cx="84" cy="84" r="7" /><circle cx="156" cy="84" r="7" />
+    <circle cx="84" cy="36" r="8.5" /><circle cx="84" cy="60" r="8.5" />
+  </g>
+</svg>

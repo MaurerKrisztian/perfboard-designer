@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <!-- Google Analytics, only once the visitor accepts it: consent.js -->
+    <script src="../../consent.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How to Test a Soldered Board Before Powering It On</title>
+    <meta name="description" content="A safe first power-up for a perfboard or stripboard circuit: inspection, continuity, rail resistance, current-limited power and troubleshooting." />
+    <link rel="canonical" href="https://perfboarddesigner.com/learn/testing-your-board/" />
+    <meta name="theme-color" content="#0b1220" />
+    <link rel="icon" type="image/png" href="../../favicon.png" />
+
+    <!-- Link previews (Facebook, LinkedIn, Discord, Slack, X...) -->
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Perfboard Designer" />
+    <meta property="og:title" content="Test before you power: checking and debugging a soldered board" />
+    <meta property="og:description" content="Look, beep, measure, then power up gently: a safe first power-up, and what to check when it doesn&#x27;t work." />
+    <meta property="og:url" content="https://perfboarddesigner.com/learn/testing-your-board/" />
+    <meta property="og:image" content="https://perfboarddesigner.com/images/learn/og/testing-your-board.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Test before you power: checking and debugging a soldered board, with the five steps of a safe first power-up" />
+    <meta property="article:published_time" content="2026-11-09" />
+    <meta property="article:modified_time" content="2026-11-09" />
+    <meta name="author" content="Krisztian Maurer" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    
+    
+    
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "TechArticle",
+          "headline": "Test before you power: checking and debugging a soldered board",
+          "description": "A safe first power-up for a perfboard or stripboard circuit: inspection, continuity, rail resistance, current-limited power and troubleshooting.",
+          "url": "https://perfboarddesigner.com/learn/testing-your-board/",
+          "mainEntityOfPage": "https://perfboarddesigner.com/learn/testing-your-board/",
+          "image": "https://perfboarddesigner.com/images/learn/og/testing-your-board.jpg",
+          "datePublished": "2026-11-09",
+          "dateModified": "2026-11-09",
+          "inLanguage": "en",
+          "proficiencyLevel": "Beginner",
+          "keywords": "test soldered circuit board, first power up, smoke test, continuity test, check for short circuit, current limit, troubleshooting perfboard",
+          "author": {
+            "@type": "Person",
+            "name": "Krisztian Maurer",
+            "url": "https://github.com/MaurerKrisztian"
+          },
+          "isPartOf": {
+            "@type": "CollectionPage",
+            "name": "Learn: perfboard layout, wiring, soldering and testing",
+            "url": "https://perfboarddesigner.com/learn/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://perfboarddesigner.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Learn",
+              "item": "https://perfboarddesigner.com/learn/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Test and debug your board",
+              "item": "https://perfboarddesigner.com/learn/testing-your-board/"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "How do I check a soldered board for short circuits?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "With the power off, set your multimeter to resistance and measure between the supply and ground where it reaches the circuit, behind any protection diode: a reading near zero ohms is a short. Then inspect the gaps between pads and strips against a bright light, and beep neighboring connections that should be separate."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What should I do the first time I power up a new board?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Take the chips out of their sockets, then power the board through a current limit: a bench supply's current limit set low, or a series resistor or small fuse. Watch the current, check for heat, and measure the voltage at each chip socket before you plug the chips in."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Why does my circuit only work when I press on it?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Almost always a bad solder joint or a loose socket contact. Reheat the suspect joints with a little flux, and push the chips firmly into their sockets."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+  <link rel="stylesheet" href="../../assets/landing.0837469d.css">
+  <link rel="stylesheet" href="../../assets/guide.b8903659.css">
+  <link rel="stylesheet" href="../../assets/learn.7cff3415.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../../" aria-label="Perfboard Designer home">
+      <span class="brand-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <circle cx="6" cy="6" r="2" />
+          <circle cx="18" cy="6" r="2" />
+          <circle cx="6" cy="18" r="2" />
+          <circle cx="18" cy="18" r="2" />
+          <path d="M8 6h8M6 8v8M18 8v8M8 18h8" />
+        </svg>
+      </span>
+      <span class="brand-title">Perfboard Designer</span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="../">Learn</a>
+      <a href="../../guide/">Guide</a>
+      <a href="../../mcp-server/">AI agents</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <a class="button button-small" href="../../app/">Open the designer</a>
+  </header>
+
+  <main>
+    <div class="learn-band">
+      <div class="guide-hero">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <ol>
+            <li><a href="../../">Home</a></li>
+            <li><a href="../">Learn</a></li>
+            <li aria-current="page">Test and debug your board</li>
+          </ol>
+        </nav>
+        <p class="eyebrow">Part 7 of 7 · Testing</p>
+        <h1>Test before you power: checking and debugging a soldered board</h1>
+        <p class="lead">The scariest moment in electronics is plugging something in for the first time. This routine turns it from a gamble into a formality: look, beep, measure, then power up gently.</p>
+        <p class="guide-meta byline">By <a href="https://github.com/MaurerKrisztian" rel="author">Krisztian Maurer</a>, maker of Perfboard Designer · Updated <time datetime="2026-11-09">November 9, 2026</time></p>
+        <p class="guide-meta">About 11 minutes to read · Written for beginners · New words? See the <a href="../glossary/">glossary</a></p>
+      </div>
+    </div>
+
+    <div class="guide-layout">
+      <nav class="guide-toc learn-toc" aria-labelledby="toc-title">
+        <h2 id="toc-title">On this page</h2>
+        <ol>
+          <li><a href="#why">Why test before power?</a></li>
+          <li><a href="#routine">The routine at a glance</a></li>
+          <li><a href="#look">1. Look</a></li>
+          <li><a href="#beep">2. Beep</a></li>
+          <li><a href="#rails">3. Measure across the rails</a></li>
+          <li><a href="#power">4. Power up gently</a></li>
+          <li><a href="#measure">5. Measure, then add the chips</a></li>
+          <li><a href="#example">Worked example: testing the 555 blinker</a></li>
+          <li><a href="#stages">Bigger boards: build and test in stages</a></li>
+          <li><a href="#symptoms">Troubleshooting by symptom</a></li>
+          <li><a href="#habits">Debugging habits</a></li>
+          <li><a href="#finish">Finishing the board</a></li>
+          <li><a href="#faq">Frequently asked questions</a></li>
+          <li><a href="#sources">Further reading</a></li>
+        </ol>
+      </nav>
+
+      <article class="guide-article learn-article">
+        <section id="why">
+          <h2>Why test before power?</h2>
+          <p>
+            A short between the supply rails can cook a regulator, a battery, a chip or a USB port in
+            seconds, and a part in backwards can do the same more quietly. Engineers jokingly call the
+            first power-up the "smoke test", from the days when that really was the test. Five minutes
+            of checks first turns it into a non-event, and most faults are easier to find on a board
+            that isn't powered anyway.
+          </p>
+        </section>
+
+        <section id="routine">
+          <h2>The routine at a glance</h2>
+          <ol class="steps">
+            <li><h3>Look</h3><p>Inspect every joint, gap and part under good light.</p></li>
+            <li><h3>Beep</h3><p>Check every connection with the meter's continuity mode.</p></li>
+            <li><h3>Measure the rails</h3><p>Resistance from the supply to ground, behind any protection diode: no shorts allowed.</p></li>
+            <li><h3>Power up gently</h3><p>Chips out, current limited, eyes open.</p></li>
+            <li><h3>Measure, then add the chips</h3><p>Check the voltages, power off, plug the chips in, and power up again.</p></li>
+          </ol>
+          <p>The <a href="../bench-card/">bench card</a> has this routine on one page, to print and keep beside the board.</p>
+        </section>
+
+        <section id="look">
+          <h2>1. Look</h2>
+          <p>
+            Most faults are visible if you look properly. Use bright light, and a magnifier or your
+            phone's camera zoomed in: a photo of the copper side, enlarged on a screen, is a superb
+            inspection tool.
+          </p>
+          <ul class="checklist">
+            <li><strong>Every joint,</strong> against the <a href="../how-to-solder/#joint-doctor">joint doctor</a>: nothing cold, starved or missed. It's easy to forget one, so count them.</li>
+            <li><strong>Every gap</strong> between neighboring pads and strips: hold the board up to a light and look for bridges and copper whiskers.</li>
+            <li><strong>Loose bits:</strong> shake the board and brush it. Lead clippings and solder balls love to hide under parts.</li>
+            <li><strong>Every polarized part</strong> the right way round: diodes, LEDs, electrolytic capacitors, transistors, and chip sockets with pin 1 where the plan says.</li>
+            <li><strong>Every cut</strong> on stripboard, and every part in the right holes against your plan.</li>
+          </ul>
+        </section>
+
+        <section id="beep">
+          <h2>2. Beep</h2>
+          <p>
+            Set your multimeter to continuity mode (the symbol like a sound wave or a diode; touch the
+            probes together and it beeps). Then work through the circuit connection by connection:
+            for each one on your plan, hold one probe on one pin and touch the other to every pin it
+            should reach. Tick them off on a printout as you go.
+          </p>
+          <ul>
+            <li><strong>Probe the component leads,</strong> not just the pads, so you test the joints too.</li>
+            <li><strong>Test what shouldn't connect:</strong> beep neighboring pads and strips that should be separate, especially next to big joints.</li>
+            <li><strong>Don't be fooled by parts.</strong> A meter can beep for a moment through a capacitor while it charges, and read through a diode one way round but not the other. If a reading puzzles you, check whether a part sits between the two points.</li>
+          </ul>
+          <div class="pd-note">
+            <span class="callout-label">In Perfboard Designer</span>
+            <p>
+              The Nets panel lists every connection on your layout, pin by pin, and
+              <strong>File › Export PDF</strong> can print them, pin by pin, to check the finished
+              board against with your meter, along with the solder side at true size.
+            </p>
+          </div>
+        </section>
+
+        <section id="rails">
+          <h2>3. Measure across the rails</h2>
+          <p>
+            Switch the meter to resistance and measure between the positive supply and ground, where
+            the supply reaches the circuit. This single reading catches most of the disasters.
+          </p>
+          <p>
+            If the power comes in through a <a href="../perfboard-layout/#power">reverse-polarity
+            diode</a>, put the probes on the circuit side of it: across the bulk capacitor, or across
+            a chip socket's power pins. At the connector you'd be measuring through the diode, and a
+            dead short behind it wouldn't read 0 Ω: you'd see the diode instead, an odd reading one way
+            round and open the other.
+          </p>
+          <ul>
+            <li><strong>Close to 0 Ω:</strong> a short circuit. Don't power up. Find it first.</li>
+            <li><strong>A reading that starts low and climbs:</strong> the board's capacitors charging from the meter. That's normal; wait for it to settle.</li>
+            <li><strong>Anything else:</strong> think about what sits across the rails. A small circuit usually reads hundreds of ohms or more; a low reading you can't explain deserves a closer look.</li>
+          </ul>
+          <p>If the board has more than one supply, measure each one to ground, and between them.</p>
+        </section>
+
+        <section id="power">
+          <h2>4. Power up gently</h2>
+          <p>
+            For the first power-up, take the chips out of their sockets. That way you test the board's
+            power wiring without risking them.
+          </p>
+          <p>
+            <strong>With a bench power supply:</strong> set the voltage, set the current limit low (50
+            to 100 mA is plenty for most small circuits with the chips out), then connect. If the
+            current jumps straight to the limit and the voltage collapses, there's a short: switch off
+            and find it. A healthy board draws a little current and the voltage holds.
+          </p>
+          <p>
+            <strong>Without one:</strong> for the first try, put a resistor in series with the supply,
+            such as 100 Ω rated at 2 W. At 12 V a dead short then draws only about 0.12 A, and the
+            resistor, not your circuit, takes the heat. Measure the current with your meter in series,
+            too. The resistor drops some voltage when the circuit draws current, so expect it to run a
+            little starved: this test is about catching shorts, not about the circuit working yet. And
+            don't count on a battery being gentle: even a 9 V battery can deliver enough current to
+            cook a small circuit.
+          </p>
+          <div class="warning">
+            <span class="callout-label">Watch out</span>
+            <p>
+              A meter set to measure current is almost a short circuit between its probes. Only ever
+              connect it in series, and move the red lead back to the volts socket as soon as you're
+              done: touch a supply with the meter still on current, and you blow its fuse, or worse.
+            </p>
+          </div>
+          <p>
+            Keep a hand near the plug, and watch and sniff. Then feel for heat by holding a fingertip
+            close to each part, without touching it: a shorted part can be hot enough to burn. Anything
+            hot, any smoke, any smell: unplug first, think second.
+          </p>
+        </section>
+
+        <section id="measure">
+          <h2>5. Measure, then add the chips</h2>
+          <ul>
+            <li>Measure the supply voltage <strong>at each chip socket's power pins,</strong> not just at the connector. It proves the power reaches every chip, the right way round.</li>
+            <li>Check any regulator's output before anything depends on it.</li>
+            <li>Switch off. Plug the chips in, checking pin 1 against the socket's notch and your plan. Power up again with the same care, watching the current.</li>
+            <li>Now test what the circuit does, stage by stage, from input to output.</li>
+          </ul>
+        </section>
+
+        <section id="example">
+          <h2>Worked example: testing the 555 blinker</h2>
+          <p>
+            Here's the whole routine on the <a href="../perfboard-layout/#example">555 blinker</a> from
+            the layout guide, with the readings to expect. Print its nets from the editor first, so you
+            can tick them off.
+          </p>
+          <ol class="steps">
+            <li>
+              <h3>Look</h3>
+              <p>D2's band away from the terminal; the stripes on C1 and C3 and the LED's flat side toward ground; the socket's notch at the top, by pin 1.</p>
+            </li>
+            <li>
+              <h3>Beep</h3>
+              <p>Every net against the printout. Then the near misses: the link under the socket joins pins 2 and 6, so it must not beep to pins 3 or 7 beside it.</p>
+            </li>
+            <li>
+              <h3>Measure the rails</h3>
+              <p>Across C3, behind D2, with the chip out: low at first, then climbing and climbing as the capacitors charge from the meter, since nothing else joins the rails. A reading that stays close to 0 Ω is a short.</p>
+            </li>
+            <li>
+              <h3>Power up gently</h3>
+              <p>Chip out, 9 V through 100 Ω or a 50 mA current limit: a little current while the capacitors charge, then almost none.</p>
+            </li>
+            <li>
+              <h3>Measure</h3>
+              <p>Red probe on socket pin 8, black on pin 1: a little under the battery's voltage, since D2 takes a few tenths of a volt (about 0.7 V once the chip draws current). Pin 4 reads the same, since reset is tied to +9 V.</p>
+            </li>
+            <li>
+              <h3>Add the chip</h3>
+              <p>Switch off, plug the 555 in with its notch matching the socket's, and power up: the LED flashes about once a second, on and off for about as long. The board draws about 15 mA, give or take a few.</p>
+            </li>
+          </ol>
+          <p>
+            The rate comes from the timing parts: 1.44 ÷ ((R1 + 2 × R2) × C1) = 1.44 ÷ (137 kΩ × 10 µF),
+            about 1 Hz. If the LED stays on or off, check the link between pins 2 and 6 and which way
+            round C1 is. If it never lights, check D1 and R3. If nothing works at all, check D2 and the
+            battery clip. How the circuit works, and so what each reading means, is on
+            <a href="../555-led-blinker/">the 555 LED blinker project page</a>.
+          </p>
+        </section>
+
+        <section id="stages">
+          <h2>Bigger boards: build and test in stages</h2>
+          <p>
+            On a board with several sections, don't solder everything and hope. Build the power section
+            first (the connector, the protection diode, the regulator and its capacitors) and run this
+            routine on it. Then add the next stage, test again, and so on. When something goes wrong,
+            it can only be in the part you just added.
+          </p>
+        </section>
+
+        <section id="symptoms">
+          <h2>Troubleshooting by symptom</h2>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Symptom</th><th>Usual suspects</th><th>What to check</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Nothing happens</td><td>Power isn't reaching the circuit</td><td>The voltage at each chip's power pins; the power connector's joints; a battery clip or protection diode the wrong way round; a missing link</td></tr>
+                <tr><td>Current hits the limit, voltage collapses</td><td>A short</td><td>Rail-to-rail resistance; solder bridges; an electrolytic capacitor or diode in backwards; a missing cut under a chip on stripboard</td></tr>
+                <tr><td>Something gets hot</td><td>A short through a part, or a part in backwards</td><td>Switch off first. Then check that part's orientation and the joints around it</td></tr>
+                <tr><td>Works only when you press or tap it</td><td>A bad joint or a loose socket</td><td>Reheat suspect joints with a little flux; push the chips firmly into their sockets</td></tr>
+                <tr><td>Does something, but the wrong thing</td><td>A wrong value, a wrong pin, or a connection that shouldn't be there</td><td>Resistor color codes; the mirror-image trap; every connection beeped against the plan</td></tr>
+                <tr><td>Hums, whistles or glitches</td><td>Missing decoupling, or an input too close to an output</td><td>A 100 nF capacitor at each chip's power pins; the ground wiring; how far apart inputs and outputs are</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="habits">
+          <h2>Debugging habits</h2>
+          <ul class="checklist">
+            <li><strong>Divide and conquer:</strong> check the signal halfway along the chain, then halfway again, to find the stage where it goes wrong.</li>
+            <li><strong>Measure at the pins</strong> of the parts, not at a rail somewhere else: that tests the joints on the way.</li>
+            <li><strong>Compare with something that works:</strong> the breadboard version, a second channel, or the typical voltages in the datasheet.</li>
+            <li><strong>Reheat, don't stare.</strong> If a joint looks doubtful, add a touch of flux and reheat it. Thirty seconds, and one suspect fewer.</li>
+            <li><strong>Change one thing at a time,</strong> and write down what you changed.</li>
+            <li><strong>Take a break.</strong> Fresh eyes find in a minute what tired ones missed for an hour.</li>
+          </ul>
+        </section>
+
+        <section id="finish">
+          <h2>Finishing the board</h2>
+          <ul>
+            <li><strong>Clean the flux off</strong> with isopropyl alcohol and an old toothbrush, then let it dry. It looks better, and it makes the joints easier to inspect.</li>
+            <li><strong>Trim any long leads</strong> you missed.</li>
+            <li><strong>Mount it on standoffs</strong> (M3 screws and spacers through the corner holes), so the solder side can't touch anything.</li>
+            <li><strong>In a metal box,</strong> put insulation under the board, and make sure no joint can reach the case.</li>
+            <li><strong>Label it:</strong> the connectors, input and output, and the supply voltage and polarity. Future you will be grateful.</li>
+            <li><strong>Keep the layout</strong> with the project, so you can repair or rebuild it later.</li>
+          </ul>
+        </section>
+
+        <section id="faq">
+          <h2>Frequently asked questions</h2>
+          <div class="faq">
+            <details>
+              <summary>How do I check a soldered board for short circuits?</summary>
+              <p>With the power off, set your multimeter to resistance and measure between the supply and ground where it reaches the circuit, behind any protection diode: a reading near zero ohms is a short. Then inspect the gaps between pads and strips against a bright light, and beep neighboring connections that should be separate.</p>
+            </details>
+            <details>
+              <summary>What should I do the first time I power up a new board?</summary>
+              <p>Take the chips out of their sockets, then power the board through a current limit: a bench supply&#x27;s current limit set low, or a series resistor or small fuse. Watch the current, check for heat, and measure the voltage at each chip socket before you plug the chips in.</p>
+            </details>
+            <details>
+              <summary>Why does my circuit only work when I press on it?</summary>
+              <p>Almost always a bad solder joint or a loose socket contact. Reheat the suspect joints with a little flux, and push the chips firmly into their sockets.</p>
+            </details>
+          </div>
+        </section>
+
+        <section id="sources">
+          <h2>Further reading</h2>
+          <p>The sources behind this guide, and good places to go deeper:</p>
+          <ul class="sources">
+            <li><a href="https://news.sparkfun.com/1161" rel="noopener">The moment of truth</a> (SparkFun)</li>
+            <li><a href="https://applied-ee.github.io/ee-notebook/docs/design-development/prototyping-and-bring-up/safe-smoke-testing" rel="noopener">Safe smoke testing</a> (EE Notebook)</li>
+            <li><a href="https://applied-ee.github.io/ee-notebook/docs/design-development/prototyping-and-bring-up/bring-up-checklists" rel="noopener">Bring-up checklists</a> (EE Notebook)</li>
+            <li><a href="https://resources.altium.com/p/how-test-short-circuit-pcb" rel="noopener">How to test for a short circuit on a PCB</a> (Altium)</li>
+            <li><a href="https://www.ifixit.com/Guide/How+To+Use+A+Multimeter/25632" rel="noopener">How to use a multimeter</a> (iFixit)</li>
+          </ul>
+        </section>
+
+        <div class="learn-cta">
+          <div>
+            <h2>Plan your next board in Perfboard Designer</h2>
+            <p>Free, in your browser, no sign-up: lay out perfboard or stripboard, check every connection, flip to the solder side and print it at true size.</p>
+          </div>
+          <a class="button" href="../../app/">Open the designer</a>
+        </div>
+
+        <nav class="article-pager" aria-label="More guides in this series">
+          <a class="pager-prev" href="../how-to-solder/"><span>← Previous</span><strong>How to solder (and fix bad joints)</strong></a>
+          <a class="pager-next" href="../"><span>That's the series →</span><strong>All the guides</strong></a>
+        </nav>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Perfboard Designer is open source, made by
+      <a href="https://github.com/MaurerKrisztian" target="_blank" rel="noopener">@MaurerKrisztian</a>
+      and <a href="../../contributors/">contributors</a>.
+    </p>
+    <nav aria-label="Footer">
+      <a href="../../">Home</a>
+      <a href="../../app/">Designer</a>
+      <a href="../">Learn</a>
+      <a href="../../guide/">Guide</a>
+      <a href="../../mcp-server/">MCP server</a>
+      <a href="../../contributors/">Contributors</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer/issues" target="_blank" rel="noopener">Report a bug</a>
+      <a href="#cookie-settings" data-consent-settings>Cookie settings</a>
+    </nav>
+  </footer>
+</body>
+</html>

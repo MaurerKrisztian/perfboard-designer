@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150" width="200" height="150" font-family="Inter, Arial, sans-serif">
+  <title>Solder flowed into a cone around the lead, with the solder wire pulled back and the iron still touching</title>
+  <defs>
+    <linearGradient id="lp-solder" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc" />
+      <stop offset="0.55" stop-color="#cbd5e1" />
+      <stop offset="1" stop-color="#8b98a7" />
+    </linearGradient>
+  </defs>
+  <rect width="200" height="150" fill="#0a101b" />
+  <rect x="10" y="96" width="86" height="16" fill="#2b6a43" />
+  <rect x="104" y="96" width="86" height="16" fill="#2b6a43" />
+  <rect x="70" y="92" width="26" height="4" fill="#c98545" />
+  <rect x="104" y="92" width="26" height="4" fill="#c98545" />
+  <rect x="78" y="122" width="44" height="28" rx="8" fill="#d8c49a" />
+  <rect x="98" y="24" width="4" height="104" fill="#aab3bd" />
+  <path d="M70 92 Q93 89 98 70 L102 70 Q107 89 130 92 Z" fill="url(#lp-solder)" />
+  <polygon points="103,81 113,91 180,24 170,14" fill="#dfe5ea" />
+  <polygon points="170,14 180,24 212,-8 202,-18" fill="#6b7280" />
+  <line x1="22" y1="22" x2="54" y2="52" stroke="#d6dce2" stroke-width="6" stroke-linecap="round" />
+</svg>
