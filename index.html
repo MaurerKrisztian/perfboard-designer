@@ -64,10 +64,10 @@
       ]
     }
     </script>
-  <link rel="stylesheet" href="./assets/landing.0837469d.css">
+  <link rel="stylesheet" href="./assets/landing.2cdcf7fc.css">
 </head>
 
-<body>
+<body class="landing">
   <header class="site-header">
     <a class="brand" href="./" aria-label="Perfboard Designer home">
       <span class="brand-icon" aria-hidden="true">
@@ -97,10 +97,33 @@
   </header>
 
   <main>
+    <div class="hero-wrap">
+    <div class="hero-backdrop" aria-hidden="true">
+      <svg class="hero-traces" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMid slice">
+        <path class="trace" d="M-20 52H290L322 20H560"/>
+        <path class="trace" d="M1460 44H1170L1136 78H930"/>
+        <path class="trace" d="M-20 742H170L206 706H500"/>
+        <path class="trace" d="M1460 772H1250L1214 736H990L962 764H780"/>
+        <path class="trace" d="M36-20V250L68 282V470"/>
+        <path class="trace" d="M1404 820V600L1372 568V410"/>
+        <path class="pulse" pathLength="100" d="M-20 52H290L322 20H560" style="animation-duration: 7s"/>
+        <path class="pulse" pathLength="100" d="M1460 44H1170L1136 78H930" style="animation-duration: 9s; animation-delay: -4s"/>
+        <path class="pulse" pathLength="100" d="M-20 742H170L206 706H500" style="animation-duration: 8s; animation-delay: -2s"/>
+        <path class="pulse" pathLength="100" d="M1460 772H1250L1214 736H990L962 764H780" style="animation-duration: 10s; animation-delay: -6s"/>
+        <path class="pulse" pathLength="100" d="M36-20V250L68 282V470" style="animation-duration: 6s; animation-delay: -1s"/>
+        <path class="pulse" pathLength="100" d="M1404 820V600L1372 568V410" style="animation-duration: 7.5s; animation-delay: -5s"/>
+        <circle class="pad" cx="560" cy="20" r="7"/>
+        <circle class="pad" cx="930" cy="78" r="7"/>
+        <circle class="pad" cx="500" cy="706" r="7"/>
+        <circle class="pad" cx="780" cy="764" r="7"/>
+        <circle class="pad" cx="68" cy="470" r="7"/>
+        <circle class="pad" cx="1372" cy="410" r="7"/>
+      </svg>
+    </div>
     <section class="hero">
       <div class="hero-text">
         <p class="eyebrow">Free · Open source · No sign-up</p>
-        <h1>Plan your perfboard or stripboard circuit before you solder</h1>
+        <h1>Plan your perfboard or stripboard circuit <span class="h1-accent">before you solder</span></h1>
         <p class="lead">
           Perfboard Designer is an online layout tool for perfboard (protoboard) and stripboard
           (Veroboard) projects. Place resistors, capacitors, LEDs, transistors, ICs and wires on a
@@ -126,43 +149,98 @@
         </figure>
       </div>
     </section>
+    </div>
+
+    <section class="parts-strip" aria-labelledby="parts-strip-label">
+      <p class="parts-strip-label" id="parts-strip-label">In the parts library</p>
+      <div class="marquee">
+        <ul class="marquee-track">
+          <li><img src="icons/components/resistor.svg" width="28" height="28" alt="" />Resistors</li>
+          <li><img src="icons/components/electrolytic-capacitor.svg" width="28" height="28" alt="" />Electrolytic capacitors</li>
+          <li><img src="icons/components/ceramic-capacitor.svg" width="28" height="28" alt="" />Ceramic capacitors</li>
+          <li><img src="icons/components/rgb-led.svg" width="28" height="28" alt="" />RGB LEDs</li>
+          <li><img src="icons/components/diode.svg" width="28" height="28" alt="" />Diodes</li>
+          <li><img src="icons/components/transistor.svg" width="28" height="28" alt="" />Transistors</li>
+          <li><img src="icons/components/mosfet.svg" width="28" height="28" alt="" />MOSFETs</li>
+          <li><img src="icons/components/potentiometer.svg" width="28" height="28" alt="" />Potentiometers</li>
+          <li><img src="icons/components/tda2030a.svg" width="28" height="28" alt="" />TDA2030A</li>
+          <li><img src="icons/components/crystal-hc49.svg" width="28" height="28" alt="" />Crystals</li>
+          <li><img src="icons/components/push-button.svg" width="28" height="28" alt="" />Push buttons</li>
+          <li><img src="icons/components/buzzer.svg" width="28" height="28" alt="" />Buzzers</li>
+          <li><img src="icons/components/screw-terminal-2.svg" width="28" height="28" alt="" />Screw terminals</li>
+          <li><img src="icons/components/dc-barrel-jack.svg" width="28" height="28" alt="" />DC barrel jacks</li>
+          <li><img src="icons/components/rca-jack-red.svg" width="28" height="28" alt="" />RCA jacks</li>
+          <li><img src="icons/components/seven-segment.svg" width="28" height="28" alt="" />7-segment displays</li>
+          <li><img src="icons/components/lcd-1602.svg" width="28" height="28" alt="" />LCD 1602</li>
+          <li><img src="icons/components/oled-ssd1306-i2c.svg" width="28" height="28" alt="" />OLED displays</li>
+          <li><img src="icons/components/hc-sr04.svg" width="28" height="28" alt="" />HC-SR04</li>
+          <li><img src="icons/components/relay-module.svg" width="28" height="28" alt="" />Relay modules</li>
+          <li><img src="icons/components/nrf24l01.svg" width="28" height="28" alt="" />nRF24L01</li>
+          <li><img src="icons/components/esp-01.svg" width="28" height="28" alt="" />ESP-01</li>
+        </ul>
+        <ul class="marquee-track" aria-hidden="true">
+          <li data-name="Resistors"><img src="icons/components/resistor.svg" width="28" height="28" alt="" /></li>
+          <li data-name="Electrolytic capacitors"><img src="icons/components/electrolytic-capacitor.svg" width="28" height="28" alt="" /></li>
+          <li data-name="Ceramic capacitors"><img src="icons/components/ceramic-capacitor.svg" width="28" height="28" alt="" /></li>
+          <li data-name="RGB LEDs"><img src="icons/components/rgb-led.svg" width="28" height="28" alt="" /></li>
+          <li data-name="Diodes"><img src="icons/components/diode.svg" width="28" height="28" alt="" /></li>
+          <li data-name="Transistors"><img src="icons/components/transistor.svg" width="28" height="28" alt="" /></li>
+          <li data-name="MOSFETs"><img src="icons/components/mosfet.svg" width="28" height="28" alt="" /></li>
+          <li data-name="Potentiometers"><img src="icons/components/potentiometer.svg" width="28" height="28" alt="" /></li>
+          <li data-name="TDA2030A"><img src="icons/components/tda2030a.svg" width="28" height="28" alt="" /></li>
+          <li data-name="Crystals"><img src="icons/components/crystal-hc49.svg" width="28" height="28" alt="" /></li>
+          <li data-name="Push buttons"><img src="icons/components/push-button.svg" width="28" height="28" alt="" /></li>
+          <li data-name="Buzzers"><img src="icons/components/buzzer.svg" width="28" height="28" alt="" /></li>
+          <li data-name="Screw terminals"><img src="icons/components/screw-terminal-2.svg" width="28" height="28" alt="" /></li>
+          <li data-name="DC barrel jacks"><img src="icons/components/dc-barrel-jack.svg" width="28" height="28" alt="" /></li>
+          <li data-name="RCA jacks"><img src="icons/components/rca-jack-red.svg" width="28" height="28" alt="" /></li>
+          <li data-name="7-segment displays"><img src="icons/components/seven-segment.svg" width="28" height="28" alt="" /></li>
+          <li data-name="LCD 1602"><img src="icons/components/lcd-1602.svg" width="28" height="28" alt="" /></li>
+          <li data-name="OLED displays"><img src="icons/components/oled-ssd1306-i2c.svg" width="28" height="28" alt="" /></li>
+          <li data-name="HC-SR04"><img src="icons/components/hc-sr04.svg" width="28" height="28" alt="" /></li>
+          <li data-name="Relay modules"><img src="icons/components/relay-module.svg" width="28" height="28" alt="" /></li>
+          <li data-name="nRF24L01"><img src="icons/components/nrf24l01.svg" width="28" height="28" alt="" /></li>
+          <li data-name="ESP-01"><img src="icons/components/esp-01.svg" width="28" height="28" alt="" /></li>
+        </ul>
+      </div>
+    </section>
 
     <section id="features" class="section">
       <h2>Everything you need to lay out a perfboard or stripboard</h2>
       <p class="section-lead">Made for makers, students and hobbyists who want a plan before picking up the soldering iron.</p>
       <div class="feature-grid">
         <article class="feature">
-          <span class="feature-icon" aria-hidden="true">🔌</span>
+          <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><g transform="rotate(-45 12 12)"><path d="M0 12h4.5M19.5 12H24"/><rect x="4.5" y="8" width="15" height="8" rx="4"/><path d="M9 8v8M12 8v8M15 8v8"/></g></svg></span>
           <h3>Real component library</h3>
           <p>Resistors with color bands worked out from their value, ceramic and electrolytic capacitors, inductors, diodes, colored LEDs, transistors, MOSFETs, potentiometers and header pins.</p>
         </article>
         <article class="feature">
-          <span class="feature-icon" aria-hidden="true">📦</span>
+          <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.5A1.5 1.5 0 0 1 8.5 3h2a1.5 1.5 0 0 0 3 0h2A1.5 1.5 0 0 1 17 4.5v15a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 7 19.5z"/><path d="M4 7.5h3M4 12h3M4 16.5h3M17 7.5h3M17 12h3M17 16.5h3"/></svg></span>
           <h3>ICs and custom parts</h3>
           <p>Drop in an NE555 timer, DIP-14 and DIP-16 logic chips, an ATmega328P or an Arduino Nano. Missing a part? Make your own: a chip, a dev board, a module with pins anywhere, or a transistor in a package the library has, with its own pinout.</p>
         </article>
         <article class="feature">
-          <span class="feature-icon" aria-hidden="true">✏️</span>
+          <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="5" cy="18" r="2"/><circle cx="19" cy="6" r="2"/><path d="M7 18h4a2 2 0 0 0 2-2V8a2 2 0 0 1 2-2h2"/></svg></span>
           <h3>Wires the way you solder them</h3>
           <p>Draw jumper wires in any color and three thicknesses. Straight runs of the same color merge into a single wire automatically.</p>
         </article>
         <article class="feature">
-          <span class="feature-icon" aria-hidden="true">📐</span>
+          <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M8 16h8"/><circle class="dot" cx="8" cy="8" r="1.25"/><circle class="dot" cx="12" cy="8" r="1.25"/><circle class="dot" cx="16" cy="8" r="1.25"/><circle class="dot" cx="8" cy="12" r="1.25"/><circle class="dot" cx="12" cy="12" r="1.25"/><circle class="dot" cx="16" cy="12" r="1.25"/><circle class="dot" cx="8" cy="16" r="1.25"/><circle class="dot" cx="12" cy="16" r="1.25"/><circle class="dot" cx="16" cy="16" r="1.25"/></svg></span>
           <h3>Perfboard or stripboard, any size</h3>
           <p>Lay out on a perfboard or a stripboard, start from a preset or set your own grid size to match the board on your bench, then zoom, pan and go fullscreen while you work.</p>
         </article>
         <article class="feature">
-          <span class="feature-icon" aria-hidden="true">💾</span>
+          <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 14.5V4M7.5 8.5 12 4l4.5 4.5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></span>
           <h3>Save, share and export</h3>
           <p>Keep as many projects as you like in the browser, saved automatically as you go. Send a board to anyone as a share link, download it as a project file, or export it as a PNG or SVG image.</p>
         </article>
         <article class="feature">
-          <span class="feature-icon" aria-hidden="true">⌨️</span>
+          <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6.5 10h.01M9.5 10h.01M12.5 10h.01M15.5 10h.01M17.5 14h.01M6.5 14h.01M9.5 14h5"/></svg></span>
           <h3>Fast to work with</h3>
           <p>Undo and redo, keyboard shortcuts, notes on any hole, and part names and values (R1 10k) shown right on the board.</p>
         </article>
         <article class="feature feature-wide">
-          <span class="feature-icon" aria-hidden="true">🤖</span>
+          <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 4q.8 7.2 7 8-6.2.8-7 8-.8-7.2-7-8 6.2-.8 7-8z"/><path d="M18 2.5q.3 2.2 2.5 2.5-2.2.3-2.5 2.5-.3-2.2-2.5-2.5 2.2-.3 2.5-2.5z"/></svg></span>
           <div class="feature-wide-text">
             <h3>Design boards with your AI assistant</h3>
             <p>Connect Claude, ChatGPT, Cursor or any MCP client to the Perfboard Designer MCP server and ask for a layout in plain words. It places the parts, routes the wires, checks every connection and hands you a link that opens the board here.</p>
