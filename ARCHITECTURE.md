@@ -75,6 +75,7 @@ at https://perfboarddesigner.com.
 | `/` | `index.html`, `src/landing/` | Static landing page (SEO), JS-free but for the consent banner. |
 | `/app/` | `app/index.html`, `src/ui/main.tsx` | The editor: everything below. |
 | `/guide/` | `guide/index.html`, `src/guide/` | Static user guide (SEO), JS-free but for the consent banner: how to use the editor, feature by feature. Reuses the landing's styles. Keep it in step with the editor when a feature changes how it's used. Linked from the editor's Help menu. |
+| `/learn/` | `learn/index.html`, `learn/*/index.html`, `src/learn/` | Static articles (SEO), JS-free but for the consent banner: a series of beginner guides to the craft, not the editor (choosing a board, layout, wiring, stripboard, soldering tools and safety, soldering technique, testing), with an index page. Reuses the landing's and the guide's styles; `learn.css` adds callouts and the series' cards. The diagrams are SVG files in `assets/images/learn/diagrams/`, each with its own patterns and dark background, shown with `<img>` and alt text so search engines index them (Google Images skips inline SVG). Each article has a visible byline and update date to match its structured data. Each article links into the editor where it helps, and its example boards open on `/view/` by share link. The series is a build-along: the 555 blinker is planned, wired, soldered and tested (with the readings to expect) across the articles, its parts list on the index, and all of it on one project page (`learn/555-led-blinker/`: the schematic, how it works, every part's job, both layouts, the build, the test and troubleshooting). Beside the series are a glossary (`learn/glossary/`) and a one-page bench card to print (`learn/bench-card/`, kept to one A4 or Letter page by `learn.css`'s print styles). Each page has its own link-preview picture in `assets/images/learn/og/`. A new article is a new folder, a `vite.config.ts` input, a sitemap entry, and a card on the index and in the pager of its neighbors. Linked from the editor's Help menu. |
 | `/contributors/` | `contributors/index.html`, `src/contributors/` | Contributors, live from the GitHub API. Imports nothing from the editor. |
 | `/mcp-server/` | `mcp-server/index.html`, `src/mcp-page/` | How to connect AI agents to the hosted MCP server. Keep its steps in step with `mcp/README.md`. |
 | `/view/` | `view/index.html`, `src/view-page/` | A shared board for reading: a share link's board with its description, parts and nets, and a way into the editor for a copy. Takes the same fragment as the editor. `noindex`, as what it shows is in the fragment. |
@@ -108,7 +109,8 @@ the github.io subfolder `/perfboard-designer/`. Only SEO tags (canonical, og:*, 
 ```bash
 npm install          # dependencies
 npm run start        # dev server: http://localhost:3000 (landing), /app/ is the editor
-npm run build        # production build to dist/
+npm run build        # production build to dist/ (stops if learn/'s example links are stale)
+npm run learn-links  # rewrite learn/'s example share links from examples/*.json
 npm run lint         # eslint ./src
 npm run format       # prettier
 npm run deploy       # build + publish to GitHub Pages
@@ -699,8 +701,12 @@ names a copy stored on Perfboard Designer's project storage instead.
 
 > **Extend: change the format.** Bump `PROJECT_FILE_VERSION`, document the new fields in
 > `project-file.ts`, and add an upgrade path in the reader. **Old files must keep opening.**
-> `examples/*.json` (mostly v1) are the compatibility fixtures; the two `*-555-blinker.json` are v3
-> and are the MCP server's examples.
+> `examples/*.json` (mostly v1) are the compatibility fixtures; the two `*-555-blinker.json` (v9
+> and v3) are the MCP server's examples, the editor's "Open an example" and the learn/ articles'
+> worked examples, laid out, wired, soldered and tested as those articles say: keep them free of
+> mistakes and tidy, and change the articles with them. The articles open them by `z=` share
+> links, copies of the files: `npm run learn-links` (`tools/learn-share-links.mjs`) rewrites
+> those links from the files, and `npm run build` stops while one is stale.
 
 ## 9. Connectivity: nets and wire crossings
 

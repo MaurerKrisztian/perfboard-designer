@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <!-- Google Analytics, only once the visitor accepts it: consent.js -->
+    <script src="../../consent.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Soldering Tools, Solder and Safety: A Beginner&#x27;s Guide</title>
+    <meta name="description" content="What you need to start soldering: the iron and tip, leaded vs lead-free solder, temperatures, flux, tip care, and staying safe from fumes and lead." />
+    <link rel="canonical" href="https://perfboarddesigner.com/learn/soldering-tools-and-safety/" />
+    <meta name="theme-color" content="#0b1220" />
+    <link rel="icon" type="image/png" href="../../favicon.png" />
+
+    <!-- Link previews (Facebook, LinkedIn, Discord, Slack, X...) -->
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Perfboard Designer" />
+    <meta property="og:title" content="Soldering tools, solder and safety for beginners" />
+    <meta property="og:description" content="The iron, tips, solder and flux worth buying, what temperature to set, tip care, and how to stay safe." />
+    <meta property="og:url" content="https://perfboarddesigner.com/learn/soldering-tools-and-safety/" />
+    <meta property="og:image" content="https://perfboarddesigner.com/images/learn/og/soldering-tools-and-safety.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Soldering tools, solder and safety for beginners, with the iron temperatures for leaded and lead-free solder" />
+    <meta property="article:published_time" content="2026-11-09" />
+    <meta property="article:modified_time" content="2026-11-09" />
+    <meta name="author" content="Krisztian Maurer" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="/src/landing/landing.css" />
+    <link rel="stylesheet" href="/src/guide/guide.css" />
+    <link rel="stylesheet" href="/src/learn/learn.css" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "TechArticle",
+          "headline": "Soldering tools, solder and safety for beginners",
+          "description": "What you need to start soldering: the iron and tip, leaded vs lead-free solder, temperatures, flux, tip care, and staying safe from fumes and lead.",
+          "url": "https://perfboarddesigner.com/learn/soldering-tools-and-safety/",
+          "mainEntityOfPage": "https://perfboarddesigner.com/learn/soldering-tools-and-safety/",
+          "image": "https://perfboarddesigner.com/images/learn/og/soldering-tools-and-safety.jpg",
+          "datePublished": "2026-11-09",
+          "dateModified": "2026-11-09",
+          "inLanguage": "en",
+          "proficiencyLevel": "Beginner",
+          "keywords": "soldering tools for beginners, soldering iron temperature, leaded vs lead-free solder, solder wire diameter, flux, soldering safety, solder fumes",
+          "author": {
+            "@type": "Person",
+            "name": "Krisztian Maurer",
+            "url": "https://github.com/MaurerKrisztian"
+          },
+          "isPartOf": {
+            "@type": "CollectionPage",
+            "name": "Learn: perfboard layout, wiring, soldering and testing",
+            "url": "https://perfboarddesigner.com/learn/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://perfboarddesigner.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Learn",
+              "item": "https://perfboarddesigner.com/learn/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Soldering tools and safety",
+              "item": "https://perfboarddesigner.com/learn/soldering-tools-and-safety/"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Should a beginner use leaded or lead-free solder?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Leaded solder (63/37 or 60/40) is easier to learn with: it melts at a lower temperature and flows more readily. Lead-free solder such as SAC305 works fine with a temperature-controlled iron set a little hotter. If you use leaded solder, wash your hands afterwards and keep food off the bench."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What temperature should my soldering iron be?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Start around 330 °C for leaded solder and 360 °C for lead-free, then use the lowest setting that makes a joint flow within two or three seconds. Bigger joints need more heat, small ones less."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What wattage soldering iron do I need?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Temperature control matters more than watts. Any decent temperature-controlled iron of 25 W or more handles through-hole work; more power just recovers heat faster on big joints."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Are solder fumes dangerous?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The smoke is mostly burnt flux, which irritates the airways and, with long-term heavy exposure, can cause asthma. Keep your face out of the plume and use a fan or extractor to move it away. Lead doesn't vaporize at soldering temperatures; wash your hands so you don't swallow any."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../../" aria-label="Perfboard Designer home">
+      <span class="brand-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <circle cx="6" cy="6" r="2" />
+          <circle cx="18" cy="6" r="2" />
+          <circle cx="6" cy="18" r="2" />
+          <circle cx="18" cy="18" r="2" />
+          <path d="M8 6h8M6 8v8M18 8v8M8 18h8" />
+        </svg>
+      </span>
+      <span class="brand-title">Perfboard Designer</span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="../">Learn</a>
+      <a href="../../guide/">Guide</a>
+      <a href="../../mcp-server/">AI agents</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <a class="button button-small" href="../../app/">Open the designer</a>
+  </header>
+
+  <main>
+    <div class="learn-band">
+      <div class="guide-hero">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <ol>
+            <li><a href="../../">Home</a></li>
+            <li><a href="../">Learn</a></li>
+            <li aria-current="page">Soldering tools and safety</li>
+          </ol>
+        </nav>
+        <p class="eyebrow">Part 5 of 7 · Soldering</p>
+        <h1>Soldering tools, solder and safety for beginners</h1>
+        <p class="lead">You don&#x27;t need a lab. A temperature-controlled iron, the right solder and a few hand tools will take you a long way, and a handful of habits keeps your lungs, eyes and fingers out of trouble.</p>
+        <p class="guide-meta byline">By <a href="https://github.com/MaurerKrisztian" rel="author">Krisztian Maurer</a>, maker of Perfboard Designer · Updated <time datetime="2026-11-09">November 9, 2026</time></p>
+        <p class="guide-meta">About 9 minutes to read · Written for beginners · New words? See the <a href="../glossary/">glossary</a></p>
+      </div>
+    </div>
+
+    <div class="guide-layout">
+      <nav class="guide-toc learn-toc" aria-labelledby="toc-title">
+        <h2 id="toc-title">On this page</h2>
+        <ol>
+          <li><a href="#kit">The starter kit</a></li>
+          <li><a href="#iron">Choosing an iron and tip</a></li>
+          <li><a href="#solder">Choosing solder</a></li>
+          <li><a href="#temperature">What temperature?</a></li>
+          <li><a href="#flux">Flux, the secret ingredient</a></li>
+          <li><a href="#tip-care">Looking after the tip</a></li>
+          <li><a href="#safety">Staying safe</a></li>
+          <li><a href="#bench">Setting up your bench</a></li>
+          <li><a href="#faq">Frequently asked questions</a></li>
+          <li><a href="#sources">Further reading</a></li>
+        </ol>
+      </nav>
+
+      <article class="guide-article learn-article">
+        <section id="kit">
+          <h2>The starter kit</h2>
+          <p>What's worth having from day one, and why:</p>
+          <ul class="checklist">
+            <li><strong>A temperature-controlled soldering iron, with a stand.</strong> The one tool not to skimp on.</li>
+            <li><strong>A chisel tip</strong> about 2 to 3 mm wide; a smaller one can come later.</li>
+            <li><strong>Solder:</strong> 0.8 mm wire with a flux core (more below).</li>
+            <li><strong>A tip cleaner:</strong> brass wool in a holder, or a damp sponge.</li>
+            <li><strong>Flush cutters</strong> to trim leads close to the joint.</li>
+            <li><strong>Small pliers</strong> for bending leads and holding hot things.</li>
+            <li><strong>Wire strippers</strong> that handle thin wire (22 to 30 AWG).</li>
+            <li><strong>Desoldering braid and a solder sucker,</strong> for taking solder off again.</li>
+            <li><strong>Something to hold the board:</strong> "helping hands", a PCB holder or a small vise.</li>
+            <li><strong>A multimeter with a continuity beeper,</strong> for checking your work.</li>
+            <li><strong>Safety glasses,</strong> and a fan or fume extractor to move smoke away from your face.</li>
+            <li><strong>Isopropyl alcohol and an old toothbrush</strong> for cleaning flux off.</li>
+          </ul>
+          <p>Nice to have: a flux pen, tweezers, a magnifier or loupe, a heat-resistant silicone mat and some heat-shrink tubing.</p>
+        </section>
+
+        <section id="iron">
+          <h2>Choosing an iron and tip</h2>
+          <p>
+            The feature that matters is <strong>temperature control</strong>: you set a temperature
+            and the iron holds it, putting heat back as fast as each joint soaks it up. Cheap
+            fixed-power irons that plug straight into the wall run either too cool to flow the solder
+            or hot enough to cook it, and they cause a lot of "soldering is hard" frustration. A bench
+            station and a modern pen-style iron powered over USB-C are both good choices.
+          </p>
+          <p>
+            Power helps the iron recover between joints. Adafruit suggests at least 25 W for building
+            kits, and most decent temperature-controlled irons have plenty more than that.
+          </p>
+          <p>
+            For the tip, pick a <strong>chisel (screwdriver) shape</strong> about 2 to 3 mm across. Its
+            flat face touches the pad and the lead at the same time and passes heat quickly. Fine
+            needle points look precise, but they carry little heat, which makes through-hole work
+            slower and harder.
+          </p>
+        </section>
+
+        <section id="solder">
+          <h2>Choosing solder</h2>
+          <p>
+            Electronics solder is a thin wire with <strong>flux in its core</strong>. Never use
+            plumbing solder or acid flux on electronics: the acid corrodes it.
+          </p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Solder</th><th>Melts at</th><th>Iron at about</th><th>What it's like</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>63/37 tin-lead</td><td>183 °C, all at once</td><td>320–350 °C</td><td>The easiest to learn with: melts and sets cleanly, and joints shine.</td></tr>
+                <tr><td>60/40 tin-lead</td><td>About 183–190 °C</td><td>320–350 °C</td><td>Very similar and very common; it goes slightly mushy as it sets.</td></tr>
+                <tr><td>SAC305 lead-free</td><td>About 217–220 °C</td><td>350–380 °C</td><td>No lead, but it needs more heat and flows more slowly. Joints look duller, which is normal.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Leaded solder is the friendliest to learn with, and fine for hobby use if you wash your
+            hands afterwards (see <a href="#safety">safety</a>). Lead-free is the better choice if
+            you'd rather avoid lead altogether, if children share the space, or if you're repairing
+            modern equipment, which is built lead-free. It just takes a hotter iron and a little more
+            practice.
+          </p>
+          <p>
+            <strong>Diameter:</strong> 0.8 mm is the all-round size for through-hole work; 0.5 mm suits
+            small joints. Thicker solder floods small joints before you can stop it.
+          </p>
+        </section>
+
+        <section id="temperature">
+          <h2>What temperature?</h2>
+          <p>
+            Start around <strong>330 °C for leaded solder</strong> and <strong>360 °C for
+            lead-free</strong>, then adjust. The right temperature is the lowest one that makes a
+            joint flow in two or three seconds. Big joints, thick wires and wide copper soak up heat
+            and need more; small pads need less.
+          </p>
+          <ul class="temp-scale">
+            <li class="heat-1"><span class="temp">183 °C</span><span>63/37 leaded solder melts</span></li>
+            <li class="heat-2"><span class="temp">217–220 °C</span><span>SAC305 lead-free solder melts</span></li>
+            <li class="heat-3"><span class="temp">320–350 °C</span><span>The iron, for leaded solder</span></li>
+            <li class="heat-4"><span class="temp">350–380 °C</span><span>The iron, for lead-free solder</span></li>
+            <li class="heat-5"><span class="temp">~350 °C, 3 s</span><span>A typical datasheet limit for an iron on a part's lead (this one from an LED)</span></li>
+            <li class="heat-6"><span class="temp">400 °C +</span><span>Too hot for everyday through-hole work: flux burns, tips wear out, pads lift</span></li>
+          </ul>
+          <p>
+            Hotter isn't faster. Too much heat burns the flux off before it can work, blackens the tip
+            and lifts pads off the board. If you find yourself turning the iron up and up, check that
+            the tip is clean and tinned, and that it touches both the pad and the lead.
+          </p>
+        </section>
+
+        <section id="flux">
+          <h2>Flux, the secret ingredient</h2>
+          <p>
+            Hot metal oxidizes almost instantly, and solder won't stick to oxide. Flux cleans the
+            surfaces as they heat up and lets the molten solder <em>wet</em> them: spread out and bond,
+            instead of balling up. The core of your solder carries enough for ordinary joints, but it
+            burns away within seconds, which is why you feed solder into the joint instead of carrying
+            a blob over on the tip.
+          </p>
+          <p>
+            Extra flux, from a pen or a syringe, is a big help for reworking old joints, clearing
+            bridges and desoldering. Fluxes come in three families:
+          </p>
+          <ul>
+            <li><strong>Rosin</strong> (from pine resin): the classic. Clean its sticky brown residue off with isopropyl alcohol and a brush.</li>
+            <li><strong>No-clean:</strong> leaves little residue, which can stay on, though many people clean it off anyway.</li>
+            <li><strong>Water-soluble:</strong> strong, and its residue is corrosive, so it must be washed off thoroughly. Best avoided on hobby boards.</li>
+          </ul>
+        </section>
+
+        <section id="tip-care">
+          <h2>Looking after the tip</h2>
+          <p>
+            A clean, shiny, tinned tip passes heat into a joint. A black, dry one doesn't, and no
+            temperature setting will make up for it. Keep it in shape:
+          </p>
+          <ul class="checklist">
+            <li><strong>Tin it</strong> as soon as it's hot: melt on a little solder so the whole working face is silver.</li>
+            <li><strong>Wipe it</strong> on brass wool every joint or two. A sponge works too if it's damp, not soaking, but brass wool doesn't chill the tip.</li>
+            <li><strong>Re-tin it before putting it down,</strong> and leave a blob on when you switch off. The solder keeps air off the tip.</li>
+            <li><strong>Turn it down or off when it's idle.</strong> Tips oxidize fastest when they sit hot and dry.</li>
+            <li><strong>Never file or sand a plated tip.</strong> If it's black and won't take solder, scrub it on brass wool and re-tin it, or use tip tinner (a little tin of tinning paste).</li>
+          </ul>
+        </section>
+
+        <section id="safety">
+          <h2>Staying safe</h2>
+          <p>Soldering is a safe hobby with a few real hazards. These habits cover them.</p>
+          <h3>Fumes: it's the flux</h3>
+          <p>
+            The wisp of smoke from a joint is flux, not metal. Rosin flux fume irritates the airways,
+            and the UK's Health and Safety Executive names it a common cause of occupational asthma
+            in people who solder for a living. You'll solder far less, but there's no reason to
+            breathe it.
+          </p>
+          <ul>
+            <li>Keep your face out of the plume rising from the joint.</li>
+            <li>Use a fan to draw the smoke away from you, toward an open window if you can.</li>
+            <li>A small bench-top extractor with a carbon filter is mostly a fan: it moves the plume away from your face, but cleans little of it, so a window still helps.</li>
+            <li>Work in a ventilated room, and take breaks.</li>
+          </ul>
+          <h3>Lead: it's your hands</h3>
+          <p>
+            Lead doesn't evaporate at soldering temperatures (it boils at over 1,700 °C), so the risk
+            from leaded solder isn't in the air. It's lead on your fingers finding its way into your
+            mouth.
+          </p>
+          <ul>
+            <li>Wash your hands after soldering, and before you eat, drink or smoke.</li>
+            <li>Keep food and drink off the bench.</li>
+            <li>Keep solder and offcuts away from children and pets, and wipe the bench down.</li>
+          </ul>
+          <h3>Burns: respect the iron</h3>
+          <ul>
+            <li>The tip is around 350 °C. Always put the iron back in its stand, never down on the bench.</li>
+            <li>If you drop it, let it fall. Never try to catch an iron.</li>
+            <li>Route the cable where you can't snag it, and switch off when you leave (many irons sleep by themselves).</li>
+            <li>For a burn, cool it under cool running water for 20 minutes, and get medical help for anything bigger than a small spot.</li>
+          </ul>
+          <h3>Eyes: leads fly</h3>
+          <p>
+            Snipped leads shoot off at a surprising speed, and solder can spit when it hits a wet sponge
+            or a bubble of flux. Wear safety glasses, and when you trim a lead, hold its end or point it
+            down at the bench.
+          </p>
+          <h3>Dust and mains</h3>
+          <ul>
+            <li>Cutting or sanding glass-fiber board (FR-4) makes fine glass dust. Score and snap it instead, and wear a mask if you must sand.</li>
+            <li>Keep early projects low voltage: batteries, USB and plug-in adapters. Circuits that connect to mains electricity don't belong on perfboard until you really know what you're doing.</li>
+          </ul>
+        </section>
+
+        <section id="bench">
+          <h2>Setting up your bench</h2>
+          <ul class="checklist">
+            <li>Bright light from more than one direction, so shadows don't hide the joints.</li>
+            <li>A heat-resistant surface: a silicone mat, or a board you don't mind marking.</li>
+            <li>The iron on the side of your writing hand, its stand where you can reach it without looking.</li>
+            <li>A fan or extractor pulling the smoke away from your face.</li>
+            <li>The board held firmly at a comfortable angle, leaving both hands free: one for the iron, one for the solder.</li>
+            <li>A small dish for offcuts, so they end up there and not inside your next circuit.</li>
+          </ul>
+        </section>
+
+        <section id="faq">
+          <h2>Frequently asked questions</h2>
+          <div class="faq">
+            <details>
+              <summary>Should a beginner use leaded or lead-free solder?</summary>
+              <p>Leaded solder (63/37 or 60/40) is easier to learn with: it melts at a lower temperature and flows more readily. Lead-free solder such as SAC305 works fine with a temperature-controlled iron set a little hotter. If you use leaded solder, wash your hands afterwards and keep food off the bench.</p>
+            </details>
+            <details>
+              <summary>What temperature should my soldering iron be?</summary>
+              <p>Start around 330 °C for leaded solder and 360 °C for lead-free, then use the lowest setting that makes a joint flow within two or three seconds. Bigger joints need more heat, small ones less.</p>
+            </details>
+            <details>
+              <summary>What wattage soldering iron do I need?</summary>
+              <p>Temperature control matters more than watts. Any decent temperature-controlled iron of 25 W or more handles through-hole work; more power just recovers heat faster on big joints.</p>
+            </details>
+            <details>
+              <summary>Are solder fumes dangerous?</summary>
+              <p>The smoke is mostly burnt flux, which irritates the airways and, with long-term heavy exposure, can cause asthma. Keep your face out of the plume and use a fan or extractor to move it away. Lead doesn&#x27;t vaporize at soldering temperatures; wash your hands so you don&#x27;t swallow any.</p>
+            </details>
+          </div>
+        </section>
+
+        <section id="sources">
+          <h2>Further reading</h2>
+          <p>The sources behind this guide, and good places to go deeper:</p>
+          <ul class="sources">
+            <li><a href="https://learn.adafruit.com/adafruit-guide-excellent-soldering" rel="noopener">Adafruit Guide to Excellent Soldering</a> (Adafruit)</li>
+            <li><a href="https://www.hse.gov.uk/lung-disease/electronics-soldering.htm" rel="noopener">Electronics (soldering)</a> (UK Health and Safety Executive)</li>
+            <li><a href="https://www.hse.gov.uk/asthma/solderers.htm" rel="noopener">Solderers: occupational asthma</a> (UK Health and Safety Executive)</li>
+            <li><a href="https://www.ifixit.com/Guide/How+to+Clean+and+Tin+a+Soldering+Iron+Tip/175931" rel="noopener">How to clean and tin a soldering iron tip</a> (iFixit)</li>
+            <li><a href="https://www.lcsc.com/blog/solder-melting-point-guide/" rel="noopener">Solder melting point guide: leaded vs. lead-free</a> (LCSC)</li>
+          </ul>
+        </section>
+
+        <div class="learn-cta">
+          <div>
+            <h2>Plan your next board in Perfboard Designer</h2>
+            <p>Free, in your browser, no sign-up: lay out perfboard or stripboard, check every connection, flip to the solder side and print it at true size.</p>
+          </div>
+          <a class="button" href="../../app/">Open the designer</a>
+        </div>
+
+        <nav class="article-pager" aria-label="More guides in this series">
+          <a class="pager-prev" href="../stripboard-layout/"><span>← Previous</span><strong>Stripboard (Veroboard) layout</strong></a>
+          <a class="pager-next" href="../how-to-solder/"><span>Next →</span><strong>How to solder (and fix bad joints)</strong></a>
+        </nav>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Perfboard Designer is open source, made by
+      <a href="https://github.com/MaurerKrisztian" target="_blank" rel="noopener">@MaurerKrisztian</a>
+      and <a href="../../contributors/">contributors</a>.
+    </p>
+    <nav aria-label="Footer">
+      <a href="../../">Home</a>
+      <a href="../../app/">Designer</a>
+      <a href="../">Learn</a>
+      <a href="../../guide/">Guide</a>
+      <a href="../../mcp-server/">MCP server</a>
+      <a href="../../contributors/">Contributors</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer/issues" target="_blank" rel="noopener">Report a bug</a>
+      <a href="#cookie-settings" data-consent-settings>Cookie settings</a>
+    </nav>
+  </footer>
+</body>
+</html>

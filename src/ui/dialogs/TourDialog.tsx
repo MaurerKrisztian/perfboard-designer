@@ -64,8 +64,10 @@ const CHAPTERS: {id: TourChapterId; name: string; slides: Slide[]}[] = [
       {
         title: "See it in 3D",
         clip: "view3d",
-        text: "Press 3D view at the top to see the board as it will look, and drag to turn it round.",
-        touch: "Tap the 3D button at the top to see the board as it will look, and drag to turn it round.",
+        text: "Press 3D view at the top to see the board as it will look, and drag to turn it round. "
+          + "Bottom shows its copper side.",
+        touch: "Tap the 3D button at the top to see the board as it will look, and drag to turn it round. "
+          + "Bottom shows its copper side.",
       },
       {
         title: "Save and share",

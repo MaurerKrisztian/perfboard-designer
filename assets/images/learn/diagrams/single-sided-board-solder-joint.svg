@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 130" width="240" height="130" font-family="Inter, Arial, sans-serif">
+  <title>Cross-section of a single-sided board: a pad on the underside only, with solder holding the lead there</title>
+  <defs>
+    <linearGradient id="lp-solder" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc" />
+      <stop offset="0.55" stop-color="#cbd5e1" />
+      <stop offset="1" stop-color="#8b98a7" />
+    </linearGradient>
+  </defs>
+  <rect width="240" height="130" fill="#0a101b" />
+  <rect x="96" y="6" width="48" height="22" rx="8" fill="#d8c49a" />
+  <rect x="16" y="56" width="98" height="20" fill="#8a5a2b" />
+  <rect x="126" y="56" width="98" height="20" fill="#8a5a2b" />
+  <rect x="92" y="76" width="22" height="4" fill="#c98545" />
+  <rect x="126" y="76" width="22" height="4" fill="#c98545" />
+  <rect x="118" y="17" width="4" height="96" fill="#aab3bd" />
+  <path d="M92 80 Q116 82 118 104 L122 104 Q124 82 148 80 Z" fill="url(#lp-solder)" />
+</svg>

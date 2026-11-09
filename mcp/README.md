@@ -101,7 +101,7 @@ the resource `perfboard://docs/guide` (`src/guide.ts`).
 It also serves the format as **resources**: `perfboard://docs/project-file` (the project file
 format, field by field), `perfboard://docs/share-links` (the link format), `perfboard://parts`
 (the whole parts catalog as JSON), and example projects: `perfboard://examples/555-led-blinker` (a
-555 LED blinker on a perfboard, all wired with jumpers) and
+555 LED blinker on a perfboard, with bare-wire rails, a jumper and a link on the solder side) and
 `perfboard://examples/555-led-blinker-stripboard` (the same circuit on a stripboard), read from
 `../examples/`.
 

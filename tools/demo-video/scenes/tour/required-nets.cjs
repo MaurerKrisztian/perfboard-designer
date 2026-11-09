@@ -11,7 +11,7 @@ module.exports = async (d) => {
     d.page.locator(".reqs-actions button", { hasText: "Use current wiring" })
   );
   await d.wait(1800);
-  await d.clickBetween([5, 0], [6, 0]);
+  await d.clickBetween([9, 3], [9, 4]);
   await d.key("Delete", 400);
   await d.glideTo(1150, 160, 20);
   await d.wait(2500);

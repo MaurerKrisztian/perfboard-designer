@@ -37,6 +37,7 @@ device.
 
 **▶ Try it now: [perfboarddesigner.com/app](https://perfboarddesigner.com/app/)** ·
 📖 [User guide](https://perfboarddesigner.com/guide/) ·
+🔧 [Learn layout & soldering](https://perfboarddesigner.com/learn/) ·
 🤖 [Design boards with AI](https://perfboarddesigner.com/mcp-server/)
 
 ---

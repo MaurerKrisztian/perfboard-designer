@@ -23,7 +23,9 @@ node tools/demo-video/record.cjs tools/demo-video/scenes/tour/*.cjs --out-dir as
 
 Options: `--size 1920x1080` (default 1280x720), `--width 960` (scale the output), `--crf 28`
 (higher is smaller and blurrier), `--speed 2` (play it faster), `--url http://localhost:3000/app/`
-to use a dev server that's already running. A scene can set the same as `module.exports.options = {size, width, crf, speed, crop: {x, y, width, height}}`; the command line wins. Each clip gets a
+to use a dev server that's already running, `--gl gpu` (draw WebGL on the GPU, below; the default
+is `swiftshader`), `--browser path/to/chrome` (a Chromium of your own, when Playwright's isn't
+installed). A scene can set the same as `module.exports.options = {size, width, crf, speed, crop: {x, y, width, height}}`; the command line wins. Each clip gets a
 `.webp` poster beside it, its last frame, which a page shows until the clip plays. Don't edit the
 editor's source while recording: the dev server reloads the page. A fresh dev server reloads it too,
 the first time a page needs a dependency it hasn't prepared; the recorder loads the editor once
@@ -60,9 +62,13 @@ they show).
 
 The browser draws WebGL in software (SwiftShader), so the 3D view's clip (`tour/view3d.cjs`) stutters
 on a machine without a GPU, such as a cloud session: record it where there is one, with the GPU's
-GL, e.g. on Linux with an NVIDIA card `__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia`
-and Chromium launched with `--use-angle=gl --enable-gpu --ignore-gpu-blocklist` (Vulkan records the
-3D canvas blank).
+GL: `--gl gpu`, which launches Chromium with `--use-angle=gl --enable-gpu --ignore-gpu-blocklist`
+(Vulkan records the 3D canvas blank). On Linux with an NVIDIA card, also set
+`__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia`:
+
+```bash
+__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia node tools/demo-video/record.cjs tools/demo-video/scenes/tour/view3d.cjs --out-dir assets/tour --gl gpu
+```
 
 In a recording, dialogs' backdrops are dimmed without their blur: the headless browser draws the
 blur so slowly that the video stops getting frames while a dialog is open.

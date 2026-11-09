@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <!-- Google Analytics, only once the visitor accepts it: consent.js -->
+    <script src="../../consent.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perfboard and Soldering Glossary: Words Explained Simply</title>
+    <meta name="description" content="The words you&#x27;ll meet building circuits on perfboard and stripboard, from AWG to wetting, each explained in a sentence or two." />
+    <link rel="canonical" href="https://perfboarddesigner.com/learn/glossary/" />
+    <meta name="theme-color" content="#0b1220" />
+    <link rel="icon" type="image/png" href="../../favicon.png" />
+
+    <!-- Link previews (Facebook, LinkedIn, Discord, Slack, X...) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Perfboard Designer" />
+    <meta property="og:title" content="Glossary: perfboard, stripboard and soldering words" />
+    <meta property="og:description" content="The words you&#x27;ll meet building circuits on perfboard and stripboard, from AWG to wetting, each explained in a sentence or two." />
+    <meta property="og:url" content="https://perfboarddesigner.com/learn/glossary/" />
+    <meta property="og:image" content="https://perfboarddesigner.com/images/learn/og/glossary.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Glossary: perfboard, stripboard and soldering words, explained in a sentence or two" />
+    <meta property="article:published_time" content="2026-11-09" />
+    <meta property="article:modified_time" content="2026-11-09" />
+    <meta name="author" content="Krisztian Maurer" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="/src/landing/landing.css" />
+    <link rel="stylesheet" href="/src/guide/guide.css" />
+    <link rel="stylesheet" href="/src/learn/learn.css" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "DefinedTermSet",
+          "name": "Perfboard, stripboard and soldering glossary",
+          "description": "The words you'll meet building circuits on perfboard and stripboard, from AWG to wetting, each explained in a sentence or two.",
+          "url": "https://perfboarddesigner.com/learn/glossary/",
+          "inLanguage": "en",
+          "hasDefinedTerm": [
+            {
+              "@type": "DefinedTerm",
+              "name": "555 timer",
+              "description": "A timer chip first sold in 1972 and still everywhere: with two resistors and a capacitor it blinks, beeps or keeps time.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#555-timer"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Anode",
+              "description": "The positive end of a diode or LED, where current goes in. On an LED it's the longer lead.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#anode"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Astable",
+              "description": "A circuit that never settles but flips between high and low by itself, forever: how a 555 blinks an LED.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#astable"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "AWG (American Wire Gauge)",
+              "description": "Wire size by number: the smaller the number, the thicker the wire. 22 AWG is about 0.64 mm across, 30 AWG about 0.25 mm.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#awg"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Breadboard",
+              "description": "A plastic block of spring clips for trying a circuit out without soldering. Great for experiments, no home for a finished circuit.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#breadboard"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Breadboard-style protoboard",
+              "description": "A solderable board with its pads joined in a breadboard's pattern, so a breadboard circuit moves across part for part.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#breadboard-style-protoboard"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Bulk capacitor",
+              "description": "A larger capacitor, say 10 to 100 µF, where power enters the board, steadying the supply for the whole circuit.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#bulk-capacitor"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Bus wire",
+              "description": "Bare tinned copper wire laid along a row of pads on the copper side, usually for the power rails.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#bus-wire"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Cathode",
+              "description": "The negative end of a diode or LED, where current comes out: marked by the band on a diode and the flat side of an LED.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#cathode"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Cold joint",
+              "description": "A dull, lumpy joint where the solder never properly melted onto the metal. It may work for now, but it's unreliable: reheat it.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#cold-joint"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Component side",
+              "description": "The face of the board the parts sit on. The other face is the copper side.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#component-side"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Continuity mode",
+              "description": "The multimeter setting that beeps when two points are connected: the quickest way to check a joint or a wire.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#continuity-mode"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Copper side",
+              "description": "The face of the board with the copper pads or strips, where the leads poke through and get soldered. Also called the solder side.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#copper-side"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Current limit",
+              "description": "A bench power supply's ceiling on current. Set low for a first power-up, it stops a short from doing damage.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#current-limit"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Cut (track cut)",
+              "description": "A break in a stripboard strip, made at a hole or between two holes, so one strip can carry two different connections.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#cut"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Decoupling capacitor",
+              "description": "A 100 nF capacitor right across a chip's power pins, supplying the sudden gulps of current the chip takes.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#decoupling-capacitor"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Desoldering braid",
+              "description": "Fine copper braid, soaked in flux, that soaks up molten solder. Also called solder wick.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#desoldering-braid"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "DIP (dual in-line package)",
+              "description": "A chip with two rows of pins 0.1 inch apart, made to go through holes. The 555 is an 8-pin DIP.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#dip"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Electrolytic capacitor",
+              "description": "A capacitor with a large value in a small can. It's polarized: the stripe on the can marks the negative lead.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#electrolytic-capacitor"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Enameled wire",
+              "description": "Fine copper wire coated in varnish, as used in coils. Solderable kinds lose their enamel on a hot iron. Also called magnet wire.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#enameled-wire"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "ESD (electrostatic discharge)",
+              "description": "A static spark, often too small to feel, that can damage CMOS chips and MOSFETs.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#esd"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Flux",
+              "description": "A cleaner that lets molten solder wet the metal instead of balling up. Electronics solder carries it in its core.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#flux"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "FR-2 and FR-4",
+              "description": "Board materials. FR-2 is cheap paper and resin, usually brown; FR-4 is stronger glass fiber in epoxy, usually green.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#fr-2-and-fr-4"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Heat-shrink",
+              "description": "Plastic tubing that shrinks tight around a joint when heated, to insulate it. Slide it onto the wire before you solder.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#heat-shrink"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Jumper",
+              "description": "An insulated wire that hops over other connections, soldered through a hole at each end like a part.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#jumper"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Lead",
+              "description": "A component's wire leg, the part that goes through the hole and gets soldered.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#lead"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Lead-free solder",
+              "description": "Solder without lead, such as SAC305. It melts at about 217 °C, needs a hotter iron, and its joints look duller.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#lead-free-solder"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Link",
+              "description": "On stripboard, a short wire joining two strips.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#link"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Mirror-image trap",
+              "description": "Planning a board from above but soldering it from below, where left and right are swapped.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#mirror-image-trap"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Net",
+              "description": "Everything that's connected together: one connection, however many pins it reaches.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#net"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Pad",
+              "description": "The copper ring around a hole, which the solder bonds to.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#pad"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Perfboard",
+              "description": "A board with a grid of holes, each with its own copper pad and none of them joined: you make every connection yourself.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#perfboard"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Pin 1",
+              "description": "The pin a chip's numbering starts from, by the notch or dot. The rest count counterclockwise, seen from above.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#pin-1"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Pitch",
+              "description": "The spacing between holes or pins: 2.54 mm (0.1 inch) on almost every prototyping board.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#pitch"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Plated-through hole",
+              "description": "A hole lined with copper that joins the pads on both faces, so solder fills it and grips the lead along its length.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#plated-through-hole"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Polarized part",
+              "description": "A part that only works one way round: diodes, LEDs, electrolytic capacitors and chips.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#polarized-part"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Rail",
+              "description": "A supply line, positive or ground, running along the board so every part can reach it with a short hop.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#rail"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Reverse-polarity diode",
+              "description": "A diode in series with the power input, so a battery connected the wrong way round can't do any damage.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#reverse-polarity-diode"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Rosin",
+              "description": "The classic flux, made from pine resin. Its smoke irritates the airways, so keep your face out of it.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#rosin"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Short circuit",
+              "description": "A connection that shouldn't be there, usually between the supply and ground. Find it before you power up.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#short-circuit"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Smoke test",
+              "description": "Engineers' joke name for the first power-up. The checks before it make it a non-event.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#smoke-test"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Socket",
+              "description": "A holder soldered in a chip's place, so the chip never meets the iron and can be swapped in seconds.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#socket"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Solder",
+              "description": "A soft alloy, melted to join metals. For electronics: a thin wire with flux in its core, about 0.8 mm across.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#solder"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Solder bridge",
+              "description": "Solder joining two pads. Made on purpose it's a connection; made by accident it's a short.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#solder-bridge"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Solder side",
+              "description": "Another name for the copper side, where you solder.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#solder-side"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Spot-face cutter",
+              "description": "A hand tool with a cutting tip, twisted in a stripboard hole to cut the strip there.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#spot-face-cutter"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Strain relief",
+              "description": "Anchoring a wire before its joint, so a tug pulls on the board and not on the solder.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#strain-relief"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Stripboard",
+              "description": "A board whose copper runs in strips, each joining a whole row of holes until you cut it.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#stripboard"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Surface-mount (SMD)",
+              "description": "Parts that sit on pads on top of a board instead of going through holes. On perfboard they go on adapter boards.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#surface-mount"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Through-hole",
+              "description": "Parts whose leads go through holes in the board and are soldered on the other side: everything in these guides.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#through-hole"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Tinning",
+              "description": "Coating a tip, wire or pad with a thin layer of solder, so it takes heat and joins quickly.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#tinning"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Veroboard",
+              "description": "The best-known brand of stripboard, often used as a name for any stripboard.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#veroboard"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Wetting",
+              "description": "Molten solder spreading over clean, hot metal and bonding with it, meeting it at a shallow angle: the sign of a good joint.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#wetting"
+            },
+            {
+              "@type": "DefinedTerm",
+              "name": "Wire-wrap wire",
+              "description": "Thin (30 AWG) insulated wire for dense signal wiring, run point to point on the copper side. Also called Kynar wire.",
+              "url": "https://perfboarddesigner.com/learn/glossary/#wire-wrap-wire"
+            }
+          ]
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://perfboarddesigner.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Learn",
+              "item": "https://perfboarddesigner.com/learn/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Glossary",
+              "item": "https://perfboarddesigner.com/learn/glossary/"
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../../" aria-label="Perfboard Designer home">
+      <span class="brand-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <circle cx="6" cy="6" r="2" />
+          <circle cx="18" cy="6" r="2" />
+          <circle cx="6" cy="18" r="2" />
+          <circle cx="18" cy="18" r="2" />
+          <path d="M8 6h8M6 8v8M18 8v8M8 18h8" />
+        </svg>
+      </span>
+      <span class="brand-title">Perfboard Designer</span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="../">Learn</a>
+      <a href="../../guide/">Guide</a>
+      <a href="../../mcp-server/">AI agents</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <a class="button button-small" href="../../app/">Open the designer</a>
+  </header>
+
+  <main>
+    <div class="learn-band">
+      <div class="guide-hero">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <ol>
+            <li><a href="../../">Home</a></li>
+            <li><a href="../">Learn</a></li>
+            <li aria-current="page">Glossary</li>
+          </ol>
+        </nav>
+        <p class="eyebrow">Learn · Reference</p>
+        <h1>Glossary: the words, explained</h1>
+        <p class="lead">Every word you'll meet in these guides, and on forums and datasheets, in a sentence or two, with a link to where it's explained in full.</p>
+        <p class="guide-meta">54 words, from 555 timer to wire-wrap wire</p>
+      </div>
+    </div>
+
+    <div class="guide-layout">
+      <nav class="guide-toc learn-toc glossary-toc" aria-labelledby="toc-title">
+        <h2 id="toc-title">Jump to a letter</h2>
+        <ol>
+          <li><a href="#numbers">0–9</a></li>
+          <li><a href="#a">A</a></li>
+          <li><a href="#b">B</a></li>
+          <li><a href="#c">C</a></li>
+          <li><a href="#d">D</a></li>
+          <li><a href="#e">E</a></li>
+          <li><a href="#f">F</a></li>
+          <li><a href="#h">H</a></li>
+          <li><a href="#j">J</a></li>
+          <li><a href="#l">L</a></li>
+          <li><a href="#m">M</a></li>
+          <li><a href="#n">N</a></li>
+          <li><a href="#p">P</a></li>
+          <li><a href="#r">R</a></li>
+          <li><a href="#s">S</a></li>
+          <li><a href="#t">T</a></li>
+          <li><a href="#v">V</a></li>
+          <li><a href="#w">W</a></li>
+        </ol>
+      </nav>
+
+      <article class="guide-article learn-article">
+        <section id="numbers" class="glossary-letter">
+          <h2>0–9</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="555-timer">
+              <dt>555 timer</dt>
+              <dd>A timer chip first sold in 1972 and still everywhere: with two resistors and a capacitor it blinks, beeps or keeps time.<span class="glossary-more">More in <a href="../555-led-blinker/#how-it-works">Build a 555 LED blinker</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="a" class="glossary-letter">
+          <h2>A</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="anode">
+              <dt>Anode</dt>
+              <dd>The positive end of a diode or LED, where current goes in. On an LED it&#x27;s the longer lead.<span class="glossary-more">More in <a href="../perfboard-layout/#polarity">Plan a perfboard layout</a></span></dd>
+            </div>
+            <div class="glossary-term" id="astable">
+              <dt>Astable</dt>
+              <dd>A circuit that never settles but flips between high and low by itself, forever: how a 555 blinks an LED.<span class="glossary-more">More in <a href="../555-led-blinker/#how-it-works">Build a 555 LED blinker</a></span></dd>
+            </div>
+            <div class="glossary-term" id="awg">
+              <dt>AWG (American Wire Gauge)</dt>
+              <dd>Wire size by number: the smaller the number, the thicker the wire. 22 AWG is about 0.64 mm across, 30 AWG about 0.25 mm.<span class="glossary-more">More in <a href="../perfboard-wiring/#gauge">Wire a perfboard</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="b" class="glossary-letter">
+          <h2>B</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="breadboard">
+              <dt>Breadboard</dt>
+              <dd>A plastic block of spring clips for trying a circuit out without soldering. Great for experiments, no home for a finished circuit.<span class="glossary-more">More in <a href="../choosing-a-prototyping-board/#breadboard">Perfboard, stripboard or breadboard?</a></span></dd>
+            </div>
+            <div class="glossary-term" id="breadboard-style-protoboard">
+              <dt>Breadboard-style protoboard</dt>
+              <dd>A solderable board with its pads joined in a breadboard&#x27;s pattern, so a breadboard circuit moves across part for part.<span class="glossary-more">More in <a href="../choosing-a-prototyping-board/#protoboard">Perfboard, stripboard or breadboard?</a></span></dd>
+            </div>
+            <div class="glossary-term" id="bulk-capacitor">
+              <dt>Bulk capacitor</dt>
+              <dd>A larger capacitor, say 10 to 100 µF, where power enters the board, steadying the supply for the whole circuit.<span class="glossary-more">More in <a href="../perfboard-layout/#power">Plan a perfboard layout</a></span></dd>
+            </div>
+            <div class="glossary-term" id="bus-wire">
+              <dt>Bus wire</dt>
+              <dd>Bare tinned copper wire laid along a row of pads on the copper side, usually for the power rails.<span class="glossary-more">More in <a href="../perfboard-wiring/#bus-wire">Wire a perfboard</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="c" class="glossary-letter">
+          <h2>C</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="cathode">
+              <dt>Cathode</dt>
+              <dd>The negative end of a diode or LED, where current comes out: marked by the band on a diode and the flat side of an LED.<span class="glossary-more">More in <a href="../perfboard-layout/#polarity">Plan a perfboard layout</a></span></dd>
+            </div>
+            <div class="glossary-term" id="cold-joint">
+              <dt>Cold joint</dt>
+              <dd>A dull, lumpy joint where the solder never properly melted onto the metal. It may work for now, but it&#x27;s unreliable: reheat it.<span class="glossary-more">More in <a href="../how-to-solder/#joint-doctor">How to solder (and fix bad joints)</a></span></dd>
+            </div>
+            <div class="glossary-term" id="component-side">
+              <dt>Component side</dt>
+              <dd>The face of the board the parts sit on. The other face is the copper side.<span class="glossary-more">More in <a href="../perfboard-wiring/#two-sides">Wire a perfboard</a></span></dd>
+            </div>
+            <div class="glossary-term" id="continuity-mode">
+              <dt>Continuity mode</dt>
+              <dd>The multimeter setting that beeps when two points are connected: the quickest way to check a joint or a wire.<span class="glossary-more">More in <a href="../testing-your-board/#beep">Test and debug your board</a></span></dd>
+            </div>
+            <div class="glossary-term" id="copper-side">
+              <dt>Copper side</dt>
+              <dd>The face of the board with the copper pads or strips, where the leads poke through and get soldered. Also called the solder side.<span class="glossary-more">More in <a href="../perfboard-wiring/#two-sides">Wire a perfboard</a></span></dd>
+            </div>
+            <div class="glossary-term" id="current-limit">
+              <dt>Current limit</dt>
+              <dd>A bench power supply&#x27;s ceiling on current. Set low for a first power-up, it stops a short from doing damage.<span class="glossary-more">More in <a href="../testing-your-board/#power">Test and debug your board</a></span></dd>
+            </div>
+            <div class="glossary-term" id="cut">
+              <dt>Cut (track cut)</dt>
+              <dd>A break in a stripboard strip, made at a hole or between two holes, so one strip can carry two different connections.<span class="glossary-more">More in <a href="../stripboard-layout/#cutting">Stripboard (Veroboard) layout</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="d" class="glossary-letter">
+          <h2>D</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="decoupling-capacitor">
+              <dt>Decoupling capacitor</dt>
+              <dd>A 100 nF capacitor right across a chip&#x27;s power pins, supplying the sudden gulps of current the chip takes.<span class="glossary-more">More in <a href="../perfboard-layout/#power">Plan a perfboard layout</a></span></dd>
+            </div>
+            <div class="glossary-term" id="desoldering-braid">
+              <dt>Desoldering braid</dt>
+              <dd>Fine copper braid, soaked in flux, that soaks up molten solder. Also called solder wick.<span class="glossary-more">More in <a href="../how-to-solder/#desoldering">How to solder (and fix bad joints)</a></span></dd>
+            </div>
+            <div class="glossary-term" id="dip">
+              <dt>DIP (dual in-line package)</dt>
+              <dd>A chip with two rows of pins 0.1 inch apart, made to go through holes. The 555 is an 8-pin DIP.<span class="glossary-more">More in <a href="../perfboard-layout/#anchors">Plan a perfboard layout</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="e" class="glossary-letter">
+          <h2>E</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="electrolytic-capacitor">
+              <dt>Electrolytic capacitor</dt>
+              <dd>A capacitor with a large value in a small can. It&#x27;s polarized: the stripe on the can marks the negative lead.<span class="glossary-more">More in <a href="../perfboard-layout/#polarity">Plan a perfboard layout</a></span></dd>
+            </div>
+            <div class="glossary-term" id="enameled-wire">
+              <dt>Enameled wire</dt>
+              <dd>Fine copper wire coated in varnish, as used in coils. Solderable kinds lose their enamel on a hot iron. Also called magnet wire.<span class="glossary-more">More in <a href="../perfboard-wiring/#enameled">Wire a perfboard</a></span></dd>
+            </div>
+            <div class="glossary-term" id="esd">
+              <dt>ESD (electrostatic discharge)</dt>
+              <dd>A static spark, often too small to feel, that can damage CMOS chips and MOSFETs.<span class="glossary-more">More in <a href="../how-to-solder/#heat">How to solder (and fix bad joints)</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="f" class="glossary-letter">
+          <h2>F</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="flux">
+              <dt>Flux</dt>
+              <dd>A cleaner that lets molten solder wet the metal instead of balling up. Electronics solder carries it in its core.<span class="glossary-more">More in <a href="../soldering-tools-and-safety/#flux">Soldering tools and safety</a></span></dd>
+            </div>
+            <div class="glossary-term" id="fr-2-and-fr-4">
+              <dt>FR-2 and FR-4</dt>
+              <dd>Board materials. FR-2 is cheap paper and resin, usually brown; FR-4 is stronger glass fiber in epoxy, usually green.<span class="glossary-more">More in <a href="../choosing-a-prototyping-board/#materials">Perfboard, stripboard or breadboard?</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="h" class="glossary-letter">
+          <h2>H</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="heat-shrink">
+              <dt>Heat-shrink</dt>
+              <dd>Plastic tubing that shrinks tight around a joint when heated, to insulate it. Slide it onto the wire before you solder.<span class="glossary-more">More in <a href="../perfboard-wiring/#off-board">Wire a perfboard</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="j" class="glossary-letter">
+          <h2>J</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="jumper">
+              <dt>Jumper</dt>
+              <dd>An insulated wire that hops over other connections, soldered through a hole at each end like a part.<span class="glossary-more">More in <a href="../perfboard-wiring/#jumpers">Wire a perfboard</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="l" class="glossary-letter">
+          <h2>L</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="lead">
+              <dt>Lead</dt>
+              <dd>A component&#x27;s wire leg, the part that goes through the hole and gets soldered.<span class="glossary-more">More in <a href="../how-to-solder/#prepare">How to solder (and fix bad joints)</a></span></dd>
+            </div>
+            <div class="glossary-term" id="lead-free-solder">
+              <dt>Lead-free solder</dt>
+              <dd>Solder without lead, such as SAC305. It melts at about 217 °C, needs a hotter iron, and its joints look duller.<span class="glossary-more">More in <a href="../soldering-tools-and-safety/#solder">Soldering tools and safety</a></span></dd>
+            </div>
+            <div class="glossary-term" id="link">
+              <dt>Link</dt>
+              <dd>On stripboard, a short wire joining two strips.<span class="glossary-more">More in <a href="../stripboard-layout/#rails">Stripboard (Veroboard) layout</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="m" class="glossary-letter">
+          <h2>M</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="mirror-image-trap">
+              <dt>Mirror-image trap</dt>
+              <dd>Planning a board from above but soldering it from below, where left and right are swapped.<span class="glossary-more">More in <a href="../perfboard-layout/#mirror">Plan a perfboard layout</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="n" class="glossary-letter">
+          <h2>N</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="net">
+              <dt>Net</dt>
+              <dd>Everything that&#x27;s connected together: one connection, however many pins it reaches.<span class="glossary-more">More in <a href="../perfboard-layout/#check">Plan a perfboard layout</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="p" class="glossary-letter">
+          <h2>P</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="pad">
+              <dt>Pad</dt>
+              <dd>The copper ring around a hole, which the solder bonds to.<span class="glossary-more">More in <a href="../choosing-a-prototyping-board/#perfboard">Perfboard, stripboard or breadboard?</a></span></dd>
+            </div>
+            <div class="glossary-term" id="perfboard">
+              <dt>Perfboard</dt>
+              <dd>A board with a grid of holes, each with its own copper pad and none of them joined: you make every connection yourself.<span class="glossary-more">More in <a href="../choosing-a-prototyping-board/#perfboard">Perfboard, stripboard or breadboard?</a></span></dd>
+            </div>
+            <div class="glossary-term" id="pin-1">
+              <dt>Pin 1</dt>
+              <dd>The pin a chip&#x27;s numbering starts from, by the notch or dot. The rest count counterclockwise, seen from above.<span class="glossary-more">More in <a href="../perfboard-layout/#polarity">Plan a perfboard layout</a></span></dd>
+            </div>
+            <div class="glossary-term" id="pitch">
+              <dt>Pitch</dt>
+              <dd>The spacing between holes or pins: 2.54 mm (0.1 inch) on almost every prototyping board.<span class="glossary-more">More in <a href="../choosing-a-prototyping-board/#size">Perfboard, stripboard or breadboard?</a></span></dd>
+            </div>
+            <div class="glossary-term" id="plated-through-hole">
+              <dt>Plated-through hole</dt>
+              <dd>A hole lined with copper that joins the pads on both faces, so solder fills it and grips the lead along its length.<span class="glossary-more">More in <a href="../choosing-a-prototyping-board/#materials">Perfboard, stripboard or breadboard?</a></span></dd>
+            </div>
+            <div class="glossary-term" id="polarized-part">
+              <dt>Polarized part</dt>
+              <dd>A part that only works one way round: diodes, LEDs, electrolytic capacitors and chips.<span class="glossary-more">More in <a href="../perfboard-layout/#polarity">Plan a perfboard layout</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="r" class="glossary-letter">
+          <h2>R</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="rail">
+              <dt>Rail</dt>
+              <dd>A supply line, positive or ground, running along the board so every part can reach it with a short hop.<span class="glossary-more">More in <a href="../perfboard-layout/#power">Plan a perfboard layout</a></span></dd>
+            </div>
+            <div class="glossary-term" id="reverse-polarity-diode">
+              <dt>Reverse-polarity diode</dt>
+              <dd>A diode in series with the power input, so a battery connected the wrong way round can&#x27;t do any damage.<span class="glossary-more">More in <a href="../perfboard-layout/#power">Plan a perfboard layout</a></span></dd>
+            </div>
+            <div class="glossary-term" id="rosin">
+              <dt>Rosin</dt>
+              <dd>The classic flux, made from pine resin. Its smoke irritates the airways, so keep your face out of it.<span class="glossary-more">More in <a href="../soldering-tools-and-safety/#flux">Soldering tools and safety</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="s" class="glossary-letter">
+          <h2>S</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="short-circuit">
+              <dt>Short circuit</dt>
+              <dd>A connection that shouldn&#x27;t be there, usually between the supply and ground. Find it before you power up.<span class="glossary-more">More in <a href="../testing-your-board/#rails">Test and debug your board</a></span></dd>
+            </div>
+            <div class="glossary-term" id="smoke-test">
+              <dt>Smoke test</dt>
+              <dd>Engineers&#x27; joke name for the first power-up. The checks before it make it a non-event.<span class="glossary-more">More in <a href="../testing-your-board/#why">Test and debug your board</a></span></dd>
+            </div>
+            <div class="glossary-term" id="socket">
+              <dt>Socket</dt>
+              <dd>A holder soldered in a chip&#x27;s place, so the chip never meets the iron and can be swapped in seconds.<span class="glossary-more">More in <a href="../perfboard-layout/#anchors">Plan a perfboard layout</a></span></dd>
+            </div>
+            <div class="glossary-term" id="solder">
+              <dt>Solder</dt>
+              <dd>A soft alloy, melted to join metals. For electronics: a thin wire with flux in its core, about 0.8 mm across.<span class="glossary-more">More in <a href="../soldering-tools-and-safety/#solder">Soldering tools and safety</a></span></dd>
+            </div>
+            <div class="glossary-term" id="solder-bridge">
+              <dt>Solder bridge</dt>
+              <dd>Solder joining two pads. Made on purpose it&#x27;s a connection; made by accident it&#x27;s a short.<span class="glossary-more">More in <a href="../perfboard-wiring/#bridges">Wire a perfboard</a></span></dd>
+            </div>
+            <div class="glossary-term" id="solder-side">
+              <dt>Solder side</dt>
+              <dd>Another name for the copper side, where you solder.<span class="glossary-more">More in <a href="../perfboard-layout/#mirror">Plan a perfboard layout</a></span></dd>
+            </div>
+            <div class="glossary-term" id="spot-face-cutter">
+              <dt>Spot-face cutter</dt>
+              <dd>A hand tool with a cutting tip, twisted in a stripboard hole to cut the strip there.<span class="glossary-more">More in <a href="../stripboard-layout/#cutting">Stripboard (Veroboard) layout</a></span></dd>
+            </div>
+            <div class="glossary-term" id="strain-relief">
+              <dt>Strain relief</dt>
+              <dd>Anchoring a wire before its joint, so a tug pulls on the board and not on the solder.<span class="glossary-more">More in <a href="../perfboard-wiring/#off-board">Wire a perfboard</a></span></dd>
+            </div>
+            <div class="glossary-term" id="stripboard">
+              <dt>Stripboard</dt>
+              <dd>A board whose copper runs in strips, each joining a whole row of holes until you cut it.<span class="glossary-more">More in <a href="../stripboard-layout/#strips">Stripboard (Veroboard) layout</a></span></dd>
+            </div>
+            <div class="glossary-term" id="surface-mount">
+              <dt>Surface-mount (SMD)</dt>
+              <dd>Parts that sit on pads on top of a board instead of going through holes. On perfboard they go on adapter boards.<span class="glossary-more">More in <a href="../choosing-a-prototyping-board/#choose">Perfboard, stripboard or breadboard?</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="t" class="glossary-letter">
+          <h2>T</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="through-hole">
+              <dt>Through-hole</dt>
+              <dd>Parts whose leads go through holes in the board and are soldered on the other side: everything in these guides.<span class="glossary-more">More in <a href="../how-to-solder/#five-steps">How to solder (and fix bad joints)</a></span></dd>
+            </div>
+            <div class="glossary-term" id="tinning">
+              <dt>Tinning</dt>
+              <dd>Coating a tip, wire or pad with a thin layer of solder, so it takes heat and joins quickly.<span class="glossary-more">More in <a href="../how-to-solder/#wires">How to solder (and fix bad joints)</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="v" class="glossary-letter">
+          <h2>V</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="veroboard">
+              <dt>Veroboard</dt>
+              <dd>The best-known brand of stripboard, often used as a name for any stripboard.<span class="glossary-more">More in <a href="../choosing-a-prototyping-board/#stripboard">Perfboard, stripboard or breadboard?</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="w" class="glossary-letter">
+          <h2>W</h2>
+          <dl class="glossary">
+            <div class="glossary-term" id="wetting">
+              <dt>Wetting</dt>
+              <dd>Molten solder spreading over clean, hot metal and bonding with it, meeting it at a shallow angle: the sign of a good joint.<span class="glossary-more">More in <a href="../how-to-solder/#how-it-works">How to solder (and fix bad joints)</a></span></dd>
+            </div>
+            <div class="glossary-term" id="wire-wrap-wire">
+              <dt>Wire-wrap wire</dt>
+              <dd>Thin (30 AWG) insulated wire for dense signal wiring, run point to point on the copper side. Also called Kynar wire.<span class="glossary-more">More in <a href="../perfboard-wiring/#wire-wrap">Wire a perfboard</a></span></dd>
+            </div>
+          </dl>
+        </section>
+
+        <div class="learn-cta">
+          <div>
+            <h2>New here?</h2>
+            <p>Seven short guides take you from choosing a board to powering up your first circuit, with a 555 blinker to build along the way.</p>
+          </div>
+          <a class="button" href="../">See the guides</a>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Perfboard Designer is open source, made by
+      <a href="https://github.com/MaurerKrisztian" target="_blank" rel="noopener">@MaurerKrisztian</a>
+      and <a href="../../contributors/">contributors</a>.
+    </p>
+    <nav aria-label="Footer">
+      <a href="../../">Home</a>
+      <a href="../../app/">Designer</a>
+      <a href="../">Learn</a>
+      <a href="../../guide/">Guide</a>
+      <a href="../../mcp-server/">MCP server</a>
+      <a href="../../contributors/">Contributors</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer/issues" target="_blank" rel="noopener">Report a bug</a>
+      <a href="#cookie-settings" data-consent-settings>Cookie settings</a>
+    </nav>
+  </footer>
+</body>
+</html>

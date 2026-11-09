@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120" font-family="Inter, Arial, sans-serif">
+  <title>A lifted pad: the copper ring on one side has peeled up away from the board</title>
+  <defs>
+    <linearGradient id="lp-solder" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc" />
+      <stop offset="0.55" stop-color="#cbd5e1" />
+      <stop offset="1" stop-color="#8b98a7" />
+    </linearGradient>
+  </defs>
+  <rect width="200" height="120" fill="#0a101b" />
+  <rect x="8" y="84" width="88" height="16" fill="#2b6a43" />
+  <rect x="104" y="84" width="88" height="16" fill="#2b6a43" />
+  <rect x="62" y="80" width="34" height="4" fill="#c98545" />
+  <polygon points="104,80 140,69 141,73 104,84" fill="#c98545" />
+  <rect x="98" y="14" width="4" height="106" fill="#aab3bd" />
+  <path d="M62 80 Q92 77 98 58 L102 58 Q107 70 126 71 L104 80 Z" fill="url(#lp-solder)" />
+  <circle cx="126" cy="77" r="16" fill="none" stroke="#f87171" stroke-width="1.5" stroke-dasharray="3 3" />
+</svg>

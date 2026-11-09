@@ -31,28 +31,37 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Perfboard Designer",
-      "url": "https://perfboarddesigner.com/",
-      "description": "A free, open-source browser tool for planning perfboard (protoboard) and stripboard (Veroboard) circuit layouts: place components and wires on a hole grid, cut stripboard strips, preview the board in 3D, then save, load or export the design.",
-      "keywords": "perfboard layout, stripboard layout, Veroboard layout, protoboard, circuit layout tool, perfboard designer, stripboard designer",
-      "featureList": [
-        "Perfboard and stripboard (Veroboard) layouts",
-        "Cut stripboard strips at any hole",
-        "Resistors, capacitors, LEDs, diodes, transistors, MOSFETs, potentiometers and header pins",
-        "ICs and custom parts: your own chips, dev boards, modules and transistors with labeled pins",
-        "3D preview of the finished board, including the copper side",
-        "Save, load and PNG export",
-        "MCP server for designing boards with AI agents"
-      ],
-      "applicationCategory": "DesignApplication",
-      "operatingSystem": "Any (web browser)",
-      "browserRequirements": "Requires a modern web browser with JavaScript enabled",
-      "isAccessibleForFree": true,
-      "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-      "image": "https://perfboarddesigner.com/images/og-image.jpg",
-      "author": {"@type": "Person", "name": "Krisztian Maurer", "url": "https://github.com/MaurerKrisztian"},
-      "codeRepository": "https://github.com/MaurerKrisztian/perfboard-designer"
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "name": "Perfboard Designer",
+          "url": "https://perfboarddesigner.com/"
+        },
+        {
+          "@type": "WebApplication",
+          "name": "Perfboard Designer",
+          "url": "https://perfboarddesigner.com/",
+          "description": "A free, open-source browser tool for planning perfboard (protoboard) and stripboard (Veroboard) circuit layouts: place components and wires on a hole grid, cut stripboard strips, preview the board in 3D, then save, load or export the design.",
+          "keywords": "perfboard layout, stripboard layout, Veroboard layout, protoboard, circuit layout tool, perfboard designer, stripboard designer",
+          "featureList": [
+            "Perfboard and stripboard (Veroboard) layouts",
+            "Cut stripboard strips at any hole",
+            "Resistors, capacitors, LEDs, diodes, transistors, MOSFETs, potentiometers and header pins",
+            "ICs and custom parts: your own chips, dev boards, modules and transistors with labeled pins",
+            "3D preview of the finished board, including the copper side",
+            "Save, load and PNG export",
+            "MCP server for designing boards with AI agents"
+          ],
+          "applicationCategory": "DesignApplication",
+          "operatingSystem": "Any (web browser)",
+          "browserRequirements": "Requires a modern web browser with JavaScript enabled",
+          "isAccessibleForFree": true,
+          "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+          "image": "https://perfboarddesigner.com/images/og-image.jpg",
+          "author": {"@type": "Person", "name": "Krisztian Maurer", "url": "https://github.com/MaurerKrisztian"},
+          "codeRepository": "https://github.com/MaurerKrisztian/perfboard-designer"
+        }
+      ]
     }
     </script>
 </head>
@@ -78,6 +87,7 @@
       <a href="#how-it-works">How it works</a>
       <a href="#faq">FAQ</a>
       <a href="guide/">Guide</a>
+      <a href="learn/">Learn</a>
       <a href="mcp-server/">AI agents</a>
       <a class="nav-extra" href="contributors/">Contributors</a>
       <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
@@ -273,7 +283,7 @@
 
     <section class="cta">
       <h2>Ready to plan your next build?</h2>
-      <p>Open the designer and lay out your first board in a few minutes.</p>
+      <p>Open the designer and lay out your first board in a few minutes. New to perfboard or soldering? Start with the <a href="learn/">guides</a>: <a href="learn/perfboard-layout/">how to plan a perfboard layout</a>, <a href="learn/how-to-solder/">how to solder</a>, or <a href="learn/555-led-blinker/">build a 555 LED blinker</a> step by step.</p>
       <a class="button" href="app/">Open the designer →</a>
     </section>
   </main>
@@ -287,6 +297,7 @@
     <nav aria-label="Footer">
       <a href="app/">Designer</a>
       <a href="guide/">Guide</a>
+      <a href="learn/">Learn</a>
       <a href="mcp-server/">MCP server</a>
       <a href="contributors/">Contributors</a>
       <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>

@@ -8,8 +8,9 @@
   },
   "scripts": {
     "start": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && node tools/learn-share-links.mjs --check && vite build",
     "typecheck": "tsc",
+    "learn-links": "node tools/learn-share-links.mjs",
     "serve": "vite preview",
     "lint": "eslint ./src --ext .ts,.tsx",
     "format": "prettier --write \"./**\"",

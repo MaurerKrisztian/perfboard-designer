@@ -4,7 +4,7 @@ module.exports = async (d) => {
   await d.glideTo(640, 400, 1);
   d.rollCamera();
   await d.wait(600);
-  await d.clickBetween([5, 0], [6, 0]);
+  await d.clickBetween([9, 3], [9, 4]);
   await d.wait(900);
   await d.click(
     d.page.locator("#selectionBar button", { hasText: "To solder side" })

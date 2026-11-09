@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <!-- Google Analytics, only once the visitor accepts it: consent.js -->
+    <script src="../consent.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Learn Perfboard Layout, Wiring and Soldering: Free Guides</title>
+    <meta name="description" content="Free beginner guides to building circuits on perfboard and stripboard: choosing a board, layout, wiring, soldering tools, technique and testing." />
+    <link rel="canonical" href="https://perfboarddesigner.com/learn/" />
+    <meta name="theme-color" content="#0b1220" />
+    <link rel="icon" type="image/png" href="../favicon.png" />
+
+    <!-- Link previews (Facebook, LinkedIn, Discord, Slack, X...) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Perfboard Designer" />
+    <meta property="og:title" content="Learn to build circuits on perfboard" />
+    <meta property="og:description" content="Seven practical guides: choosing a board, layout, wiring, stripboard, soldering tools and safety, soldering technique and testing." />
+    <meta property="og:url" content="https://perfboarddesigner.com/learn/" />
+    <meta property="og:image" content="https://perfboarddesigner.com/images/learn/og/learn.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Learn to build circuits on perfboard: seven free guides, with a 555 LED blinker planned on perfboard" />
+    <meta property="article:published_time" content="2026-11-09" />
+    <meta property="article:modified_time" content="2026-11-09" />
+    <meta name="author" content="Krisztian Maurer" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="/src/landing/landing.css" />
+    <link rel="stylesheet" href="/src/guide/guide.css" />
+    <link rel="stylesheet" href="/src/learn/learn.css" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "CollectionPage",
+          "name": "Learn: perfboard layout, wiring, soldering and testing",
+          "description": "Free beginner guides to building circuits on perfboard and stripboard: choosing a board, layout, wiring, soldering tools, technique and testing.",
+          "url": "https://perfboarddesigner.com/learn/",
+          "inLanguage": "en",
+          "mainEntity": {
+            "@type": "ItemList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Perfboard, stripboard or breadboard? How to pick a board",
+                "url": "https://perfboarddesigner.com/learn/choosing-a-prototyping-board/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "How to plan a perfboard layout",
+                "url": "https://perfboarddesigner.com/learn/perfboard-layout/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "How to wire a perfboard: solder bridges, bus wire and jumpers",
+                "url": "https://perfboarddesigner.com/learn/perfboard-wiring/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 4,
+                "name": "Stripboard layout: strips, cuts and links",
+                "url": "https://perfboarddesigner.com/learn/stripboard-layout/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 5,
+                "name": "Soldering tools, solder and safety for beginners",
+                "url": "https://perfboarddesigner.com/learn/soldering-tools-and-safety/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 6,
+                "name": "How to solder through-hole parts, and fix bad joints",
+                "url": "https://perfboarddesigner.com/learn/how-to-solder/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 7,
+                "name": "Test before you power: checking and debugging a soldered board",
+                "url": "https://perfboarddesigner.com/learn/testing-your-board/"
+              }
+            ]
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://perfboarddesigner.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Learn",
+              "item": "https://perfboarddesigner.com/learn/"
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../" aria-label="Perfboard Designer home">
+      <span class="brand-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <circle cx="6" cy="6" r="2" />
+          <circle cx="18" cy="6" r="2" />
+          <circle cx="6" cy="18" r="2" />
+          <circle cx="18" cy="18" r="2" />
+          <path d="M8 6h8M6 8v8M18 8v8M8 18h8" />
+        </svg>
+      </span>
+      <span class="brand-title">Perfboard Designer</span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="./" aria-current="page">Learn</a>
+      <a href="../guide/">Guide</a>
+      <a href="../mcp-server/">AI agents</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <a class="button button-small" href="../app/">Open the designer</a>
+  </header>
+
+  <main>
+    <div class="learn-band">
+      <div class="guide-hero learn-hero-split">
+        <div>
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <ol>
+              <li><a href="../">Home</a></li>
+              <li aria-current="page">Learn</li>
+            </ol>
+          </nav>
+          <p class="eyebrow">Learn · Free guides for hobbyists</p>
+          <h1>Learn to build circuits on perfboard</h1>
+          <p class="lead">
+            Seven practical guides that take you from "which board do I buy?" to a circuit that
+            works: plain words, real numbers, and pictures of what good and bad look like.
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="choosing-a-prototyping-board/">Start with part 1</a>
+            <a class="button button-ghost" href="../app/">Open the designer</a>
+          </div>
+        </div>
+        <figure class="hero-shot">
+          <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">A 555 blinker, planned</span></div>
+          <img src="../images/learn/blinker-perfboard.webp" width="1000" height="746" fetchpriority="high" decoding="async" alt="A 555 LED blinker laid out on a perfboard in Perfboard Designer: a timer chip in the middle, power rails along the top and bottom, resistors, capacitors and an LED" />
+        </figure>
+      </div>
+    </div>
+
+    <section class="learn-index" aria-labelledby="series-title">
+      <h2 id="series-title">The series</h2>
+      <p>Read them in order for the whole journey, or jump to the one you need.</p>
+      <ol class="learn-grid">
+        <li>
+          <a class="learn-card" href="choosing-a-prototyping-board/">
+            <span class="learn-card-num">01 · BOARDS</span>
+            <h3>Perfboard, stripboard or breadboard?</h3>
+            <p>Breadboard, perfboard, stripboard or a breadboard-style protoboard? What each one is, what it&#x27;s made of, and which to buy.</p>
+            <span class="learn-card-meta">About 8 minutes</span>
+          </a>
+        </li>
+        <li>
+          <a class="learn-card" href="perfboard-layout/">
+            <span class="learn-card-num">02 · LAYOUT</span>
+            <h3>Plan a perfboard layout</h3>
+            <p>From schematic to board: big parts first, power rails, decoupling, signal flow, tidy wiring, and the mirror-image trap.</p>
+            <span class="learn-card-meta">About 12 minutes</span>
+          </a>
+        </li>
+        <li>
+          <a class="learn-card" href="perfboard-wiring/">
+            <span class="learn-card-num">03 · WIRING</span>
+            <h3>Wire a perfboard</h3>
+            <p>Bent leads, solder bridges, bus wire, jumpers, wire-wrap and enameled wire: when to use each, and which wire gauge.</p>
+            <span class="learn-card-meta">About 9 minutes</span>
+          </a>
+        </li>
+        <li>
+          <a class="learn-card" href="stripboard-layout/">
+            <span class="learn-card-num">04 · STRIPBOARD</span>
+            <h3>Stripboard (Veroboard) layout</h3>
+            <p>Think in strips: chips across cuts, rails and links, cutting tracks cleanly, and reading layouts the right way round.</p>
+            <span class="learn-card-meta">About 8 minutes</span>
+          </a>
+        </li>
+        <li>
+          <a class="learn-card" href="soldering-tools-and-safety/">
+            <span class="learn-card-num">05 · SOLDERING</span>
+            <h3>Soldering tools and safety</h3>
+            <p>The iron, tips, solder and flux worth buying, what temperature to set, tip care, and how to stay safe.</p>
+            <span class="learn-card-meta">About 9 minutes</span>
+          </a>
+        </li>
+        <li>
+          <a class="learn-card" href="how-to-solder/">
+            <span class="learn-card-num">06 · SOLDERING</span>
+            <h3>How to solder (and fix bad joints)</h3>
+            <p>The five-step joint, what good looks like, a gallery of bad joints with their fixes, and how to desolder.</p>
+            <span class="learn-card-meta">About 11 minutes</span>
+          </a>
+        </li>
+        <li>
+          <a class="learn-card" href="testing-your-board/">
+            <span class="learn-card-num">07 · TESTING</span>
+            <h3>Test and debug your board</h3>
+            <p>Look, beep, measure, then power up gently: a safe first power-up, and what to check when it doesn&#x27;t work.</p>
+            <span class="learn-card-meta">About 11 minutes</span>
+          </a>
+        </li>
+      </ol>
+    </section>
+
+    <section class="learn-index" id="build-along" aria-labelledby="build-along-title">
+      <h2 id="build-along-title">Build along: a 555 LED blinker</h2>
+      <p>
+        The guides follow one small project all the way: a 555 timer flashing an LED about once a
+        second from a 9 V battery. Build it as you read, and by the end you'll have used every
+        technique in the series.
+      </p>
+      <div class="build-along">
+        <div class="build-along-parts">
+          <h3>What you need</h3>
+          <ul>
+          <li><strong>U1</strong> NE555 timer, and an 8-pin DIP socket</li>
+          <li><strong>R1, R2, R3</strong> ¼ W resistors: 1 kΩ, 68 kΩ and 470 Ω</li>
+          <li><strong>C1, C3</strong> electrolytic capacitors, 16 V or more: 10 µF and 100 µF</li>
+          <li><strong>C2, C4</strong> ceramic capacitors: 10 nF and 100 nF</li>
+          <li><strong>D1</strong> a red LED, and <strong>D2</strong> a 1N4001 diode</li>
+          <li><strong>J1</strong> a 2-way screw terminal (5.08 mm), or a 2-pin header (2.54 mm) for the stripboard version, and a 9 V battery clip</li>
+          <li>Perfboard of at least 20 × 15 holes: a 5 × 7 cm board has room</li>
+          <li>Bare tinned wire, and a little red and yellow solid-core wire</li>
+          <li>Optional: four M3 screws and standoffs</li>
+          </ul>
+        </div>
+        <div class="build-along-path">
+          <h3>Where each step is</h3>
+          <ol>
+          <li><a href="choosing-a-prototyping-board/#choose">Pick perfboard or stripboard</a></li>
+          <li><a href="perfboard-layout/#example">Plan the layout</a></li>
+          <li><a href="perfboard-wiring/#example">Wire it</a></li>
+          <li><a href="stripboard-layout/#example">Or lay it out on stripboard</a></li>
+          <li><a href="soldering-tools-and-safety/#kit">Get your tools ready</a></li>
+          <li><a href="how-to-solder/#example">Solder it, lowest parts first</a></li>
+          <li><a href="testing-your-board/#example">Test it and power it up</a></li>
+          </ol>
+          <p class="build-along-actions">
+            <a class="button button-small" href="555-led-blinker/">The whole project on one page</a>
+            <a class="button button-small button-ghost" href="../view/#name=555%20blinker&amp;z=hVfbUuM4EP2Vrt6HBUYEK3FI4jc2MLNMza3C5YXhQcidRIMjeSUZiqL4oP2A_YH9gP2mLVk2MRDgKXZaffqcI3Uruccbsk4ZjdmE4ZURNsfsHv1dSZhhSXYev2MoTeEw6ycMrbl1mPHhA8OcnLSq9DUAHmj4djQcDsGrFVmYF8ItyYEASzl8OToEcWUqD0ZLAgGOpNE5zK1ZgYAJnMOV8J7sHYNCqBzCUr8kuBV39ecXElbDolI5OXDVYkHOZ7D0vnTZ3t4j1ZycWmiyPWlWe0XI2fupf-qdnR_mliwo3dvZgdMltdV-d1CQyB0sDCjtTV3LSUu34MmulBYFfOZgdB0oaO6B8gUx-AAiEvSm7MFhH7b4tzRJ-DaU1niS3tVRqayslG91NlVBGq1JesqjRmv0olZqTaVzBkLnMB3AFk8S-Pefj9vgPIlcUcR0VVkWd2DVYunhdkmWQHmQZkUuCIx6Z0IVLoj9Q1gCr7SmHG6VpVaLM0VOFpzKCaSwNqB_CPsgisCmkVZTWdS0OoEr471ZRZ6iDV9VDmylXdT6mUMpnA8yvIEz3uMNsWB-fUICuTMOTvlAu8ZdqTwviIVXoWG8WyoNzshr8gxulV_CNI2m6I_bjX4hrXEOAkjjS6m0CwXHNb26cr3j4Rj-qlYlWfBB7BnvpbBlyZHfDhyD-B4cgFsa66FQ-hoqHSyKbkUWL81j8Ms0FfuN1P1WqlopvQg6Zxy2OFz_9_c2g1kftvbH9Uvc6BBr95nioXIlUZ41HZP00jG4UDosT3rpKLzN5z2Y9uvU4MY1UVmTGMJflSLfUPhe-bLy0ereAIrgmYNDDn5pTbVYwmwAW-kogZqa8E1JnsDqoIH4airtGx3Bx7mpLEhjNVkH4XBdU-lBhmaDubHwdRAbyPWQYSlyh9nFPQqP2QVn_JKhNj6Ml68DfGBtYPxqhPHB6zmvhVh_HfgwOe9GxutIco4PlwxDV0SS4eTWi9JLht5gdjGoH6-VzjHDuOs12OPK_XYlT9jwkuGNEphdhLf9y7cyB53Mfcb769RBeHsrdVQXiqlD1skcsfcSH3VFjNd1DWrcWCNSfX1twibt2kmXzoRNAh1pCmMxw99onqZp-ix11Ckz7vjHQyR8jJ9gzIWUfIgMQ-thhnESPcMct5hjxpM15jhivSokjavrzJRx_o5Bo84m7HeYD9nozTKN0Met553cNITCB-fvYUw6xtW8ny2-ZFgWQlJ-LOPhtjTHDM84MtRiFcyL1_VpGMYY2iD3yx9KY5YyXFKYFO2bNV7EWz5hWCp92L3475Fjhp--HSLDPmZ4Ojv-hAwHmOH3s1NkmGKGs6OTo_A8xAynp7MvyHA_rP1zdnTyJzIcYYaHxyfT8DzGDM-nU3xgTc8mtb9SeFoYe4cZKul69R3iOjpPvNC5sPnUrEqjSfuu7MM-ht8rc6VVYH0cnMqVyQnZuiM73REeb0RRBZvixV7bH8Gmg5dgVJD01hR3XsldKUohlTd2jT5a93vsvUf0JKm62OlLbElWrDbDNlOnPQjPgHUHeMZfAltyyj3FG3YavznXLd51F22DnxvRul0Sj3oDtz_u4k03sHvP0nZuPu2kR_VPXN1A9y1XB51RwAfNeH5EfmLrhrPw0ojx09GSdODSUdKBO9zgQ0H5GintaG6GVDscLeWddjjIb4SWtLkdPm8oU1_au-2v3t3gWHNlhmZYj4DJ-k9A-7-Ah7Kyct6s4rS5fPgf">See the board up close</a>
+            <a class="button button-small button-ghost" href="../view/#name=555%20blinker%20(stripboard)&amp;z=jVZLcts4EL1KV88itoPIhET9uEtJTuKU8yn5s3G0gMmmhDEFcADQisblA80B5gJzgDnTFAjSkmN5khVJNPp19-vXAO_xjoyVWmHSY3ijhckwuUe3KQkTtM7IMiwyTHVhMelGDI1eW0x4n4UNFhNcaiP_1MqJwu-snMXk-nrAenN2zbtsEB7D8BiFx3jOroesP58_MMzIpkaWrk4EL5YEVqwI-v0-nJ1M4aaQ6pYMCAtuSVCSyeusgL6LVVkQA61gm2xS7wq5gakUiNRoG3yDn1AZZBpW2jrQeW1YSyPVgsFauiUIyGkNPqqt9_qKOnAmZAa6cmG_2NTPMxJGwaKSGVmw1WJB1iWwdK60yfHxY6oZWblQZDqpXh0X3ud4m_CbQmx05Y6_qW_q6Oi8TrxzdATvjF7VQZwuE3g9hisGC6MrlbEQ-2T6yoZCw0K6lOUrC7muDPguhVUnV1Itwr66nIABYiGk6oSgX_WaDEjlw76FMVzBjXCOzAbSQpZQFtXCglROw0fu2fa4BeWOwWsQrk2yA9MuHPDPcRTxQygkWRCFVovW3uYQ-iE8rwyshrQyhpSDVCjQqtiAIZEuQ0nSpJUMEYxcLF3NfF1AByY9OOBRBP_8_e6wrmwShwX17hCsdLudd2sNtirLYtNIo6n8ouHNV37JvU1kWUENi77zXl4ElcrIQJ1XKaTxuslF6oktpbJ1GXTnCSulgqXw5YVqdQ7SWdBr1YEZZY2snLgluOSdUZ33Je_EcGDIkjsEp5te3xQivf1hP_fmG-2WbRdDMayG2VBR6Fa4v2upvEe3jTBoG7criJaFeslzMONwwOH2378OGcy6cDAY1R-BXm9r6F75hBoVQl4IuwRx46dDq5R88ZTqukfd2sd35JaotD6TPvxRSXJN7C-VKytXx-7BQTyMwMfLiTILUw65n4JL3ukxr7QQg0ewetu4f9KVck3ydTO1UWQsCENwS6WD1M8b5NrApx7Y1JAfDOEHBIQXUx1AqEYXIBVUljrIsBSZP8juUThMrjnjc4ZKO380furhA2sNoxctjPde9nnB1GU7htfjq11LvLVEV_gwZ7iWhkKSvgyP3PfnLTod3j1WqgttMMHfKI_jOEbvlbklJrGHbv0ifyQ3ftGv-4224UZ1fo9ePO-Oe8P9XsOt15Bx_qtuY3-JBLcx49GuWy7SlPdfqK3vb51HTn7mOGdYFiKl7DQN1BrKMcFLjgyVWHn2P5_4y-lCrsi0nl-lwiRmuCR_TLVfRjsR7rWIYSnVdPequ0eOCb7_PEWGXX_zzU7fI8MeJvjl8gIZxpjg7OT8xL_3McHJxewMGQ783g-zk_MPyHCICU5Pzyf-fYQJXk0m-MAamfGa51Q4WmizwQRlajvOp21xW-e5EyoTJpvoVakVKbdb9rSL_obOpZI-69MME8ykzghZy29cy6XRgH-9E0XlaQpXQa3gADbpPQejglJndLFxMn2TilKk0mmzRR_Xsmqa_gQ9iqpd7Pg5dkpGrPbD8t4Wl_d-BFY7wDP-HNiQlfYp3mDLAh_UQn3Eu91F28PnHrThVup8GCTbwg1Gu3iTPdn9jFLeC0PXFv8Enj9ldU-6_8fqYOcYGYQoW-AnrO6RwnMeBtvJHbD-Dlg8jHbApntIKCjb4vS3ze7XOO38G8p2JuFtdidUSvsn4eOeIEsSGZk3_h8Am6ELWnoy-OGXudv-RXMfMK2s06twxMwf_gM">The stripboard version</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="learn-index" aria-labelledby="extras-title">
+      <h2 id="extras-title">Handy extras</h2>
+      <ul class="learn-grid learn-extras">
+        <li>
+          <a class="learn-card" href="glossary/">
+            <span class="learn-card-num">REFERENCE</span>
+            <h3>Glossary</h3>
+            <p>Every word in the guides, from AWG to wetting, in a sentence or two, with a link to where it's explained.</p>
+          </a>
+        </li>
+        <li>
+          <a class="learn-card" href="bench-card/">
+            <span class="learn-card-num">PRINTABLE</span>
+            <h3>Bench card</h3>
+            <p>The temperatures, the five-step joint, quick fixes and the first power-up, on one page to keep next to the iron.</p>
+          </a>
+        </li>
+      </ul>
+
+      <h2>Numbers worth remembering</h2>
+      <div class="key-numbers">
+        <div class="key-number"><strong>2.54 mm</strong><span>Hole spacing (0.1 inch) on almost every board</span></div>
+        <div class="key-number"><strong>330 / 360 °C</strong><span>A starting iron temperature for leaded / lead-free solder</span></div>
+        <div class="key-number"><strong>2–3 s</strong><span>To make a typical through-hole joint</span></div>
+        <div class="key-number"><strong>0.8 mm</strong><span>The all-round solder diameter for through-hole work</span></div>
+        <div class="key-number"><strong>100 nF</strong><span>The decoupling capacitor at every chip's power pins</span></div>
+        <div class="key-number"><strong>22–24 AWG</strong><span>Solid wire for jumpers, buses and most connections</span></div>
+      </div>
+
+      <div class="learn-cta">
+        <div>
+          <h2>Plan it before you solder it</h2>
+          <p>Perfboard Designer is a free layout tool for perfboard and stripboard that runs in your browser: place parts, wire them, check every connection, flip to the solder side and print it at true size.</p>
+        </div>
+        <a class="button" href="../app/">Open the designer</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Perfboard Designer is open source, made by
+      <a href="https://github.com/MaurerKrisztian" target="_blank" rel="noopener">@MaurerKrisztian</a>
+      and <a href="../contributors/">contributors</a>.
+    </p>
+    <nav aria-label="Footer">
+      <a href="../">Home</a>
+      <a href="../app/">Designer</a>
+      <a href="./">Learn</a>
+      <a href="../guide/">Guide</a>
+      <a href="../mcp-server/">MCP server</a>
+      <a href="../contributors/">Contributors</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer/issues" target="_blank" rel="noopener">Report a bug</a>
+      <a href="#cookie-settings" data-consent-settings>Cookie settings</a>
+    </nav>
+  </footer>
+</body>
+</html>

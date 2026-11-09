@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 96" width="168" height="96" font-family="Inter, Arial, sans-serif">
+  <title>Copper side of a stripboard: one strip cut between two holes, a thin sliver of copper removed</title>
+  <defs>
+    <pattern id="lp-holes" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="3.2" fill="#070b12" />
+    </pattern>
+    <pattern id="lp-strips" width="24" height="24" patternUnits="userSpaceOnUse">
+      <rect y="2.5" width="24" height="19" fill="#c98545" />
+    </pattern>
+  </defs>
+  <rect width="168" height="96" fill="#0a101b" />
+  <rect width="168" height="96" fill="#5b3a1e" />
+  <rect width="168" height="96" fill="url(#lp-strips)" />
+  <rect x="94" y="26" width="4" height="20" fill="#5b3a1e" />
+  <rect width="168" height="96" fill="url(#lp-holes)" />
+  <ellipse cx="96" cy="36" rx="11" ry="15" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3 3" />
+</svg>

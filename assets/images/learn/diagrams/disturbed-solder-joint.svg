@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120" font-family="Inter, Arial, sans-serif">
+  <title>A disturbed joint: a frosty, grainy cone of solder with fine cracks</title>
+  <rect width="200" height="120" fill="#0a101b" />
+  <rect x="8" y="84" width="88" height="16" fill="#2b6a43" />
+  <rect x="104" y="84" width="88" height="16" fill="#2b6a43" />
+  <rect x="62" y="80" width="34" height="4" fill="#c98545" />
+  <rect x="104" y="80" width="34" height="4" fill="#c98545" />
+  <rect x="98" y="14" width="4" height="106" fill="#aab3bd" />
+  <path d="M62 80 Q92 77 98 58 L102 58 Q108 77 138 80 Z" fill="#b6bec8" />
+  <path d="M72 77 L79 70 L77 66 M120 76 L126 70 M90 64 L94 58 L92 54 M108 66 L112 60" fill="none" stroke="#5f6b78" stroke-width="1.2" />
+</svg>

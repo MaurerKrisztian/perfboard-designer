@@ -1,42 +1,39 @@
 {
   "version": 3,
-  "board": {
-    "type": "stripboard",
-    "cols": 20,
-    "rows": 12,
-    "strips": "horizontal",
-    "cuts": [[9, 4], [9, 5], [9, 6], [9, 7], [8, 9]]
-  },
-  "pads": [],
+  "board": {"type": "stripboard", "cols": 20, "rows": 15, "strips": "horizontal", "cuts": [[6, 3], [12, 6], [12, 7], [12, 8], [12, 9], [7, 5]]},
+  "description": "The same 555 LED blinker as the perfboard example, on stripboard: the strips run across the board and do most of the wiring, with a few links and cuts. Laid out the way the Learn guides suggest: https://perfboarddesigner.com/learn/stripboard-layout/\n\n**Strips.** From the top: +9 V, ground, the LED's strip, the chip's four rows, the timing strip and ground again.\n\n**Power in.** A 9 V battery clip plugs into J1 on the left, + at the top. D2 (1N4001) lies along the top strip across a cut, so current can only reach the circuit the right way round. C3 (100 µF) and C4 (100 nF) sit across the two supply strips.\n\n**The chip.** U1 straddles four cuts, one under each pair of facing pins, so every pin has a strip of its own. Red links take U1.8 and U1.4 (reset) to +9 V, black links take U1.1 to both ground strips, and yellow links join U1.2 and U1.6 on the timing strip.\n\n**Timing.** R1 (1 kΩ), R2 (68 kΩ) and C1 (10 µF) make the LED flash about once a second. C2 (10 nF) keeps U1.5 quiet.\n\n**Output.** R3 (470 Ω) feeds D1 from U1.3, at about 10 mA.\n\n**Mounting.** The corners are kept clear for M3 screws, a row away from any strip in use.",
+  "pads": [
+    {"at": [1, 1], "note": "M3"},
+    {"at": [18, 1], "note": "M3"},
+    {"at": [1, 13], "note": "M3"},
+    {"at": [18, 13], "note": "M3"},
+    {"at": [2, 3], "note": "+9V"},
+    {"at": [2, 4], "note": "0V"}
+  ],
   "wires": [
-    {"from": [12, 0], "to": [12, 4], "color": "#ef4444", "width": 4},
-    {"from": [3, 0], "to": [3, 7], "color": "#ef4444", "width": 4},
-    {"from": [1, 4], "to": [1, 11], "color": "#1f2937", "width": 4},
-    {"from": [6, 5], "to": [6, 8], "color": "#facc15", "width": 4},
-    {"from": [13, 6], "to": [13, 8], "color": "#facc15", "width": 4}
+    {"from": [15, 6], "to": [15, 3], "color": "#ef4444", "width": 4},
+    {"from": [10, 9], "to": [10, 3], "color": "#ef4444", "width": 4},
+    {"from": [8, 6], "to": [8, 4], "color": "#1f2937", "width": 4},
+    {"from": [7, 6], "to": [7, 11], "color": "#1f2937", "width": 4},
+    {"from": [9, 7], "to": [9, 10], "color": "#facc15", "width": 4},
+    {"from": [15, 8], "to": [15, 10], "color": "#facc15", "width": 4}
   ],
   "placedIcs": [
-    {
-      "ref": "U1",
-      "name": "NE555 Timer",
-      "widthPin": 4,
-      "heightPin": 4,
-      "rotation": 0,
-      "pinDescription": {"1": "GND", "2": "TRIG", "3": "OUT", "4": "RESET", "5": "CTRL", "6": "THRESH", "7": "DISCH", "8": "VCC"},
-      "at": [8, 4]
-    }
+    {"ref": "U1", "name": "NE555 Timer", "widthPin": 4, "heightPin": 4, "rotation": 0, "pinDescription": {"1": "GND", "2": "TRIG", "3": "OUT", "4": "RESET", "5": "CTRL", "6": "THRESH", "7": "DISCH", "8": "VCC"}, "at": [11, 6], "category": "ics.timers"}
   ],
   "placedStandardComponents": [
-    {"ref": "R1", "definitionId": "resistor", "from": [16, 0], "to": [16, 5], "value": "1k"},
-    {"ref": "R2", "definitionId": "resistor", "from": [15, 5], "to": [15, 8], "value": "47k"},
-    {"ref": "R3", "definitionId": "resistor", "from": [5, 6], "to": [5, 9], "value": "470"},
-    {"ref": "C1", "definitionId": "electrolytic-capacitor", "from": [9, 11], "to": [9, 8], "value": "10u"},
-    {"ref": "C2", "definitionId": "ceramic-capacitor", "from": [17, 7], "to": [17, 11], "value": "10n"},
-    {"ref": "D1", "definitionId": "led", "from": [7, 11], "to": [7, 9], "color": "red"}
+    {"ref": "D2", "definitionId": "diode", "from": [4, 3], "to": [8, 3], "value": "1N4001"},
+    {"ref": "C3", "definitionId": "electrolytic-capacitor", "from": [9, 4], "to": [9, 3], "value": "100u"},
+    {"ref": "C4", "definitionId": "ceramic-capacitor", "from": [13, 4], "to": [13, 3], "value": "100n"},
+    {"ref": "R1", "definitionId": "resistor", "from": [16, 3], "to": [16, 7], "value": "1k"},
+    {"ref": "R2", "definitionId": "resistor", "from": [17, 7], "to": [17, 10], "value": "68k"},
+    {"ref": "C1", "definitionId": "electrolytic-capacitor", "from": [13, 11], "to": [13, 10], "value": "10u"},
+    {"ref": "C2", "definitionId": "ceramic-capacitor", "from": [16, 9], "to": [16, 11], "value": "10n"},
+    {"ref": "R3", "definitionId": "resistor", "from": [6, 8], "to": [6, 5], "value": "470"},
+    {"ref": "D1", "definitionId": "led", "from": [5, 4], "to": [5, 5], "color": "red"}
   ],
   "placedAdvancedComponents": [
-    {"ref": "J1", "definitionId": "header-pins", "at": [0, 0], "rotation": 0, "rows": 1, "cols": 1, "value": "+9V"},
-    {"ref": "J2", "definitionId": "header-pins", "at": [0, 11], "rotation": 0, "rows": 1, "cols": 1, "value": "GND"}
+    {"ref": "J1", "definitionId": "header-pins", "at": [3, 3], "rotation": 0, "rows": 2, "cols": 1}
   ],
   "customIcs": []
 }

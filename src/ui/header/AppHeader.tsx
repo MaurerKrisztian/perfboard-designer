@@ -70,6 +70,7 @@ export function AppHeader() {
               <MenuItem onClick={() => openDialog({kind: "tour", chapter: "concepts"})}>Tour: How Boards Work...</MenuItem>
               <MenuItem onClick={() => openDialog({kind: "tour", chapter: "features"})}>Tour: More Features...</MenuItem>
               <MenuLink href="../guide/">User Guide</MenuLink>
+              <MenuLink href="../learn/">Layout &amp; Soldering Guides</MenuLink>
               <MenuLink href="../mcp-server/">Design with AI (MCP)</MenuLink>
               <MenuDivider/>
               <MenuLink href="https://github.com/MaurerKrisztian/perfboard-designer/issues">Report a Bug</MenuLink>

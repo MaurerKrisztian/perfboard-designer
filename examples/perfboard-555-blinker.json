@@ -1,58 +1,46 @@
 {
-  "version": 3,
-  "board": {"type":"perfboard","cols":14,"rows":12},
-  "pads": [],
+  "version": 9,
+  "board": {"type": "perfboard", "cols": 20, "rows": 15},
+  "description": "An NE555 timer flashes a red LED about once a second from a 9 V battery, laid out the way the Learn guides suggest: https://perfboarddesigner.com/learn/\n\n**Power in.** The battery's leads go into the screw terminal J1 on the left edge, + at the top. D2 (1N4001) protects the circuit from a battery connected the wrong way round, and C3 (100 µF) steadies the supply right where it comes in.\n\n**Rails.** Bare tinned wire on the solder side carries +9 V along the top and ground along the bottom, and a ground bus runs from J1 past C3 to U1.1.\n\n**The timer.** U1 sits in the middle, in an 8-pin socket, with C4 (100 nF) right across its supply pins U1.8 and U1.1. The red jumper ties U1.4 (reset) to +9 V. A short link under the socket, on the solder side, joins U1.2 to U1.6.\n\n**Timing.** R1 (1 kΩ), R2 (68 kΩ) and C1 (10 µF) set the speed: about 0.48 s on and 0.47 s off. C2 (10 nF) keeps U1.5 quiet.\n\n**Output.** U1.3 lights D1 through R3 (470 Ω), at about 10 mA.\n\n**Mounting.** The four corners are kept clear for M3 screws.",
+  "pads": [
+    {"at": [1, 1], "note": "M3"},
+    {"at": [18, 1], "note": "M3"},
+    {"at": [1, 13], "note": "M3"},
+    {"at": [18, 13], "note": "M3"},
+    {"at": [1, 2], "note": "+9V"},
+    {"at": [1, 8], "note": "0V"}
+  ],
   "wires": [
-    {"from":[0,0],"to":[2,0],"color":"#ef4444"},
-    {"from":[2,0],"to":[9,0],"color":"#ef4444"},
-    {"from":[9,0],"to":[11,0],"color":"#ef4444"},
-    {"from":[11,0],"to":[11,1],"color":"#ef4444"},
-    {"from":[9,4],"to":[9,0],"color":"#ef4444"},
-    {"from":[6,7],"to":[2,7],"color":"#ef4444"},
-    {"from":[2,7],"to":[2,0],"color":"#ef4444"},
-    {"from":[0,1],"to":[0,11],"color":"#1f2937"},
-    {"from":[0,11],"to":[3,11],"color":"#1f2937"},
-    {"from":[3,11],"to":[5,11],"color":"#1f2937"},
-    {"from":[5,11],"to":[9,11],"color":"#1f2937"},
-    {"from":[9,11],"to":[11,11],"color":"#1f2937"},
-    {"from":[6,4],"to":[5,4],"color":"#1f2937"},
-    {"from":[5,4],"to":[5,11],"color":"#1f2937"},
-    {"from":[9,10],"to":[9,11],"color":"#1f2937"},
-    {"from":[11,10],"to":[11,11],"color":"#1f2937"},
-    {"from":[9,5],"to":[11,5]},
-    {"from":[11,4],"to":[11,5]},
-    {"from":[9,6],"to":[10,6],"color":"#facc15"},
-    {"from":[10,6],"to":[10,8],"color":"#facc15"},
-    {"from":[10,8],"to":[11,8],"color":"#facc15"},
-    {"from":[6,5],"to":[4,5],"color":"#facc15"},
-    {"from":[4,5],"to":[4,3],"color":"#facc15"},
-    {"from":[4,3],"to":[10,3],"color":"#facc15"},
-    {"from":[10,3],"to":[10,6],"color":"#facc15"},
-    {"from":[11,8],"to":[11,9],"color":"#facc15"},
-    {"from":[9,7],"to":[9,8]},
-    {"from":[6,6],"to":[3,6]},
-    {"from":[3,9],"to":[3,10]}
+    {"from": [1, 4], "to": [3, 4], "kind": "solder"},
+    {"from": [1, 6], "to": [10, 5], "via": [[10, 6]], "kind": "solder"},
+    {"from": [3, 6], "to": [16, 12], "via": [[3, 12]], "kind": "solder"},
+    {"from": [7, 5], "to": [15, 2], "via": [[7, 2]], "kind": "solder"},
+    {"from": [7, 4], "to": [7, 5], "kind": "solder"},
+    {"from": [13, 2], "to": [13, 6], "kind": "solder"},
+    {"from": [10, 9], "to": [9, 2], "via": [[9, 9]], "color": "#ef4444"},
+    {"from": [10, 7], "to": [13, 8], "via": [[11, 7], [11, 8]], "color": "#facc15", "side": "bottom"},
+    {"from": [10, 8], "to": [8, 10], "via": [[8, 8]], "kind": "solder"},
+    {"from": [4, 10], "to": [4, 11], "kind": "solder"},
+    {"from": [13, 7], "to": [15, 6], "via": [[15, 7]], "kind": "solder"},
+    {"from": [13, 8], "to": [16, 11], "via": [[14, 8], [14, 11]], "kind": "solder"},
+    {"from": [13, 9], "to": [13, 10], "kind": "solder"}
   ],
   "placedIcs": [
-    {
-      "ref": "U1",
-      "name": "NE555 Timer",
-      "widthPin": 4,
-      "heightPin": 4,
-      "rotation": 0,
-      "pinDescription": {"1":"GND","2":"TRIG","3":"OUT","4":"RESET","5":"CTRL","6":"THRESH","7":"DISCH","8":"VCC"},
-      "at": [6,4],
-      "category": "ics.timers"
-    }
+    {"ref": "U1", "name": "NE555 Timer", "widthPin": 4, "heightPin": 4, "rotation": 0, "pinDescription": {"1": "GND", "2": "TRIG", "3": "OUT", "4": "RESET", "5": "CTRL", "6": "THRESH", "7": "DISCH", "8": "VCC"}, "at": [10, 6], "category": "ics.timers"}
   ],
   "placedStandardComponents": [
-    {"ref":"R1","definitionId":"resistor","from":[11,1],"to":[11,4],"value":"1k"},
-    {"ref":"R2","definitionId":"resistor","from":[11,5],"to":[11,8],"value":"68k"},
-    {"ref":"C1","definitionId":"electrolytic-capacitor","from":[11,10],"to":[11,9],"value":"10u"},
-    {"ref":"C2","definitionId":"ceramic-capacitor","from":[9,8],"to":[9,10],"value":"10n"},
-    {"ref":"R3","definitionId":"resistor","from":[3,6],"to":[3,9],"value":"470"},
-    {"ref":"D1","definitionId":"led","from":[3,11],"to":[3,10],"color":"#ef4444"}
+    {"ref": "D2", "definitionId": "diode", "from": [3, 4], "to": [7, 4], "value": "1N4001"},
+    {"ref": "C3", "definitionId": "electrolytic-capacitor", "from": [7, 6], "to": [7, 5], "value": "100u"},
+    {"ref": "C4", "definitionId": "ceramic-capacitor", "from": [10, 5], "to": [13, 5], "value": "100n"},
+    {"ref": "R1", "definitionId": "resistor", "from": [15, 2], "to": [15, 6], "value": "1k"},
+    {"ref": "R2", "definitionId": "resistor", "from": [15, 7], "to": [15, 11], "value": "68k"},
+    {"ref": "C1", "definitionId": "electrolytic-capacitor", "from": [16, 12], "to": [16, 11], "value": "10u"},
+    {"ref": "C2", "definitionId": "ceramic-capacitor", "from": [13, 10], "to": [13, 12], "value": "10n"},
+    {"ref": "R3", "definitionId": "resistor", "from": [8, 10], "to": [4, 10], "value": "470"},
+    {"ref": "D1", "definitionId": "led", "from": [4, 12], "to": [4, 11], "color": "red"}
   ],
-  "placedAdvancedComponents": [{"ref":"J1","definitionId":"header-pins","at":[0,0],"rotation":0,"rows":2,"cols":1}],
+  "placedAdvancedComponents": [
+    {"ref": "J1", "definitionId": "screw-terminal-2", "at": [1, 4], "rotation": 90, "rows": 1, "cols": 1}
+  ],
   "customIcs": []
 }

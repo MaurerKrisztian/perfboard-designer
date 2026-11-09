@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 120" width="168" height="120" font-family="Inter, Arial, sans-serif">
+  <title>A breadboard: plastic with rows of holes, one row of five highlighted, and a power rail along the top</title>
+  <defs>
+    <pattern id="lp-bb-holes" width="12" height="12" patternUnits="userSpaceOnUse">
+      <rect x="4" y="4" width="4" height="4" rx="0.8" fill="#57534e" />
+    </pattern>
+  </defs>
+  <rect width="168" height="120" fill="#0a101b" />
+  <rect width="168" height="120" fill="#e7e2d6" />
+  <rect x="1" y="1" width="166" height="10" rx="3" fill="#ef4444" fill-opacity="0.3" />
+  <rect width="168" height="24" fill="url(#lp-bb-holes)" />
+  <line x1="6" y1="27.5" x2="162" y2="27.5" stroke="#ef4444" stroke-width="1.5" />
+  <rect x="49" y="37" width="10" height="58" rx="3" fill="#d08c4c" fill-opacity="0.6" />
+  <rect y="36" width="168" height="60" fill="url(#lp-bb-holes)" />
+  <rect y="100" width="168" height="6" fill="#d3ccbc" />
+  <rect y="108" width="168" height="12" fill="url(#lp-bb-holes)" />
+  <line x1="54" y1="78" x2="102" y2="78" stroke="#8b949e" stroke-width="2" />
+  <rect x="66" y="73" width="24" height="10" rx="4" fill="#d8c49a" />
+  <rect x="71" y="73" width="3" height="10" fill="#a16207" />
+  <rect x="77" y="73" width="3" height="10" fill="#111827" />
+  <rect x="83" y="73" width="3" height="10" fill="#dc2626" />
+</svg>

@@ -8,6 +8,13 @@ const os = require("os");
 const path = require("path");
 const { createDirector, overlays, REPO } = require("./director.cjs");
 
+// How the browser draws WebGL (`--gl`): in software by default, which works anywhere, or on the
+// machine's GPU, for the 3D view's clip (README.md).
+const GL_ARGS = {
+  swiftshader: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"],
+  gpu: ["--use-angle=gl", "--enable-gpu", "--ignore-gpu-blocklist"],
+};
+
 function args() {
   const argv = process.argv.slice(2);
   const opts = {};
@@ -16,10 +23,15 @@ function args() {
     if (argv[i].startsWith("--")) opts[argv[i].slice(2)] = argv[++i];
     else scenes.push(argv[i]);
   }
-  if (!scenes.length || (scenes.length > 1 && opts.out)) {
+  if (
+    !scenes.length ||
+    (scenes.length > 1 && opts.out) ||
+    (opts.gl && !GL_ARGS[opts.gl])
+  ) {
     console.error(
       "Usage: record.cjs <scene.cjs> [--out file.mp4] [--size WxH] [--url editor-url]\n" +
-        "       record.cjs <scene.cjs>... --out-dir dir"
+        "       record.cjs <scene.cjs>... --out-dir dir\n" +
+        "       [--gl swiftshader|gpu] [--browser path-to-chromium]"
     );
     process.exit(1);
   }
@@ -146,7 +158,9 @@ async function warmUp(browser, url) {
   const { chromium } = require("playwright");
   const server = opts.url ? { url: opts.url, stop() {} } : await startServer();
   const browser = await chromium.launch({
-    args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"],
+    args: GL_ARGS[opts.gl ?? "swiftshader"],
+    // `--browser`: a Chromium of its own, when Playwright's isn't installed.
+    executablePath: opts.browser,
   });
   try {
     await warmUp(browser, server.url);

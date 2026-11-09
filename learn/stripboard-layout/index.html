@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <!-- Google Analytics, only once the visitor accepts it: consent.js -->
+    <script src="../../consent.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stripboard (Veroboard) Layout: Strips, Cuts and Links</title>
+    <meta name="description" content="How to lay out stripboard (Veroboard): thinking in strips, chips across cuts, power rails and links, cutting tracks cleanly and avoiding bridges." />
+    <link rel="canonical" href="https://perfboarddesigner.com/learn/stripboard-layout/" />
+    <meta name="theme-color" content="#0b1220" />
+    <link rel="icon" type="image/png" href="../../favicon.png" />
+
+    <!-- Link previews (Facebook, LinkedIn, Discord, Slack, X...) -->
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Perfboard Designer" />
+    <meta property="og:title" content="Stripboard layout: strips, cuts and links" />
+    <meta property="og:description" content="Think in strips: chips across cuts, rails and links, cutting tracks cleanly, and reading layouts the right way round." />
+    <meta property="og:url" content="https://perfboarddesigner.com/learn/stripboard-layout/" />
+    <meta property="og:image" content="https://perfboarddesigner.com/images/learn/og/stripboard-layout.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Stripboard layout: strips, cuts and links, with a 555 LED blinker on stripboard" />
+    <meta property="article:published_time" content="2026-11-09" />
+    <meta property="article:modified_time" content="2026-11-09" />
+    <meta name="author" content="Krisztian Maurer" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="/src/landing/landing.css" />
+    <link rel="stylesheet" href="/src/guide/guide.css" />
+    <link rel="stylesheet" href="/src/learn/learn.css" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "TechArticle",
+          "headline": "Stripboard layout: strips, cuts and links",
+          "description": "How to lay out stripboard (Veroboard): thinking in strips, chips across cuts, power rails and links, cutting tracks cleanly and avoiding bridges.",
+          "url": "https://perfboarddesigner.com/learn/stripboard-layout/",
+          "mainEntityOfPage": "https://perfboarddesigner.com/learn/stripboard-layout/",
+          "image": "https://perfboarddesigner.com/images/learn/og/stripboard-layout.jpg",
+          "datePublished": "2026-11-09",
+          "dateModified": "2026-11-09",
+          "inLanguage": "en",
+          "proficiencyLevel": "Beginner",
+          "keywords": "stripboard layout, Veroboard layout, how to cut stripboard tracks, stripboard track cutter, stripboard IC cuts, stripboard tips",
+          "author": {
+            "@type": "Person",
+            "name": "Krisztian Maurer",
+            "url": "https://github.com/MaurerKrisztian"
+          },
+          "isPartOf": {
+            "@type": "CollectionPage",
+            "name": "Learn: perfboard layout, wiring, soldering and testing",
+            "url": "https://perfboarddesigner.com/learn/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://perfboarddesigner.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Learn",
+              "item": "https://perfboarddesigner.com/learn/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Stripboard (Veroboard) layout",
+              "item": "https://perfboarddesigner.com/learn/stripboard-layout/"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What drill bit size do I use to cut stripboard tracks?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "A sharp bit about 3 to 4 mm across, turned by hand in the hole, or a purpose-made spot-face cutter. It only has to cut through the copper ring around the hole, not through the board."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Should I cut stripboard tracks before or after soldering?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Either works. Cutting first is easier on a flat, clean board; cutting afterwards lets you count from the solder joints. Whichever you choose, check every cut against a light and with a meter."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I cut a stripboard track between holes?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes: make two knife cuts about 1 mm apart across the strip and lift out the copper between them. Both holes stay usable, which allows tighter layouts."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../../" aria-label="Perfboard Designer home">
+      <span class="brand-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <circle cx="6" cy="6" r="2" />
+          <circle cx="18" cy="6" r="2" />
+          <circle cx="6" cy="18" r="2" />
+          <circle cx="18" cy="18" r="2" />
+          <path d="M8 6h8M6 8v8M18 8v8M8 18h8" />
+        </svg>
+      </span>
+      <span class="brand-title">Perfboard Designer</span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="../">Learn</a>
+      <a href="../../guide/">Guide</a>
+      <a href="../../mcp-server/">AI agents</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <a class="button button-small" href="../../app/">Open the designer</a>
+  </header>
+
+  <main>
+    <div class="learn-band">
+      <div class="guide-hero">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <ol>
+            <li><a href="../../">Home</a></li>
+            <li><a href="../">Learn</a></li>
+            <li aria-current="page">Stripboard (Veroboard) layout</li>
+          </ol>
+        </nav>
+        <p class="eyebrow">Part 4 of 7 · Stripboard</p>
+        <h1>Stripboard layout: strips, cuts and links</h1>
+        <p class="lead">Stripboard does half the wiring for you: every row is already a wire. Your job is to decide where those wires stop. Here&#x27;s how to plan a stripboard layout, cut tracks cleanly and dodge the classic mistakes.</p>
+        <p class="guide-meta byline">By <a href="https://github.com/MaurerKrisztian" rel="author">Krisztian Maurer</a>, maker of Perfboard Designer · Updated <time datetime="2026-11-09">November 9, 2026</time></p>
+        <p class="guide-meta">About 8 minutes to read · Written for beginners · New words? See the <a href="../glossary/">glossary</a></p>
+      </div>
+    </div>
+
+    <div class="guide-layout">
+      <nav class="guide-toc learn-toc" aria-labelledby="toc-title">
+        <h2 id="toc-title">On this page</h2>
+        <ol>
+          <li><a href="#strips">Think in strips</a></li>
+          <li><a href="#chips">Chips sit across a cut</a></li>
+          <li><a href="#rails">Power rails and links</a></li>
+          <li><a href="#plan">Planning the layout</a></li>
+          <li><a href="#cutting">Cutting tracks</a></li>
+          <li><a href="#checking">Check every cut</a></li>
+          <li><a href="#soldering">Soldering on stripboard</a></li>
+          <li><a href="#reading">Reading stripboard layouts</a></li>
+          <li><a href="#example">Worked example: the 555 blinker on stripboard</a></li>
+          <li><a href="#gotchas">Classic gotchas</a></li>
+          <li><a href="#faq">Frequently asked questions</a></li>
+          <li><a href="#sources">Further reading</a></li>
+        </ol>
+      </nav>
+
+      <article class="guide-article learn-article">
+        <section id="strips">
+          <h2>Think in strips</h2>
+          <p>
+            On stripboard, every strip is a connection that already exists: a wire running the length
+            of the board. Building a circuit comes down to three moves:
+          </p>
+          <ol>
+            <li><strong>Place parts across strips.</strong> A resistor with its leads on two different strips joins those two connections, exactly like a line on the schematic.</li>
+            <li><strong>Cut strips</strong> where a connection has to stop, so one strip can carry two or more different connections along its length.</li>
+            <li><strong>Add links:</strong> short wires running across the strips, to join strips that aren't next to each other.</li>
+          </ol>
+          <p>
+            So the trick is to give each connection in your schematic its own strip, or its own
+            stretch of strip between cuts. A part never lies <em>along</em> a strip unless the strip
+            is cut between its leads: otherwise both leads land on the same connection, and the part
+            is shorted out.
+          </p>
+          <div class="tile-grid tile-grid-3">
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/stripboard-cut-at-a-hole.svg" width="168" height="96" loading="lazy" decoding="async" alt="Copper side of a stripboard: one strip cut at a hole, the copper ring around that hole removed" />
+              <figcaption><strong>Cut at a hole</strong> A spot-face cutter or a 3–4 mm drill bit, turned by hand, removes the copper round one hole. That hole is lost.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/stripboard-cut-between-holes.svg" width="168" height="96" loading="lazy" decoding="async" alt="Copper side of a stripboard: one strip cut between two holes, a thin sliver of copper removed" />
+              <figcaption><strong>Cut between holes</strong> Two knife cuts about 1 mm apart, and the sliver of copper lifted out. Both holes stay usable.</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="../../images/learn/diagrams/stripboard-chip-across-cuts.svg" width="168" height="96" loading="lazy" decoding="async" alt="Copper side of a stripboard under an 8-pin chip: each strip under the chip is cut between the two rows of pins, and pin 1 is at top right" />
+              <figcaption><strong>A chip across the cuts</strong> From the copper side: every strip under the chip is cut between its two rows of pins. Pin 1 (yellow) is top right from this side.</figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <section id="chips">
+          <h2>Chips sit across a cut</h2>
+          <p>
+            A DIP chip goes on with its two rows of pins running across the strips, so each pin gets a
+            strip to itself. That would leave each pin on the same strip as the pin opposite it
+            (pin 1 with pin 8, on an 8-pin chip), so the strips under the chip must be <strong>cut
+            between its two rows of pins</strong>. Every DIP chip on stripboard needs these cuts, and
+            forgetting them is the most common stripboard mistake.
+          </p>
+          <p>
+            The bonus is that each pin now has its own half-strip reaching out to the side, where the
+            parts for that pin can plug straight in.
+          </p>
+        </section>
+
+        <section id="rails">
+          <h2>Power rails and links</h2>
+          <p>
+            Pick a strip for each supply: the board's top and bottom strips, or the strips just above
+            and below a chip, are common choices. Leave them uncut. Links then carry power wherever
+            it's needed, running across the strips just as components do: bare tinned wire, or
+            insulated wire where a link might touch something.
+          </p>
+          <p>
+            Keep links straight and at right angles to the strips, and keep their number down. If
+            you're adding lots of links, a part is probably in the wrong place.
+          </p>
+        </section>
+
+        <section id="plan">
+          <h2>Planning the layout</h2>
+          <p>
+            Stripboard rewards planning more than any other board, because a cut in the wrong place,
+            or a part one hole out, changes the circuit. A method that works:
+          </p>
+          <ol>
+            <li><strong>Decide the strip direction,</strong> and draw the board from the component side with the strips shown faintly, as if you could see through it.</li>
+            <li><strong>Place the chip</strong> roughly in the middle, mark the cuts under it, and choose the rail strips.</li>
+            <li><strong>Work round the chip pin by pin,</strong> from pin 1, placing the parts that connect to each pin across its strip.</li>
+            <li><strong>Reuse strips:</strong> a part that needs ground can land on any strip that's already linked to ground.</li>
+            <li><strong>Mark every cut and link,</strong> then check every connection against the schematic. Check the ones you <em>don't</em> want too: two parts sharing a strip by accident are connected.</li>
+          </ol>
+        </section>
+
+        <section id="cutting">
+          <h2>Cutting tracks</h2>
+          <p>There are two kinds of cut:</p>
+          <ul>
+            <li><strong>At a hole.</strong> Twist a <strong>spot-face cutter</strong>, the purpose-made tool, or a sharp <strong>drill bit about 3 to 4 mm across</strong>, in the hole by hand until the copper ring around it has gone. You're cutting the copper, not drilling through the board: a few turns is enough. The hole is lost to the circuit.</li>
+            <li><strong>Between holes.</strong> With a sharp craft knife, make two cuts across the strip about 1 mm apart and lift out the sliver of copper between them. It's fiddlier, but both holes stay usable, so your layout can be tighter.</li>
+          </ul>
+          <p>
+            Some builders cut before soldering, while the board is flat and easy to see. Others cut
+            afterwards, counting from the solder joints. Either works, as long as every cut matches
+            the plan.
+          </p>
+          <div class="warning">
+            <span class="callout-label">Watch out</span>
+            <p>
+              Brush the board after cutting (an old toothbrush is ideal). Loose curls of copper can
+              lodge between strips and short them.
+            </p>
+          </div>
+        </section>
+
+        <section id="checking">
+          <h2>Check every cut</h2>
+          <p>A cut that leaves a hair of copper is no cut at all. Check each one:</p>
+          <ul class="checklist">
+            <li>Hold the board up to a bright light: a good cut shows a clean gap right across the strip.</li>
+            <li>Look with a magnifier, or your phone's camera zoomed in, for thin copper whiskers bridging the gap.</li>
+            <li>Put a meter's probes either side of the cut, in continuity mode: it should stay silent.</li>
+          </ul>
+        </section>
+
+        <section id="soldering">
+          <h2>Soldering on stripboard</h2>
+          <p>
+            The gap between strips is narrow, so solder bridges between neighboring strips are the
+            classic stripboard fault. Use a little less solder than feels natural and keep each joint
+            on its own strip. Afterwards, run a sharp blade along the gaps beside your joints to clear
+            any hairline bridge you can't see, then check the gaps against a light again.
+          </p>
+        </section>
+
+        <section id="reading">
+          <h2>Reading stripboard layouts</h2>
+          <p>
+            Stripboard layouts in books, magazines and websites are usually drawn from the
+            <strong>component side</strong>, with the strips shown faintly as if you could see through
+            the board and the cuts marked with an ✕. Some are drawn from the copper side instead,
+            which is a mirror image. Before you cut anything, work out which you have: on a
+            component-side drawing, the parts' labels read normally.
+          </p>
+          <p>
+            When you turn the board over to cut, the cuts flip left to right: the same
+            <a href="../perfboard-layout/#mirror">mirror-image trap</a> as on perfboard. Count from a
+            marked corner, and cut from a copper-side copy of the plan if you can.
+          </p>
+        </section>
+
+        <section id="example">
+          <h2>Worked example: the 555 blinker on stripboard</h2>
+          <div class="figure-pair">
+            <figure class="hero-shot">
+              <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Component side</span></div>
+              <img src="../../images/learn/blinker-stripboard.webp" width="1000" height="750" loading="lazy" decoding="async" alt="A 555 LED blinker on stripboard with horizontal strips, seen from the component side, with links in red, black and yellow" />
+              <figcaption>From the component side: strips run across, parts and links run between them.</figcaption>
+            </figure>
+            <figure class="hero-shot">
+              <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Copper side</span></div>
+              <img src="../../images/learn/blinker-stripboard-copper-side.webp" width="1000" height="750" loading="lazy" decoding="async" alt="The same stripboard turned over, mirrored, with each strip cut marked with a red cross" />
+              <figcaption>Turned over to cut and solder: mirrored, with every cut marked ✕.</figcaption>
+            </figure>
+          </div>
+          <p>
+            The same LED flasher as in the <a href="../perfboard-layout/#example">perfboard example</a>,
+            on a stripboard 20 holes by 15 with horizontal strips. +9 V and ground run side by side along
+            the top, so the supply capacitors C3 and C4 sit straight across them, and a second ground
+            strip runs along the bottom for the timing parts. The diode D2 lies along the +9 V strip
+            across a cut, so the battery only reaches the circuit through it. The chip straddles four
+            cuts, giving each of its eight pins a half-strip of its own: red links take pins 8 and 4 to
+            +9 V, black links take pin 1 to both ground strips, and yellow links join pins 2 and 6 on
+            the timing strip. One more cut keeps the LED's strip short. The battery comes in on J1, a
+            2-pin header rather than the perfboard's screw terminal, since its pins sit on neighboring
+            strips. Eleven parts, six links, six cuts.
+          </p>
+          <p>
+            <a class="button button-small" href="../../view/#name=555%20blinker%20(stripboard)&amp;z=jVZLcts4EL1KV88itoPIhET9uEtJTuKU8yn5s3G0gMmmhDEFcADQisblA80B5gJzgDnTFAjSkmN5khVJNPp19-vXAO_xjoyVWmHSY3ijhckwuUe3KQkTtM7IMiwyTHVhMelGDI1eW0x4n4UNFhNcaiP_1MqJwu-snMXk-nrAenN2zbtsEB7D8BiFx3jOroesP58_MMzIpkaWrk4EL5YEVqwI-v0-nJ1M4aaQ6pYMCAtuSVCSyeusgL6LVVkQA61gm2xS7wq5gakUiNRoG3yDn1AZZBpW2jrQeW1YSyPVgsFauiUIyGkNPqqt9_qKOnAmZAa6cmG_2NTPMxJGwaKSGVmw1WJB1iWwdK60yfHxY6oZWblQZDqpXh0X3ud4m_CbQmx05Y6_qW_q6Oi8TrxzdATvjF7VQZwuE3g9hisGC6MrlbEQ-2T6yoZCw0K6lOUrC7muDPguhVUnV1Itwr66nIABYiGk6oSgX_WaDEjlw76FMVzBjXCOzAbSQpZQFtXCglROw0fu2fa4BeWOwWsQrk2yA9MuHPDPcRTxQygkWRCFVovW3uYQ-iE8rwyshrQyhpSDVCjQqtiAIZEuQ0nSpJUMEYxcLF3NfF1AByY9OOBRBP_8_e6wrmwShwX17hCsdLudd2sNtirLYtNIo6n8ouHNV37JvU1kWUENi77zXl4ElcrIQJ1XKaTxuslF6oktpbJ1GXTnCSulgqXw5YVqdQ7SWdBr1YEZZY2snLgluOSdUZ33Je_EcGDIkjsEp5te3xQivf1hP_fmG-2WbRdDMayG2VBR6Fa4v2upvEe3jTBoG7criJaFeslzMONwwOH2378OGcy6cDAY1R-BXm9r6F75hBoVQl4IuwRx46dDq5R88ZTqukfd2sd35JaotD6TPvxRSXJN7C-VKytXx-7BQTyMwMfLiTILUw65n4JL3ukxr7QQg0ewetu4f9KVck3ydTO1UWQsCENwS6WD1M8b5NrApx7Y1JAfDOEHBIQXUx1AqEYXIBVUljrIsBSZP8juUThMrjnjc4ZKO380furhA2sNoxctjPde9nnB1GU7htfjq11LvLVEV_gwZ7iWhkKSvgyP3PfnLTod3j1WqgttMMHfKI_jOEbvlbklJrGHbv0ifyQ3ftGv-4224UZ1fo9ePO-Oe8P9XsOt15Bx_qtuY3-JBLcx49GuWy7SlPdfqK3vb51HTn7mOGdYFiKl7DQN1BrKMcFLjgyVWHn2P5_4y-lCrsi0nl-lwiRmuCR_TLVfRjsR7rWIYSnVdPequ0eOCb7_PEWGXX_zzU7fI8MeJvjl8gIZxpjg7OT8xL_3McHJxewMGQ783g-zk_MPyHCICU5Pzyf-fYQJXk0m-MAamfGa51Q4WmizwQRlajvOp21xW-e5EyoTJpvoVakVKbdb9rSL_obOpZI-69MME8ykzghZy29cy6XRgH-9E0XlaQpXQa3gADbpPQejglJndLFxMn2TilKk0mmzRR_Xsmqa_gQ9iqpd7Pg5dkpGrPbD8t4Wl_d-BFY7wDP-HNiQlfYp3mDLAh_UQn3Eu91F28PnHrThVup8GCTbwg1Gu3iTPdn9jFLeC0PXFv8Enj9ldU-6_8fqYOcYGYQoW-AnrO6RwnMeBtvJHbD-Dlg8jHbApntIKCjb4vS3ze7XOO38G8p2JuFtdidUSvsn4eOeIEsSGZk3_h8Am6ELWnoy-OGXudv-RXMfMK2s06twxMwf_gM">See this board up close</a>
+          </p>
+          <p>The circuit itself, with its schematic and parts list, is explained in <a href="../555-led-blinker/">the 555 LED blinker project</a>.</p>
+        </section>
+
+        <section id="gotchas">
+          <h2>Classic gotchas</h2>
+          <ul class="checklist">
+            <li><strong>No cuts under a chip:</strong> facing pins shorted together. Check every DIP chip.</li>
+            <li><strong>Cuts in mirror image:</strong> cut from the copper side, using a copper-side plan.</li>
+            <li><strong>A part along a strip</strong> instead of across it, shorting itself out.</li>
+            <li><strong>Hairline bridges</strong> between strips, from solder or copper curls.</li>
+            <li><strong>Long unused strip ends.</strong> Neighboring strips have a little capacitance between them, and long spare ends act like small antennas. That's harmless in most hobby circuits, but in high-frequency or very sensitive ones, cut spare strips short or trim the board.</li>
+          </ul>
+          <div class="pd-note">
+            <span class="callout-label">In Perfboard Designer</span>
+            <p>
+              Switch the board to Stripboard, choose the strip direction, and cut with the Cut tool.
+              The Nets panel follows every strip and cut, so a missing cut shows up as two connections
+              merged into one, and the solder side view marks every cut to make with a red ✕,
+              mirrored the way you'll see it. Its cuts are at a hole, the way a spot-face cutter makes
+              them: it can't show a cut between two holes.
+            </p>
+          </div>
+          <figure class="hero-shot tour-clip">
+            <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Cutting a strip</span></div>
+            <video src="../../tour/strips-cuts.mp4" poster="../../tour/strips-cuts.webp" width="960" height="562" controls muted loop playsinline preload="none" aria-label="Cutting a strip in Perfboard Designer"></video>
+            <figcaption>A strip joins both leads of this resistor, until the Cut tool breaks the strip between them.</figcaption>
+          </figure>
+        </section>
+
+        <section id="faq">
+          <h2>Frequently asked questions</h2>
+          <div class="faq">
+            <details>
+              <summary>What drill bit size do I use to cut stripboard tracks?</summary>
+              <p>A sharp bit about 3 to 4 mm across, turned by hand in the hole, or a purpose-made spot-face cutter. It only has to cut through the copper ring around the hole, not through the board.</p>
+            </details>
+            <details>
+              <summary>Should I cut stripboard tracks before or after soldering?</summary>
+              <p>Either works. Cutting first is easier on a flat, clean board; cutting afterwards lets you count from the solder joints. Whichever you choose, check every cut against a light and with a meter.</p>
+            </details>
+            <details>
+              <summary>Can I cut a stripboard track between holes?</summary>
+              <p>Yes: make two knife cuts about 1 mm apart across the strip and lift out the copper between them. Both holes stay usable, which allows tighter layouts.</p>
+            </details>
+          </div>
+        </section>
+
+        <section id="sources">
+          <h2>Further reading</h2>
+          <p>The sources behind this guide, and good places to go deeper:</p>
+          <ul class="sources">
+            <li><a href="https://electronicsclub.info/stripboard.htm" rel="noopener">Stripboard</a> (Electronics Club)</li>
+            <li><a href="https://en.wikipedia.org/wiki/Stripboard" rel="noopener">Stripboard</a> (Wikipedia)</li>
+            <li><a href="https://www.instructables.com/Practical-Circuit-Construction-With-Strip-Board/" rel="noopener">Practical circuit construction with strip board</a> (Instructables)</li>
+            <li><a href="https://www.eevblog.com/forum/beginners/best-stripboard-trace-cutting-tool/" rel="noopener">Best stripboard trace cutting tool?</a> (EEVblog forum)</li>
+          </ul>
+        </section>
+
+        <div class="learn-cta">
+          <div>
+            <h2>Plan your next board in Perfboard Designer</h2>
+            <p>Free, in your browser, no sign-up: lay out perfboard or stripboard, check every connection, flip to the solder side and print it at true size.</p>
+          </div>
+          <a class="button" href="../../app/">Open the designer</a>
+        </div>
+
+        <nav class="article-pager" aria-label="More guides in this series">
+          <a class="pager-prev" href="../perfboard-wiring/"><span>← Previous</span><strong>Wire a perfboard</strong></a>
+          <a class="pager-next" href="../soldering-tools-and-safety/"><span>Next →</span><strong>Soldering tools and safety</strong></a>
+        </nav>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Perfboard Designer is open source, made by
+      <a href="https://github.com/MaurerKrisztian" target="_blank" rel="noopener">@MaurerKrisztian</a>
+      and <a href="../../contributors/">contributors</a>.
+    </p>
+    <nav aria-label="Footer">
+      <a href="../../">Home</a>
+      <a href="../../app/">Designer</a>
+      <a href="../">Learn</a>
+      <a href="../../guide/">Guide</a>
+      <a href="../../mcp-server/">MCP server</a>
+      <a href="../../contributors/">Contributors</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/MaurerKrisztian/perfboard-designer/issues" target="_blank" rel="noopener">Report a bug</a>
+      <a href="#cookie-settings" data-consent-settings>Cookie settings</a>
+    </nav>
+  </footer>
+</body>
+</html>

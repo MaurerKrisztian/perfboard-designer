@@ -12,7 +12,8 @@ laying out components and wires on a virtual perfboard grid. Built with Vite.
 ```bash
 npm install          # install deps
 npm run start        # dev server (vite) — http://localhost:3000 (landing), /app/ is the editor
-npm run build         # production build to dist/
+npm run build         # production build to dist/ (fails if learn/'s example links are stale)
+npm run learn-links   # rewrite learn/'s example share links from examples/*.json
 npm run serve         # preview the production build
 npm run lint          # eslint ./src --ext .ts
 npm run format         # prettier --write "./**"
@@ -82,6 +83,25 @@ Keep all in-site URLs relative — never `/...` — so it also works under the g
 - `guide/index.html` — static SEO user guide, JS-free but for the consent banner: how to use the editor, feature by feature
   (styles in `src/guide/`, on top of the landing's). Linked from the editor's Help menu. When a
   change alters how a feature is used (a tool, shortcut, menu or panel), update the guide too.
+- `learn/index.html` and `learn/<article>/index.html` — static SEO articles, JS-free but for the consent
+  banner: beginner guides to the craft rather than the editor (choosing a board, perfboard layout, wiring,
+  stripboard, soldering tools and safety, soldering technique, testing), on the landing's and the guide's
+  styles plus `src/learn/learn.css` (callouts, the series' cards and pager). Their diagrams are SVG
+  files in `assets/images/learn/diagrams/`, each with its own patterns and dark background, shown
+  with `<img>` and alt text so search engines index them (Google Images skips inline SVG). Each
+  article has a visible byline and update date to match its structured data. Their example boards
+  open on `view/` by share link: copies of `examples/*-555-blinker.json` that
+  `tools/learn-share-links.mjs` (`npm run learn-links`) rewrites from those files, and `npm run
+  build` refuses to build while one is stale. The series is a build-along: the 555 blinker is planned, wired,
+  soldered and tested (with the readings to expect) across the articles, its parts list on the index,
+  and all of it on one project page (`learn/555-led-blinker/`: the schematic, how it works, every
+  part's job, both layouts, the build, the test and troubleshooting). Beside the series are a
+  glossary (`learn/glossary/`) and a one-page bench card to print (`learn/bench-card/`: `learn.css`'s
+  print styles, which keep it to one A4 or Letter page). Each page has its own link-preview picture
+  in `assets/images/learn/og/`. Linked from the editor's Help menu. A new article: its folder, a
+  `vite.config.ts` input, a sitemap entry, a card on the index, and the pager links of its neighbors.
+  When a change alters a feature an article mentions (solder side, Nets panel, Cut tool, Export PDF),
+  update the article too.
 - `contributors/index.html` — standalone page (`src/contributors/`) listing contributors live from
   the GitHub API; imports nothing from the editor.
 - `mcp-server/index.html` — how to connect AI agents (Claude Code, claude.ai, ChatGPT, Cursor…) to
@@ -426,7 +446,10 @@ work without short links and without the Worker**: they're optional extras, cont
 user makes or opens a short link, and the full link is always offered beside them. No feature may
 need them. A format change means a new version number plus an upgrade path in the reader —
 old files must keep opening. `examples/*.json` are mostly v1 files and double as compatibility
-fixtures; the two `*-555-blinker.json` are v3 and are the MCP server's examples.
+fixtures; the two `*-555-blinker.json` (v9 and v3) are the MCP server's examples, the editor's
+"Open an example" and the learn/ articles' worked examples, laid out, wired, soldered and tested
+as those articles say, so keep them free of mistakes and tidy (no warnings, no unconnected pins),
+and change the articles with them (`npm run learn-links` updates the articles' links to them).
 
 **MCP server** (`mcp/`): a separate npm package (`perfboard-designer-mcp`, own `package.json`, Node
 22+, stdio) that lets AI agents design boards. **It depends on the editor, never the other way

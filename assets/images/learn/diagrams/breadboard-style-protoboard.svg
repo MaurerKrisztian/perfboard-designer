@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 120" width="168" height="120" font-family="Inter, Arial, sans-serif">
+  <title>A breadboard-style protoboard: pads joined in columns like a breadboard, with a rail along the top</title>
+  <defs>
+    <pattern id="lp-pads" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="7.5" fill="#c98545" />
+      <circle cx="12" cy="12" r="3.2" fill="#070b12" />
+    </pattern>
+    <pattern id="lp-vtraces" width="24" height="24" patternUnits="userSpaceOnUse">
+      <rect x="10.5" width="3" height="24" fill="#c98545" />
+    </pattern>
+  </defs>
+  <rect width="168" height="120" fill="#0a101b" />
+  <rect width="168" height="120" fill="#166534" />
+  <rect x="12" y="10.5" width="144" height="3" fill="#c98545" />
+  <rect y="36" width="168" height="72" fill="url(#lp-vtraces)" />
+  <rect width="168" height="120" fill="url(#lp-pads)" />
+</svg>

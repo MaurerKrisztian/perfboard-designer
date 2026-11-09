@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 96" width="168" height="96" font-family="Inter, Arial, sans-serif">
+  <title>Copper side: a component lead bent flat along a row of pads to another pad, soldered at both ends</title>
+  <defs>
+    <pattern id="lp-pads" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="7.5" fill="#c98545" />
+      <circle cx="12" cy="12" r="3.2" fill="#070b12" />
+    </pattern>
+    <radialGradient id="lp-solder-dot" cx="0.38" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="0.5" stop-color="#d4dbe3" />
+      <stop offset="1" stop-color="#8b98a7" />
+    </radialGradient>
+  </defs>
+  <rect width="168" height="96" fill="#0a101b" />
+  <rect width="168" height="96" fill="#166534" />
+  <rect width="168" height="96" fill="url(#lp-pads)" />
+  <path d="M36 36 H108 V84" fill="none" stroke="#b8c0c8" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="36" cy="36" r="8.5" fill="url(#lp-solder-dot)" />
+  <circle cx="108" cy="84" r="8.5" fill="url(#lp-solder-dot)" />
+</svg>

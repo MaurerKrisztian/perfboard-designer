@@ -41,8 +41,8 @@ The examples, as the editor reads them (nets join two or more pins, as the Nets 
 
 | `examples/` | Board | Parts | Wires | Nets | Unconnected pins |
 |---|---|---|---|---|---|
-| `perfboard-555-blinker.json` | perfboard 14×12 | 8 | 29 | 7 | 0 |
-| `stripboard-555-blinker.json` | stripboard 20×12 | 9 | 5 | 7 | 0 |
+| `perfboard-555-blinker.json` | perfboard 20×15 | 11 | 13 | 8 | 0 |
+| `stripboard-555-blinker.json` | stripboard 20×15 | 11 | 6 | 8 | 0 |
 | `3d-showcase.json` | perfboard 36×24 | 25 | 58 | 14 | 84 |
 | `component-gallery.json` | perfboard 60×46 | 70 | 36 | 1 | 294 |
 | `new-components-batteries.json` | perfboard 38×26 | 3 | 0 | 0 | 6 |
@@ -57,9 +57,9 @@ The examples, as the editor reads them (nets join two or more pins, as the Nets 
 | `greenhouse-controller.json` | perfboard 60×38 | 20 | 75 | 25 | 14 |
 | `stereo-tda2030a-amplifier.json` | perfboard 62×27 | 43 | 59 | 23 | 2 |
 
-The perfboard blinker's nets: GND (C1.- C2.2 D1.K J1.2 U1.1), VCC (J1.1 R1.1 U1.4 U1.8),
-TRIG/THRESH (C1.+ R2.2 U1.2 U1.6), CTRL (C2.1 U1.5), DISCH (R1.2 R2.1 U1.7), OUT (R3.1 U1.3) and
-D1.A–R3.2. If one of these numbers changes, something changed how boards are read or connected.
+The perfboard blinker's nets: GND (C1.- C2.2 C3.- C4.1 D1.K J1.2 U1.1), VCC (C3.+ C4.2 D2.K R1.1
+U1.4 U1.8), TRIG/THRESH (C1.+ R2.2 U1.2 U1.6), CTRL (C2.1 U1.5), DISCH (R1.2 R2.1 U1.7), OUT
+(R3.1 U1.3), D1.A–R3.2 and D2.A–J1.1; the stripboard blinker has the same ones. If one of these numbers changes, something changed how boards are read or connected.
 
 ## Wait for it
 

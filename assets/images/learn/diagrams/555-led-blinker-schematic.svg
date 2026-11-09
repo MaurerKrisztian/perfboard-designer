@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 470" width="760" height="470" font-family="Inter, Arial, sans-serif">
+  <title>Schematic of the 555 LED blinker: a 9 V battery through the protection diode D2 feeds the +9 V rail, with C3 and C4 across the supply; R1 and R2 charge C1, which pins 2 and 6 of the NE555 watch; pin 7 discharges it; pin 3 lights the LED D1 through R3; C2 steadies pin 5</title>
+  <rect width="760" height="470" fill="#0a101b" />
+
+  <!-- Wires -->
+  <g fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- +9 V rail, from the battery through D2 to pins 4 and 8 -->
+    <path d="M60 213 V70 H510 V140" />
+    <path d="M430 70 V140" />
+    <!-- 0 V rail -->
+    <path d="M60 251 V420 H680 V332" />
+    <!-- C3, C4 -->
+    <path d="M180 70 V232 M180 242 V420" />
+    <path d="M250 70 V232 M250 244 V420" />
+    <!-- R1, R2 and C1, the timing chain -->
+    <path d="M320 70 V100 M320 144 V198 M320 242 V342 M320 352 V420" />
+    <!-- Node between R1 and R2 to pin 7; node between R2 and C1 to pin 6 and pin 2 -->
+    <path d="M320 180 H400" />
+    <path d="M320 260 H400" />
+    <path d="M400 320 H360 V260" />
+    <!-- Pin 5 through C2, pin 1 to 0 V -->
+    <path d="M430 360 V382 M430 394 V420" />
+    <path d="M510 360 V420" />
+    <!-- Pin 3 through R3 to the LED -->
+    <path d="M540 260 H570 M614 260 H680 V312" />
+  </g>
+
+  <!-- Junctions -->
+  <g fill="#cbd5e1">
+    <circle cx="180" cy="70" r="4" /><circle cx="250" cy="70" r="4" /><circle cx="320" cy="70" r="4" /><circle cx="430" cy="70" r="4" />
+    <circle cx="180" cy="420" r="4" /><circle cx="250" cy="420" r="4" /><circle cx="320" cy="420" r="4" /><circle cx="430" cy="420" r="4" /><circle cx="510" cy="420" r="4" />
+    <circle cx="320" cy="180" r="4" /><circle cx="320" cy="260" r="4" /><circle cx="360" cy="260" r="4" />
+  </g>
+
+  <!-- J1: the 9 V battery, + at the top -->
+  <g stroke="#e2e8f0" stroke-linecap="round">
+    <line x1="40" y1="213" x2="80" y2="213" stroke-width="3" />
+    <line x1="50" y1="225" x2="70" y2="225" stroke-width="5" />
+    <line x1="40" y1="239" x2="80" y2="239" stroke-width="3" />
+    <line x1="50" y1="251" x2="70" y2="251" stroke-width="5" />
+  </g>
+
+  <!-- D2: anode left, cathode (band) right -->
+  <polygon points="93,58 93,82 117,70" fill="#e2e8f0" />
+  <line x1="117" y1="58" x2="117" y2="82" stroke="#e2e8f0" stroke-width="3" />
+
+  <!-- C3 and C1: electrolytic, + plate on top; C4 and C2: ceramic -->
+  <g fill="none" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round">
+    <line x1="164" y1="232" x2="196" y2="232" /><path d="M164 246 Q180 236 196 246" />
+    <line x1="234" y1="232" x2="266" y2="232" /><line x1="234" y1="244" x2="266" y2="244" />
+    <line x1="304" y1="342" x2="336" y2="342" /><path d="M304 356 Q320 346 336 356" />
+    <line x1="414" y1="382" x2="446" y2="382" /><line x1="414" y1="394" x2="446" y2="394" />
+  </g>
+
+  <!-- R1, R2 upright, R3 lying down -->
+  <g fill="#0a101b" stroke="#e2e8f0" stroke-width="2">
+    <rect x="312" y="100" width="16" height="44" rx="2" />
+    <rect x="312" y="198" width="16" height="44" rx="2" />
+    <rect x="570" y="252" width="44" height="16" rx="2" />
+  </g>
+
+  <!-- D1: the LED, pointing down to 0 V, with its light -->
+  <polygon points="668,312 692,312 680,332" fill="#ef4444" />
+  <line x1="668" y1="332" x2="692" y2="332" stroke="#e2e8f0" stroke-width="3" />
+  <g stroke="#fca5a5" stroke-width="1.8" fill="none" stroke-linecap="round">
+    <path d="M697 316 L711 304 M705 304 H711 V310" />
+    <path d="M697 328 L711 316 M705 316 H711 V322" />
+  </g>
+
+  <!-- U1: the NE555 -->
+  <rect x="400" y="140" width="140" height="220" rx="6" fill="#111827" stroke="#64748b" stroke-width="2" />
+  <g fill="#e2e8f0" font-size="12" font-weight="700">
+    <text x="410" y="184">DISCH</text>
+    <text x="410" y="264">THRESH</text>
+    <text x="410" y="324">TRIG</text>
+    <text x="530" y="264" text-anchor="end">OUT</text>
+    <text x="430" y="160" text-anchor="middle">RESET</text>
+    <text x="510" y="160" text-anchor="middle">VCC</text>
+    <text x="430" y="348" text-anchor="middle">CTRL</text>
+    <text x="510" y="348" text-anchor="middle">GND</text>
+  </g>
+  <g fill="#94a3b8" font-size="12">
+    <text x="394" y="175" text-anchor="end">7</text>
+    <text x="394" y="255" text-anchor="end">6</text>
+    <text x="394" y="315" text-anchor="end">2</text>
+    <text x="548" y="255">3</text>
+    <text x="424" y="133" text-anchor="end">4</text>
+    <text x="504" y="133" text-anchor="end">8</text>
+    <text x="424" y="377" text-anchor="end">5</text>
+    <text x="504" y="377" text-anchor="end">1</text>
+  </g>
+  <text x="470" y="216" fill="#eaa96a" font-size="15" font-weight="800" text-anchor="middle">U1</text>
+  <text x="470" y="234" fill="#94a3b8" font-size="13" text-anchor="middle">NE555</text>
+
+  <!-- Polarity marks -->
+  <g fill="#e2e8f0" font-size="15" font-weight="700">
+    <text x="88" y="208">+</text>
+    <text x="200" y="228">+</text>
+    <text x="340" y="338">+</text>
+  </g>
+
+  <!-- Part names and values -->
+  <g font-size="14" font-weight="800" fill="#eaa96a">
+    <text x="88" y="240">J1</text>
+    <text x="105" y="46" text-anchor="middle">D2</text>
+    <text x="192" y="262">C3</text>
+    <text x="262" y="262">C4</text>
+    <text x="336" y="118">R1</text>
+    <text x="336" y="216">R2</text>
+    <text x="340" y="378">C1</text>
+    <text x="452" y="386">C2</text>
+    <text x="592" y="242" text-anchor="middle">R3</text>
+    <text x="700" y="356">D1</text>
+  </g>
+  <g font-size="13" fill="#94a3b8">
+    <text x="88" y="257">9 V battery</text>
+    <text x="105" y="102" text-anchor="middle">1N4001</text>
+    <text x="192" y="278">100 µF</text>
+    <text x="262" y="278">100 nF</text>
+    <text x="336" y="134">1 kΩ</text>
+    <text x="336" y="232">68 kΩ</text>
+    <text x="340" y="394">10 µF</text>
+    <text x="452" y="402">10 nF</text>
+    <text x="592" y="290" text-anchor="middle">470 Ω</text>
+    <text x="700" y="372">red</text>
+  </g>
+
+  <!-- Rails -->
+  <g font-size="13" font-weight="700" fill="#cbd5e1">
+    <text x="285" y="60" text-anchor="middle">+9 V</text>
+    <text x="285" y="442" text-anchor="middle">0 V</text>
+  </g>
+</svg>

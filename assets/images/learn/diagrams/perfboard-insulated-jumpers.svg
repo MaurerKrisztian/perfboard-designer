@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 96" width="168" height="96" font-family="Inter, Arial, sans-serif">
+  <title>Component side: a red insulated jumper along a row and a yellow one crossing over it</title>
+  <defs>
+    <pattern id="lp-holes" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="3.2" fill="#070b12" />
+    </pattern>
+  </defs>
+  <rect width="168" height="96" fill="#0a101b" />
+  <rect width="168" height="96" fill="#166534" />
+  <rect width="168" height="96" fill="url(#lp-holes)" />
+  <line x1="12" y1="36" x2="156" y2="36" stroke="#ef4444" stroke-width="7" stroke-linecap="round" />
+  <line x1="84" y1="12" x2="84" y2="84" stroke="#0a101b" stroke-width="11" stroke-linecap="round" />
+  <line x1="84" y1="12" x2="84" y2="84" stroke="#facc15" stroke-width="7" stroke-linecap="round" />
+  <g fill="#dbe2e8">
+    <circle cx="12" cy="36" r="3" /><circle cx="156" cy="36" r="3" />
+    <circle cx="84" cy="12" r="3" /><circle cx="84" cy="84" r="3" />
+  </g>
+</svg>
