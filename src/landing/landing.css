@@ -316,9 +316,26 @@ h1, h2, h3 {
   width: 42px;
   height: 42px;
   border-radius: 10px;
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #67e8f9;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.16), rgba(59, 130, 246, 0.16));
+  border: 1px solid rgba(6, 182, 212, 0.32);
   font-size: 1.25rem;
+}
+
+/* A line icon, drawn in the box's color; `.dot`s are filled. */
+.feature-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.feature-icon svg .dot {
+  fill: currentColor;
+  stroke: none;
 }
 
 .feature h3 {
@@ -630,5 +647,344 @@ h1, h2, h3 {
   .site-header {
     gap: 0.75rem;
     padding: 0 1rem;
+  }
+}
+
+/* --- The landing page's own effects (index.html's <body class="landing">) ---
+   The guide, learn, MCP and view pages share this stylesheet without them. Everything that moves
+   stops for visitors who ask for reduced motion (at the end). */
+
+/* Hero backdrop: a perfboard's holes, two slow glows, and copper traces with a signal running
+   along each. */
+.hero-wrap {
+  position: relative;
+  isolation: isolate;
+}
+
+.hero-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(148, 163, 184, 0.16) 1.5px, transparent 2px);
+  background-size: 24px 24px;
+  background-position: center top;
+  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 40%, #000 20%, transparent 75%);
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 40%, #000 20%, transparent 75%);
+}
+
+.hero-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(circle at 70% 40%, rgba(6, 182, 212, 0.2), transparent 30%),
+    radial-gradient(circle at 22% 70%, rgba(59, 130, 246, 0.16), transparent 28%);
+  animation: hero-glow 18s ease-in-out infinite alternate;
+}
+
+@keyframes hero-glow {
+  to {
+    transform: translate3d(-4%, 3%, 0) scale(1.06);
+  }
+}
+
+.hero-traces {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-traces .trace {
+  fill: none;
+  stroke: rgba(6, 182, 212, 0.2);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.hero-traces .pad {
+  fill: var(--bg);
+  stroke: rgba(6, 182, 212, 0.4);
+  stroke-width: 2;
+}
+
+/* A short bright dash travelling from the trace's start to its pad. */
+.hero-traces .pulse {
+  fill: none;
+  stroke: #67e8f9;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 7 93;
+  stroke-dashoffset: 100;
+  filter: drop-shadow(0 0 4px #22d3ee);
+  animation: trace-pulse 7s linear infinite;
+}
+
+@keyframes trace-pulse {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.landing .hero {
+  position: relative;
+}
+
+.h1-accent {
+  background: linear-gradient(90deg, #67e8f9, #60a5fa 55%, #818cf8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* A live dot in the hero's eyebrow. */
+.landing .hero .eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  background: #22d3ee;
+  vertical-align: 1px;
+  animation: live-dot 2.4s ease-out infinite;
+}
+
+@keyframes live-dot {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.6);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 7px rgba(34, 211, 238, 0);
+  }
+}
+
+.landing .hero-media .hero-shot:first-child {
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), 0 0 60px rgba(6, 182, 212, 0.18);
+}
+
+/* The layout screenshot floats a little over the 3D one. */
+.landing .hero-inset {
+  animation: float 7s ease-in-out infinite;
+}
+
+@keyframes float {
+  50% {
+    translate: 0 -8px;
+  }
+}
+
+/* Side by side, the 3D screenshot leans back in perspective and straightens when pointed at. */
+@media (min-width: 901px) {
+  .landing .hero-media {
+    perspective: 1800px;
+  }
+
+  .landing .hero-media .hero-shot:first-child {
+    transform: rotateY(-9deg) rotateX(3deg);
+    transform-origin: 60% 50%;
+    transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .landing .hero-media:hover .hero-shot:first-child {
+    transform: none;
+  }
+}
+
+/* Parts strip: real part icons from the catalog, scrolling past. Two copies of the list, so the
+   loop has no seam; hovering stops it. */
+.parts-strip {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.5rem 1.25rem 1.5rem;
+}
+
+.parts-strip-label {
+  margin: 0 0 0.9rem;
+  color: var(--text-faint);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.marquee {
+  display: flex;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  flex: none;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0 0.75rem 0 0;
+  list-style: none;
+  animation: marquee 50s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee-track li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.95rem 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  background: rgba(17, 24, 39, 0.75);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.marquee-track img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+/* The second copy's names are drawn from data-name, so the page's text (what search engines
+   read) holds each name once. */
+.marquee-track li[data-name]::after {
+  content: attr(data-name);
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* Feature cards lift and glow when pointed at. */
+.landing .feature {
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+
+.landing .feature:hover {
+  transform: translateY(-3px);
+  border-color: rgba(6, 182, 212, 0.4);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35), 0 0 32px rgba(6, 182, 212, 0.08);
+}
+
+.landing .feature .feature-icon {
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+
+.landing .feature:hover .feature-icon {
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.35);
+  transform: scale(1.06);
+}
+
+/* How it works: glowing step numbers, joined by a trace when the steps sit in a row. */
+.landing .steps li::before {
+  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.12), 0 0 18px rgba(6, 182, 212, 0.4);
+}
+
+@media (min-width: 900px) {
+  .landing .steps li:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: calc(2.35rem - 1px);
+    left: calc(100% + 1px);
+    width: 1rem;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+    box-shadow: 0 0 8px rgba(6, 182, 212, 0.6);
+  }
+}
+
+/* The closing call to action, framed by a perfboard's holes. */
+.landing .cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: rgba(6, 182, 212, 0.3);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.22), transparent 60%),
+    radial-gradient(circle at 50% 120%, rgba(59, 130, 246, 0.18), transparent 55%),
+    var(--surface);
+}
+
+.landing .cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(circle, rgba(148, 163, 184, 0.14) 1.5px, transparent 2px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse 65% 85% at 50% 50%, transparent 35%, #000 100%);
+  mask-image: radial-gradient(ellipse 65% 85% at 50% 50%, transparent 35%, #000 100%);
+}
+
+/* Sections rise into place as they scroll into view, where the browser can tie an animation to
+   scrolling. `translate`, not `transform`, so the cards' hover lift still works. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .landing .feature,
+    .landing .showcase-text,
+    .landing .showcase-media,
+    .landing .showcase > .hero-shot,
+    .landing .steps li,
+    .landing .faq,
+    .landing .cta {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 25%;
+    }
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    translate: 0 28px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-backdrop::after,
+  .landing .hero .eyebrow::before,
+  .landing .hero-inset,
+  .marquee-track {
+    animation: none;
+  }
+
+  .hero-traces .pulse,
+  .marquee-track[aria-hidden="true"] {
+    display: none;
+  }
+
+  /* The parts, still: wrapped onto lines instead of scrolling past. */
+  .marquee {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .marquee-track {
+    flex: 1;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .landing .hero-media .hero-shot:first-child {
+    transition: none;
   }
 }
