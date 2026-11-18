@@ -471,6 +471,19 @@ never replacing `Ic.IC_CONTAINER`.
   ICs and modules between browsers as a parts library file (`src/project-file/parts-library.ts`).
   Importing adds what's new and changes nothing already there.
 
+**A placed part's own pin names.** Any placed fixed-pin part (not only a custom one) can name its
+pins: a JST connector whose pins carry +5V and GND, a header whose pins are RS and EN. The names
+live on the placed part, `SavedAdvancedComponent.pinDescription` (`{"1": "+5V", "2": "GND"}`), and
+`advancedDefinitionFor(part)` puts them on top of the definition's own labels, so everything that
+goes through it — the drawing, `pin-positions.ts` and so the nets, the parts list and the MCP
+server — sees them. `catalogDefinitionFor(part)` gives the definition without them (what the
+catalog calls the pins), and `src/parts/pin-names.ts` merges the two and works out which names are
+really overrides, so a name typed back to the catalog's own stops being one. Only the placed part
+is renamed, never the catalog entry or another copy. The editor edits them in the selection bar's
+**Pin names** (or the context menu's Pin Names…), which opens
+`src/ui/dialogs/PinNamesDialog.tsx`; `src/features/part-pin-names.ts` makes each save one undoable
+`set` of `pin-names`. The MCP server writes them with `edit_project`'s `pinNames` on `update_part`.
+
 **Part geometry** is worked out in one place, `src/parts/part-geometry.ts`, in grid units:
 
 - `advancedPartShape(def, placement)`: a fixed-pin part's pins, covered holes, outline, icon
@@ -567,7 +580,8 @@ Every undoable mutation calls `HistoryState.record(change)` with an `IChange`
   (`lineThrough()` in `line-path.ts`));
 - `add`/`remove`/`move` of a part;
 - `move` of a wire, its points before and after (a wire moved with other selected things);
-- `set` of a strip cut, of the board setup, of the circuit requirements or of the description;
+- `set` of a strip cut, of the board setup, of the circuit requirements, of the description or of a
+  fixed-pin part's own pin names;
 - `batch` of several, replayed in order and taken back in reverse: placing a part that joins the
   requirements, and moving, deleting or pasting several things at once.
 
@@ -587,14 +601,14 @@ MCP server.
   `[col, row]` positions, the board type with a stripboard's strips and cuts, only holes with notes,
   wires with the corners they bend at (`via`) and what they are (`kind`: absent for a jumper,
   whose corners are bends and never joints, `"solder"` for a solder path), per-kind part arrays
-  with refs (a custom module with its whole spec), and the user's custom ICs. It's written to be
-  read by people and programs: facts only, nothing derivable (no nets, strip segments or resolved
-  pin positions).
+  with refs (a custom module with its whole spec, a fixed-pin part's own pin names), and the
+  user's custom ICs. It's written to be read by people and programs: facts only, nothing derivable
+  (no nets, strip segments or resolved pin positions).
 - A file says the oldest version that holds it (`fileVersionFor()`): 9 with a wire on the solder
   side, else 8 with requirements, else 6 with a custom module, else 5 with a solder path, else 4 if
   a wire bends, else 3. So a board without them still opens in editors and MCP servers from before.
-  The description doesn't raise it (nor do part identities): older readers skip the field, and the
-  board is the same without it.
+  The description doesn't raise it (nor do part identities or a part's own pin names): older
+  readers skip the field, and the board is the same without it.
 - `description.ts` owns the description: what the board is and how it works, in its maker's words,
   in a small part of Markdown. Its `descriptionHtml()` is the one place that text becomes HTML, for
   the editor's dialog (`src/ui/dialogs/DescriptionDialog.tsx`), the project PDF and the shared

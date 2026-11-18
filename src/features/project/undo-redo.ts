@@ -37,6 +37,14 @@ function applyChange(change: IChange, direction: "apply" | "revert") {
     DescriptionState.current = direction === "apply" ? change.to : change.from;
     return;
   }
+  if (change.kind === "pin-names") {
+    const {part} = change;
+    if (part.kind !== "advanced-component") return;
+    const names = direction === "apply" ? change.to : change.from;
+    if (names) part.pinDescription = names;
+    else delete part.pinDescription;
+    return;
+  }
   if (change.kind === "board") {
     setBoardSetup(direction === "apply" ? change.to : change.from);
     return;

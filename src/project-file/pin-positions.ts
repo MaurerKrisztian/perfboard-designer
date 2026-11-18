@@ -71,7 +71,9 @@ export function partPins(project: Pick<ProjectFile, "placedIcs" | "placedStandar
     const shape = advancedPartShape(def, part);
     parts.push({
       ref: part.ref, kind: "advanced-component", part: part.custom?.name ?? part.definitionId, known: true,
-      pins: shape.pins.map((p, i) => ({pin: i + 1, ...(!def.gridSizable && def.pinLabels?.[i] ? {label: def.pinLabels[i]} : {}), at: hole(p)})),
+      // Any pin with a name (its own, the definition's, or a pin block's renamed one) is labelled
+      // with it, so the nets name it that way; a numbered pin is not.
+      pins: shape.pins.map((p, i) => ({pin: i + 1, ...(def.pinLabels?.[i] ? {label: def.pinLabels[i]} : {}), at: hole(p)})),
       coveredHoles: shape.covered.map(hole),
       body: shape.body,
     });

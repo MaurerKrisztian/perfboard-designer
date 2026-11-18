@@ -48,6 +48,7 @@ export function partFromEntry(saved: PartEntry, dotAt: (at: GridPos) => IDot): P
   const {entry} = saved;
   const component = new PlacedAdvancedComponent(entry.definitionId, dotAt(entry.at), entry.rotation);
   if (entry.custom) component.custom = entry.custom;
+  if (entry.pinDescription && Object.keys(entry.pinDescription).length) component.pinDescription = {...entry.pinDescription};
   component.ref = entry.ref;
   if (entry.instanceId) component.instanceId = entry.instanceId;
   component.rows = entry.rows;

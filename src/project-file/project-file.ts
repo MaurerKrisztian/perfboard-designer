@@ -22,6 +22,7 @@ export const PROJECT_FILE_VERSION = 10;
 // still opens in editors and tools from before. Part identities (version 7) don't raise it: older
 // readers skip the field, and identities only matter to requirements, which are version 8. Nor does
 // the description (version 10): older readers skip it too, and the board is the same without it.
+// Nor do a placed part's own pin names (`pinDescription`): older readers show its numbers instead.
 export type FileVersion = 3 | 4 | 5 | 6 | 8 | 9;
 
 export function fileVersionFor(project: Pick<ProjectFile, "wires" | "placedAdvancedComponents" | "requirements">): FileVersion {
@@ -138,6 +139,12 @@ export interface SavedAdvancedComponent {
   rows: number;
   cols: number;
   value?: string;
+  // This one part's pin names, by pin number ("1": "+5V", "2": "GND"), for a connector whose pins
+  // mean something here. They replace the definition's own names on the board, in the nets and in
+  // the parts list, and a blank name puts a numbered pin's number back. Only this placed part is
+  // renamed, never the catalog entry it came from; the MCP server writes it through
+  // `edit_project`'s `pinNames`, as does the editor's Pin Names action.
+  pinDescription?: Record<number, string>;
   // A user-made part (version 6, definitionId "custom"): its whole definition, so the board needs
   // nothing else to draw it and know its pins (src/parts/custom-parts.ts): `name`, `cols` x `rows`
   // holes of body, its `pins` in order, each `at` a [column, row] within the body from its top-left

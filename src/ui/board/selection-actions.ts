@@ -16,12 +16,14 @@ import {duplicateSelection} from "../../features/clipboard";
 import {toggleSelectMore} from "../../features/select";
 import {canTurnRound, turnSelectedPartRound} from "../../features/part-polarity";
 import {canConnectWiresAt, connectWiresAt, partPinUnderWire} from "../../features/connect-wire";
+import {canRenamePins} from "../../features/part-pin-names";
+import {openDialog} from "../dialogs/dialog-store";
 import type {IconName} from "../components/Icon";
 
 // What can be done to the selected part, wire or pad, or to several parts and wires. The selection
 // bar over the board and the context menu offer the same actions, each only where it applies.
 
-export type SelectionAction = "wire" | "solder" | "connect" | "rotate" | "turn-round" | "color" | "straighten" | "to-bottom" | "to-top" | "value" | "note"
+export type SelectionAction = "wire" | "solder" | "connect" | "rotate" | "turn-round" | "color" | "straighten" | "to-bottom" | "to-top" | "value" | "pin-names" | "note"
   | "duplicate" | "select-more" | "delete";
 
 // How each action shows: its icon, and its labels in the selection bar and the context menu.
@@ -36,6 +38,7 @@ export const ACTIONS: Record<SelectionAction, {icon: IconName; label: string; ti
   "to-bottom": {icon: "to-bottom", label: "To solder side", title: "Move this wire to the solder side", menuLabel: "Move to Solder Side"},
   "to-top": {icon: "to-top", label: "To top", title: "Move this wire to the top", menuLabel: "Move to Top"},
   value: {icon: "value", label: "Value", title: "Set value", menuLabel: "Set Value"},
+  "pin-names": {icon: "tag", label: "Pin names", title: "Name this part's pins", menuLabel: "Pin Names…"},
   note: {icon: "note", label: "Note", title: "Add or edit a note", menuLabel: "Add/Edit Note"},
   duplicate: {icon: "duplicate", label: "Duplicate", title: "Duplicate (Ctrl+D)", menuLabel: "Duplicate", key: "Ctrl+D"},
   "select-more": {icon: "select-more", label: "Select more", title: "Click or tap more parts and wires to add them (or Shift-click)", menuLabel: "Select More"},
@@ -63,6 +66,7 @@ export function availableActions(): SelectionAction[] {
   if (canTurnRound(part)) actions.push("turn-round");
   if (part.kind === "standard-component" && isLed(part.definitionId)) actions.push("color");
   if (part.kind !== "ic") actions.push("value");
+  if (canRenamePins(part)) actions.push("pin-names");
   actions.push("duplicate", "select-more", "delete");
   return actions;
 }
@@ -137,6 +141,9 @@ export function runSelectionAction(action: SelectionAction, button: HTMLElement,
       return;
     case "value":
       return void setSelectedComponentValue();
+    case "pin-names":
+      if (part && canRenamePins(part)) openDialog({kind: "pin-names", part});
+      return;
     case "duplicate":
       return duplicateSelection();
     case "select-more":

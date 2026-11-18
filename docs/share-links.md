@@ -212,7 +212,10 @@ editors open too. It's documented field by field in
   definitions).
 - `placedAdvancedComponents`: fixed-footprint parts: `definitionId`, the anchor pin `at`,
   `rotation` (0, 90, 180 or 270), `rows` and `cols` (1 except for sizable parts such as header
-  pins), optional `value`. A user-made module has `"definitionId": "custom"` and carries the
+  pins), optional `value`, and optional `pinDescription` (`{"1": "+5V", "2": "GND"}`): this one
+  part's own pin names, in pin order, which replace the part's own numbers or names on the board,
+  in the nets (`"J6.+5V"`) and in the parts list. Only that placed part is renamed; a name left
+  blank is shown by its number. A user-made module has `"definitionId": "custom"` and carries the
   whole part in `custom` (version 6): `name`, optional `refPrefix`, its size in holes `cols` and
   `rows`, its `pins` in order as `{"at": [c, r], "label": "VCC"}` (holes within the body from its
   top-left hole; pin 1 is the anchor `at`) and an optional `color`. With `"shape"`, the id of a

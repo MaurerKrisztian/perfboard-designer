@@ -369,6 +369,14 @@ means a new look there plus a `BoardType` in the project file.
   reads a parts library file of the user's custom ICs and modules (`src/project-file/parts-library.ts`,
   format `perfboard-designer-parts`); importing adds what's new, never changing what's there.
 
+**A placed part's own pin names**: any placed fixed-pin part can rename its pins (a JST whose pins
+are +5V and GND), in `SavedAdvancedComponent.pinDescription`; `advancedDefinitionFor(part)` puts them
+on the definition's labels, so the drawing, nets, parts list and MCP all see them, while
+`catalogDefinitionFor(part)` gives the unnamed definition (`src/parts/pin-names.ts` merges the two
+and keeps only real overrides). Edited by the selection bar's Pin names
+(`src/features/part-pin-names.ts`, `src/ui/dialogs/PinNamesDialog.tsx`, one undoable `set` of
+`pin-names`) and by the MCP server's `update_part` `pinNames`. Only the placed part is renamed.
+
 **Part geometry** is worked out once, in grid units, in `src/parts/part-geometry.ts`:
 `advancedPartShape()` (a fixed-pin part's pins, covered holes, outline, icon anchor, body box),
 `advancedPinOffsets()` (its pins before rotation) and `icPins()` (a chip's pins in DIP order, with

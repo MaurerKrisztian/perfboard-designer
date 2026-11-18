@@ -1,5 +1,6 @@
 import {AdvancedComponentDefinition} from "../../parts/advanced-component-definitions";
 import {advancedDefinitionFor, CustomPartSpec} from "../../parts/custom-parts";
+import {PinNames} from "../../parts/pin-names";
 import {advancedPartShape, AdvancedPlacement, GridPoint} from "../../parts/part-geometry";
 import {GRID_PITCH_PX, gridToPx} from "../../project-file/grid";
 import {Point} from "../painter/painter";
@@ -38,7 +39,9 @@ export function boundingRect(points: Point[], pad = 0): Rect {
 const toPx = (p: GridPoint): Point => ({x: gridToPx(p.x), y: gridToPx(p.y)});
 
 // Undefined for a part whose definition this build doesn't know.
-export function advancedPartGeometry(part: AdvancedPlacement & {definitionId: string; custom?: CustomPartSpec}): AdvancedGeometry | undefined {
+export function advancedPartGeometry(
+  part: AdvancedPlacement & {definitionId: string; custom?: CustomPartSpec; pinDescription?: PinNames},
+): AdvancedGeometry | undefined {
   const def = advancedDefinitionFor(part);
   if (!def) return undefined;
   const shape = advancedPartShape(def, part);

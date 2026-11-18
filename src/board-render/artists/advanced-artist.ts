@@ -45,6 +45,10 @@ function pinLabelSpot(g: AdvancedGeometry, i: number, rotation: number): Point {
 
 const pinLabelText = (g: AdvancedGeometry, i: number) => g.def.pinLabels?.[i] || String(i + 1);
 
+// Whether the part's pins have names of their own: a header whose pins are RS and EN, say. Only
+// those are printed on a pin block, whose tiles otherwise carry no numbers at all.
+const hasNamedPins = (g: AdvancedGeometry) => (g.def.pinLabels ?? []).some(label => !!label.trim());
+
 // The body's shape: its outline, or the box around its pins.
 function drawBodyShape(painter: Painter, g: AdvancedGeometry, style: ShapeStyle) {
   if (g.outline.length >= 3) painter.polygon(g.outline, style);
@@ -54,7 +58,7 @@ function drawBodyShape(painter: Painter, g: AdvancedGeometry, style: ShapeStyle)
 // Parts whose icon is one pin's artwork (header pins): the tiles themselves are the body, so
 // there's no body polygon, no pin markers and no pin numbers to draw - a 2x20 header would
 // otherwise be buried under 40 numbers and 40 marker dots.
-function drawTiledPins(painter: Painter, g: AdvancedGeometry, look: PartLook) {
+function drawTiledPins(painter: Painter, g: AdvancedGeometry, rotation: number, look: PartLook) {
   // One full grid pitch per tile, so neighbouring pins butt into a continuous strip.
   const tile = PIN_TILE_HALF * 2 * GRID_PITCH_PX;
   const half = tile / 2;
@@ -72,6 +76,13 @@ function drawTiledPins(painter: Painter, g: AdvancedGeometry, look: PartLook) {
       stroke: {paint: SELECTION_COLOR, width: look.selected ? 3 : 2, ...(look.ghost ? {dash: GHOST_DASH} : {})},
     });
   }
+  // A block whose pins were named shows those names: its tiles carry no numbers to replace.
+  if (!hasNamedPins(g)) return;
+  g.def.pinLabels?.forEach((label, i) => {
+    if (!label?.trim() || !g.pins[i]) return;
+    const {x, y} = pinLabelSpot(g, i, rotation);
+    painter.text(label, x, y, {font: PIN_LABEL_FONT, color: PIN_LABEL_COLOR, align: "center", baseline: "middle", halo: LABEL_HALO});
+  });
 }
 
 // How big the icon is drawn, in the part's unrotated frame.
@@ -154,7 +165,7 @@ export const advancedArtist: PartArtist<SavedAdvancedComponent> = {
     const g = advancedPartGeometry(part);
     if (!g || g.pins.length === 0) return;
     painter.group(look.ghost ? {opacity: GHOST_OPACITY} : {}, () => {
-      if (g.def.perPinIcon) drawTiledPins(painter, g, look);
+      if (g.def.perPinIcon) drawTiledPins(painter, g, part.rotation, look);
       else drawBody(painter, g, part.rotation, look);
     });
   },
@@ -175,7 +186,18 @@ export const advancedArtist: PartArtist<SavedAdvancedComponent> = {
     const g = advancedPartGeometry(part);
     if (!g) return undefined;
     const {x, y, w, h} = g.bodyRect;
-    if (g.def.perPinIcon) return g.bodyRect;
+    if (g.def.perPinIcon) {
+      if (!hasNamedPins(g)) return g.bodyRect;
+      // A named pin block prints those names past its tiles, so the board grows to fit them.
+      const corners = [{x, y}, {x: x + w, y: y + h}];
+      g.def.pinLabels?.forEach((label, i) => {
+        if (!label?.trim() || !g.pins[i]) return;
+        const spot = pinLabelSpot(g, i, part.rotation);
+        const halfWidth = label.length * PIN_LABEL_CHAR_HALF_WIDTH;
+        corners.push({x: spot.x - halfWidth, y: spot.y - PIN_LABEL_HALF_HEIGHT}, {x: spot.x + halfWidth, y: spot.y + PIN_LABEL_HALF_HEIGHT});
+      });
+      return boundingRect(corners);
+    }
     const corners = [{x, y}, {x: x + w, y: y + h}];
     g.pins.forEach((_, i) => {
       const spot = pinLabelSpot(g, i, part.rotation);

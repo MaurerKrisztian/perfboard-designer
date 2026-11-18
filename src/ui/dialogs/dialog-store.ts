@@ -1,6 +1,7 @@
 import {createStore} from "../lib/store";
 import type {Ic} from "../../features/ic";
 import type {CustomPartSpec} from "../../parts/custom-parts";
+import type {PlacedAdvancedComponent} from "../../features/advanced-components/placed-advanced-component";
 import type {TourChapterId} from "./TourDialog";
 
 // Which of the editor's dialogs is open: one at a time (the editor's questions, AskDialog, can show
@@ -17,6 +18,8 @@ export type OpenDialog =
   | {kind: "export-pdf"}
   // The tour (TourDialog.tsx), open at a chapter; `firstVisit`: opened by itself, not from Help.
   | {kind: "tour"; chapter: TourChapterId; firstVisit?: boolean}
+  // One placed fixed-pin part's own pin names (a JST's +5V and GND).
+  | {kind: "pin-names"; part: PlacedAdvancedComponent}
   // The parts list's one way to make a part of your own: pick what kind, then its editor below.
   | {kind: "custom-part"}
   // A new chip of `type`, or a custom one being edited. `fromChooser`: opened from custom-part,

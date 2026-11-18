@@ -66,6 +66,8 @@ export const editOp = z.discriminatedUnion("op", [
     value: z.string().optional().describe('"" removes it.'),
     color: z.string().optional().describe('"" removes it.'),
     newRef: z.string().optional(),
+    pinNames: z.record(z.string(), z.string()).optional()
+      .describe('A fixed-pin part\'s own pin names, by pin number: {"1": "+5V", "2": "GND"} on a JST connector or header. They replace the part\'s numbers or names on the board, in the nets ("J6.+5V") and in the list of unconnected pins; "" puts a pin\'s number back, and {} removes them all. Only this part is renamed, never the catalog entry.'),
   }),
   z.object({op: z.literal("remove_parts"), refs: z.array(z.string()).min(1)}),
   z.object({

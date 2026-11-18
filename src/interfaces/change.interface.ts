@@ -20,6 +20,8 @@ export type IChange =
   // A wire moved with the parts and wires selected with it: its points (start, corners, end;
   // linePoints) before and after. Same shape, so the wire stays the same object.
   | { type: "move"; kind: "line"; line: ILine; from: IDot[]; to: IDot[] }
+  // A fixed-pin part's own pin names, as SavedAdvancedComponent.pinDescription holds them.
+  | {type: "set"; kind: "pin-names"; part: Part; from?: Record<number, string>; to?: Record<number, string>}
   // `cut` is the hole's state after the change.
   | { type: "set"; kind: "cut"; dot: IDot; cut: boolean }
   | { type: "set"; kind: "board"; from: BoardSetup; to: BoardSetup };

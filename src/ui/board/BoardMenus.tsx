@@ -17,7 +17,7 @@ export function BoardMenus() {
 
 // The context menu's order: Start Wire/Solder Path Here only when it was opened on a hole, then
 // Connect to Wire when a wire passes over that hole (or the selection's pad or pin) unjoined.
-const MENU_ORDER: SelectionAction[] = ["rotate", "turn-round", "color", "straighten", "to-bottom", "to-top", "note", "value", "duplicate", "delete"];
+const MENU_ORDER: SelectionAction[] = ["rotate", "turn-round", "color", "straighten", "to-bottom", "to-top", "note", "value", "pin-names", "duplicate", "delete"];
 
 function ContextMenu({menu}: {menu: Extract<BoardMenu, {kind: "actions"}>}) {
   const available = useEditor(availableActions, shallowEqual);

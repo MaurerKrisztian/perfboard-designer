@@ -345,6 +345,19 @@ function updatePart(project: ProjectFile, op: Op<"update_part">, placed: Set<str
     }
   }
 
+  if (op.pinNames !== undefined && found.kind === "advanced-component") {
+    const names: Record<number, string> = {};
+    for (const [pin, name] of Object.entries(op.pinNames)) {
+      const number = Number(pin);
+      if (!Number.isInteger(number) || number < 1) throw new OpError(`\`pinNames\` keys are pin numbers, 1 or more: "${pin}" isn't one.`);
+      if (name.trim()) names[number] = name.trim();
+    }
+    if (Object.keys(names).length) found.entry.pinDescription = names;
+    else delete found.entry.pinDescription;
+    said.push(Object.keys(names).length ? `pin names ${Object.entries(names).map(([pin, name]) => `${pin} ${name}`).join(", ")}` : "no pin names");
+  } else if (op.pinNames !== undefined) {
+    throw new OpError("`pinNames` is for a fixed-pin part (a connector, header, regulator, sensor module...), not a chip or a two-lead part.");
+  }
   if (op.value !== undefined && found.kind !== "ic") {
     if (op.value) found.entry.value = op.value;
     else delete found.entry.value;

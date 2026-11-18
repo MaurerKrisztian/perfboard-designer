@@ -10,6 +10,7 @@ import {IcEditorDialog} from "./IcEditorDialog";
 import {CustomModuleDialog} from "./CustomModuleDialog";
 import {CustomShapeDialog} from "./CustomShapeDialog";
 import {CustomPartDialog} from "./CustomPartDialog";
+import {PinNamesDialog} from "./PinNamesDialog";
 import {TourDialog} from "./TourDialog";
 
 // The open dialog (dialog-store.ts), and over it any question the editor asks.
@@ -26,6 +27,7 @@ export function Dialogs() {
       {open?.kind === "export-pdf" && <ExportPdfDialog onClose={closeDialog}/>}
       {open?.kind === "tour" && <TourDialog chapter={open.chapter} firstVisit={open.firstVisit} onClose={closeDialog}/>}
       {open?.kind === "custom-part" && <CustomPartDialog onClose={closeDialog}/>}
+      {open?.kind === "pin-names" && <PinNamesDialog part={open.part} onClose={closeDialog}/>}
       {open?.kind === "ic-editor" && <IcEditorDialog type={open.type} editing={open.editing} onBack={back} onClose={closeDialog}/>}
       {open?.kind === "custom-module" && <CustomModuleDialog editing={open.editing} onBack={back} onClose={closeDialog}/>}
       {open?.kind === "custom-shape" && <CustomShapeDialog editing={open.editing} onBack={back} onClose={closeDialog}/>}

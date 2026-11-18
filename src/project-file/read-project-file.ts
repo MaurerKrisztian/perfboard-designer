@@ -51,6 +51,9 @@ function rotation(value: unknown): Rotation {
   return n === 90 || n === 180 || n === 270 ? n : 0;
 }
 
+const REF_PREFIX = /^[A-Za-z]{1,4}$/;
+const MAX_LABEL_LENGTH = 24;
+
 function pinLabels(value: unknown): Record<number, string> {
   const labels: Record<number, string> = {};
   const entry = asEntry(value);
@@ -61,6 +64,18 @@ function pinLabels(value: unknown): Record<number, string> {
     if (Number.isInteger(pin) && pin > 0 && typeof label === "string") labels[pin] = label;
   }
   return labels;
+}
+
+// A placed part's own pin names (SavedAdvancedComponent.pinDescription), trimmed as the editor
+// keeps them; undefined when it names none.
+function pinNames(value: unknown): Record<number, string> | undefined {
+  const labels = pinLabels(value);
+  const names: Record<number, string> = {};
+  for (const [pin, label] of Object.entries(labels)) {
+    const name = label.trim().slice(0, MAX_LABEL_LENGTH);
+    if (name) names[Number(pin)] = name;
+  }
+  return Object.keys(names).length ? names : undefined;
 }
 
 function readCustomIc(entry: Entry): SavedCustomIc | undefined {
@@ -77,9 +92,6 @@ function readCustomIc(entry: Entry): SavedCustomIc | undefined {
     ...(typeof entry.category === "string" ? {category: entry.category} : {}),
   };
 }
-
-const REF_PREFIX = /^[A-Za-z]{1,4}$/;
-const MAX_LABEL_LENGTH = 24;
 
 // A custom part's definition (SavedAdvancedComponent.custom), or undefined if it can't be one: a
 // body of 1 to MAX_CUSTOM_PART_SIDE holes a side and at least one pin, each in its own hole of it,
@@ -320,6 +332,7 @@ function readGridFile(data: Entry, version: 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10):
       instanceId: text(entry.instanceId), ref: text(entry.ref) ?? "", definitionId: custom ? CUSTOM_PART_ID : definitionId, at, rotation: rotation(entry.rotation),
       rows: wholeCount(entry.rows) ?? 1, cols: wholeCount(entry.cols) ?? 1,
       ...optional("value", text(entry.value)), ...(custom ? {custom} : {}),
+      ...optional("pinDescription", pinNames(entry.pinDescription)),
     };
   });
 

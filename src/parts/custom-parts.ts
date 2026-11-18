@@ -2,6 +2,7 @@ import {
   ADVANCED_COMPONENT_DEFINITIONS, AdvancedComponentDefinition, getAdvancedComponentDefinition, PinOffset,
 } from "./advanced-component-definitions";
 import {getIconFile} from "./component-definitions";
+import {PinNames, pinLabelsWith} from "./pin-names";
 
 // User-made parts with pins anywhere: a breakout module, a sensor board, a connector with an odd
 // layout. Made in the editor's custom module creator, kept in its catalog, and carried whole by
@@ -152,8 +153,21 @@ function moduleDefinition(spec: CustomPartSpec): AdvancedComponentDefinition {
   };
 }
 
-// A placed fixed-pin part's definition: its own spec when it's a custom part, else the catalog's.
-export function advancedDefinitionFor(part: {definitionId: string; custom?: CustomPartSpec}): AdvancedComponentDefinition | undefined {
+// A placed fixed-pin part's definition: its own spec when it's a custom part, else the catalog's,
+// with this one part's pin names (SavedAdvancedComponent.pinDescription) on top of the pins it has.
+// Everything that draws, wires or reports the part goes through here, so a renamed pin is one
+// wherever it's shown; only the placed part is affected, never the catalog or another board.
+export function advancedDefinitionFor(
+  part: {definitionId: string; custom?: CustomPartSpec; pinDescription?: PinNames},
+): AdvancedComponentDefinition | undefined {
+  const def = catalogDefinitionFor(part);
+  if (!def || !part.pinDescription) return def;
+  return {...def, pinLabels: pinLabelsWith(def, part.pinDescription)};
+}
+
+// The same definition as the catalog (or a custom part's own spec) has it, without the placed
+// part's own pin names: what its pins are called by default.
+export function catalogDefinitionFor(part: {definitionId: string; custom?: CustomPartSpec}): AdvancedComponentDefinition | undefined {
   return part.custom ? customPartDefinition(part.custom) : getAdvancedComponentDefinition(part.definitionId);
 }
 

@@ -7,6 +7,7 @@ import {Point} from "../../interfaces/point.interface";
 import {AdvancedGeometry, advancedPartGeometry, Rect} from "../../board-render";
 import {AdvancedComponentDefinition} from "../../parts/advanced-component-definitions";
 import {advancedDefinitionFor, CustomPartSpec} from "../../parts/custom-parts";
+import {PinNames} from "../../parts/pin-names";
 
 export class PlacedAdvancedComponent implements PlacedPart {
   public ref = "";
@@ -19,6 +20,9 @@ export class PlacedAdvancedComponent implements PlacedPart {
   public cols = 1;
   // A user-made part's own definition (SavedAdvancedComponent.custom); its definitionId is "custom".
   public custom?: CustomPartSpec;
+  // This part's own pin names (SavedAdvancedComponent.pinDescription), when it has any: a
+  // connector's "+5V"/"GND" on a JST, say. Only this part is renamed, never its catalog entry.
+  public pinDescription?: PinNames;
 
   constructor(
     public definitionId: string,
@@ -52,6 +56,7 @@ export class PlacedAdvancedComponent implements PlacedPart {
       rows: this.rows,
       cols: this.cols,
       custom: this.custom,
+      pinDescription: this.pinDescription,
     });
   }
 
@@ -100,6 +105,7 @@ export class PlacedAdvancedComponent implements PlacedPart {
       cols: this.cols,
       ...(this.value ? {value: this.value} : {}),
       ...(this.custom ? {custom: this.custom} : {}),
+      ...(this.pinDescription && Object.keys(this.pinDescription).length ? {pinDescription: this.pinDescription} : {}),
     };
   }
 
