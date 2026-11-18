@@ -483,9 +483,9 @@ only for pins the part has (so a hostile pin number in a link can't make every d
 list), each at most 24 characters, and only where it differs from the catalog's, so a name typed
 back to the catalog's own stops being one. A blank name shows a pin the catalog names by its
 number. Turning a pin block transposes it, which renumbers its pins row by row, so its names move
-with them (`transposedPinNumber()` in `part-geometry.ts`). Rails and polarity go by what a part
-marks its pins as itself (`pinMarks()` in `rails.ts`: a battery's + and −), never by a name the
-board gives a pin. Only the placed part is renamed, never the catalog entry or another copy. The editor edits them in the selection bar's
+with them (`transposedPinNames()`, from `part-geometry.ts`'s `transposedPinNumber()`). Rails and
+polarity go by what a part marks its pins as itself (`pinMarks()` in `rails.ts`: a battery's + and
+−), never by a name the board gives a pin. Only the placed part is renamed, never the catalog entry or another copy. The editor edits them in the selection bar's
 **Pin names** (or the context menu's Pin Names…), which opens
 `src/ui/dialogs/PinNamesDialog.tsx`; `src/features/part-pin-names.ts` makes each save one undoable
 `set` of `pin-names`. The MCP server writes them with `edit_project`'s `pinNames` on `update_part`.

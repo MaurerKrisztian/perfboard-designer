@@ -7,7 +7,8 @@
 
 export {GRID_PITCH_PX, type GridPos} from "../../src/project-file/grid";
 export {
-  fileVersionFor, PROJECT_FILE_VERSION, type ProjectFile, type Rotation, type SavedCustomIc, type SavedIc, type SavedWire,
+  fileVersionFor, PROJECT_FILE_VERSION, type ProjectFile, type Rotation, type SavedAdvancedComponent, type SavedCustomIc, type SavedIc,
+  type SavedWire,
 } from "../../src/project-file/project-file";
 export {holesAlong, isSolderPath, solderPathHoles, wireLegs, wirePoints} from "../../src/project-file/wire-path";
 export {ProjectFileError, readCustomPart, readProjectFile} from "../../src/project-file/read-project-file";
@@ -39,7 +40,7 @@ export {
   catalogDefinitionFor, CUSTOM_PART_ID, customPartDefinition, customPartShape, type CustomPartSpec, MAX_CUSTOM_PART_SIDE, shapedPartSpec,
 } from "../../src/parts/custom-parts";
 export {advancedPinCount} from "../../src/parts/part-geometry";
-export {keptPinNames, MAX_PIN_NAME_LENGTH} from "../../src/parts/pin-names";
+export {keptPinNames, MAX_PIN_NAME_LENGTH, type PinNames} from "../../src/parts/pin-names";
 export {CATALOG_CATEGORIES, type CategoryId, getCategoryPath} from "../../src/parts/catalog-categories";
 export {ensureComponentIds} from "../../src/project-file/component-ids";
 export {includeRequiredComponents, validateRequirements} from "../../src/project-file/requirements";

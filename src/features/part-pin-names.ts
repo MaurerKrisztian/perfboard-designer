@@ -12,8 +12,7 @@ import type {Part} from "../interfaces/placed-part.interface";
 
 // The names `part`'s pins currently go by, one per pin in pin order, as the Pin Names dialog edits
 // them: a named pin's name, else the definition's own ("1", "COM", "" for one it numbers).
-export function partPinNames(part: Part): string[] | undefined {
-  if (part.kind !== "advanced-component") return undefined;
+export function partPinNames(part: PlacedAdvancedComponent): string[] | undefined {
   const def = part.getDefinition();
   if (!def) return undefined;
   return Array.from({length: advancedPinCount(def, part.rows, part.cols)}, (_, i) => def.pinLabels?.[i] ?? "");
@@ -21,8 +20,7 @@ export function partPinNames(part: Part): string[] | undefined {
 
 // Sets `part`'s own pin names from one name per pin, as one undoable step. Names left as the
 // definition has them aren't stored, and a part with nothing renamed keeps no names at all.
-export function setPartPinNames(part: Part, names: readonly string[]) {
-  if (part.kind !== "advanced-component") return;
+export function setPartPinNames(part: PlacedAdvancedComponent, names: readonly string[]) {
   // Compared with the catalog's own names, never the ones this part has now, so a name typed back
   // to what the part is called by default stops being an override. Kept as a saved file keeps
   // them (keptPinNames), so what's set here is what the board has after it's saved and reopened.

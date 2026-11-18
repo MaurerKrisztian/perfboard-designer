@@ -39,8 +39,7 @@ function applyChange(change: IChange, direction: "apply" | "revert") {
     return;
   }
   if (change.kind === "pin-names") {
-    const {part} = change;
-    if (part.kind === "advanced-component") applyPinNames(part, direction === "apply" ? change.to : change.from);
+    applyPinNames(change.part, direction === "apply" ? change.to : change.from);
     return;
   }
   if (change.kind === "board") {

@@ -7,8 +7,7 @@ import {Point} from "../../interfaces/point.interface";
 import {AdvancedGeometry, advancedPartGeometry, Rect} from "../../board-render";
 import {AdvancedComponentDefinition} from "../../parts/advanced-component-definitions";
 import {advancedDefinitionFor, CustomPartSpec} from "../../parts/custom-parts";
-import {PinNames} from "../../parts/pin-names";
-import {transposedPinNumber} from "../../parts/part-geometry";
+import {PinNames, transposedPinNames} from "../../parts/pin-names";
 
 export class PlacedAdvancedComponent implements PlacedPart {
   public ref = "";
@@ -74,14 +73,11 @@ export class PlacedAdvancedComponent implements PlacedPart {
     // just make it jump off the holes the user spanned. Transpose it in place instead, which
     // keeps the top-left corner put and is what "rotate this header" actually means.
     if (this.getDefinition()?.gridSizable) {
-      const {rows, cols, pinDescription} = this;
+      const {rows, cols} = this;
       this.rows = cols;
       this.cols = rows;
-      // Transposing renumbers the pins (row by row), so each name moves to its pin's new number.
-      if (pinDescription) {
-        this.pinDescription = Object.fromEntries(Object.entries(pinDescription)
-          .map(([pin, name]) => [transposedPinNumber(Number(pin), rows, cols), name]));
-      }
+      // Transposing renumbers the pins, so their names move with them.
+      if (this.pinDescription) this.pinDescription = transposedPinNames(this.pinDescription, rows, cols);
       return;
     }
     this.rotationAngle = ((this.rotationAngle + 90) % 360) as 0 | 90 | 180 | 270;
@@ -111,7 +107,7 @@ export class PlacedAdvancedComponent implements PlacedPart {
       cols: this.cols,
       ...(this.value ? {value: this.value} : {}),
       ...(this.custom ? {custom: this.custom} : {}),
-      ...(this.pinDescription && Object.keys(this.pinDescription).length ? {pinDescription: this.pinDescription} : {}),
+      ...(this.pinDescription ? {pinDescription: this.pinDescription} : {}),
     };
   }
 

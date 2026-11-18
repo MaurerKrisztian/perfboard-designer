@@ -1,4 +1,5 @@
 import {AdvancedComponentDefinition} from "./advanced-component-definitions";
+import {transposedPinNumber} from "./part-geometry";
 
 // The names a placed part's pins go by, when its maker has named them: "1": "+5V", "2": "GND", as
 // SavedAdvancedComponent.pinDescription holds them. They replace the definition's own names (a JST
@@ -42,4 +43,10 @@ export function keptPinNames(
     kept[pin] = name;
   }
   return Object.keys(kept).length ? kept : undefined;
+}
+
+// `names` once their rows × cols pin block is transposed, as the editor turns one: each name moves
+// with its pin to the pin's new number.
+export function transposedPinNames(names: PinNames, rows: number, cols: number): PinNames {
+  return Object.fromEntries(Object.entries(names).map(([pin, name]) => [transposedPinNumber(Number(pin), rows, cols), name]));
 }

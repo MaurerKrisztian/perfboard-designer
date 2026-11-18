@@ -377,7 +377,7 @@ them, while `catalogDefinitionFor(part)` gives the unnamed definition. `src/part
 merges the two, and its `keptPinNames()` is the one rule for which names a part keeps (only for
 pins it has, at most 24 characters, only real overrides; a blank one shows the pin's number),
 used by the reader, the editor and the MCP alike. A pin block's names move with its pins when it's
-turned (`transposedPinNumber()`). Rails and polarity go by a part's own marks (`pinMarks()` in
+turned (`transposedPinNames()`). Rails and polarity go by a part's own marks (`pinMarks()` in
 `rails.ts`), never by names the board gives its pins. Edited by the selection bar's Pin names
 (`src/features/part-pin-names.ts`, `src/ui/dialogs/PinNamesDialog.tsx`, one undoable `set` of
 `pin-names`) and by the MCP server's `update_part` `pinNames`. Only the placed part is renamed.

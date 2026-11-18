@@ -1,7 +1,8 @@
 import {
   advancedPinCount, BoardRefs, boardPins, catalogDefinitionFor, CUSTOM_PART_ID, customPartDefinition, customPartShape, type CustomPartSpec,
   fileVersionFor, GridPos, isSolderPath, isValidRef, keptPinNames, MAX_CUSTOM_PART_SIDE, MAX_DESCRIPTION_LENGTH, MAX_PIN_NAME_LENGTH, partPins,
-  pinName, ProjectFile, readCustomPart, readDescription, SavedCustomIc, SavedWire, shapedPartSpec,
+  pinName, type PinNames, ProjectFile, readCustomPart, readDescription, type SavedAdvancedComponent, SavedCustomIc, SavedWire,
+  shapedPartSpec,
 } from "./editor";
 import {findPart, icEntry, noSuchPart} from "./parts";
 import {findPin, pinsByRef} from "./expected-nets";
@@ -305,7 +306,7 @@ function updatePart(project: ProjectFile, op: Op<"update_part">, placed: Set<str
   if (op.by && (op.at || op.from || op.to)) throw new OpError("Give `by` or new positions, not both.");
 
   if (found.kind === "standard-component") {
-    notFor("a two-lead part", op, ["at", "rotation", "rows", "cols"]);
+    notFor("a two-lead part", op, ["at", "rotation", "rows", "cols", "pinNames"]);
     const e = found.entry;
     const from = op.from ?? moved(e.from);
     const to = op.to ?? moved(e.to);
@@ -339,46 +340,15 @@ function updatePart(project: ProjectFile, op: Op<"update_part">, placed: Set<str
         found.entry.rows = op.rows ?? found.entry.rows;
         found.entry.cols = op.cols ?? found.entry.cols;
         said.push(`${found.entry.rows}×${found.entry.cols}`);
-        // A pin block made smaller loses the names of the pins it no longer has: said, not lost
-        // without a word when the file is read back.
-        const def = catalogDefinitionFor(found.entry);
-        const names = found.entry.pinDescription;
-        const pins = def && advancedPinCount(def, found.entry.rows, found.entry.cols);
-        const lost = names && pins ? Object.keys(names).map(Number).filter(pin => pin > pins) : [];
-        if (lost.length) {
-          const kept = keptPinNames(names, def, pins ?? 0);
-          if (kept) found.entry.pinDescription = kept;
-          else delete found.entry.pinDescription;
-          said.push(`no names on ${plural(lost.length, "pin")} it no longer has (${lost.join(", ")})`);
-        }
+        const lost = dropLostPinNames(found.entry);
+        if (lost.length) said.push(`no names on ${plural(lost.length, "pin")} it no longer has (${lost.join(", ")})`);
       }
+      if (op.pinNames !== undefined) said.push(namePins(found.ref, found.entry, op.pinNames));
     } else {
-      notFor("a chip", op, ["rows", "cols", "value"]);
+      notFor("a chip", op, ["rows", "cols", "value", "pinNames"]);
     }
   }
 
-  if (op.pinNames !== undefined && found.kind === "advanced-component") {
-    const e = found.entry;
-    const def = catalogDefinitionFor(e);
-    if (!def) throw new OpError(`${found.ref} is a "${e.definitionId}", which this server doesn't know, so its pins can't be named.`);
-    const pins = advancedPinCount(def, e.rows, e.cols);
-    for (const [pin, name] of Object.entries(op.pinNames)) {
-      const number = Number(pin);
-      if (!Number.isInteger(number) || number < 1 || number > pins) {
-        throw new OpError(`\`pinNames\` keys are ${found.ref}'s pin numbers, 1 to ${pins}: "${pin}" isn't one.`);
-      }
-      checkedPinName(name, number - 1, "`pinNames`:");
-    }
-    // Kept as the editor keeps them: a name the catalog already gives the pin isn't stored.
-    const names = keptPinNames(op.pinNames, def, pins);
-    if (names) e.pinDescription = names;
-    else delete e.pinDescription;
-    said.push(names
-      ? `pin names ${Object.entries(names).map(([pin, name]) => `${pin} ${name || "(its number)"}`).join(", ")}`
-      : "the catalog's pin names");
-  } else if (op.pinNames !== undefined) {
-    throw new OpError("`pinNames` is for a fixed-pin part (a connector, header, regulator, sensor module...), not a chip or a two-lead part.");
-  }
   if (op.value !== undefined && found.kind !== "ic") {
     if (op.value) found.entry.value = op.value;
     else delete found.entry.value;
@@ -439,6 +409,41 @@ function claimRef(project: ProjectFile, wanted: string | undefined, prefix: stri
 function notFor(kind: string, op: Record<string, unknown>, fields: string[]) {
   const given = fields.filter(field => op[field] !== undefined);
   if (given.length) throw new OpError(`${given.map(f => `\`${f}\``).join(", ")} ${given.length === 1 ? "doesn't" : "don't"} apply to ${kind}.`);
+}
+
+// --- A fixed-pin part's own pin names (SavedAdvancedComponent.pinDescription) ---
+
+// Gives `entry` the pin names `update_part`'s `pinNames` lists, checked against its pins and kept
+// as the editor keeps them (a name the catalog already gives a pin isn't stored), and says which.
+function namePins(ref: string, entry: SavedAdvancedComponent, given: Record<string, string>): string {
+  const def = catalogDefinitionFor(entry);
+  if (!def) throw new OpError(`${ref} is a "${entry.definitionId}", which this server doesn't know, so its pins can't be named.`);
+  const pins = advancedPinCount(def, entry.rows, entry.cols);
+  for (const [pin, name] of Object.entries(given)) {
+    const number = Number(pin);
+    if (!Number.isInteger(number) || number < 1 || number > pins) {
+      throw new OpError(`\`pinNames\` keys are ${ref}'s pin numbers, 1 to ${pins}: "${pin}" isn't one.`);
+    }
+    checkedPinName(name, number - 1, "`pinNames`:");
+  }
+  setPinNames(entry, keptPinNames(given, def, pins));
+  const named = Object.entries(entry.pinDescription ?? {});
+  return named.length ? `pin names ${named.map(([pin, name]) => `${pin} ${name || "(its number)"}`).join(", ")}` : "the catalog's pin names";
+}
+
+// The pins whose names a resized pin block lost because it no longer has them, which it then
+// forgets: said, not dropped without a word when the file is read back.
+function dropLostPinNames(entry: SavedAdvancedComponent): number[] {
+  const def = catalogDefinitionFor(entry);
+  const named = Object.keys(entry.pinDescription ?? {}).map(Number);
+  if (!def || !named.length) return [];
+  setPinNames(entry, keptPinNames(entry.pinDescription, def, advancedPinCount(def, entry.rows, entry.cols)));
+  return named.filter(pin => entry.pinDescription?.[pin] === undefined);
+}
+
+function setPinNames(entry: SavedAdvancedComponent, names: PinNames | undefined) {
+  if (names) entry.pinDescription = names;
+  else delete entry.pinDescription;
 }
 
 // --- Wires ---

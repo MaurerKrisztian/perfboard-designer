@@ -1,5 +1,6 @@
 import {GridPos} from "./grid";
 import type {CustomPartSpec} from "../parts/custom-parts";
+import type {PinNames} from "../parts/pin-names";
 import type {CircuitRequirements} from "./requirements";
 
 // The project file format, version 11. Positions are grid [column, row] pairs counted from the
@@ -147,7 +148,7 @@ export interface SavedAdvancedComponent {
   // (src/parts/pin-names.ts). Only this placed part is renamed, never the catalog entry it came
   // from; the MCP server writes it through `edit_project`'s `pinNames`, as does the editor's Pin
   // Names action.
-  pinDescription?: Record<number, string>;
+  pinDescription?: PinNames;
   // A user-made part (version 6, definitionId "custom"): its whole definition, so the board needs
   // nothing else to draw it and know its pins (src/parts/custom-parts.ts): `name`, `cols` x `rows`
   // holes of body, its `pins` in order, each `at` a [column, row] within the body from its top-left

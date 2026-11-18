@@ -1,6 +1,8 @@
 import {ILine} from "./line.interface";
 import {IDot} from "./dot.interface";
 import type {Part} from "./placed-part.interface";
+import type {PlacedAdvancedComponent} from "../features/advanced-components/placed-advanced-component";
+import type {PinNames} from "../parts/pin-names";
 import type {BoardSetup} from "../state/BoardState";
 import type {CircuitRequirements} from "../project-file/requirements";
 
@@ -21,7 +23,7 @@ export type IChange =
   // linePoints) before and after. Same shape, so the wire stays the same object.
   | { type: "move"; kind: "line"; line: ILine; from: IDot[]; to: IDot[] }
   // A fixed-pin part's own pin names, as SavedAdvancedComponent.pinDescription holds them.
-  | {type: "set"; kind: "pin-names"; part: Part; from?: Record<number, string>; to?: Record<number, string>}
+  | { type: "set"; kind: "pin-names"; part: PlacedAdvancedComponent; from?: PinNames; to?: PinNames }
   // `cut` is the hole's state after the change.
   | { type: "set"; kind: "cut"; dot: IDot; cut: boolean }
   | { type: "set"; kind: "board"; from: BoardSetup; to: BoardSetup };
