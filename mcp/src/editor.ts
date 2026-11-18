@@ -36,8 +36,10 @@ export {
 } from "../../src/parts/advanced-component-definitions";
 export {IC_DEFINITIONS, type IcDefinition} from "../../src/parts/ic-definitions";
 export {
-  CUSTOM_PART_ID, customPartDefinition, customPartShape, type CustomPartSpec, MAX_CUSTOM_PART_SIDE, shapedPartSpec,
+  catalogDefinitionFor, CUSTOM_PART_ID, customPartDefinition, customPartShape, type CustomPartSpec, MAX_CUSTOM_PART_SIDE, shapedPartSpec,
 } from "../../src/parts/custom-parts";
+export {advancedPinCount} from "../../src/parts/part-geometry";
+export {keptPinNames, MAX_PIN_NAME_LENGTH} from "../../src/parts/pin-names";
 export {CATALOG_CATEGORIES, type CategoryId, getCategoryPath} from "../../src/parts/catalog-categories";
 export {ensureComponentIds} from "../../src/project-file/component-ids";
 export {includeRequiredComponents, validateRequirements} from "../../src/project-file/requirements";

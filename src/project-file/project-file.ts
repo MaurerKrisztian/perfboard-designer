@@ -2,10 +2,11 @@ import {GridPos} from "./grid";
 import type {CustomPartSpec} from "../parts/custom-parts";
 import type {CircuitRequirements} from "./requirements";
 
-// The project file format, version 10. Positions are grid [column, row] pairs counted from the
+// The project file format, version 11. Positions are grid [column, row] pairs counted from the
 // top-left hole (column = left to right, row = top to bottom), not pixels, and only holes with a
 // note are listed. Older files are still read, see read-project-file.ts:
-// - version 9: the same, minus the description (`description`).
+// - version 10: the same, minus a placed fixed-pin part's own pin names (`pinDescription`).
+// - version 9: the same as 10, minus the description (`description`).
 // - version 8: the same as 9, minus wires on the solder side (a wire's `side`).
 // - version 7: the same as 8, minus circuit requirements (`requirements`).
 // - version 6: the same as 7, minus part identities (a placed part's `instanceId`).
@@ -14,7 +15,7 @@ import type {CircuitRequirements} from "./requirements";
 // - version 3: the same as 4, minus bent wires (a wire's `via`).
 // - version 2: the same as 3, minus the board type (always a perfboard) and part refs.
 // - version 1 (no `version` field): pixel coordinates, every hole listed, the whole IC catalog.
-export const PROJECT_FILE_VERSION = 10;
+export const PROJECT_FILE_VERSION = 11;
 
 // A file says the oldest version that holds everything in it: 9 with a wire on the solder side,
 // else 8 with requirements, else 6 with a
@@ -22,7 +23,7 @@ export const PROJECT_FILE_VERSION = 10;
 // still opens in editors and tools from before. Part identities (version 7) don't raise it: older
 // readers skip the field, and identities only matter to requirements, which are version 8. Nor does
 // the description (version 10): older readers skip it too, and the board is the same without it.
-// Nor do a placed part's own pin names (`pinDescription`): older readers show its numbers instead.
+// Nor do a placed part's own pin names (version 11): older readers show the part's own names instead.
 export type FileVersion = 3 | 4 | 5 | 6 | 8 | 9;
 
 export function fileVersionFor(project: Pick<ProjectFile, "wires" | "placedAdvancedComponents" | "requirements">): FileVersion {
@@ -139,11 +140,13 @@ export interface SavedAdvancedComponent {
   rows: number;
   cols: number;
   value?: string;
-  // This one part's pin names, by pin number ("1": "+5V", "2": "GND"), for a connector whose pins
-  // mean something here. They replace the definition's own names on the board, in the nets and in
-  // the parts list, and a blank name puts a numbered pin's number back. Only this placed part is
-  // renamed, never the catalog entry it came from; the MCP server writes it through
-  // `edit_project`'s `pinNames`, as does the editor's Pin Names action.
+  // Version 11: this one part's pin names, by pin number ("1": "+5V", "2": "GND"), for a connector
+  // whose pins mean something here. They replace the definition's own names on the board and in
+  // the nets; a blank one ("") shows a pin the definition names by its number. Only pins the part
+  // has, each name at most 24 characters and only where it differs from the definition's own
+  // (src/parts/pin-names.ts). Only this placed part is renamed, never the catalog entry it came
+  // from; the MCP server writes it through `edit_project`'s `pinNames`, as does the editor's Pin
+  // Names action.
   pinDescription?: Record<number, string>;
   // A user-made part (version 6, definitionId "custom"): its whole definition, so the board needs
   // nothing else to draw it and know its pins (src/parts/custom-parts.ts): `name`, `cols` x `rows`

@@ -54,9 +54,10 @@ part's required inventory entry and the physical part in one history batch. Dele
 required until explicitly forgotten. New projects clear requirements; resizing/copying and MCP
 edits preserve them. MCP validation checks saved requirements only when enabled; `expectNets` is
 unchanged. A top-level `schematic` field from older editors is read and ignored. Release the
-frontend, MCP and hosted reader together for format-9 files, and for descriptions (version 10): files
-holding one still open in older readers, which skip it, but the hosted Worker stores projects as its
-reader reads them, so an older Worker's short links would lose the description.
+frontend, MCP and hosted reader together for format-9 files, and for descriptions (version 10) and
+parts' own pin names (version 11): files holding them still open in older readers, which skip them,
+but the hosted Worker stores projects as its reader reads them, so an older Worker's short links
+would lose them.
 
 `ARCHITECTURE.md` (repo root) is the developer guide to all of this, for people: how each part
 works and how to extend it. Keep it in step with this file: a change that makes a section of
@@ -371,9 +372,13 @@ means a new look there plus a `BoardType` in the project file.
 
 **A placed part's own pin names**: any placed fixed-pin part can rename its pins (a JST whose pins
 are +5V and GND), in `SavedAdvancedComponent.pinDescription`; `advancedDefinitionFor(part)` puts them
-on the definition's labels, so the drawing, nets, parts list and MCP all see them, while
-`catalogDefinitionFor(part)` gives the unnamed definition (`src/parts/pin-names.ts` merges the two
-and keeps only real overrides). Edited by the selection bar's Pin names
+on the definition's labels (one per pin the part has), so the drawing, the nets and MCP all see
+them, while `catalogDefinitionFor(part)` gives the unnamed definition. `src/parts/pin-names.ts`
+merges the two, and its `keptPinNames()` is the one rule for which names a part keeps (only for
+pins it has, at most 24 characters, only real overrides; a blank one shows the pin's number),
+used by the reader, the editor and the MCP alike. A pin block's names move with its pins when it's
+turned (`transposedPinNumber()`). Rails and polarity go by a part's own marks (`pinMarks()` in
+`rails.ts`), never by names the board gives its pins. Edited by the selection bar's Pin names
 (`src/features/part-pin-names.ts`, `src/ui/dialogs/PinNamesDialog.tsx`, one undoable `set` of
 `pin-names`) and by the MCP server's `update_part` `pinNames`. Only the placed part is renamed.
 
@@ -406,12 +411,12 @@ width, nothing else in the hole) carries that wire on as one bent wire into one 
 selection's Connect to Wire, `connect-wire.ts`, splits the jumpers passing over a hole holding a pin
 or a jumper's end the same way, for a part placed after the wire), `add`/`remove`/`move`
 of a part, `move` of a wire (its points; moved with a selection), `set` of a strip cut, of the
-board setup or of the description, or a `batch` of several as one step. `undo`/`redo` replay these and call `redrawCanvas()`. History is cleared whenever the
+board setup, of the description or of a part's own pin names, or a `batch` of several as one step. `undo`/`redo` replay these and call `redrawCanvas()`. History is cleared whenever the
 board is replaced (load, reset, resize) via `resetForNewBoard()`.
 
 **Persistence**: the project file format lives in `src/project-file/` — pure code (no DOM, no
 editor state) shared by the editor and the 3D viewer. `project-file.ts` defines the current format
-(version 10 adds an optional `description`, which older readers skip, so it never raises a file's version: what the board is and how it works, in a small part of Markdown, `src/project-file/description.ts`, whose `descriptionHtml()` is the one place it becomes HTML, escaping everything since share links carry anyone's text, and which turns the board's part names in it (a ref as the board writes it, or a pin: `U1.8`, `D1.K`) into `part-ref` buttons when given `partMentions(project)`, `src/project-file/part-mentions.ts`; the editor holds it in `DescriptionState`, edited in `DescriptionDialog.tsx`, which keeps what was typed however it's closed, one undoable `set` from `src/features/project-description.ts`; version 9 adds a jumper's optional `side: "bottom"`, the solder side, which the editor sets with a selected wire's Move to Solder Side action and which only crosses wires on its own face (`wire-crossings.ts`); version 8 adds optional requirements; version 7 part identities; grid `[col, row]` positions, the board type with a stripboard's strip direction and
+(version 11 adds a placed fixed-pin part's own pin names, `pinDescription`, which older readers skip too, so it never raises a file's version either; version 10 adds an optional `description`, which older readers skip, so it never raises a file's version: what the board is and how it works, in a small part of Markdown, `src/project-file/description.ts`, whose `descriptionHtml()` is the one place it becomes HTML, escaping everything since share links carry anyone's text, and which turns the board's part names in it (a ref as the board writes it, or a pin: `U1.8`, `D1.K`) into `part-ref` buttons when given `partMentions(project)`, `src/project-file/part-mentions.ts`; the editor holds it in `DescriptionState`, edited in `DescriptionDialog.tsx`, which keeps what was typed however it's closed, one undoable `set` from `src/features/project-description.ts`; version 9 adds a jumper's optional `side: "bottom"`, the solder side, which the editor sets with a selected wire's Move to Solder Side action and which only crosses wires on its own face (`wire-crossings.ts`); version 8 adds optional requirements; version 7 part identities; grid `[col, row]` positions, the board type with a stripboard's strip direction and
 cuts, only holes with notes, wires with the corners they bend at (`via`) and their `kind` (absent:
 a jumper, whose corners never join; `"solder"`: a solder path, which joins every hole it covers;
 `wire-path.ts` gives a wire's points, legs and a solder path's holes), per-kind part arrays with

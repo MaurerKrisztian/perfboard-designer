@@ -4,7 +4,12 @@ import {
   SavedPerfboard, SavedStandardComponent, SavedWire
 } from "./project-file";
 import {BoardRefs, refPrefixFor} from "./part-refs";
-import {CUSTOM_PART_ID, CustomPartPin, CustomPartSpec, customPartShape, MAX_CUSTOM_PART_SIDE, shapedPartSpec} from "../parts/custom-parts";
+import {
+  catalogDefinitionFor, CUSTOM_PART_ID, CustomPartPin, CustomPartSpec, customPartShape, MAX_CUSTOM_PART_SIDE, shapedPartSpec,
+} from "../parts/custom-parts";
+import {AdvancedComponentDefinition} from "../parts/advanced-component-definitions";
+import {advancedPinCount} from "../parts/part-geometry";
+import {keptPinNames, MAX_PIN_NAME_LENGTH, PinNames} from "../parts/pin-names";
 import {ensureComponentIds} from "./component-ids";
 import {readRequirements} from "./requirements";
 import {readDescription} from "./description";
@@ -51,9 +56,6 @@ function rotation(value: unknown): Rotation {
   return n === 90 || n === 180 || n === 270 ? n : 0;
 }
 
-const REF_PREFIX = /^[A-Za-z]{1,4}$/;
-const MAX_LABEL_LENGTH = 24;
-
 function pinLabels(value: unknown): Record<number, string> {
   const labels: Record<number, string> = {};
   const entry = asEntry(value);
@@ -66,16 +68,11 @@ function pinLabels(value: unknown): Record<number, string> {
   return labels;
 }
 
-// A placed part's own pin names (SavedAdvancedComponent.pinDescription), trimmed as the editor
-// keeps them; undefined when it names none.
-function pinNames(value: unknown): Record<number, string> | undefined {
-  const labels = pinLabels(value);
-  const names: Record<number, string> = {};
-  for (const [pin, label] of Object.entries(labels)) {
-    const name = label.trim().slice(0, MAX_LABEL_LENGTH);
-    if (name) names[Number(pin)] = name;
-  }
-  return Object.keys(names).length ? names : undefined;
+// A placed part's own pin names (SavedAdvancedComponent.pinDescription), as the editor keeps them
+// (keptPinNames): only for pins the part has, so a hostile pin number can't make every drawing of
+// it build a huge list, and only where they differ from the names its definition `def` gives.
+function pinNames(value: unknown, def: AdvancedComponentDefinition | undefined, rows: number, cols: number): PinNames | undefined {
+  return keptPinNames(pinLabels(value), def, def ? advancedPinCount(def, rows, cols) : Infinity);
 }
 
 function readCustomIc(entry: Entry): SavedCustomIc | undefined {
@@ -92,6 +89,9 @@ function readCustomIc(entry: Entry): SavedCustomIc | undefined {
     ...(typeof entry.category === "string" ? {category: entry.category} : {}),
   };
 }
+
+const REF_PREFIX = /^[A-Za-z]{1,4}$/;
+const MAX_LABEL_LENGTH = MAX_PIN_NAME_LENGTH;
 
 // A custom part's definition (SavedAdvancedComponent.custom), or undefined if it can't be one: a
 // body of 1 to MAX_CUSTOM_PART_SIDE holes a side and at least one pin, each in its own hole of it,
@@ -269,10 +269,10 @@ function optional<K extends string, V>(key: K, value: V | undefined): {[P in K]?
   return (value === undefined ? {} : {[key]: value}) as {[P in K]?: V};
 }
 
-// Versions 2 to 10: grid positions. Version 3 added the board type (with a stripboard's cuts) and
-// part refs, version 4 bent wires, version 5 solder paths, version 6 custom parts, version 9 wires on the solder side, version 10 the description. A version 2 board
+// Versions 2 to 11: grid positions. Version 3 added the board type (with a stripboard's cuts) and
+// part refs, version 4 bent wires, version 5 solder paths, version 6 custom parts, version 9 wires on the solder side, version 10 the description, version 11 parts' own pin names. A version 2 board
 // is always a perfboard, and its parts are given refs on reading.
-function readGridFile(data: Entry, version: 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10): ReadProjectResult {
+function readGridFile(data: Entry, version: 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11): ReadProjectResult {
   const boardEntry = asEntry(data.board);
   const cols = boardEntry && wholeCount(boardEntry.cols);
   const rows = boardEntry && wholeCount(boardEntry.rows);
@@ -328,11 +328,14 @@ function readGridFile(data: Entry, version: 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10):
     const isCustom = version >= 6 && (entry.custom !== undefined || definitionId === CUSTOM_PART_ID);
     const custom = isCustom ? readCustomPart(entry.custom) : undefined;
     if (isCustom && !custom) return undefined;
+    const rows = wholeCount(entry.rows) ?? 1;
+    const cols = wholeCount(entry.cols) ?? 1;
+    const def = catalogDefinitionFor({definitionId, custom});
     return {
       instanceId: text(entry.instanceId), ref: text(entry.ref) ?? "", definitionId: custom ? CUSTOM_PART_ID : definitionId, at, rotation: rotation(entry.rotation),
-      rows: wholeCount(entry.rows) ?? 1, cols: wholeCount(entry.cols) ?? 1,
+      rows, cols,
       ...optional("value", text(entry.value)), ...(custom ? {custom} : {}),
-      ...optional("pinDescription", pinNames(entry.pinDescription)),
+      ...optional("pinDescription", pinNames(entry.pinDescription, def, rows, cols)),
     };
   });
 
@@ -426,7 +429,7 @@ export function readProjectFile(raw: unknown): ReadProjectResult {
   // Version 1 never had a `board`, so a file without a version that has one was written by hand
   // (or by a program) to the current format, and only left the version out.
   if (data.version === undefined) return asEntry(data.board) ? readGridFile(data, PROJECT_FILE_VERSION) : readV1(data);
-  if (data.version === 2 || data.version === 3 || data.version === 4 || data.version === 5 || data.version === 6 || data.version === 7 || data.version === 8 || data.version === 9 || data.version === 10) return readGridFile(data, data.version);
+  if (data.version === 2 || data.version === 3 || data.version === 4 || data.version === 5 || data.version === 6 || data.version === 7 || data.version === 8 || data.version === 9 || data.version === 10 || data.version === 11) return readGridFile(data, data.version);
   if (typeof data.version === "number" && data.version > PROJECT_FILE_VERSION) {
     throw new ProjectFileError(
       "This project was saved by a newer version of Perfboard Designer. Reload the page to get the latest version, then open it again."

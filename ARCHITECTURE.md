@@ -474,12 +474,18 @@ never replacing `Ic.IC_CONTAINER`.
 **A placed part's own pin names.** Any placed fixed-pin part (not only a custom one) can name its
 pins: a JST connector whose pins carry +5V and GND, a header whose pins are RS and EN. The names
 live on the placed part, `SavedAdvancedComponent.pinDescription` (`{"1": "+5V", "2": "GND"}`), and
-`advancedDefinitionFor(part)` puts them on top of the definition's own labels, so everything that
-goes through it — the drawing, `pin-positions.ts` and so the nets, the parts list and the MCP
-server — sees them. `catalogDefinitionFor(part)` gives the definition without them (what the
-catalog calls the pins), and `src/parts/pin-names.ts` merges the two and works out which names are
-really overrides, so a name typed back to the catalog's own stops being one. Only the placed part
-is renamed, never the catalog entry or another copy. The editor edits them in the selection bar's
+`advancedDefinitionFor(part)` puts them on top of the definition's own labels, one per pin the
+part has, so everything that goes through it — the drawing, `pin-positions.ts` and so the nets and
+the MCP server — sees them. `catalogDefinitionFor(part)` gives the definition without them (what the
+catalog calls the pins). `src/parts/pin-names.ts` merges the two, and its `keptPinNames()` is the
+one rule for which names a part keeps, used by the file reader, the editor and the MCP server alike:
+only for pins the part has (so a hostile pin number in a link can't make every drawing build a huge
+list), each at most 24 characters, and only where it differs from the catalog's, so a name typed
+back to the catalog's own stops being one. A blank name shows a pin the catalog names by its
+number. Turning a pin block transposes it, which renumbers its pins row by row, so its names move
+with them (`transposedPinNumber()` in `part-geometry.ts`). Rails and polarity go by what a part
+marks its pins as itself (`pinMarks()` in `rails.ts`: a battery's + and −), never by a name the
+board gives a pin. Only the placed part is renamed, never the catalog entry or another copy. The editor edits them in the selection bar's
 **Pin names** (or the context menu's Pin Names…), which opens
 `src/ui/dialogs/PinNamesDialog.tsx`; `src/features/part-pin-names.ts` makes each save one undoable
 `set` of `pin-names`. The MCP server writes them with `edit_project`'s `pinNames` on `update_part`.
@@ -597,7 +603,8 @@ redraw. History is cleared whenever the board is replaced (load, reset, resize) 
 **The format** lives in `src/project-file/`, pure code shared by the editor, the 3D viewer and the
 MCP server.
 
-- `project-file.ts` defines version 10 (an optional `description`), with its shared types in `requirements.ts`. It holds grid
+- `project-file.ts` defines version 11 (a fixed-pin part's own pin names; version 10 added an optional
+  `description`), with its shared types in `requirements.ts`. It holds grid
   `[col, row]` positions, the board type with a stripboard's strips and cuts, only holes with notes,
   wires with the corners they bend at (`via`) and what they are (`kind`: absent for a jumper,
   whose corners are bends and never joints, `"solder"` for a solder path), per-kind part arrays
@@ -608,7 +615,9 @@ MCP server.
   side, else 8 with requirements, else 6 with a custom module, else 5 with a solder path, else 4 if
   a wire bends, else 3. So a board without them still opens in editors and MCP servers from before.
   The description doesn't raise it (nor do part identities or a part's own pin names): older
-  readers skip the field, and the board is the same without it.
+  readers skip the field, and the board is the same without it, its pins going by the part's own
+  names. The hosted Worker stores projects as its reader reads them, so the editor, the MCP server
+  and the Worker are released together for these.
 - `description.ts` owns the description: what the board is and how it works, in its maker's words,
   in a small part of Markdown. Its `descriptionHtml()` is the one place that text becomes HTML, for
   the editor's dialog (`src/ui/dialogs/DescriptionDialog.tsx`), the project PDF and the shared

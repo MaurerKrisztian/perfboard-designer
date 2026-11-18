@@ -1,9 +1,9 @@
 import {Netlist, NetPin} from "./nets";
 import {ProjectFile} from "./project-file";
 import {PartKind} from "./part-refs";
-import {MINUS, PLUS, Rail, RailLevel, supplyRails} from "./rails";
+import {MINUS, pinMarks, PLUS, Rail, RailLevel, supplyRails} from "./rails";
 import {getComponentDefinition} from "../parts/component-definitions";
-import {advancedDefinitionFor} from "../parts/custom-parts";
+import {catalogDefinitionFor} from "../parts/custom-parts";
 
 // Parts that look to be in the wrong way round, judged only by the supply rails their ends are on
 // (rails.ts), from a project file and its nets like the nets themselves. Only what the rails
@@ -54,24 +54,25 @@ function inSentence(name: string): string {
 }
 
 // "anode (A)", "cathode (K)", "+ lead", "− pin".
-function endName(pin: NetPin, lead: string): string {
-  const label = pin.label?.trim() ?? "";
+// `label` is the end's own mark (pinMarks).
+function endName(label: string, lead: string): string {
   if (label === "A") return "anode (A)";
   if (label === "K") return "cathode (K)";
   return `${MINUS.test(label) ? "−" : "+"} ${lead}`;
 }
 
-const isPositiveEnd = (pin: NetPin) => pin.label === "A" || PLUS.test(pin.label?.trim() ?? "");
-const isNegativeEnd = (pin: NetPin) => pin.label === "K" || MINUS.test(pin.label?.trim() ?? "");
+const isPositiveEnd = (mark: string) => mark === "A" || PLUS.test(mark);
+const isNegativeEnd = (mark: string) => mark === "K" || MINUS.test(mark);
 
-// Every part on the board with a positive and a negative end.
-function polarizedParts(project: ProjectFile, netlist: Netlist): Polarized[] {
+// Every part on the board with a positive and a negative end, told by the marks the parts
+// themselves give their ends (`markOf`), not by names the board gives their pins.
+function polarizedParts(project: ProjectFile, netlist: Netlist, markOf: (pin: NetPin) => string): Polarized[] {
   const pinsOf = new Map<string, NetPin[]>();
   for (const net of netlist.nets) for (const pin of net.pins) pinsOf.set(pin.ref, [...(pinsOf.get(pin.ref) ?? []), pin]);
   const ends = (ref: string): [NetPin, NetPin] | undefined => {
     const pins = pinsOf.get(ref) ?? [];
-    const positive = pins.filter(isPositiveEnd);
-    const negative = pins.filter(isNegativeEnd);
+    const positive = pins.filter(pin => isPositiveEnd(markOf(pin)));
+    const negative = pins.filter(pin => isNegativeEnd(markOf(pin)));
     return positive.length === 1 && negative.length === 1 ? [positive[0], negative[0]] : undefined;
   };
   const parts: Polarized[] = [];
@@ -80,7 +81,7 @@ function polarizedParts(project: ProjectFile, netlist: Netlist): Polarized[] {
     const def = getComponentDefinition(entry.definitionId);
     const found = def?.leadLabels && ends(entry.ref);
     if (!def || !found) continue;
-    const capacitor = PLUS.test(found[0].label ?? "");
+    const capacitor = PLUS.test(markOf(found[0]));
     parts.push({
       ref: entry.ref, kind: "standard-component", part: inSentence(def.name), ends: found,
       mustFace: !!def.led || capacitor,
@@ -89,7 +90,7 @@ function polarizedParts(project: ProjectFile, netlist: Netlist): Polarized[] {
     });
   }
   for (const entry of project.placedAdvancedComponents) {
-    const def = advancedDefinitionFor(entry);
+    const def = catalogDefinitionFor(entry);
     // A power source's + and − are the rails themselves.
     const found = def && !def.powerSource && ends(entry.ref);
     if (!def || !found) continue;
@@ -115,7 +116,8 @@ export function polarityWarnings(project: ProjectFile, netlist: Netlist): Polari
     : !all.some(other => other !== rail && other.level === "negative" && other.volts !== undefined && (rail.volts === undefined || other.volts < rail.volts));
 
   const warnings: PolarityWarning[] = [];
-  for (const part of polarizedParts(project, netlist)) {
+  const markOf = pinMarks(project);
+  for (const part of polarizedParts(project, netlist, markOf)) {
     const [high, low] = part.ends;
     const highNet = netlist.netAt(high.at);
     const lowNet = netlist.netAt(low.at);
@@ -124,8 +126,8 @@ export function polarityWarnings(project: ProjectFile, netlist: Netlist): Polari
     const highRail = rails.get(highNet);
     const lowRail = rails.get(lowNet);
     const lead = part.kind === "standard-component" ? "lead" : "pin";
-    const highEnd = endName(high, lead);
-    const lowEnd = endName(low, lead);
+    const highEnd = endName(markOf(high), lead);
+    const lowEnd = endName(markOf(low), lead);
 
     let problem: PolarityWarning["problem"] | undefined;
     let detail = "";

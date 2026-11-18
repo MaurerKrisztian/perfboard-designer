@@ -1,6 +1,6 @@
 import {isPowerName, isPowerNet, Net, Netlist, NetPin} from "./nets";
 import {ProjectFile} from "./project-file";
-import {advancedDefinitionFor} from "../parts/custom-parts";
+import {catalogDefinitionFor} from "../parts/custom-parts";
 
 // Which nets are supply rails, and which side of the supply each one is: the positive supply,
 // ground or a negative supply. Worked out from a project file and its nets alone, like the nets,
@@ -76,22 +76,33 @@ function shorted(marks: Mark[]): boolean {
   return new Set(marks.flatMap(mark => mark.volts === undefined ? [] : [mark.volts])).size > 1;
 }
 
+// What a pin is marked as on the part itself, to tell which way round a part goes: a lead's or a
+// chip pin's label as the nets have it, but for a fixed-pin part the label its own definition
+// gives the pin (catalogDefinitionFor), never a name this board gives it (pinDescription), which
+// says what the pin carries: a battery's + is its positive terminal whatever it's called.
+export function pinMarks(project: ProjectFile): (pin: NetPin) => string {
+  const own = new Map(project.placedAdvancedComponents.map(part => [part.ref, catalogDefinitionFor(part)?.pinLabels]));
+  return pin => (pin.kind === "advanced-component" ? own.get(pin.ref)?.[pin.pin - 1] : pin.label)?.trim() ?? "";
+}
+
 // What marks each net as a rail: its pins named after one, power sources' terminals on it, and
 // notes on its holes, in that order.
 function railMarks(project: ProjectFile, netlist: Netlist): Map<Net, Mark[]> {
   const marked = new Map<Net, Mark[]>();
   const add = (net: Net, mark: Mark) => marked.set(net, [...(marked.get(net) ?? []), mark]);
-  const sources = new Set(project.placedAdvancedComponents.filter(part => advancedDefinitionFor(part)?.powerSource).map(part => part.ref));
+  const sources = new Set(project.placedAdvancedComponents.filter(part => catalogDefinitionFor(part)?.powerSource).map(part => part.ref));
+  const markOf = pinMarks(project);
 
   for (const net of netlist.nets) {
     const terminals: Mark[] = [];
     for (const pin of net.pins) {
-      const label = pin.label?.trim() ?? "";
-      if (sources.has(pin.ref) && (PLUS.test(label) || MINUS.test(label))) {
-        const plus = PLUS.test(label);
+      const mark = markOf(pin);
+      if (sources.has(pin.ref) && (PLUS.test(mark) || MINUS.test(mark))) {
+        const plus = PLUS.test(mark);
         terminals.push({side: plus ? "positive" : "ground", name: `${pin.ref}'s ${plus ? "+" : "−"} terminal`, pin});
         continue;
       }
+      const label = pin.label?.trim() ?? "";
       // Named as the net is: a chip's or module's pin, not a two-lead part's lead.
       const side = pin.kind === "standard-component" ? undefined : railSide(label);
       if (side) add(net, {side, volts: railVolts(label), name: label, pin});

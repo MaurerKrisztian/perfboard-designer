@@ -164,6 +164,9 @@ https://perfboarddesigner.com/app/#name=LED%20blinker&p=led-blinker
 
 ## The project file
 
+Version 11 adds a fixed-pin part's own pin names, `pinDescription` (below). Older readers skip
+them and show the part's own pin names, so they don't need a newer version on their own.
+
 Version 10 adds an optional `description`: what the board is and how it works, for whoever opens
 it, up to 20,000 characters. It's written in a small part of Markdown (`#` headings, `-` and `1.`
 lists, `**bold**`, `*italic*`, `` `code` ``, `[links](https://...)` and bare `https://` addresses),
@@ -212,10 +215,11 @@ editors open too. It's documented field by field in
   definitions).
 - `placedAdvancedComponents`: fixed-footprint parts: `definitionId`, the anchor pin `at`,
   `rotation` (0, 90, 180 or 270), `rows` and `cols` (1 except for sizable parts such as header
-  pins), optional `value`, and optional `pinDescription` (`{"1": "+5V", "2": "GND"}`): this one
-  part's own pin names, in pin order, which replace the part's own numbers or names on the board,
-  in the nets (`"J6.+5V"`) and in the parts list. Only that placed part is renamed; a name left
-  blank is shown by its number. A user-made module has `"definitionId": "custom"` and carries the
+  pins), optional `value`, and optional `pinDescription` (`{"1": "+5V", "2": "GND"}`, version 11):
+  this one part's own pin names, by pin number, which replace the part's own numbers or names on
+  the board and in the nets (`"J6.+5V"`). Only that placed part is renamed. A blank name (`""`)
+  shows a pin the part names by its number; names are at most 24 characters, and names for pins
+  the part doesn't have are ignored. A user-made module has `"definitionId": "custom"` and carries the
   whole part in `custom` (version 6): `name`, optional `refPrefix`, its size in holes `cols` and
   `rows`, its `pins` in order as `{"at": [c, r], "label": "VCC"}` (holes within the body from its
   top-left hole; pin 1 is the anchor `at`) and an optional `color`. With `"shape"`, the id of a
@@ -230,7 +234,7 @@ editors open too. It's documented field by field in
   automatically.
 
 The reader is forgiving: empty lists can be left out, a file without `version` that has a `board`
-is read as version 10, and board entries it can't read are skipped (and counted) instead of failing the
+is read as version 11, and board entries it can't read are skipped (and counted) instead of failing the
 whole project.
 
 The `definitionId`s, with each part's pins, are in

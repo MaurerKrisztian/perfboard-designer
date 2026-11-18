@@ -8,6 +8,7 @@ import {AdvancedGeometry, advancedPartGeometry, Rect} from "../../board-render";
 import {AdvancedComponentDefinition} from "../../parts/advanced-component-definitions";
 import {advancedDefinitionFor, CustomPartSpec} from "../../parts/custom-parts";
 import {PinNames} from "../../parts/pin-names";
+import {transposedPinNumber} from "../../parts/part-geometry";
 
 export class PlacedAdvancedComponent implements PlacedPart {
   public ref = "";
@@ -73,9 +74,14 @@ export class PlacedAdvancedComponent implements PlacedPart {
     // just make it jump off the holes the user spanned. Transpose it in place instead, which
     // keeps the top-left corner put and is what "rotate this header" actually means.
     if (this.getDefinition()?.gridSizable) {
-      const rows = this.rows;
-      this.rows = this.cols;
+      const {rows, cols, pinDescription} = this;
+      this.rows = cols;
       this.cols = rows;
+      // Transposing renumbers the pins (row by row), so each name moves to its pin's new number.
+      if (pinDescription) {
+        this.pinDescription = Object.fromEntries(Object.entries(pinDescription)
+          .map(([pin, name]) => [transposedPinNumber(Number(pin), rows, cols), name]));
+      }
       return;
     }
     this.rotationAngle = ((this.rotationAngle + 90) % 360) as 0 | 90 | 180 | 270;

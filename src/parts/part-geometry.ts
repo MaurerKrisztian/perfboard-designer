@@ -64,6 +64,21 @@ export function advancedPinOffsets(def: AdvancedComponentDefinition, rows: numbe
   return offsets;
 }
 
+// How many pins a placed fixed-pin part has, as advancedPinOffsets lists them: a pin block's
+// rows × cols, else its package's.
+export function advancedPinCount(def: AdvancedComponentDefinition, rows: number, cols: number): number {
+  return def.gridSizable ? rows * cols : def.pinOffsets.length;
+}
+
+// Pin `pin`'s number once a rows × cols pin block is transposed to cols × rows about its top-left
+// pin (how the editor turns one). Pins are numbered row by row (advancedPinOffsets), so every pin
+// of a block more than one row and one column wide moves to another number.
+export function transposedPinNumber(pin: number, rows: number, cols: number): number {
+  const row = Math.floor((pin - 1) / cols);
+  const col = (pin - 1) % cols;
+  return col * rows + row + 1;
+}
+
 export function advancedPartShape(def: AdvancedComponentDefinition, part: AdvancedPlacement): AdvancedShape {
   const place = (offsets: PinOffset[]): GridPoint[] => offsets.map(({dx, dy}) => {
     const r = rotateOffset(dx, dy, part.rotation);

@@ -1,7 +1,7 @@
 import {
-  BoardRefs, boardPins, CUSTOM_PART_ID, customPartDefinition, customPartShape, type CustomPartSpec, fileVersionFor, GridPos,
-  isSolderPath, isValidRef, MAX_CUSTOM_PART_SIDE, MAX_DESCRIPTION_LENGTH, partPins, pinName, ProjectFile, readCustomPart, readDescription,
-  SavedCustomIc, SavedWire, shapedPartSpec,
+  advancedPinCount, BoardRefs, boardPins, catalogDefinitionFor, CUSTOM_PART_ID, customPartDefinition, customPartShape, type CustomPartSpec,
+  fileVersionFor, GridPos, isSolderPath, isValidRef, keptPinNames, MAX_CUSTOM_PART_SIDE, MAX_DESCRIPTION_LENGTH, MAX_PIN_NAME_LENGTH, partPins,
+  pinName, ProjectFile, readCustomPart, readDescription, SavedCustomIc, SavedWire, shapedPartSpec,
 } from "./editor";
 import {findPart, icEntry, noSuchPart} from "./parts";
 import {findPin, pinsByRef} from "./expected-nets";
@@ -142,7 +142,7 @@ function placedBy(project: ProjectFile, op: Op<"add_part">): {at: GridPos; turne
 
 const REF_LETTERS = /^[A-Z]{1,4}$/;
 const MAX_NAME = 60;
-const MAX_PIN_NAME = 24;
+const MAX_PIN_NAME = MAX_PIN_NAME_LENGTH;
 
 // A custom part of this name on the board (any copy's spec: they're all the same part).
 function findCustomPart(project: ProjectFile, name: string): CustomPartSpec | undefined {
@@ -339,6 +339,18 @@ function updatePart(project: ProjectFile, op: Op<"update_part">, placed: Set<str
         found.entry.rows = op.rows ?? found.entry.rows;
         found.entry.cols = op.cols ?? found.entry.cols;
         said.push(`${found.entry.rows}×${found.entry.cols}`);
+        // A pin block made smaller loses the names of the pins it no longer has: said, not lost
+        // without a word when the file is read back.
+        const def = catalogDefinitionFor(found.entry);
+        const names = found.entry.pinDescription;
+        const pins = def && advancedPinCount(def, found.entry.rows, found.entry.cols);
+        const lost = names && pins ? Object.keys(names).map(Number).filter(pin => pin > pins) : [];
+        if (lost.length) {
+          const kept = keptPinNames(names, def, pins ?? 0);
+          if (kept) found.entry.pinDescription = kept;
+          else delete found.entry.pinDescription;
+          said.push(`no names on ${plural(lost.length, "pin")} it no longer has (${lost.join(", ")})`);
+        }
       }
     } else {
       notFor("a chip", op, ["rows", "cols", "value"]);
@@ -346,15 +358,24 @@ function updatePart(project: ProjectFile, op: Op<"update_part">, placed: Set<str
   }
 
   if (op.pinNames !== undefined && found.kind === "advanced-component") {
-    const names: Record<number, string> = {};
+    const e = found.entry;
+    const def = catalogDefinitionFor(e);
+    if (!def) throw new OpError(`${found.ref} is a "${e.definitionId}", which this server doesn't know, so its pins can't be named.`);
+    const pins = advancedPinCount(def, e.rows, e.cols);
     for (const [pin, name] of Object.entries(op.pinNames)) {
       const number = Number(pin);
-      if (!Number.isInteger(number) || number < 1) throw new OpError(`\`pinNames\` keys are pin numbers, 1 or more: "${pin}" isn't one.`);
-      if (name.trim()) names[number] = name.trim();
+      if (!Number.isInteger(number) || number < 1 || number > pins) {
+        throw new OpError(`\`pinNames\` keys are ${found.ref}'s pin numbers, 1 to ${pins}: "${pin}" isn't one.`);
+      }
+      checkedPinName(name, number - 1, "`pinNames`:");
     }
-    if (Object.keys(names).length) found.entry.pinDescription = names;
-    else delete found.entry.pinDescription;
-    said.push(Object.keys(names).length ? `pin names ${Object.entries(names).map(([pin, name]) => `${pin} ${name}`).join(", ")}` : "no pin names");
+    // Kept as the editor keeps them: a name the catalog already gives the pin isn't stored.
+    const names = keptPinNames(op.pinNames, def, pins);
+    if (names) e.pinDescription = names;
+    else delete e.pinDescription;
+    said.push(names
+      ? `pin names ${Object.entries(names).map(([pin, name]) => `${pin} ${name || "(its number)"}`).join(", ")}`
+      : "the catalog's pin names");
   } else if (op.pinNames !== undefined) {
     throw new OpError("`pinNames` is for a fixed-pin part (a connector, header, regulator, sensor module...), not a chip or a two-lead part.");
   }
