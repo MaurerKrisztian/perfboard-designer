@@ -304,6 +304,18 @@
             <strong>Labels</strong> above the board to show every part's name and value right on the
             board (for example "R1 10k"), handy when you print the layout to solder from.
           </p>
+          <p>
+            A connector's pins often mean something on your board: a JST whose pin 1 is +5V and pin 2
+            GND, a header whose pins are RS and EN. Select one fixed-pin part (a connector, header,
+            regulator, sensor module…) and click <strong>Pin names</strong> in the bar along the bottom
+            of the board (or right-click it and choose <strong>Pin Names…</strong>) to name its pins in
+            pin order. The names show round the pins on the board, and name the nets those pins are on
+            ("J6.+5V"). Only that part is renamed: the catalog entry and
+            other copies of it on the board keep their own names. A name left blank is shown by its
+            number (on a header, which has no numbers on its pins, it just has no name). A header's
+            pins are numbered row by row from its top-left pin, and their names move with them when
+            you rotate it.
+          </p>
         </section>
 
         <section id="custom-ics">
@@ -508,7 +520,7 @@
           <h2>Select, move and delete</h2>
           <ul>
             <li><strong>Select</strong> (the default tool): click a part, wire or hole to select it. Drag a part to move it to new holes.</li>
-            <li>A selected item gets a bar along the bottom of the board with what you can do to it: <strong>Rotate</strong> a chip or other part that turns, <strong>Turn round</strong> an LED, diode or electrolytic capacitor end to end, <strong>Connect to wire</strong> a lead or pad that a wire passes over, change the <strong>Color</strong> of a wire or LED, <strong>Straighten</strong> a bent wire, set a part's <strong>Value</strong>, add a <strong>Note</strong> to a hole, and <strong>Delete</strong>. <strong>Right-click</strong> anything for the same actions as a menu.</li>
+            <li>A selected item gets a bar along the bottom of the board with what you can do to it: <strong>Rotate</strong> a chip or other part that turns, <strong>Turn round</strong> an LED, diode or electrolytic capacitor end to end, <strong>Connect to wire</strong> a lead or pad that a wire passes over, change the <strong>Color</strong> of a wire or LED, <strong>Straighten</strong> a bent wire, set a part's <strong>Value</strong> or its <strong>Pin names</strong>, add a <strong>Note</strong> to a hole, and <strong>Delete</strong>. <strong>Right-click</strong> anything for the same actions as a menu.</li>
             <li><kbd>Delete</kbd> removes the selected part or wire.</li>
             <li><strong>Select several at once</strong>: hold <kbd>Shift</kbd> and click parts and wires to add them to the selection (Shift-click one again to take it out), or hold <kbd>Shift</kbd> and drag a box: everything that lies wholly inside it is selected. <kbd>Ctrl</kbd>+<kbd>A</kbd> selects every part and wire. Or click <strong>Select more</strong> in the bar along the bottom of the board, and plain clicks and drags do the same until you click it again.</li>
             <li>Drag any of the selected parts, or one of the selected wires, and they all move together; wires you didn't select stay where they are. A click on one of them, without dragging, selects just that one. <kbd>Delete</kbd> removes them all, and <strong>Undo</strong> brings them all back in one go.</li>
