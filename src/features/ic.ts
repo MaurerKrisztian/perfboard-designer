@@ -18,6 +18,8 @@ import {icPins} from "../parts/part-geometry";
 import {IC_DEFINITIONS} from "../parts/ic-definitions";
 import {CategoryId, isCategoryId} from "../parts/catalog-categories";
 import {notifyCatalogChanged} from "./catalog/catalog-events";
+import {HistoryState} from "../state/HistoryState";
+import {captureRotation} from "./part-rotation";
 
 
 // Both a catalog entry (IC_CONTAINER, the clone armed for placement) and a chip placed on the
@@ -277,17 +279,21 @@ export function rotateSelectedIc() {
   if (SelectionState.isMany) return;
   const selected = SelectionState.part;
   if (selected && isRotatable(selected)) {
+    const from = captureRotation(selected);
     selected.rotate();
+    HistoryState.record({type: "rotate", kind: "part", part: selected, from, to: captureRotation(selected)});
     redrawCanvas();
     return;
   }
   const active = ToolState.active;
   if (active.kind === "ic") {
+    // The armed copy isn't on the board yet: its rotation is saved with the placement.
     active.template.rotate();
     redrawCanvas();
     return;
   }
   if (active.kind === "advanced-component") {
+    // Same: the tool only carries the rotation a placement will use.
     active.rotation = ((active.rotation + 90) % 360) as Rotation;
     redrawCanvas();
     return;
@@ -296,7 +302,9 @@ export function rotateSelectedIc() {
     // Topmost rotatable part under the cursor; standard components have no rotation.
     const hovered = findPartAt(DotState.hoverDot.x, DotState.hoverDot.y, isRotatable);
     if (hovered && isRotatable(hovered)) {
+      const from = captureRotation(hovered);
       hovered.rotate();
+      HistoryState.record({type: "rotate", kind: "part", part: hovered, from, to: captureRotation(hovered)});
       SelectionState.current = {kind: "part", part: hovered};
       redrawCanvas();
     }

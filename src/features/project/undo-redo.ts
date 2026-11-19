@@ -11,6 +11,7 @@ import {SelectionState} from "../../state/SelectionState";
 import {PartState} from "../../state/PartState";
 import {setLinePoints} from "../line-path";
 import {applyPinNames} from "../part-pin-names";
+import {applyRotation} from "../part-rotation";
 
 // Where `line` is on the board: that very wire, else one running the same way between the same
 // holes (the objects history holds are the ones it put on the board, so this is a fallback).
@@ -56,6 +57,11 @@ function applyChange(change: IChange, direction: "apply" | "revert") {
     const dots = direction === "apply" ? change.to : change.from;
     if (change.kind === "line") setLinePoints(change.line, dots);
     else change.part.setAnchorDots(dots);
+    return;
+  }
+
+  if (change.type === "rotate") {
+    applyRotation(change.part, direction === "apply" ? change.to : change.from);
     return;
   }
 
