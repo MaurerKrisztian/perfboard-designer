@@ -22,9 +22,9 @@ interface RailEntry {
 
 const MODES: RailEntry[] = [
   {tool: "select", icon: "select", label: "Select", title: "Select, move and pan (Esc)"},
-  {tool: "eraser", icon: "eraser", label: "Erase", title: "Erase what you click"},
-  {tool: "note", icon: "note", label: "Note", title: "Add a note to a pad"},
-  {tool: "cut", icon: "cut", label: "Cut", title: "Cut the strip at a hole, or mend a cut"},
+  {tool: "eraser", icon: "eraser", label: "Erase", title: "Erase what you click (E)"},
+  {tool: "note", icon: "note", label: "Note", title: "Add a note to a pad (N)"},
+  {tool: "cut", icon: "cut", label: "Cut", title: "Cut the strip at a hole, or mend a cut (K)"},
 ];
 
 const DRAWING: RailEntry[] = [

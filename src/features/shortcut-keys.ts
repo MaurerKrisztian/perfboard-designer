@@ -6,6 +6,7 @@ import {notifyEditorChanged} from "./editor-events";
 
 export interface IShortcut {
   key: string;
+  // Ctrl on any platform, or Cmd on macOS.
   ctrl?: boolean;
   shift?: boolean;
   event: (e: KeyboardEvent) => void;
@@ -19,6 +20,14 @@ export interface IShortcut {
 export function isTextEntry(target: EventTarget | null): boolean {
   const el = target as HTMLElement | null;
   return !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable);
+}
+
+function isMac(): boolean {
+  return navigator.platform.startsWith("Mac");
+}
+
+export function primaryModifierLabel(): "Cmd" | "Ctrl" {
+  return isMac() ? "Cmd" : "Ctrl";
 }
 
 export class ShortcutRegistry {
@@ -41,11 +50,13 @@ export class ShortcutRegistry {
 }
 
 function onKeyDown(event: KeyboardEvent) {
-  if (isTextEntry(event.target)) return;
-  // Keys compare case-insensitively (so Caps Lock doesn't matter); Shift is its own modifier.
+  if (isTextEntry(event.target) || event.altKey || (event.metaKey && !isMac())) return;
+  const primary = event.ctrlKey || event.metaKey;
   const keyLower = event.key.toLowerCase();
+  // A + can come from Shift on the main keyboard or an unshifted numpad key.
+  const shift = keyLower !== "+" && event.shiftKey;
   for (const shortcut of ShortcutRegistry.shortcuts) {
-    if (keyLower === shortcut.key.toLowerCase() && event.ctrlKey === !!shortcut.ctrl && event.shiftKey === !!shortcut.shift
+    if (keyLower === shortcut.key.toLowerCase() && primary === !!shortcut.ctrl && shift === !!shortcut.shift
       && (!shortcut.when || shortcut.when())) {
       event.preventDefault();
       shortcut.event(event);

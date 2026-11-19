@@ -10,9 +10,9 @@ import {cx} from "../lib/class-names";
 
 const MODES: {mode: ToolMode; icon: IconName; label: string; title: string}[] = [
   {mode: "select", icon: "select", label: "Select", title: "Select, move and pan"},
-  {mode: "eraser", icon: "eraser", label: "Erase", title: "Erase what you tap"},
-  {mode: "note", icon: "note", label: "Note", title: "Add a note to a pad"},
-  {mode: "cut", icon: "cut", label: "Cut", title: "Cut the strip at a hole"},
+  {mode: "eraser", icon: "eraser", label: "Erase", title: "Erase what you tap (E)"},
+  {mode: "note", icon: "note", label: "Note", title: "Add a note to a pad (N)"},
+  {mode: "cut", icon: "cut", label: "Cut", title: "Cut the strip at a hole (K)"},
 ];
 
 export function ToolModes() {
