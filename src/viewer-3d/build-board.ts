@@ -2,10 +2,10 @@ import {
   CircleGeometry, DoubleSide, ExtrudeGeometry, Group, InstancedMesh, LatheGeometry, Matrix4,
   Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry, RingGeometry, Shape, Vector2, Vector3,
 } from "three";
-import {BOARD_BOTTOM_Y, BOARD_THICKNESS, BoardFrame, PITCH, PX_PER_PITCH, SceneKit} from "./scene-kit";
+import {BOARD_BOTTOM_Y, BOARD_THICKNESS, BoardFrame, PITCH, SceneKit} from "./scene-kit";
 import {CUT_GAP_PITCH, STRIP_WIDTH_PITCH} from "../project-file/stripboard-geometry";
 import {ViewerBoard, ViewerDot, ViewerProject, ViewerSolderPath} from "./project-data";
-import {archHalfRunPx, archSamples, WirePath, WirePoint, wireRadius, wireStep} from "./wire-paths";
+import {archSamples, riseOver, WirePath, WirePoint, wireRadius} from "./wire-paths";
 
 const PERFBOARD_COLOR = "#0e5a27";
 // Stripboards are usually SRBP (paper-based), a warm brown.
@@ -177,40 +177,86 @@ export function buildSolderJoints(kit: SceneKit): Group | null {
   return group;
 }
 
-// How a wire arches over what it doesn't join (its hops): clear of the wire underneath, or of a
-// wire end's bend or a lead standing in a hole, rising and falling over this far either side.
-const HOLE_ARCH_LIFT = 1.5;
-const ARCH_RUN = 1.4;
-const PX_PER_MM = PX_PER_PITCH / PITCH;
-
-/** A wire's centreline in the scene: lying on the board, arching over each hop between its bends. */
+/** A wire's centreline in the scene: lying on the board, arching over each hop between its bends
+ *  (clear of the wire underneath, or of a wire end's bend or a lead standing in a hole), and
+ *  raised at a bend sitting over one, its legs rising to meet it. */
 function wireLine(frame: BoardFrame, points: WirePoint[], radius: number, bottom: boolean): Vector3[] {
   // Height in the scene of a wire `up` mm clear of its face: above the top face, below the bottom.
   const heightAt = (up: number) => bottom ? BOARD_BOTTOM_Y - up : up;
   const line: Vector3[] = [];
+  // Where in `line` it bends.
+  const bends: number[] = [];
   for (let i = 0; i < points.length;) {
     const start = points[i];
-    line.push(frame.point(start.x, start.y, heightAt(radius)));
+    if (i > 0 && i < points.length - 1) bends.push(line.length);
+    line.push(frame.point(start.x, start.y, heightAt(radius + (start.raised?.lift ?? 0))));
     let next = i + 1;
     while (next < points.length && points[next].hop) next++;
     if (next >= points.length) break;
     const end = points[next];
     const length = Math.hypot(end.x - start.x, end.y - start.y);
-    const hops = points.slice(i + 1, next).map(({x, y, hop}) => {
-      return {
+    const hops = [
+      ...(start.raised ? [{at: 0, ...start.raised}] : []),
+      ...points.slice(i + 1, next).map(({x, y, hop}) => ({
         at: Math.hypot(x - start.x, y - start.y),
         ...(hop?.runTo ? {until: Math.hypot(hop.runTo.x - start.x, hop.runTo.y - start.y)} : {}),
-        lift: hop?.underWidth !== undefined ? wireStep(hop.underWidth) + (hop.stack ?? 0) : HOLE_ARCH_LIFT,
-        halfRun: hop?.underWidth !== undefined ? archHalfRunPx(hop.underWidth) : ARCH_RUN * PX_PER_MM,
-      };
-    });
+        ...riseOver(hop ?? {}),
+      })),
+      ...(end.raised ? [{at: length, ...end.raised}] : []),
+    ];
     for (const {at, lift} of archSamples(length, hops)) {
       const t = at / length;
       line.push(frame.point(start.x + (end.x - start.x) * t, start.y + (end.y - start.y) * t, heightAt(radius + lift)));
     }
     i = next;
   }
-  return line;
+  return roundBends(line, bends);
+}
+
+// A wire turns on a curve rather than at a point, as the 2D view draws it: the curve's radius (mm,
+// the 2D view's 14 px), and in how many steps it's drawn.
+const BEND_RADIUS = 14 * PITCH / 50;
+const BEND_STEPS = 6;
+
+/** `line` (lying straight seen from above between its `bends`, which index into it) with each
+ *  bend swapped for a curve starting up to BEND_RADIUS before it and ending as far after it. The
+ *  curve still passes as high as the bend, so a bend raised over something stays clear of it. */
+function roundBends(line: Vector3[], bends: number[]): Vector3[] {
+  if (!bends.length) return line;
+  // How far along the line each point is, seen from above.
+  const along = [0];
+  for (let i = 1; i < line.length; i++) along.push(along[i - 1] + Math.hypot(line[i].x - line[i - 1].x, line[i].z - line[i - 1].z));
+  const pointAt = (distance: number) => {
+    let j = 0;
+    while (j < line.length - 2 && along[j + 1] < distance) j++;
+    const run = along[j + 1] - along[j];
+    return line[j].clone().lerp(line[j + 1], run ? (distance - along[j]) / run : 0);
+  };
+  const stops = [0, ...bends.map(b => along[b]), along[along.length - 1]];
+  const curves = bends.map((b, k) => {
+    const reach = Math.min(BEND_RADIUS, (stops[k + 1] - stops[k]) / 2, (stops[k + 2] - stops[k + 1]) / 2);
+    const corner = line[b];
+    const [from, to] = [pointAt(along[b] - reach), pointAt(along[b] + reach)];
+    // A quadratic curve's middle is half its control point and a quarter each of its ends: lifted
+    // so the middle is as high as the corner.
+    const control = corner.clone().setY(2 * corner.y - (from.y + to.y) / 2);
+    const points = Array.from({length: BEND_STEPS + 1}, (_, s) => {
+      const t = s / BEND_STEPS;
+      return from.clone().multiplyScalar((1 - t) * (1 - t))
+        .addScaledVector(control, 2 * (1 - t) * t)
+        .addScaledVector(to, t * t);
+    });
+    return {from: along[b] - reach, to: along[b] + reach, points};
+  });
+  const rounded: Vector3[] = [];
+  let i = 0;
+  for (const curve of curves) {
+    while (i < line.length && along[i] < curve.from) rounded.push(line[i++]);
+    rounded.push(...curve.points);
+    while (i < line.length && along[i] <= curve.to) i++;
+  }
+  while (i < line.length) rounded.push(line[i++]);
+  return rounded;
 }
 
 // A wire's insulation stops this far (mm) short of each end hole, as a stripped jumper's does,

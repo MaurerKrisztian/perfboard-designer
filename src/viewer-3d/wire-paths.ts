@@ -1,14 +1,23 @@
 import {ViewerWire} from "./project-data";
 import {GRID_PITCH_PX} from "../project-file/grid";
 
+// What a wire goes over without joining it: another wire (`underWidth`, that wire's width; `stack`,
+// how high (mm) that wire already stands there, over wires of its own), or with no `underWidth` a
+// hole's pin, lead or wire end.
+export interface WireOver {
+  underWidth?: number;
+  stack?: number;
+}
+
 export interface WirePoint {
   x: number;
   y: number;
-  // Not a bend: a place on the straight run where the wire arches over something it doesn't join,
-  // another wire (`underWidth`, that wire's width) or a hole's pin, lead or wire end.
+  // Not a bend: a place on the straight run where the wire arches over something it doesn't join.
   // `runTo`: the wire lies along the one underneath from here to there.
-  // `stack`: how high (mm) the wire underneath already stands there, over wires of its own.
-  hop?: {underWidth?: number; stack?: number; runTo?: {x: number; y: number}};
+  hop?: WireOver & {runTo?: {x: number; y: number}};
+  // A bend sitting over something it doesn't join: the wire turns up there, as high as a hop over
+  // it would rise, and its legs rise to meet it.
+  raised?: {lift: number; halfRun: number};
 }
 
 /** A jumper's radius in mm, from the editor's thin/normal/thick width. */
@@ -32,13 +41,26 @@ export function archHalfRunPx(underWidth: number): number {
   return (ARCH_RUN + wireRadius(underWidth)) * GRID_PITCH_PX / 2.54;
 }
 
+// How far (mm) a wire rises over a hole holding a pin, a lead or another wire's end: clear of a
+// wire end's bend or a lead standing in it, rising and falling over this far either side.
+const HOLE_ARCH_LIFT = 1.5;
+const HOLE_ARCH_RUN = 2;
+
+/** How a wire rises over what it goes over: how high (mm) and how far (px) either side. */
+export function riseOver(over: WireOver): {lift: number; halfRun: number} {
+  return over.underWidth !== undefined
+    ? {lift: wireStep(over.underWidth) + (over.stack ?? 0), halfRun: archHalfRunPx(over.underWidth)}
+    : {lift: HOLE_ARCH_LIFT, halfRun: HOLE_ARCH_RUN * GRID_PITCH_PX / 2.54};
+}
+
 /** Where a straight run from 0 to `length` rises over its hops: a smooth rise and fall `halfRun`
  *  either side of each one, overlapping arches merged. Hops of one height whose arches touch
  *  and a hop with `until` (a wire lying along another's run) make one raised stretch that stays
  *  level, not an arch per hole. Ends excluded; any units, so long as `at`, `length` and `halfRun`
  *  share one. */
 export function archSamples(length: number, hops: {at: number; until?: number; lift: number; halfRun: number}[]): {at: number; lift: number}[] {
-  const STEPS = 3;
+  // Points on each side of a rise: enough that it reads as a smooth curve, not facets.
+  const STEPS = 8;
   const sorted = [...hops].sort((a, b) => a.at - b.at);
   const stretches: {from: number; to: number; lift: number; halfRun: number}[] = [];
   for (const hop of sorted) {
@@ -106,20 +128,26 @@ export function chainWires(wires: ViewerWire[], componentHoles: ReadonlySet<stri
     if (wire.x1 === wire.x2 && wire.y1 === wire.y2 && !wire.via.length) continue;
     const a = {x: wire.x1, y: wire.y1}, b = {x: wire.x2, y: wire.y2};
     // Each leg's hops, then the bend that ends it. A hop on a bend (a corner over a hole that
-    // holds something) is left to the bend.
+    // holds something, or over another wire) raises the bend instead.
     const isBend = (x: number, y: number) => wire.via.some(corner => corner.x === x && corner.y === y);
+    const over = ({underWidth, stack}: ViewerWire["hops"][number]): WireOver => ({
+      ...(underWidth !== undefined ? {underWidth} : {}),
+      ...(stack ? {stack} : {}),
+    });
     const hops: WirePoint[] = [];
     for (let leg = 0; leg <= wire.via.length; leg++) {
-      for (const {x, y, underWidth, stack, runTo, leg: on} of wire.hops) {
-        if (on === leg && (runTo || !isBend(x, y))) {
-          hops.push({x, y, hop: {
-            ...(underWidth !== undefined ? {underWidth} : {}),
-            ...(stack ? {stack} : {}),
-            ...(runTo ? {runTo} : {}),
-          }});
-        }
+      for (const found of wire.hops) {
+        const {x, y, runTo, leg: on} = found;
+        if (on === leg && (runTo || !isBend(x, y))) hops.push({x, y, hop: {...over(found), ...(runTo ? {runTo} : {})}});
       }
-      if (leg < wire.via.length) hops.push({...wire.via[leg]});
+      if (leg < wire.via.length) {
+        const corner = wire.via[leg];
+        const rises = wire.hops
+          .filter(found => !found.runTo && found.x === corner.x && found.y === corner.y)
+          .map(found => riseOver(over(found)));
+        const raised = rises.reduce<WirePoint["raised"]>((high, rise) => !high || rise.lift > high.lift ? rise : high, undefined);
+        hops.push({...corner, ...(raised ? {raised} : {})});
+      }
     }
     segments.push({a, b, hops, ka: holeKey(a.x, a.y), kb: holeKey(b.x, b.y), color: wire.color, width: wire.width, bottom: wire.bottom});
   }

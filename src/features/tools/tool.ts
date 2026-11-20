@@ -10,6 +10,9 @@ export interface BoardClick {
   hoverDot?: IDot;
   // Shift held: a placement tool stays armed after placing, to place another.
   keepArmed?: boolean;
+  // Shift held: a wire or solder path bends at the hole even where it would connect there (a pin,
+  // a wire, a strip), running over what's in it.
+  bendOnly?: boolean;
 }
 
 // What one kind of ActiveTool does. Tools only change state; the caller redraws and refreshes the

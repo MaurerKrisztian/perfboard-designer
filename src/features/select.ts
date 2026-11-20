@@ -101,7 +101,7 @@ export function pressBoard(e: MouseEvent) {
   hideBoardMenus();
   const {x, y} = Canvas.toDrawingCoordinates(e);
   const tool = ToolState.active;
-  if (!behaviorOf(tool).onPointerDown(tool, {x, y, hoverDot: DotState.hoverDot, keepArmed: e.shiftKey})) {
+  if (!behaviorOf(tool).onPointerDown(tool, {x, y, hoverDot: DotState.hoverDot, keepArmed: e.shiftKey, bendOnly: e.shiftKey})) {
     // A placement tool clicked away from any pad: plain selection instead. The wire tool
     // doesn't pick parts up, so a slightly-off click near a pin can't grab the whole part
     // mid-run.
@@ -185,6 +185,8 @@ const movedFar = (from: {clientX: number; clientY: number}, e: PointerEvent) =>
 
 function onPointerMove(e: PointerEvent) {
   if (e.pointerType === 'touch') return;
+  // Shift may have been pressed while another window had the keyboard.
+  setShiftHeld(e.shiftKey);
   if (pendingBox && movedFar(pendingBox, e)) {
     startBox(pendingBox.from);
     pendingBox = undefined;
@@ -278,7 +280,23 @@ function releaseSpacePan() {
   if (!isPanningBoard) Canvas.c.style.cursor = 'crosshair';
 }
 
+// Shift held or let go: a wire being drawn shows whether a click on the hole under the pointer
+// would bend it there or connect it.
+function setShiftHeld(held: boolean) {
+  if (ViewState.shiftHeld === held) return;
+  ViewState.shiftHeld = held;
+  const tool = ToolState.active;
+  if (isRouteTool(tool) && tool.start) redrawCanvas();
+}
+
+// Letting go of a key in another window never reaches us.
+function releaseHeldKeys() {
+  releaseSpacePan();
+  setShiftHeld(false);
+}
+
 function onKeyDown(e: KeyboardEvent) {
+  if (e.key === 'Shift') setShiftHeld(true);
   if (e.code !== 'Space' || isTextEntry(e.target)) return;
   // Stops the page from scrolling, and a focused toolbar button from being "clicked" by Space.
   e.preventDefault();
@@ -288,6 +306,7 @@ function onKeyDown(e: KeyboardEvent) {
 }
 
 function onKeyUp(e: KeyboardEvent) {
+  if (e.key === 'Shift') setShiftHeld(false);
   if (e.code !== 'Space' || isTextEntry(e.target)) return;
   e.preventDefault();
   releaseSpacePan();
@@ -386,8 +405,7 @@ export function attachMouseInput(canvas: HTMLCanvasElement): () => void {
   window.addEventListener('pointerup', onPointerUp);
   window.addEventListener('keydown', onKeyDown);
   window.addEventListener('keyup', onKeyUp);
-  // Letting go of Space in another window would never reach us.
-  window.addEventListener('blur', releaseSpacePan);
+  window.addEventListener('blur', releaseHeldKeys);
   return () => {
     canvas.removeEventListener('pointerdown', onPointerDown);
     canvas.removeEventListener('dblclick', onDoubleClick);
@@ -396,6 +414,6 @@ export function attachMouseInput(canvas: HTMLCanvasElement): () => void {
     window.removeEventListener('pointerup', onPointerUp);
     window.removeEventListener('keydown', onKeyDown);
     window.removeEventListener('keyup', onKeyUp);
-    window.removeEventListener('blur', releaseSpacePan);
+    window.removeEventListener('blur', releaseHeldKeys);
   };
 }

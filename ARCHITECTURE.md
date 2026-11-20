@@ -355,7 +355,10 @@ that tool with that hole as its start.
 The wire tool builds a route click by click (`ActiveTool`'s `start` and `via`): a click on an empty
 hole adds a bend; a click on a hole the wire would connect to there (`connectsAt()` in
 `wire-merge.ts`: a pin, a wire running over or ending in it, or on a stripboard its strip) places
-the wire and starts the next one from there. Clicking the last hole again, or Enter
+the wire and starts the next one from there, unless it's a Shift-click (`BoardClick.bendOnly`),
+which bends the wire there, running over what's in the hole; while Shift is held
+(`ViewState.shiftHeld`, tracked by `select.ts`) the preview drops the ring that says a click
+connects. Clicking the last hole again, or Enter
 (`ToolBehavior.finish`, called by `select.ts`), ends the wire on an empty hole; Escape
 (`stepBack`) takes back a bend, then ends the run.
 
@@ -578,11 +581,12 @@ Every undoable mutation calls `HistoryState.record(change)` with an `IChange`
 
 - `add`/`remove` of a line, or `replace` (placing one wire also changed others, as one step:
   `placeWire` (through `routeWire`, which reshaping a wire uses too) splits any wire passing over
-  its end holes so the new wire joins it, cuts the new wire wherever it passes over another
-  wire's end so that one joins too, and where it starts or ends at a wire's free end (same kind,
+  its end holes so the new wire joins it (the holes it only passes or bends over it joins to
+  nothing, other wires' ends included: a jumper connects at its ends alone), and where it starts
+  or ends at a wire's free end (same kind,
   and for jumpers the same colour and width, nothing else in the hole: no pin, no strip, no other
   wire) carries that wire on as one wire bending there: `wire-merge.ts`. A solder path joins every
-  hole it covers already, so it's never split or cut. Corners that don't turn the wire are dropped
+  hole it covers already, so it's never split. Corners that don't turn the wire are dropped
   (`lineThrough()` in `line-path.ts`));
 - `add`/`remove`/`move` of a part;
 - `move` of a wire, its points before and after (a wire moved with other selected things);
@@ -789,7 +793,10 @@ paths are on the other side of the board and join what they touch, so they play 
 three or more things meet at a hole, they're joined. `layoutProjectWires(project)` works this out
 leg by leg, and each hop says which `leg` of its wire it's on. The 2D renderer rounds off each
 bend and draws a dark edge where a wire goes over something and a solder dot at junctions; the 3D
-viewer bends its tube at each corner and arches the upper wire. A wire lying along another wire's
+viewer bends its tube on a curve at each corner (`roundBends()` in `build-board.ts`, the 2D
+view's radius) and arches the upper wire, raising a corner that sits over something it doesn't
+join to the arch's height (`WirePoint.raised`, `riseOver()` in `wire-paths.ts`, which says how
+high and how wide each rise is). A wire lying along another wire's
 run over a stretch is a `WireRun` (parallel legs never meet, so it has no hops), and the 3D viewer
 keeps the upper wire level over it and stacks wires that go over wires that go over others
 (`elevation()` in `src/viewer-3d/project-data.ts`). A jumper on the solder side (`side: "bottom"`)
