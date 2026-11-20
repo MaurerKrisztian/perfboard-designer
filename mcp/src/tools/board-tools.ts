@@ -47,7 +47,7 @@ export function registerBoardTools(server: McpServer) {
     title: "Get nets",
     description: "Which pins the board connects: every net with its name (from its pins, e.g. GND), its pins (\"U1.8 VCC\" for a chip's pin, \"D1.K\" or \"C1.+\" for a polarized lead, \"R1.1\" otherwise) and the wires on it (indexes into wires). Also pins connected to nothing, wires that connect no pins, junctions (holes where three or more things are joined) and crossings (where a wire goes over another wire or over a hole without joining it). Wires are insulated jumpers: a wire joins only the holes at its two ends, so crossings are information, not connections or shorts. On a stripboard the strips connect too.",
     inputSchema: {project: projectInput, projectId: projectIdInput},
-    annotations: {readOnlyHint: true, openWorldHint: false},
+    annotations: {readOnlyHint: true, destructiveHint: false, openWorldHint: false},
   }, async ({project, projectId}) => {
     const from = await projectSource({project, projectId});
     if ("error" in from) return failure(from.error);
@@ -69,7 +69,7 @@ export function registerBoardTools(server: McpServer) {
       projectId: projectIdInput,
       refs: z.array(z.string()).optional().describe('Only these parts, e.g. ["U1", "R2"]. All parts when omitted.'),
     },
-    annotations: {readOnlyHint: true, openWorldHint: false},
+    annotations: {readOnlyHint: true, destructiveHint: false, openWorldHint: false},
   }, async ({project, projectId, refs}) => {
     const from = await projectSource({project, projectId});
     if ("error" in from) return failure(from.error);
@@ -95,7 +95,7 @@ export function registerBoardTools(server: McpServer) {
       format: z.enum(["text", "png"]).optional()
         .describe('"text" (default): the board as text. "png": a picture of it, 50 px per hole, scaled down to fit 1000 px.'),
     },
-    annotations: {readOnlyHint: true, openWorldHint: false},
+    annotations: {readOnlyHint: true, destructiveHint: false, openWorldHint: false},
   }, async ({project, projectId, area, format}) => {
     const from = await projectSource({project, projectId});
     if ("error" in from) return failure(from.error);

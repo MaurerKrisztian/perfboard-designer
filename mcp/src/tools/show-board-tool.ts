@@ -32,7 +32,7 @@ export function registerShowBoardTool(server: McpServer, DEFAULT_EDITOR_URL: str
       projectId: projectIdInput,
       name: z.string().optional().describe("The project's name, shown under the picture and in the editor. Defaults to the name it was given in new_project or came with from read_share_link."),
     },
-    annotations: {readOnlyHint: true, openWorldHint: false},
+    annotations: {readOnlyHint: true, destructiveHint: false, openWorldHint: false},
     _meta: {ui: {resourceUri: VIEW_URI}, "openai/outputTemplate": VIEW_URI},
   }, async ({project, projectId, name}) => {
     const from = await projectSource({project, projectId});
