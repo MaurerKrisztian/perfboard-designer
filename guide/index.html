@@ -422,18 +422,20 @@
           <ul>
             <li>A click on an <strong>empty hole</strong> bends the wire there. A bend is just a bend in the wire, not a joint: it connects nothing.</li>
             <li>A click on a hole with a <strong>pin or a wire</strong> in it ends the wire there and connects it. The next wire starts from that hole, so a run of connections costs one click per hole.</li>
+            <li>Hold <kbd>Shift</kbd> as you click to <strong>bend the wire on any hole</strong>, even one with a pin or a wire in it: the wire passes over what's there without connecting.</li>
             <li>To end a wire on an empty hole, click its last hole again or press <kbd>Enter</kbd>.</li>
             <li><kbd>Esc</kbd> takes back the last bend; with no bend left, it ends the run. Clicking the start hole again also ends it.</li>
-            <li>On a stripboard every hole is on a strip, so a click always connects; drag for an L.</li>
+            <li>On a stripboard every hole is on a strip, so a click always connects; Shift-click to bend, or drag for an L.</li>
           </ul>
           <p>
-            A ring on the hole under the pointer means a click there connects the wire.
+            A ring on the hole under the pointer means a click there connects the wire. While you
+            hold <kbd>Shift</kbd> there's no ring: a click bends the wire.
           </p>
           <ul>
             <li>Pick a <strong>color</strong> before you draw (red for power and black for ground keeps a board readable), or add your own with the <strong>+</strong> button. Every color a wire on the board already has shows up there too, so it's easy to match.</li>
             <li>Choose <strong>Thin</strong>, <strong>Normal</strong> or <strong>Thick</strong> wire.</li>
             <li>Start or end a wire at another wire's free end (a hole with nothing else in it), in the same color and thickness, and it carries that wire on: the two become one wire, bending where they met.</li>
-            <li>Where one wire ends on another, the two are joined, whichever you draw first: the wire running past is split at that hole, and a solder dot marks the joint. Wires that only cross each other stay apart.</li>
+            <li>End a wire on another wire and the two are joined: the wire running past is split at that hole, and a solder dot marks the joint. A wire only joins at its own ends, though: drawn over another wire's end, or across another wire, it passes over and they stay apart.</li>
             <li>To recolor a wire, select it and click a color.</li>
           </ul>
           <h3>Bend a wire you've drawn</h3>
@@ -474,12 +476,13 @@
             <strong>A wire only connects the holes at its ends.</strong> Where it runs across another
             wire, or over a hole that holds a pin, it passes over without touching: the editor draws
             a dark edge along it there. Where three or more things meet in one hole, a solder dot
-            marks the joint. To connect two wires, end them in the same hole, or end one on a hole the
-            other passes over: whichever you draw last, the wire running past is split there and
-            joined. A part placed after the wire isn't joined that way: when a lead lands in a hole
-            a wire passes over, right-click the hole (long-press on a phone) and choose
+            marks the joint. To connect two wires, end them in the same hole, or end the one you
+            draw on a hole the other passes over: the wire running past is split there and joined.
+            Anything already in a hole a new wire only passes over stays apart from it, as does a
+            part placed after the wire: when a lead or a wire's end is in a hole a wire passes
+            over, right-click the hole (long-press on a phone) and choose
             <strong>Connect to Wire</strong>, or select the part and click <strong>Connect to
-            wire</strong> in the bar. The wire is split there and joined to the lead.
+            wire</strong> in the bar. The wire is split there and joined to it.
           </p>
           <figure class="hero-shot tour-clip">
             <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Crossing wires</span></div>
