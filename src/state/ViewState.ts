@@ -3,6 +3,9 @@ export class ViewState {
   static showPartLabels = false;
   // Space is held down: any left-drag on the board pans it (see select.ts).
   static spacePanHeld = false;
+  // Shift is held down: a click of the wire or solder path tool bends it even on a hole it would
+  // connect to, which its preview shows (see select.ts, wire-tool.ts).
+  static shiftHeld = false;
   // The board shown from below for soldering (solder-view.ts): read-only while it's on.
   static solderSide = false;
   // How many holes that view marks to solder.

@@ -97,7 +97,8 @@ export function finishWireDrag(to: IDot | undefined): boolean {
   }
   const route = wireDragRoute(to);
   from = undefined;
-  SelectionState.current = {kind: "line", line: placeWire(start, to, route.slice(1, -1), wireDragKind())};
+  const line = placeWire(start, to, route.slice(1, -1), wireDragKind());
+  if (line) SelectionState.current = {kind: "line", line};
   // The wire tool's next click starts a new run rather than continuing from somewhere else.
   const tool = ToolState.active;
   if (isRouteTool(tool)) {

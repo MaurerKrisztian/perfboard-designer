@@ -236,8 +236,9 @@ long press (drag on, a second finger flipping the L, or the menu's Start Wire He
 Path Here, which arms that tool). On the selected wire's handles a finger's drag bends it, held
 still first or not (the long press's menu closes as it moves on). The wire tool (`wire-tool.ts`) clicks a route: an empty hole bends the wire (`via`), a
 hole it would connect to there (`connectsAt()` in `wire-merge.ts`: a pin, a wire, a stripboard's
-strip) ends it; the last hole again or Enter (`ToolBehavior.finish`) ends it on an empty hole, Esc
-takes back a bend. The solder path tool (`solder`, <kbd>S</kbd>) is the same behaviour (`routeTool`
+strip) ends it, unless Shift-clicked (`BoardClick.bendOnly`: a bend running over it; the preview
+drops its ring while `ViewState.shiftHeld`); the last hole again or Enter (`ToolBehavior.finish`)
+ends it on an empty hole, Esc takes back a bend. The solder path tool (`solder`, <kbd>S</kbd>) is the same behaviour (`routeTool`
 in `wire-tool.ts`; `RouteTool`/`isRouteTool()` name the pair, and a drag with it armed draws one)
 placing solder paths: an `ILine` with `kind: "solder"`, no colour or width, joining every hole it
 covers (Nets below); everything else treats it as a wire. A selected wire's handles (drawn by `layers/wires.ts`) bend it in Select mode
@@ -404,10 +405,10 @@ via `src/features/placed-parts.ts` (`placePart`/`removePart` record history, `ad
 **Undo/redo** (`src/features/project/undo-redo.ts` + `src/state/HistoryState.ts`): every mutation
 that should be undoable calls `HistoryState.record(change)` with an `IChange`
 (`src/interfaces/change.interface.ts`): `add`/`remove`/`replace` of a line (a placed wire splits
-jumpers passing over its end holes to join them, is itself cut where it passes over other wires'
-ends, and started or ended at a wire's free end (same kind, and for jumpers the same colour and
-width, nothing else in the hole) carries that wire on as one bent wire into one it continues:
-`wire-merge.ts`; a solder path joins every hole it covers already, so it's never split or cut; the
+jumpers passing over its end holes to join them but joins nothing it only passes or bends over,
+other wires' ends included, and started or ended at a wire's free end (same kind, and for jumpers
+the same colour and width, nothing else in the hole) carries that wire on as one bent wire into one
+it continues: `wire-merge.ts`; a solder path joins every hole it covers already, so it's never split; the
 selection's Connect to Wire, `connect-wire.ts`, splits the jumpers passing over a hole holding a pin
 or a jumper's end the same way, for a part placed after the wire), `add`/`remove`/`move`
 of a part, `move` of a wire (its points; moved with a selection), `set` of a strip cut, of the
@@ -604,7 +605,8 @@ trail of solder with a bead on each hole, the 3D viewer flat along the bottom fa
 by leg (each hop says which `leg`) from wire ends, corners and pin holes, and
 `layoutProjectWires()` from a project file: the 2D renderer draws it (`src/board-render/layers/wires.ts`:
 each bend rounded off, a dark edge either side of a wire where it goes over something, and a solder dot at each junction), and the 3D viewer
-bends its tube at each corner and arches the upper wire over each crossing. In the editor, `ILine.via`
+bends its tube on a curve at each corner and arches the upper wire over each crossing, raising a
+corner that sits over something it doesn't join (`WirePoint.raised`). In the editor, `ILine.via`
 holds a wire's corners and `src/features/line-path.ts` its geometry (hit-testing, splitting a wire
 at a hole it runs over or bends at).
 

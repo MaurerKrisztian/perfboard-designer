@@ -122,7 +122,7 @@ export function cancelReshape() {
 }
 
 // Lets go of what's being dragged: the wire takes its new route, as one undoable step, and stays
-// selected (the piece holding the dragged hole, if it was cut).
+// selected.
 export function finishReshape() {
   if (!reshape) return;
   const held = reshape;
@@ -131,8 +131,7 @@ export function finishReshape() {
   putBack(held);
   const same = points.length === linePoints(held.line).length && points.every((dot, i) => dot === linePoints(held.line)[i]);
   if (same) return;
-  const grabbed = held.grip.kind === "end" ? (held.grip.at === "start" ? points[0] : points[points.length - 1]) : points[held.grip.index + 1];
-  reroute(held.line, points, {start: points[0] !== held.original.start, end: points[points.length - 1] !== held.original.end}, grabbed);
+  reroute(held.line, points, {start: points[0] !== held.original.start, end: points[points.length - 1] !== held.original.end});
 }
 
 // The selected wire with bend `index` taken out.
@@ -147,11 +146,8 @@ export function straightenWire(line: ILine) {
   if (line.via?.length) reroute(line, [line.start, line.end], {start: false, end: false});
 }
 
-// `line` taking the route through `points`, selected afterwards: the piece holding `keep`, if
-// it's cut into pieces.
-function reroute(line: ILine, points: IDot[], newEnds: NewEnds, keep?: IDot) {
-  const pieces = routeWire(points, styleOf(line), line, newEnds);
-  if (!pieces.length) return;
-  const piece = (keep && pieces.find(p => linePoints(p).includes(keep))) || pieces[0];
-  SelectionState.current = {kind: "line", line: piece};
+// `line` taking the route through `points`, selected afterwards.
+function reroute(line: ILine, points: IDot[], newEnds: NewEnds) {
+  const rerouted = routeWire(points, styleOf(line), line, newEnds);
+  if (rerouted) SelectionState.current = {kind: "line", line: rerouted};
 }
