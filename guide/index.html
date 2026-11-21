@@ -189,7 +189,7 @@
           <ul>
             <li><strong>Header:</strong> the <strong>File</strong> menu (new, open, import, save, share, download), the <strong>View</strong> menu (fullscreen, 3D view, show or hide the side panels), the name of the open project (click it to see all your projects), and the <strong>Share</strong> and <strong>3D View</strong> buttons.</li>
             <li><strong>Left sidebar:</strong> <strong>Tools</strong> (Select, Eraser, Note, and Cut on a stripboard), <strong>Board</strong> type and size, the <strong>Wire</strong> and <strong>Solder Path</strong> tools with the wire colors and thicknesses, and the <strong>Components</strong> library.</li>
-            <li><strong>Board:</strong> the hole grid you design on. The toolbar above it starts with a badge that tells you what the next click will do; while you are placing a part it also has a <strong>✕</strong> to cancel, and a rotate button for parts that turn. Then come <strong>Undo</strong> and <strong>Redo</strong>, zoom and <strong>Fit</strong>, <strong>Labels</strong> and <strong>Focus</strong>. When something is selected, a bar along the bottom of the board shows what you can do to it. The bar under the board shows the note or value of whatever you point at.</li>
+            <li><strong>Board:</strong> the hole grid you design on. The toolbar above it starts with a badge that tells you what the next click will do; while you are placing a part it also has a <strong>✕</strong> to cancel, and a rotate button for parts that turn. Then come <strong>Undo</strong> and <strong>Redo</strong>, zoom and <strong>Fit</strong>, <strong>Labels</strong> and <strong>Focus</strong>. When something is selected, a bar along the bottom of the board shows what you can do to it. Point at a pin or connected hole to see its net and how many pins it joins in the bar under the board. An unconnected pin is marked as such. Hole notes and part values still appear there.</li>
             <li><strong>Right sidebar:</strong> the live <strong>Nets</strong> panel and the list of keyboard shortcuts.</li>
           </ul>
           <div class="tip">
@@ -531,7 +531,7 @@
             <li><strong>Copy and paste</strong>: <kbd>Ctrl</kbd>+<kbd>C</kbd> copies the selected parts and wires, <kbd>Ctrl</kbd>+<kbd>X</kbd> cuts them, and <kbd>Ctrl</kbd>+<kbd>V</kbd> pastes them with their top-left corner at the hole under the pointer, into this project or another one. <strong>Duplicate</strong> in the bar (or <kbd>Ctrl</kbd>+<kbd>D</kbd>) puts a copy beside the original, where there's room. Copies are new parts, numbered on from the board's own (a copy of R3 might be R7), with the same values.</li>
             <li><strong>Eraser</strong>: click a part or wire to remove it, or a hole to clear its note.</li>
             <li><strong>Note</strong>: click a hole to write a note on it, such as "to 9V battery" or "solder last". Notes show in the bar below the board when you point at the hole. With a hole selected, <kbd>D</kbd> adds a note and <kbd>Shift</kbd>+<kbd>D</kbd> removes it.</li>
-            <li><strong>Undo</strong> and <strong>Redo</strong> with <kbd>Ctrl</kbd>+<kbd>Z</kbd> and <kbd>Ctrl</kbd>+<kbd>Y</kbd>, or the arrow buttons above the board. They're greyed out when there's nothing to undo or redo.</li>
+            <li><strong>Undo</strong> and <strong>Redo</strong> with <kbd>Ctrl</kbd>+<kbd>Z</kbd> and <kbd>Ctrl</kbd>+<kbd>Y</kbd> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>. On macOS you can use <kbd>Cmd</kbd> in place of <kbd>Ctrl</kbd>. You can also use the arrow buttons above the board. They're greyed out when there's nothing to undo or redo.</li>
           </ul>
           <figure class="hero-shot tour-clip">
             <div class="window-bar" aria-hidden="true"><span></span><span></span><span></span><span class="shot-label">Move, rotate and undo</span></div>
@@ -878,6 +878,7 @@
 
         <section id="shortcuts">
           <h2>Keyboard shortcuts</h2>
+          <p>On macOS, use <kbd>Cmd</kbd> in place of <kbd>Ctrl</kbd> for any of these shortcuts.</p>
           <div class="table-scroll">
             <table>
               <thead>
@@ -887,6 +888,11 @@
                 <tr><td><kbd>/</kbd></td><td>Search components</td></tr>
                 <tr><td><kbd>W</kbd></td><td>Turn the wire tool on or off</td></tr>
                 <tr><td><kbd>S</kbd></td><td>Turn the solder path tool on or off</td></tr>
+                <tr><td><kbd>E</kbd></td><td>Pick the eraser tool</td></tr>
+                <tr><td><kbd>N</kbd></td><td>Pick the note tool</td></tr>
+                <tr><td><kbd>K</kbd></td><td>Pick the cut tool (stripboard only)</td></tr>
+                <tr><td><kbd>+</kbd> / <kbd>-</kbd></td><td>Zoom in or out</td></tr>
+                <tr><td><kbd>0</kbd></td><td>Fit the whole board on screen</td></tr>
                 <tr><td><kbd>R</kbd></td><td>Rotate the part you're placing, or the selected part</td></tr>
                 <tr><td><kbd>Esc</kbd></td><td>Take back a wire's last bend, end a wire run, put down the part you're placing, or clear the selection</td></tr>
                 <tr><td><kbd>Enter</kbd></td><td>End the wire you're drawing at its last bend, or save the required net you're picking</td></tr>
@@ -905,7 +911,7 @@
                 <tr><td><kbd>Shift</kbd>+<kbd>D</kbd></td><td>Remove the selected hole's note</td></tr>
                 <tr><td><kbd>M</kbd></td><td>Move the selected hole's note to the hole under the pointer</td></tr>
                 <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Undo</td></tr>
-                <tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Redo</td></tr>
+                <tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></td><td>Redo</td></tr>
                 <tr><td><kbd>P</kbd></td><td>Download the board as a PNG image</td></tr>
                 <tr><td><kbd>B</kbd></td><td>Show or hide the solder side</td></tr>
                 <tr><td><kbd>Space</kbd> + drag</td><td>Pan the board with any tool</td></tr>
