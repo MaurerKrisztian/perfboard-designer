@@ -1,3 +1,5 @@
+import {fitToScreen, zoomIn, zoomOut} from "./zoom";
+import {BoardState} from "../state/BoardState";
 import {ShortcutRegistry} from "./shortcut-keys";
 import {changeSelectedColor, toggleRouteTool} from "./wire";
 import {rotateSelectedIc} from "./ic";
@@ -34,6 +36,12 @@ export function registerEditorShortcuts() {
 
   add("w", "Toggle the wire tool.", () => toggleRouteTool("wire"));
   add("s", "Toggle the solder path tool.", () => toggleRouteTool("solder"));
+  add("e", "Pick the eraser tool.", () => setActiveTool({kind: "eraser"}));
+  add("n", "Pick the note tool.", () => setActiveTool({kind: "note"}));
+  add("k", "Pick the cut tool (stripboard only).", () => setActiveTool({kind: "cut"}), {when: () => BoardState.isStripboard});
+  add("+", "Zoom in.", zoomIn);
+  add("-", "Zoom out.", zoomOut);
+  add("0", "Fit the whole board on screen.", () => fitToScreen(true));
   add("r", "Rotate the selected part, or the one being placed.", rotateSelectedIc);
   add("Delete", "Delete the selected part, wire or note.", deleteSelection);
   // One description for the four: the legend lists them on one line.
@@ -51,6 +59,7 @@ export function registerEditorShortcuts() {
   add("Escape", "Step back: unselect, or cancel what's being placed.", stepBack);
   add("z", "Undo the last change.", undo, {ctrl: true});
   add("y", "Redo the last undo.", redo, {ctrl: true});
+  add("z", "Redo the last undo.", redo, {ctrl: true, shift: true});
   add("a", "Select every part and wire.", selectAll, {ctrl: true});
   add("c", "Copy the selected parts and wires.", copySelection, {ctrl: true, when: () => canCopy() && !pageTextSelected()});
   add("x", "Cut the selected parts and wires.", cutSelection, {ctrl: true, when: () => canCopy() && onBoard() && !pageTextSelected()});

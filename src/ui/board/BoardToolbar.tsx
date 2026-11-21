@@ -4,6 +4,7 @@ import {rotateSelectedIc} from "../../features/ic";
 import {cancelPlacement} from "../../features/select";
 import {canRedo, canUndo, redo, undo} from "../../features/project/undo-redo";
 import {fitToScreen, zoomIn, zoomOut} from "../../features/zoom";
+import {primaryModifierLabel} from "../../features/shortcut-keys";
 import {toggleSolderSide} from "../../features/solder-view";
 import {togglePartLabels} from "../../features/part-labels";
 import {Icon, IconName} from "../components/Icon";
@@ -28,6 +29,7 @@ export function BoardToolbar() {
   const redoable = useEditor(canRedo);
   const focusMode = useStore(layoutStore, layout => layout.focusMode);
   const phone = usePhoneLayout();
+  const modifier = primaryModifierLabel();
 
   return (
     <div className="status-bar" id="boardBar">
@@ -41,14 +43,14 @@ export function BoardToolbar() {
       </div>
       <div className="bar-groups">
         <div className="bar-group">
-          <BarButton id="backBtn" icon="undo" title="Undo (Ctrl+Z)" ariaLabel="Undo" disabled={!undoable} onClick={undo}/>
-          <BarButton id="forwardBtn" icon="redo" title="Redo (Ctrl+Y)" ariaLabel="Redo" disabled={!redoable} onClick={redo}/>
+          <BarButton id="backBtn" icon="undo" title={`Undo (${modifier}+Z)`} ariaLabel="Undo" disabled={!undoable} onClick={undo}/>
+          <BarButton id="forwardBtn" icon="redo" title={`Redo (${modifier}+Y or ${modifier}+Shift+Z)`} ariaLabel="Redo" disabled={!redoable} onClick={redo}/>
         </div>
         <div className="bar-group">
-          <BarButton id="zoomOutBtn" icon="zoom-out" title="Zoom out" ariaLabel="Zoom out" onClick={zoomOut}/>
+          <BarButton id="zoomOutBtn" icon="zoom-out" title="Zoom out (-)" ariaLabel="Zoom out" onClick={zoomOut}/>
           <span id="zoomLevelText" className="zoom-level">{zoom}%</span>
-          <BarButton id="zoomInBtn" icon="zoom-in" title="Zoom in" ariaLabel="Zoom in" onClick={zoomIn}/>
-          <BarButton id="zoomFitBtn" icon="fit" title="Fit the whole board on screen" label={fitMode ? "100%" : "Fit"} on={fitMode}
+          <BarButton id="zoomInBtn" icon="zoom-in" title="Zoom in (+)" ariaLabel="Zoom in" onClick={zoomIn}/>
+          <BarButton id="zoomFitBtn" icon="fit" title="Fit the whole board on screen (0)" label={fitMode ? "100%" : "Fit"} on={fitMode}
             onClick={() => fitToScreen()}/>
         </div>
         <div className="bar-group">

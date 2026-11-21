@@ -1,5 +1,5 @@
 import {Fragment} from "react";
-import {IShortcut, ShortcutRegistry} from "../../features/shortcut-keys";
+import {IShortcut, primaryModifierLabel, ShortcutRegistry} from "../../features/shortcut-keys";
 import {useEditor} from "../hooks/use-editor";
 
 // Every keyboard shortcut and what it does, as registered (src/features/keyboard-shortcuts.ts).
@@ -11,7 +11,7 @@ function keyName(key: string): string {
 }
 
 function modifiersOf(shortcut: IShortcut): string[] {
-  return [...(shortcut.ctrl ? ["Ctrl"] : []), ...(shortcut.shift ? ["Shift"] : [])];
+  return [...(shortcut.ctrl ? [primaryModifierLabel()] : []), ...(shortcut.shift ? ["Shift"] : [])];
 }
 
 // Shortcuts listed one after another that do the same thing with the same modifiers (the four
