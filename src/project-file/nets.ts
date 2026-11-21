@@ -24,6 +24,18 @@ export interface NetPin {
   at: GridPos;
 }
 
+// A polarized two-lead part's lead, by its label.
+const LEADS: Record<string, string> = {K: "cathode", A: "anode", "+": "positive", "-": "negative", "−": "negative"};
+
+// What a pin is, in words: "cathode (K)" for a polarized lead, "pin 8 · VCC" for a named pin, "pin 1".
+export function pinRole(pin: NetPin): string {
+  if (pin.kind === "standard-component" && pin.label) {
+    const lead = LEADS[pin.label];
+    return lead ? `${lead} (${pin.label})` : pin.label;
+  }
+  return pin.label ? `pin ${pin.pin} · ${pin.label}` : `pin ${pin.pin}`;
+}
+
 export interface Net {
   // Taken from its pins' names, e.g. "GND" or "TRIG/THRESH"; absent when none is named.
   name?: string;

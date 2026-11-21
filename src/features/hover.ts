@@ -1,3 +1,6 @@
+import {toGridPos} from "../project-file/grid";
+import {Net, pinRole} from "../project-file/nets";
+import {connectionsAt} from "./board-nets";
 import {DotState} from "../state/DotState";
 import {LineState} from "../state/LineState";
 import {GridConfig} from "../state/GridConfig";
@@ -52,6 +55,28 @@ function findHoveredComponentValue(x: number, y: number): string | undefined {
   return `${part.getDefinition()?.name}: ${part.value}`;
 }
 
+function netText(net: Net): string {
+  const name = net.name ? `net ${net.name}` : "unnamed net";
+  const count = net.pins.length;
+  return `${name}, ${count === 0 ? "no pins" : count === 1 ? "1 pin" : `${count} pins`}`;
+}
+
+// Derive the readout from the current net snapshot, so it updates after edits without a pointer move.
+export function hoverReadout(): string {
+  if (ViewState.solderSide) return "";
+  const dot = DotState.hoverDot;
+  const detail = dot?.description || ViewState.hoverValue;
+  if (!dot) return detail ?? "";
+  const connections = connectionsAt(toGridPos(dot));
+  if (!connections) return detail ?? "";
+  const pinDetails = connections.pins.map(({pin, net}) => {
+    const connection = net.pins.length > 1 ? netText(net) : "not connected";
+    return `${pin.ref} ${pinRole(pin)} · ${connection}`;
+  });
+  if (!pinDetails.length && connections.net) pinDetails.push(netText(connections.net));
+  return [...pinDetails, detail].filter(Boolean).join(" | ");
+}
+
 // Works out the pad and wire under the pointer at e (and moves a dragged part along). Runs on
 // every pointer move; a finger has no hover, so board-touch.ts also calls it when one lands.
 export function hoverAt(e: MouseEvent) {
@@ -94,9 +119,9 @@ export function hoverAt(e: MouseEvent) {
   const dragMoved = isDragging() ? updateDrag(x, y) : reshapeTo(DotState.hoverDot);
   updateDragCursor(x, y);
 
-  const hoverText = DotState.hoverDot?.description || findHoveredComponentValue(x, y) || "";
-  const textChanged = hoverText !== ViewState.hoverText;
-  ViewState.hoverText = hoverText;
+  const hoverValue = findHoveredComponentValue(x, y);
+  const textChanged = hoverValue !== ViewState.hoverValue;
+  ViewState.hoverValue = hoverValue;
 
   if (dragMoved || DotState.hoverDot !== previousHoverDot || LineState.hoverLine !== previousHoverLine) {
     redrawCanvas();

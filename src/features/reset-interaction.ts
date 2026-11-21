@@ -1,3 +1,4 @@
+import {ViewState} from "../state/ViewState";
 import {DotState} from "../state/DotState";
 import {LineState} from "../state/LineState";
 import {HistoryState} from "../state/HistoryState";
@@ -22,6 +23,7 @@ export function resetInteraction() {
 export function resetForNewBoard() {
   resetInteraction();
   DotState.hoverDot = undefined;
+  ViewState.hoverValue = undefined;
   LineState.hoverLine = undefined;
   HistoryState.clear();
 }

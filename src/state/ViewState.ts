@@ -14,7 +14,6 @@ export class ViewState {
   static zoom = 1;
   // Fit was pressed: the board is zoomed to fit, and the Fit button now offers 100% instead.
   static fitMode = false;
-  // What's under the pointer, in words: the hovered hole's note or part's value (hover.ts).
-  // Undefined until the pointer first moves over the board.
-  static hoverText: string | undefined;
+  // The value of the part under the pointer, if any (hover.ts).
+  static hoverValue: string | undefined;
 }

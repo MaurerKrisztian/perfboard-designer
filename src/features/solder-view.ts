@@ -1,4 +1,5 @@
 import {solderJoints} from "../board-render";
+import {DotState} from "../state/DotState";
 import {ViewState} from "../state/ViewState";
 import {onRedraw, redrawCanvas} from "./draw-canvas";
 import {getSaveJson} from "./project/save-project";
@@ -16,6 +17,8 @@ export function setSolderSide(on: boolean) {
   ViewState.solderSide = on;
   if (on) {
     resetInteraction();
+    DotState.hoverDot = undefined;
+    ViewState.hoverValue = undefined;
     countJoints();
     reportUsage({name: "view_solder_side"});
   }
