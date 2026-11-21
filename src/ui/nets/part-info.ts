@@ -1,5 +1,5 @@
 import type {ProjectFile} from "../../project-file/project-file";
-import {boardPins, NetPin} from "../../project-file/nets";
+import {boardPins, NetPin, pinRole} from "../../project-file/nets";
 import {RequiredPin, requiredPinKey} from "../../project-file/requirements";
 import {partList} from "../../project-file/part-list";
 import {partIcons} from "../../board-render";
@@ -49,18 +49,6 @@ export function boardPinFor(project: ProjectFile, pin: RequiredPin): NetPin | un
     pinCache.set(project, pins);
   }
   return pins.get(requiredPinKey(pin));
-}
-
-// A polarized two-lead part's lead, by its label.
-const LEADS: Record<string, string> = {K: "cathode", A: "anode", "+": "positive", "-": "negative", "−": "negative"};
-
-// What a pin is, in words: "cathode (K)" for a polarized lead, "pin 8 · VCC" for a named pin, "pin 1".
-export function pinRole(pin: NetPin): string {
-  if (pin.kind === "standard-component" && pin.label) {
-    const lead = LEADS[pin.label];
-    return lead ? `${lead} (${pin.label})` : pin.label;
-  }
-  return pin.label ? `pin ${pin.pin} · ${pin.label}` : `pin ${pin.pin}`;
 }
 
 // "D1, LED (Red), cathode (K)": a pin all in words, for its tooltip.

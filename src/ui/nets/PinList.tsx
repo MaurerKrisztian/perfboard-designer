@@ -2,7 +2,8 @@ import type {ReactNode} from "react";
 import type {ProjectFile} from "../../project-file/project-file";
 import {NetPin, pinId} from "../../project-file/nets";
 import {cx} from "../lib/class-names";
-import {describePin, NetsView, PartInfo, partInfo, pinRole} from "./part-info";
+import {pinRole} from "../../project-file/nets";
+import {describePin, NetsView, PartInfo, partInfo} from "./part-info";
 
 // A net's pins, short or detailed (the Nets panel's view): a chip each, "D1.K" after its part's
 // icon, or a line each, "D1 LED · Red … cathode (K)". A pin of a part gone from the board (a

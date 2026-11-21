@@ -1,12 +1,13 @@
 import {onRedraw, redrawCanvas} from "./draw-canvas";
 import {getSaveJson} from "./project/save-project";
 import {onProjectChange} from "./project/current-project";
-import {computeNets, Net, NetPin} from "../project-file/nets";
+import {computeNets, Net, Netlist, NetPin} from "../project-file/nets";
 import {PolarityWarning, polarityWarnings} from "../project-file/polarity";
 import {GridPos} from "../project-file/grid";
 import {ProjectFile, SavedWire} from "../project-file/project-file";
 import {RequiredPin, requiredPinKey} from "../project-file/requirements";
 import {NetHighlightState} from "../state/NetHighlightState";
+import {DotState} from "../state/DotState";
 import {ProjectState} from "../state/ProjectState";
 import {highlightRequirements} from "./requirement-highlight";
 import {notifyEditorChanged} from "./editor-events";
@@ -32,6 +33,9 @@ let pendingRefresh: number | undefined;
 let lastJson: string | undefined;
 
 let current: BoardNets | undefined;
+let netAt: Netlist["netAt"] | undefined;
+let netDots: typeof DotState.dots | undefined;
+let pinsByHole = new Map<string, {pin: NetPin; net: Net}[]>();
 // The net picked in the panel; undefined while nothing is, or the light shows requirements.
 let picked: Net | undefined;
 
@@ -41,6 +45,12 @@ const wireKey = (wire: SavedWire) => `${hole(wire.from)}-${hole(wire.to)}`;
 
 export function boardNets(): BoardNets | undefined {
   return current;
+}
+
+// Pins can share a hole (or sit in a cut hole, where they are not connected to each other).
+export function connectionsAt(at: GridPos) {
+  if (netDots !== DotState.dots) return undefined;
+  return {pins: pinsByHole.get(hole(at)) ?? [], net: netAt?.(at)};
 }
 
 export function pickedNet(): Net | undefined {
@@ -114,9 +124,21 @@ function refresh() {
   pendingRefresh = undefined;
   const snapshot = getSaveJson();
   const json = JSON.stringify(snapshot);
-  if (json === lastJson) return;
+  const newGrid = netDots !== DotState.dots;
+  if (json === lastJson && !newGrid) return;
   lastJson = json;
+  netDots = DotState.dots;
   const netlist = computeNets(snapshot);
+  netAt = netlist.netAt;
+  pinsByHole = new Map();
+  for (const net of netlist.nets) {
+    for (const pin of net.pins) {
+      const key = hole(pin.at);
+      const pins = pinsByHole.get(key);
+      if (pins) pins.push({pin, net});
+      else pinsByHole.set(key, [{pin, net}]);
+    }
+  }
   current = {project: snapshot, nets: netlist.nets, polarity: polarityWarnings(snapshot, netlist)};
   if (NetHighlightState.current) {
     followHighlight();

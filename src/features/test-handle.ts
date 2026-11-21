@@ -1,3 +1,4 @@
+import {hoverReadout} from "./hover";
 import {Canvas} from "../state/Canvas";
 import {DotState} from "../state/DotState";
 import {ProjectState} from "../state/ProjectState";
@@ -144,10 +145,13 @@ export function installTestHandle() {
     nets: () => nets(getSaveJson()),
     selection,
     addingToSelection: () => SelectionState.adding,
-    hover: () => ({
-      ...(DotState.hoverDot ? {at: toGridPos(DotState.hoverDot)} : {}),
-      ...(ViewState.hoverText ? {text: ViewState.hoverText} : {}),
-    }),
+    hover: () => {
+      const text = hoverReadout();
+      return {
+        ...(!ViewState.solderSide && DotState.hoverDot ? {at: toGridPos(DotState.hoverDot)} : {}),
+        ...(text ? {text} : {}),
+      };
+    },
     tool: () => ToolState.active.kind,
     view: () => ({zoom: ViewState.zoom, fit: ViewState.fitMode, solderSide: ViewState.solderSide, labels: ViewState.showPartLabels}),
     dialog: () => {
