@@ -99,7 +99,7 @@ export function registerProjectTools(server: McpServer) {
     title: "Get project",
     description: "The whole project file of a project kept here, as the editor would save it (through version 8, preserving component identities and optional requirements), one entry per line.",
     inputSchema: {projectId: z.string()},
-    annotations: {readOnlyHint: true, openWorldHint: false},
+    annotations: {readOnlyHint: true, destructiveHint: false, openWorldHint: false},
   }, async ({projectId}) => {
     const held = await heldProject(projectId);
     if (!held) return failure(unknownProjectId(projectId));

@@ -14,7 +14,7 @@ export function registerCatalogTools(server: McpServer) {
       kind: z.enum(["standard-component", "advanced-component", "ic"]).optional()
         .describe("standard-component: two-lead parts placed between two holes. advanced-component: fixed-footprint parts. ic: dual-row chips and modules."),
     },
-    annotations: {readOnlyHint: true, openWorldHint: false},
+    annotations: {readOnlyHint: true, destructiveHint: false, openWorldHint: false},
   }, async ({query, kind}) => {
     if (!query?.trim()) {
       const parts = searchParts(undefined, kind);
@@ -35,7 +35,7 @@ export function registerCatalogTools(server: McpServer) {
       ids: z.array(z.string()).optional().describe('Part ids from list_parts, e.g. ["resistor", "ne555", "header-pins"].'),
       id: z.string().optional().describe("One part id, instead of `ids`."),
     },
-    annotations: {readOnlyHint: true, openWorldHint: false},
+    annotations: {readOnlyHint: true, destructiveHint: false, openWorldHint: false},
   }, async ({ids, id}) => {
     const wanted = [...(ids ?? []), ...(id ? [id] : [])];
     if (!wanted.length) return failure("Give `ids`: the part ids from list_parts.");
